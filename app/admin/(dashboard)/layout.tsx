@@ -19,7 +19,7 @@ import {
   Moon,
   Bell,
   ChevronDown,
-  ChevronsLeftRight
+  ChevronsLeft
 } from "lucide-react"
 
 const sidebarItems = [
@@ -46,19 +46,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside className="w-[280px] bg-white border-r border-[#EAECF0] flex flex-col">
         {/* Logo Section */}
-        <div className="h-[72px] px-6 flex items-center justify-between border-b border-transparent">
-          <div className="flex items-center gap-2">
-            <Image
+        <div className="h-[90px] px-6 flex items-center justify-between border-b border-[#EAECF0]/50">
+          <div className="flex items-center -ml-2">
+            <img
               src="/images/logos/vyara.png"
               alt="Vyara Logo"
-              width={32}
-              height={32}
-              className="object-contain"
+              className="h-14 w-auto object-contain"
             />
-            <span className="font-semibold text-lg tracking-tight text-[#141414]">VYARA</span>
           </div>
-          <button className="text-[#667085] hover:bg-gray-50 p-1.5 rounded-lg transition-colors">
-            <ChevronsLeftRight className="h-5 w-5 rotate-90 scale-x-[-1]" />
+          <button className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] text-[#101828] hover:bg-gray-100 rounded-full transition-all shadow-sm">
+            <ChevronsLeft className="h-5 w-5" />
           </button>
         </div>
 

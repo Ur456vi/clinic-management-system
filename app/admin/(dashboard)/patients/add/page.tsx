@@ -12,6 +12,8 @@ import {
   Clock
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import TestTabContent from "@/components/patients/TestTabContent"
+import SummaryTabContent from "@/components/patients/SummaryTabContent"
 
 const mainSteps = [
   "RMO Consultation",
@@ -24,16 +26,33 @@ const mainSteps = [
 
 const formSections = [
   "Informant",
-  "Demographics",
+  "Chief Complaints",
+  "History of Presenting Illness",
   "Medical History",
   "Social History",
   "Personal History",
   "Examination Summary"
 ]
 
+const testSections = [
+  "Routine",
+  "Male Hormonal",
+  "Female Hormonal",
+  "Dutch",
+  "Autoimmune",
+  "Genetic",
+  "Tumor Markers",
+  "Micronutrient",
+  "Metabolic",
+  "Stool Test"
+]
+
+
 export default function AddPatientPage() {
   const [activeMainStep, setActiveMainStep] = React.useState("RMO Consultation")
   const [activeSection, setActiveSection] = React.useState("Informant")
+  const [activeTestSection, setActiveTestSection] = React.useState("Routine")
+
   const [calendarDate, setCalendarDate] = React.useState(new Date())
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = React.useState<string | null>(null)
@@ -89,31 +108,51 @@ export default function AddPatientPage() {
 
       {/* Main Form Content Area */}
       <div className="flex gap-6">
-        {/* Left Sidebar Navigation - Only show if RMO Consultation is active */}
-        {activeMainStep === "RMO Consultation" && (
+        {/* Left Sidebar Navigation */}
+        {(activeMainStep === "RMO Consultation" || activeMainStep === "Test") && (
           <aside className="w-[240px] flex-shrink-0">
             <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
-              {formSections.map((section) => (
-                <button
-                  key={section}
-                  onClick={() => setActiveSection(section)}
-                  className={`w-full text-left px-6 py-4 text-sm font-medium transition-all border-b border-[#EAECF0] last:border-b-0 ${activeSection === section
-                    ? "bg-[#F9FAFB] text-[#2E37A4] border-l-4 border-l-[#2E37A4]"
-                    : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
-                    }`}
-                >
-                  {section}
-                </button>
-              ))}
+              {activeMainStep === "RMO Consultation" ? (
+                formSections.map((section) => (
+                  <button
+                    key={section}
+                    onClick={() => setActiveSection(section)}
+                    className={`w-full text-left px-6 py-4 text-sm font-medium transition-all border-b border-[#EAECF0] last:border-b-0 ${activeSection === section
+                      ? "bg-[#F9FAFB] text-[#2E37A4] border-l-4 border-l-[#2E37A4]"
+                      : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
+                      }`}
+                  >
+                    {section}
+                  </button>
+                ))
+              ) : (
+                testSections.map((section) => (
+                  <button
+                    key={section}
+                    onClick={() => setActiveTestSection(section)}
+                    className={`w-full text-left px-6 py-4 text-sm font-medium transition-all border-b border-[#EAECF0] last:border-b-0 ${activeTestSection === section
+                      ? "bg-[#F9FAFB] text-[#2E37A4] border-l-4 border-l-[#2E37A4]"
+                      : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
+                      }`}
+                  >
+                    {section}
+                  </button>
+                ))
+              )}
             </div>
           </aside>
         )}
 
+
         {/* Form Container */}
         <div className="flex-1">
-          <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-8">
-            <div className="max-w-[800px]">
-              {activeMainStep === "RMO Consultation" ? (
+          {activeMainStep === "Summary" ? (
+            <SummaryTabContent />
+          ) : (
+            <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-8">
+              <div className="max-w-[800px]">
+                {activeMainStep === "RMO Consultation" ? (
+
                 <>
                   {activeSection === "Informant" ? (
                     <>
@@ -2461,6 +2500,8 @@ export default function AddPatientPage() {
                   </div>
                 </div>
               </>
+            ) : activeMainStep === "Test" ? (
+              <TestTabContent activeSection={activeTestSection} />
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
@@ -2472,8 +2513,10 @@ export default function AddPatientPage() {
             )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   </div>
+</div>
   );
 }
+
