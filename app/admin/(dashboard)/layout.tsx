@@ -12,7 +12,6 @@ import {
   Building2, 
   FileText, 
   BarChart3, 
-  MonitorPlay, 
   Settings, 
   HelpCircle,
   Search,
@@ -30,7 +29,6 @@ const sidebarItems = [
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
   { name: "Reports", icon: BarChart3, href: "/admin/reports" },
-  { name: "Content", icon: MonitorPlay, href: "/admin/content" },
 ]
 
 const bottomItems = [
