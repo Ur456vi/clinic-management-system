@@ -1,0 +1,2 @@
+scripts/daily_report.sh writes today's report here as <YYYY-MM-DD>.md.
+Generated files are gitignored; this .gitkeep is the only thing tracked.
