@@ -48,3 +48,6 @@ next-env.d.ts
 /_*.py
 /_*.js
 /.~lock.*
+
+# Runtime: emailer audit logs (regenerated daily)
+/assignments/.email-log-*.txt

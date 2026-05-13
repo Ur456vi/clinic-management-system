@@ -23,8 +23,9 @@ Orchestrator (AI, night-shift engineering manager)
 | Role | Window | Cron | Notes |
 |---|---|---|---|
 | AI dev agents (×2 max) | 23:00 – 11:00 | `0 23 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. |
-| PM Agent | 02:00 – 03:00 | `0 2 * * *` | Reviews every open `task/**` and `chore/**` branch (AI + human), auto-merges approved ones, emails new assignments to Urvi and Yasha. |
-| Human juniors | 10:00 – 19:00 | manual | Frontend tasks (FE-**). Read assignments emailed by PM. Branch + commit + push to remote. |
+| PM Agent | 02:00 – 03:00 | `0 2 * * *` | Reviews every open `task/**` and `chore/**` branch (AI + human), auto-merges approved ones, **drafts** tomorrow's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. |
+| Emailer | 09:00 daily | `0 9 * * *` | Reads `assignments/<today>/*.md` and sends each via Resend. Enforces a hard cap of `VYARA_EMAIL_DAILY_MAX` (default 90) recipient-sends per calendar day. Logs to `assignments/.email-log-<date>.txt`. |
+| Human juniors | 10:00 – 19:00 | manual | Frontend tasks (FE-**). Read assignments emailed by the 09:00 job. Branch + commit + push to remote. |
 
 ## Token & rate-limit policy
 
@@ -54,8 +55,8 @@ Orchestrator (AI, night-shift engineering manager)
 After review/merge, PM picks 1–2 unblocked **frontend** tasks per human junior from `Vyara_Development_Tasks.xlsx` (priority: `P0 Foundation` and `P1 Clinical` first, then `P2 Treatment`). For each human:
 
 1. Compose an assignment message (see `assignments/_TEMPLATE.md`).
-2. Try to send via Resend if `RESEND_API_KEY` is set in `.env.local`. See `scripts/send_email.sh`.
-3. **Fallback**: write the message to `assignments/<YYYY-MM-DD>/<dev>.md`. The user can then forward manually.
+2. Save the message to `assignments/<YYYY-MM-DD>/<dev>.md` with RFC822-style headers (To, Subject, From) so the 09:00 emailer can pick it up.
+3. **Do not send email** — sending is handled by the 09:00 cron `scripts/send_morning_assignments.sh`. PM is the drafter only.
 
 PM logs every assignment in the shift report.
 

@@ -1,2 +1,12 @@
-PM Agent writes daily assignment drafts here when Resend is not configured.
-Directory structure: assignments/<YYYY-MM-DD>/<dev>.md
+PM Agent writes daily assignment drafts here at 02:00. The 09:00 emailer
+reads them and sends via Resend.
+
+Layout:
+  assignments/
+    _TEMPLATE.md                              # email template (mustache placeholders)
+    <YYYY-MM-DD>/
+      urvi.md                                 # drafted by PM at 02:00
+      yasha.md                                # drafted by PM at 02:00
+    .email-log-<YYYY-MM-DD>.txt               # one line per send (audit + cap)
+
+Body files use RFC822-style headers — see scripts/send_email.sh.
