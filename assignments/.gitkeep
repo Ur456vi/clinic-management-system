@@ -1,0 +1,2 @@
+PM Agent writes daily assignment drafts here when Resend is not configured.
+Directory structure: assignments/<YYYY-MM-DD>/<dev>.md
