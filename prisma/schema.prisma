@@ -190,3 +190,35 @@ model AuditLog {
   @@index([occurredAt])
   @@map("audit_logs")
 }
+
+// ===========================================================================
+// NextAuth (BE-04)
+// ===========================================================================
+//
+// We use the JWT session strategy, so these models are not exercised at
+// runtime. They are declared because the PrismaAdapter contract expects
+// them to exist when present, and we want zero-friction migration to the
+// database-session strategy later.
+//
+// The `passwordHash` column on User already exists from BE-03 and is the
+// canonical credential store; the `Account` model (used by OAuth providers)
+// is intentionally omitted until we add a non-credentials provider.
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
