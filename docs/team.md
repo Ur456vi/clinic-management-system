@@ -1,5 +1,7 @@
 # Team roster — Algoborne
 
+> **🚨 SPRINT 1 ACTIVE (May 13 → May 28):** Compressed-velocity push for the Milestone 1 demo. Sprint scope + day-by-day plan: [`sprint-1-mvp.md`](./sprint-1-mvp.md).
+
 Algoborne is the firm building and operating the **Vyara Clinic Management System** for Dr. Yuvraaj. The team is a hybrid of seven humans + one AI Project Manager + two AI Developer agents + one AI Cloud Engineer, organized into three functional verticals:
 
 - **Engineering** — Kunal (human PM) + PM Agent (AI) + three human developers + the AI dev shift

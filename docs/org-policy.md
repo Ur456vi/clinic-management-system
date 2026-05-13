@@ -1,5 +1,7 @@
 # Autonomous engineering org — operating policy
 
+> **🚨 SPRINT 1 ACTIVE (May 13 → May 28):** Operating in compressed-velocity mode for the Milestone 1 demo. Temporary capacity bumps: AI dev shift 2→4 parallel agents, second afternoon shift added, CI gate is advisory (not blocking), human devs at 12h/day. Full sprint plan: [`sprint-1-mvp.md`](./sprint-1-mvp.md). Normal operations resume May 29.
+
 Vyara development is delivered by **Algoborne** — a hybrid team of seven humans and three AI agents. AI agents own backend foundations and infrastructure; three human full-stack developers cover frontend implementation and floating work. No human intervention is required between PR creation and main-branch merge — the PM Agent does the review, runs the CI gate, and merges.
 
 For team identity, see [`team.md`](./team.md). For legal/compliance assets, see [`legal/README.md`](./legal/README.md).
