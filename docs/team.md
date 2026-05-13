@@ -1,38 +1,57 @@
-# Team roster
+# Team roster — Algoborne
 
-A hybrid team with a clear chain of command:
+Algoborne is the firm building and operating the **Vyara Clinic Management System** for Dr. Yuvraaj. The team is a hybrid of seven humans + one AI Project Manager + two AI Developer agents, organized into three functional verticals:
 
-- **Leadership** — CEO (Varun) + Secondary PM (Kunal, client-facing)
-- **Operations** — PM Agent (AI) runs day-to-day project management
-- **Execution** — AI dev agents on backend, two human juniors on frontend
+- **Engineering** — Kunal (human PM) + PM Agent (AI) + three human developers + the AI dev shift
+- **Commercial** — Abhishek (sales)
+- **Legal & Compliance** — Adv. Aman Kaushik (temporary engagement)
 
-The team reports to **Kunal and Varun** for status and visibility. Operational direction (assignments, code review, merges) comes from the PM Agent.
+All groups report to the CEO. Engineering status flows up via the 12:00 daily reports (To: Kunal, Cc: Varun). Sales and legal stay on their own cadence.
 
 ## Leadership
 
-| Name | Email | Role | Responsibilities |
+| Name | Email | Role | Notes |
 |---|---|---|---|
-| Varun Pratap Singh | varunpratapsingh191@gmail.com | CEO | Strategy, ultimate decisions, full visibility on every report and assignment. |
-| Kunal | kunal@chirpin.in | Secondary PM (client-facing) | Updates and manages the client. Receives every status update so he can translate it into client comms. |
+| Varun Pratap Singh | varunpratapsingh191@gmail.com | CEO | Strategy, full visibility on every report, final call on hires and direction. |
+| Kunal Sani | kunal@chirpin.in | Project Manager | Owns the Vyara engagement end-to-end. Client-facing. PM Agent reports to Kunal. |
 
-## AI agents
+## Engineering — humans
 
-| Role | Identity | Shift | Responsibilities |
-|---|---|---|---|
-| Orchestrator | `Orchestrator` | 23:00 – 11:00 | Plans nightly work, spawns dev agents, no merges |
-| Dev Agent (×2 max parallel) | `Dev-Agent-<TASK>` | 23:00 – 11:00 | One backend task per branch, commits, returns to orchestrator |
-| PM Agent | `PM-Agent` | 07:30 – 08:30 | Primary PM. Reviews + auto-merges branches from AI and human devs; drafts daily assignments; reports up to Kunal + Varun via the 12:00 daily-reports cron. |
-
-## Human developers
-
-| Name | Email | Role | Shift (local) | Branch namespace |
+| Name | Email | Role | Shift (IST) | Branch namespace |
 |---|---|---|---|---|
-| Urvi Sharma | sharmaurvi48@gmail.com | Frontend Junior (doctor portal) | 10:00 – 19:00 | `urvi/<FE-ID>-<slug>` or `urvi` for WIP |
-| Yasha Sakeel | yasha6519@gmail.com | Frontend Junior (patient portal) | 10:00 – 19:00 | `yasha/<FE-ID>-<slug>` or `yasha` for WIP |
+| Urvi Sharma | sharmaurvi48@gmail.com | Full Stack Developer | 10:00 – 19:00 | `urvi/<FE-ID>-<slug>` or `urvi` for WIP |
+| Yasha Sakeel | yasha6519@gmail.com | Full Stack Developer (Intern) | 10:00 – 19:00 | `yasha/<FE-ID>-<slug>` or `yasha` for WIP |
+| Dhanjay | _email TBD_ | Full Stack Developer (Intern) | 10:00 – 19:00 | `dhanjay/<ID>-<slug>` or `dhanjay` for WIP |
 
-Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They commit to feature branches in **their own namespace** so attribution is clear in the git log and PM can easily filter PRs by owner. Pushes to GitHub's remote are picked up at the next 07:30 PM review.
+Urvi anchors the doctor-portal surface, Yasha anchors the patient-portal surface, Dhanjay is **floating** — the PM Agent assigns him each shift based on the hottest gap (doctor side, patient side, or backend backlog alongside the AI agents). Once Dhanjay's email is added, he joins the 09:00 morning-assignments cycle.
 
-> **Initial divergence note** (2026-05-13): Urvi's existing work is on `main`; Yasha's is on the `yasha` branch. The migration to unified routing/auth is tracked in [`portal-consolidation-plan.md`](./portal-consolidation-plan.md).
+> Pushes to GitHub's remote are picked up at the next 07:30 PM Agent review.
+
+## Engineering — AI agents
+
+| Role | Identity | Shift (IST) | Responsibilities |
+|---|---|---|---|
+| Orchestrator | `Orchestrator` | 05:00 – 06:30 | Plans the shift, spawns dev agents, never merges. |
+| Dev Agent (×2 max parallel) | `Dev-Agent-<TASK>` | 05:00 – 06:30 | One backend task per branch, commits, returns to orchestrator. |
+| PM Agent | `PM-Agent` | 07:30 – 08:30 | Operates under Kunal. Reviews + auto-merges branches from AI and human devs; runs CI gate; drafts daily human assignments; sends reports up to Kunal + Varun via the 12:00 cron. |
+
+The 2-agent parallelism cap is a deliberate token-budget choice. If a rate limit is hit mid-shift, the orchestrator pauses, returns control, and the next scheduled shift picks up the unfinished branches.
+
+## Commercial
+
+| Name | Email | Role | Reporting cadence |
+|---|---|---|---|
+| Abhishek Sharma | abhishek.sharma@algoborne.com | Sales Head | **Friday 18:00 IST weekly digest** — what shipped, demo-ready URLs, what's blocked. Not on the daily eng reports. |
+
+The weekly digest is generated by `scripts/weekly_sales_digest.sh` and sent on cron `0 18 * * 5` IST. It Cc's Kunal + Varun.
+
+## Legal & Compliance
+
+| Name | Email | Role | Engagement |
+|---|---|---|---|
+| Adv. Aman Kaushik | amankaushik39@gmail.com | Legal Head | **Temporary — ad-hoc only.** No standing reports, no merge gate. PM Agent routes legal matters (contracts, NDAs, vendor agreements, DISHA/HIPAA-adjacent compliance questions) to him as they come up. |
+
+Documents Aman owns live in [`docs/legal/`](./legal/README.md). When a PR touches PHI / billing / consent flows and outside counsel review is warranted, the PM Agent files a memo into `docs/legal/` and pings Aman directly — but **does not block the merge** on his sign-off.
 
 ## Daily rhythm
 
@@ -41,25 +60,34 @@ Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They co
         └─ Orchestrator picks 2 backend tasks, spawns 2 dev agents
 06:30  Dev agents finish; branches open
 07:30  PM Agent reviews fresh AI PRs + any human PRs from yesterday evening
-        ├─ Auto-merges approved branches into main
-        └─ Drafts today's frontend assignments to assignments/<DATE>/<dev>.md
+        ├─ Runs scripts/ci_gate_all.sh (prisma format/validate + tsc + eslint)
+        ├─ Auto-merges branches that pass into main
+        └─ Drafts today's human assignments to assignments/<DATE>/<dev>.md
 08:30  PM shift closes
-09:00  Emailer sends today's assignments to Urvi & Yasha (Cc Kunal)
-10:00  Urvi and Yasha online; pick up assignments from inbox
-12:00  Daily task report → kunal@chirpin.in (off-peak)
-19:00  Urvi and Yasha push their day's branches; sign off
+09:00  Emailer sends today's assignments to Urvi, Yasha, Dhanjay (Cc Kunal + Varun)
+10:00  Humans online; pick up assignments from inbox
+12:00  Daily task report + AI dev report → kunal@chirpin.in (Cc Varun)
+19:00  Humans push their day's branches; sign off
 05:00  Cycle repeats
 ```
 
-> Every LLM-heavy job runs in the IST off-peak window (05:00–18:30 IST = US night → US early-morning = Anthropic's lowest load). AI dev PRs get same-day review (≈2.5 h SLA); human PRs pushed at 19:00 get reviewed the next morning at 07:30 (≈12.5 h SLA).
+Weekly add-on:
+
+```
+Friday 18:00  Sales digest → abhishek.sharma@algoborne.com (Cc Kunal + Varun)
+```
+
+All LLM-heavy jobs run in the IST off-peak window (05:00–18:30 IST = US night → US early-morning = Anthropic's lowest load). AI dev PRs get same-day review (≈2.5 h SLA); human PRs pushed at 19:00 get reviewed the next morning at 07:30 (≈12.5 h SLA).
 
 ## Communication
 
-- **Code review / merge decisions**: PM Agent comments on the branch, auto-merges on approval, leaves blockers in `assignments/<date>/<dev>.md` if changes needed.
-- **Task assignment**: PM Agent emails each human at the start of their shift (10:00) — Subject prefix `[Vyara] Today's assignments — <date>`.
-- **Standups / async updates**: not required; the workbook + git log is the source of truth.
+- **Code review / merge decisions:** PM Agent comments on the branch, auto-merges on CI-gate pass, leaves blockers in `assignments/<date>/<dev>.md` if changes needed.
+- **Task assignment:** PM Agent emails each human at the start of their shift (09:00) — Subject prefix `[Vyara] Today's assignments — <date>`.
+- **Standups / async updates:** not required; the workbook + git log + 12:00 reports are the source of truth.
+- **Sales updates:** Friday 18:00 digest to Abhishek.
+- **Legal questions:** ad-hoc, routed by PM Agent into `docs/legal/` + email to Aman.
 
 ## Workbook expectations
 
 - Each human updates the `Status` column of their FE-** rows when they pick a task up (`In progress`) and when they push (`In review`).
-- PM updates the column to `Merged` after auto-merge.
+- PM Agent updates the column to `Merged` after auto-merge.
