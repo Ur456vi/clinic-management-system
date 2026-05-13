@@ -36,12 +36,16 @@ Orchestrator (AI, night-shift engineering manager)
 
 ## Branch & commit conventions
 
-- `task/<ID>-<kebab-slug>` for feature work (e.g. `task/BE-11-patient-crud-api`, `task/FE-12-patient-list-real-fetch`).
+- `task/<ID>-<kebab-slug>` for AI-agent feature work (e.g. `task/BE-11-patient-crud-api`).
 - `chore/<slug>` for ops/config (e.g. `chore/db-credentials`).
+- `urvi/<FE-ID>-<slug>` or just `urvi` — Urvi's frontend branches.
+- `yasha/<FE-ID>-<slug>` or just `yasha` — Yasha's frontend branches.
 - One task per branch, one logical commit per task. Conventional Commits style: `feat(BE-11): ...`, `feat(FE-12): ...`, `chore: ...`.
 - Each commit message ends with `Refs: <ID>` and (if applicable) `Depends-on: <ID>`.
 
 ## PM review playbook
+
+PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, plus the long-lived `urvi` and `yasha` branches.
 
 1. Run `git --no-pager diff --stat main..<branch>` and inspect each touched file.
 2. Score on: scope match, code quality, docs presence, safety (no secrets), declared dependencies.

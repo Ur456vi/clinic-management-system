@@ -12,12 +12,14 @@ A hybrid team: AI agents handle backend foundations and infrastructure; two huma
 
 ## Human developers
 
-| Name | Email | Role | Shift (local) |
-|---|---|---|---|
-| Urvi Sharma | sharmaurvi48@gmail.com | Frontend Junior | 10:00 – 19:00 |
-| Yasha Sakeel | yasha6519@gmail.com | Frontend Junior | 10:00 – 19:00 |
+| Name | Email | Role | Shift (local) | Branch namespace |
+|---|---|---|---|---|
+| Urvi Sharma | sharmaurvi48@gmail.com | Frontend Junior (doctor portal) | 10:00 – 19:00 | `urvi/<FE-ID>-<slug>` or `urvi` for WIP |
+| Yasha Sakeel | yasha6519@gmail.com | Frontend Junior (patient portal) | 10:00 – 19:00 | `yasha/<FE-ID>-<slug>` or `yasha` for WIP |
 
-Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They commit to feature branches following the same convention as agents (`task/FE-XX-<kebab-slug>`) and push to the repo's GitHub remote when ready for review.
+Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They commit to feature branches in **their own namespace** so attribution is clear in the git log and PM can easily filter PRs by owner. Pushes to GitHub's remote are picked up at the next 07:30 PM review.
+
+> **Initial divergence note** (2026-05-13): Urvi's existing work is on `main`; Yasha's is on the `yasha` branch. The migration to unified routing/auth is tracked in [`portal-consolidation-plan.md`](./portal-consolidation-plan.md).
 
 ## Daily rhythm
 
