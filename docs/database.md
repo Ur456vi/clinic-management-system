@@ -21,14 +21,14 @@ Postgres will listen on `localhost:5432` by default with:
 
 | Setting | Default |
 |---------|---------|
-| Database | `vyara` |
-| User | `vyara` |
-| Password | `vyara_dev_password` |
+| Database | `Vyara` |
+| User | `postgres` |
+| Password | `admin` |
 
 The resulting connection string for `.env.local` is:
 
 ```
-DATABASE_URL="postgresql://vyara:vyara_dev_password@localhost:5432/vyara?schema=public"
+DATABASE_URL="postgresql://postgres:admin@localhost:5432/Vyara?schema=public"
 ```
 
 ## Optional: Adminer (web UI)
@@ -40,9 +40,9 @@ docker compose --profile tools up -d adminer
 # Open http://localhost:8080
 #   System:   PostgreSQL
 #   Server:   postgres
-#   Username: vyara
-#   Password: vyara_dev_password
-#   Database: vyara
+#   Username: postgres
+#   Password: admin
+#   Database: Vyara
 ```
 
 ## Stop / reset
@@ -82,7 +82,21 @@ After `docker compose up -d postgres`:
 
 ```bash
 # From the host
-docker exec -it vyara-postgres psql -U vyara -d vyara -c "SELECT version();"
+docker exec -it vyara-postgres psql -U postgres -d Vyara -c "SELECT version();"
 ```
 
 Expect a row reporting `PostgreSQL 16.x ...`. If you see it, the database is ready for the Prisma migrations introduced in BE-02.
+
+## Active local setup (as of 2026-05-13)
+
+Dr. Yuvraj's workstation runs a native Postgres install (not the dockerized one in `docker-compose.yml`). The active credentials are:
+
+| Setting | Value |
+|---|---|
+| Host | `localhost` |
+| Port | `5432` |
+| Database | `Vyara` (capital V) |
+| User | `postgres` (the superuser) |
+| Password | `admin` |
+
+`.env.local` (gitignored) is pre-populated with the matching `DATABASE_URL`. `docker-compose.yml` defaults have also been aligned with these values, so dockerized and native runs use the same credentials interchangeably.
