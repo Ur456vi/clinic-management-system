@@ -38,11 +38,42 @@ The patient record. Stores demographics, `patientNumber` (human-readable ID like
 ### AuditLog
 Append-only. Captures actor, action, entity, and free-form `detail` JSON. The cornerstone of the compliance posture; every PHI access is logged here.
 
+
+## Consultations (BE-13)
+
+```
+Patient ──1:N── Consultation ──N:1── User (createdBy / signedBy)
+```
+
+### Consultation
+A clinical encounter. The model is **polymorphic single-table**: a `type`
+discriminator (`RMO` | `MAIN`) tells callers which sub-form was filled in, and
+the per-section content lives in a `sections` JSONB blob.
+
+- **RMO** rows are first-pass intake from the Resident Medical Officer. The
+  `sections` blob carries six keys mirroring the tabs on `/admin/patients/add`:
+  `informant`, `demographics`, `medicalHistory`, `socialHistory`,
+  `personalHistory`, `examinationSummary`.
+- **MAIN** rows are the senior doctor's encounter. `sections` carries
+  `chiefComplaint`, `hpi`, `assessment`, `diagnosis`, `plan`.
+
+### Status lifecycle
+`DRAFT → RMO_DONE → IN_PROGRESS → SIGNED`. The `SIGNED` transition stamps
+`signedById` + `signedAt` and locks the row (enforced in BE-14's service layer).
+
+### Why JSONB over per-section tables
+The intake form alone has ~150 fields across 30+ sub-sections, and the field
+list is still in flux. Normalizing each sub-section into its own table would
+explode the migration and join surface without a real query benefit — we never
+filter patients by, say, "smoker yes/no" at clinic scale, we read the whole
+consultation as a document. JSONB gives us indexable typed access via
+`@db.JsonB` plus the flexibility to evolve the form without a migration per
+field. Field-level validation moves into a Zod layer in BE-14.
+
 ## Coming in later tasks
 
 | Task | Models | Notes |
 |---|---|---|
-| BE-13 | `Consultation` | Polymorphic (RMO + Main), sectioned JSONB payload, status enum. |
 | BE-16 | `LabResult` | Per-panel rows; analytes JSONB; flags for out-of-range. |
 | BE-24 | `TreatmentPlan`, `PlanItem` | Plan header + line items (Rx, Supplement, IV, Rehab, Aesthetic). |
 | BE-27 | `Appointment` | Patient + staff + room/chair + modality + time range. |
