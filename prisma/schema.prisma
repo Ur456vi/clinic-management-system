@@ -1,0 +1,26 @@
+// Vyara — Prisma schema
+//
+// Initial scaffold. Models are introduced incrementally:
+//   BE-03  : User, Role, Patient, Staff, Department, AuditLog (core entities)
+//   BE-13  : Consultation (RMO + Main, sectioned JSONB)
+//   BE-16  : LabResult (per-panel rows with analytes JSONB)
+//   BE-24  : TreatmentPlan + plan items
+//   BE-27  : Appointment
+//   BE-37  : Invoice / InvoiceItem / Payment
+//
+// Run `npm run prisma:format` after edits to keep style consistent.
+
+generator client {
+  provider = "prisma-client-js"
+  // Use the bundled query engine for serverless friendliness; switch to
+  // `binaryTargets = ["native"]` if you hit perf issues on bare-metal.
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Models are added in BE-03 and beyond.
+// ---------------------------------------------------------------------------
