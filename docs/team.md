@@ -1,6 +1,6 @@
 # Team roster — Algoborne
 
-Algoborne is the firm building and operating the **Vyara Clinic Management System** for Dr. Yuvraaj. The team is a hybrid of seven humans + one AI Project Manager + two AI Developer agents, organized into three functional verticals:
+Algoborne is the firm building and operating the **Vyara Clinic Management System** for Dr. Yuvraaj. The team is a hybrid of seven humans + one AI Project Manager + two AI Developer agents + one AI Cloud Engineer, organized into three functional verticals:
 
 - **Engineering** — Kunal (human PM) + PM Agent (AI) + three human developers + the AI dev shift
 - **Commercial** — Abhishek (sales)
@@ -34,8 +34,11 @@ Urvi anchors the doctor-portal surface, Yasha anchors the patient-portal surface
 | Orchestrator | `Orchestrator` | 05:00 – 06:30 | Plans the shift, spawns dev agents, never merges. |
 | Dev Agent (×2 max parallel) | `Dev-Agent-<TASK>` | 05:00 – 06:30 | One backend task per branch, commits, returns to orchestrator. |
 | PM Agent | `PM-Agent` | 07:30 – 08:30 | Operates under Kunal. Reviews + auto-merges branches from AI and human devs; runs CI gate; drafts daily human assignments; sends reports up to Kunal + Varun via the 12:00 cron. |
+| Cloud Engineer | `Cloud-Engineer` | 09:30 – 09:45 daily + ad-hoc | Owns AWS infra design. Writes Terraform / IAM / deployment scripts to `infra/**` branches. **Phase 1 is design-only — no AWS credentials held by the agent**; humans run `terraform apply`. Runs a daily health check and a Friday infra digest. |
 
-The 2-agent parallelism cap is a deliberate token-budget choice. If a rate limit is hit mid-shift, the orchestrator pauses, returns control, and the next scheduled shift picks up the unfinished branches.
+The 2-dev-agent parallelism cap is a deliberate token-budget choice. If a rate limit is hit mid-shift, the orchestrator pauses, returns control, and the next scheduled shift picks up the unfinished branches.
+
+**Cloud Engineer scope:** owns everything in `infra/`, `docs/infra/`, and any AWS-touching scripts. Phase 1 (now → ~2 weeks): design-only — agent writes Terraform / CloudFormation, IAM policies, deployment runbooks, and security-group definitions to `infra/**` branches. A human (Kunal or Varun) reviews and runs `terraform apply` from their own IAM credentials. Phase 2 (after design phase trust is proven): grant the agent a least-privilege IAM role with `terraform plan` + targeted resource provisioning, never IAM-write or billing access. **All AWS resources live in `ap-south-1` (Mumbai)** for DPDP Act data residency.
 
 ## Commercial
 

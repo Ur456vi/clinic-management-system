@@ -17,18 +17,17 @@ For team identity, see [`team.md`](./team.md). For legal/compliance assets, see 
         ▼
   PM Agent (AI — primary engineering PM)
         │
-   ┌────┴────────────────────────────────────────┐
-   ▼                                              ▼
-  Human developers                          Orchestrator (AI)
-   ├─ Urvi Sharma   (full stack, doctor)         │
-   ├─ Yasha Sakeel  (full stack intern, patient) │
-   └─ Dhanjay       (full stack intern, float)   ▼
-                                       ┌─────────┴─────────┐
-                                       ▼                   ▼
-                                  Dev Agent A (AI)    Dev Agent B (AI)
-                                       │                   │
-                                       ▼                   ▼
-                                  task/** branches  ──────┘
+   ┌────┼─────────────────────────────────┬───────────────────────┐
+   ▼    ▼                                 ▼                       ▼
+Cloud  Human developers              Orchestrator (AI)         (also reports up)
+Eng    ├─ Urvi Sharma   (FS doctor)        │
+(AI)   ├─ Yasha Sakeel  (FS intern pt.)    ▼
+ │     └─ Dhanjay       (FS intern float)  ┌─────────┴─────────┐
+ ▼                                          ▼                   ▼
+infra/** branches                     Dev Agent A (AI)    Dev Agent B (AI)
+(Terraform, IAM,                            │                   │
+ deployment scripts,                        ▼                   ▼
+ runbooks)                             task/** branches  ──────┘
 ```
 
 **Reporting:** the engineering side (humans + AI dev agents) reports to **Kunal + Varun** via the 12:00 daily-reports cron. Operational direction (assignments, review, merges) flows down from Kunal → PM Agent. Sales and legal sit outside the engineering reporting line and report directly to the CEO.
@@ -38,6 +37,8 @@ For team identity, see [`team.md`](./team.md). For legal/compliance assets, see 
 | Role | Window (IST) | Cron | Notes |
 |---|---|---|---|
 | AI dev agents (×2 max) | ~05:00 – 06:30 | `0 5 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. Off-peak window. |
+| Cloud Engineer — daily health | 09:30 | `30 9 * * *` | Audits open `infra/**` branches, AWS health (when provisioned), backup status, certificate expiry. Reports only on anomalies. ~15 min. |
+| Cloud Engineer — weekly digest | Friday 17:30 | `30 17 * * 5` | Friday-evening infra digest to **Kunal + Varun** (Cc CEO): infra-side changes that week, AWS bill projection, security advisories handled, upcoming maintenance windows. |
 | PM Agent | 07:30 – 08:30 | `30 7 * * *` | Reviews every open `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhanjay/**` branch (AI + human), runs the CI gate, auto-merges pass-only, **drafts** today's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. |
 | Emailer | 09:00 daily | `0 9 * * *` | Reads `assignments/<today>/*.md` and sends each via Resend. Enforces a hard cap of `VYARA_EMAIL_DAILY_MAX` (default 90) recipient-sends per calendar day. Logs to `assignments/.email-log-<date>.txt`. |
 | Daily Reports | 12:00 daily | `0 12 * * *` | Generates **two** reports and emails both to **kunal@chirpin.in** (Cc Varun): (a) `reports/<date>.md` — overall git activity; (b) `reports/ai-dev-<date>.md` — AI-developer activity. Off-peak. |
@@ -57,12 +58,13 @@ For team identity, see [`team.md`](./team.md). For legal/compliance assets, see 
 - `urvi/<FE-ID>-<slug>` or just `urvi` — Urvi's branches.
 - `yasha/<FE-ID>-<slug>` or just `yasha` — Yasha's branches.
 - `dhanjay/<ID>-<slug>` or just `dhanjay` — Dhanjay's branches.
+- `infra/<INF-ID>-<slug>` — Cloud Engineer's infra work (Terraform, IAM, deployment scripts).
 - One task per branch, one logical commit per task. Conventional Commits style: `feat(BE-11): ...`, `feat(FE-12): ...`, `chore: ...`.
 - Each commit message ends with `Refs: <ID>` and (if applicable) `Depends-on: <ID>`.
 
 ## PM review playbook
 
-PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhanjay/**`, plus the long-lived `urvi`, `yasha`, `dhanjay` branches.
+PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhanjay/**`, `infra/**`, plus the long-lived `urvi`, `yasha`, `dhanjay` branches.
 
 1. Run `git --no-pager diff --stat main..<branch>` and inspect each touched file.
 2. Score on: scope match, code quality, docs presence, safety (no secrets), declared dependencies.
@@ -91,3 +93,14 @@ The git work-tree is on a virtiofs mount that blocks `.lock`-file cleanup. All a
 2. Overwriting the destination ref file with the new SHA.
 
 This is the canonical workaround — do not attempt `git push` to the mount directly.
+
+## AWS access model (Phase 1)
+
+The Cloud Engineer agent operates in **design-only mode** for its first ~2 weeks. It writes Terraform, IAM policies, deployment scripts, and runbooks to `infra/**` branches. It does **not** hold AWS credentials. A human (Kunal as PM, or Varun as CEO) reviews each `infra/**` branch and runs `terraform apply` from their own IAM credentials.
+
+After Phase 1 trust is established:
+- Grant the agent a least-privilege IAM role: `terraform plan` everywhere, `terraform apply` on a whitelisted set of resource types (EC2, S3 PHI bucket, CloudWatch alarms), explicitly **denied** on IAM-write, billing, root account, and Route 53 zone-level changes.
+- Apply runs still produce a `.tfplan` file committed to the branch — humans can see what changed.
+- The agent never holds long-lived access keys; it assumes the role via STS with a 1-hour TTL.
+
+All AWS resources live in **`ap-south-1` (Mumbai)** for DPDP Act data residency. Cross-region replication (if added later) requires Aman's review before configuration.
