@@ -23,9 +23,9 @@ All groups report to the CEO. Engineering status flows up via the 12:00 daily re
 |---|---|---|---|---|
 | Urvi Sharma | sharmaurvi48@gmail.com | Full Stack Developer | 10:00 – 19:00 | `urvi/<FE-ID>-<slug>` or `urvi` for WIP |
 | Yasha Sakeel | yasha6519@gmail.com | Full Stack Developer (Intern) | 10:00 – 19:00 | `yasha/<FE-ID>-<slug>` or `yasha` for WIP |
-| Dhanjay | _email TBD_ | Full Stack Developer (Intern) | 10:00 – 19:00 | `dhanjay/<ID>-<slug>` or `dhanjay` for WIP |
+| Dhanjay | _email TBD_ | Full Stack Developer (Intern) | 10:00 – 19:00 (12h/day during Sprint 1 from May 19 onward) | `dhanjay/<ID>-<slug>` or `dhanjay` for WIP |
 
-Urvi anchors the doctor-portal surface, Yasha anchors the patient-portal surface, Dhanjay is **floating** — the PM Agent assigns him each shift based on the hottest gap (doctor side, patient side, or backend backlog alongside the AI agents). Once Dhanjay's email is added, he joins the 09:00 morning-assignments cycle.
+**Dhanjay availability:** unavailable Days 1-6 of Sprint 1 (May 13-18), active from May 19 onwards. PM Agent skips drafting his daily assignment file until then. Urvi anchors the doctor-portal surface, Yasha anchors the patient-portal surface, Dhanjay is **floating** — the PM Agent assigns him each shift based on the hottest gap (doctor side, patient side, or backend backlog alongside the AI agents). Once Dhanjay's email is added, he joins the 09:00 morning-assignments cycle.
 
 > Pushes to GitHub's remote are picked up at the next 07:30 PM Agent review.
 

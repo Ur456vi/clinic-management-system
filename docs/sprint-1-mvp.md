@@ -87,6 +87,19 @@ INF-07 (Secrets Manager) and INF-09 (CloudWatch alarms) are deferred to Sprint 2
 | AI features (smart scheduling, treatment recommendations) | Out of MVP | Sprint 3+ |
 | Inventory / pharmacy / staff payroll | Out of MVP | Future |
 
+## Team availability
+
+| Person | Available | Notes |
+|---|---|---|
+| Urvi Sharma | Day 1 → Day 15 (May 13 → May 27) | Full sprint, 12h/day |
+| Yasha Sakeel | Day 1 → Day 15 (May 13 → May 27) | Full sprint, 12h/day |
+| **Dhanjay** | **Day 7 → Day 15 (May 19 → May 27)** | **Unavailable Days 1-6 (May 13-18).** Joins from May 19. His scheduled Sprint 1 tasks (FE-05 Day 9, FE-09 Day 10, FE-10 Days 11-12) all fall after his return — no task reshuffling needed. |
+| AI dev agents | All 15 days, 2 shifts/day (05:00 + 14:00 IST) | 4-agent morning + 2-agent afternoon |
+| Cloud Engineer agent | All 15 days, 09:30 IST | Daily health check + ad-hoc INF work |
+| PM Agent | All 15 days, 07:30 IST | Daily review + drafter, advisory CI gate |
+
+**Risk:** Days 1-6 have only 2 humans (Urvi + Yasha) instead of 3. If either hits a blocker or falls sick, the buffer is thin. Mitigation: PM Agent can re-flow human tasks to AI agents for short-term coverage if needed; flag any blocker in the daily report so Kunal can intervene.
+
 ## Day-by-day timeline
 
 | Day | Date | Milestones |
