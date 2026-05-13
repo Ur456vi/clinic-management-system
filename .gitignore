@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# working artifacts / analysis docs (kept local, not in repo)
+/Codebase_Functionality_Analysis.xlsx
+/Vyara_Development_Tasks.xlsx
+/Vyara_Product_Spec_and_Roadmap.docx
+/_*.py
+/_*.js
+/.~lock.*
