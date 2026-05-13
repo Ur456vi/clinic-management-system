@@ -86,7 +86,9 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  staff Staff?
+  staff   Staff?
+  /// 1:1 back-relation for unified-portal logins where role=PATIENT.
+  patient Patient?
 
   consultationsCreated Consultation[] @relation("ConsultationCreator")
   consultationsSigned  Consultation[] @relation("ConsultationSigner")
