@@ -4,16 +4,16 @@ services:
     container_name: vyara-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-vyara}
-      POSTGRES_USER: ${POSTGRES_USER:-vyara}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vyara_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-Vyara}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - vyara_postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vyara} -d ${POSTGRES_DB:-vyara}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-Vyara}"]
       interval: 5s
       timeout: 5s
       retries: 10
