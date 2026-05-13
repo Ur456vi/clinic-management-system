@@ -22,18 +22,19 @@ Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They co
 ## Daily rhythm
 
 ```
-23:00  AI dev shift starts
-        └─ Orchestrator picks 2 backend tasks, spawns 2 dev agents
-01:00  Dev agents finish; branches open
-02:00  PM Agent shift opens
-        ├─ Reviews all open task/** + chore/** branches (AI + human)
-        ├─ Auto-merges approved branches into main
-        └─ Sends tomorrow's frontend task assignments to Urvi and Yasha
+02:00  PM Agent reviews open PRs, auto-merges, drafts today's assignments
 03:00  PM shift closes
-10:00  Urvi and Yasha online; pick up the assignments PM left for them
+05:00  AI dev shift starts (off-peak)
+        └─ Orchestrator picks 2 backend tasks, spawns 2 dev agents
+06:30  Dev agents finish; branches open (will be reviewed by next 02:00 PM)
+09:00  Emailer sends today's assignments to Urvi & Yasha (Cc Kunal)
+10:00  Urvi and Yasha online; pick up assignments from inbox
+12:00  Daily task report → kunal@chirpin.in (off-peak)
 19:00  Urvi and Yasha push their day's branches; sign off
-23:00  Cycle repeats
+02:00  Cycle repeats
 ```
+
+> Branches opened at 05:00 wait for the **next** 02:00 PM shift (≈21 h SLA). This is intentional: it keeps every LLM-heavy job out of the IST peak window (18:30–04:30 IST = Anthropic's US-business-hours load).
 
 ## Communication
 

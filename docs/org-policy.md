@@ -22,10 +22,10 @@ Orchestrator (AI, night-shift engineering manager)
 
 | Role | Window | Cron | Notes |
 |---|---|---|---|
-| AI dev agents (×2 max) | 23:00 – 11:00 | `0 23 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. |
-| PM Agent | 02:00 – 03:00 | `0 2 * * *` | Reviews every open `task/**` and `chore/**` branch (AI + human), auto-merges approved ones, **drafts** tomorrow's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. |
+| AI dev agents (×2 max) | ~05:00 – 06:30 | `0 5 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. Moved out of the IST peak window (23-04 IST overlaps Anthropic's US-business-hours load). |
+| PM Agent | 02:00 – 03:00 | `0 2 * * *` | Reviews every open `task/**` and `chore/**` branch (AI + human), auto-merges approved ones, **drafts** today's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. |
 | Emailer | 09:00 daily | `0 9 * * *` | Reads `assignments/<today>/*.md` and sends each via Resend. Enforces a hard cap of `VYARA_EMAIL_DAILY_MAX` (default 90) recipient-sends per calendar day. Logs to `assignments/.email-log-<date>.txt`. |
-| Daily Report | 20:00 daily | `0 20 * * *` | Generates `reports/<date>.md` summarizing today's merges, commits, open PRs, drafted assignments, and emails sent — then emails it to **kunal@chirpin.in**. Counts toward the daily 90-send cap. |
+| Daily Report | 12:00 daily | `0 12 * * *` | Generates `reports/<date>.md` summarizing the last 24h's merges, commits, open PRs, drafted assignments, and emails sent — then emails it to **kunal@chirpin.in**. Counts toward the daily 90-send cap. Moved to IST off-peak (12:00 IST = 06:30 UTC = lowest Anthropic load). |
 | Human juniors | 10:00 – 19:00 | manual | Frontend tasks (FE-**). Read assignments emailed by the 09:00 job. Branch + commit + push to remote. |
 
 ## Token & rate-limit policy
