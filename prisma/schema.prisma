@@ -58,6 +58,18 @@ enum AuditAction {
   EXPORT
 }
 
+enum ConsultationType {
+  RMO
+  MAIN
+}
+
+enum ConsultationStatus {
+  DRAFT
+  RMO_DONE
+  IN_PROGRESS
+  SIGNED
+}
+
 // ===========================================================================
 // Auth & org
 // ===========================================================================
@@ -75,6 +87,9 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   staff Staff?
+
+  consultationsCreated Consultation[] @relation("ConsultationCreator")
+  consultationsSigned  Consultation[] @relation("ConsultationSigner")
 
   @@index([role])
   @@map("users")
@@ -157,10 +172,58 @@ model Patient {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  consultations   Consultation[]
+
   @@index([status])
   @@index([primaryDoctorId])
   @@index([fullName])
   @@map("patients")
+}
+
+
+// ===========================================================================
+// Consultations (BE-13)
+// ===========================================================================
+
+/// A clinical encounter. Polymorphic single-table design — `type` discriminates
+/// between an RMO intake pass and the senior doctor's main consultation, and
+/// the per-section payload lives in the `sections` JSONB blob. We deliberately
+/// chose JSONB over normalized per-section tables because the intake form has
+/// ~150 fields across 30+ sub-sections; per-section tables would explode the
+/// migration surface area with no query benefit at clinic scale.
+model Consultation {
+  id          String             @id @default(uuid()) @db.Uuid
+  patientId   String             @map("patient_id") @db.Uuid
+  patient     Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  type        ConsultationType
+  status      ConsultationStatus @default(DRAFT)
+
+  /// The RMO or Doctor who started this consultation.
+  createdById String?            @map("created_by_id") @db.Uuid
+  createdBy   User?              @relation("ConsultationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  /// Set when the consultation transitions to SIGNED. After signing the row
+  /// is immutable (enforced in BE-14's service layer).
+  signedById  String?            @map("signed_by_id") @db.Uuid
+  signedBy    User?              @relation("ConsultationSigner", fields: [signedById], references: [id], onDelete: SetNull)
+  signedAt    DateTime?          @map("signed_at")
+
+  /// Free-form sectioned content. For RMO: keys "informant", "demographics",
+  /// "medicalHistory", "socialHistory", "personalHistory", "examinationSummary".
+  /// For MAIN: "chiefComplaint", "hpi", "assessment", "diagnosis", "plan".
+  sections    Json               @default("{}")
+
+  /// Optional summary surfaced in the patient timeline.
+  summary     String?
+
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  @@index([patientId, type, createdAt])
+  @@index([status])
+  @@index([createdById])
+  @@map("consultations")
 }
 
 // ===========================================================================
