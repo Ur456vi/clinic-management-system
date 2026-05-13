@@ -68,12 +68,14 @@ PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhan
 
 1. Run `git --no-pager diff --stat main..<branch>` and inspect each touched file.
 2. Score on: scope match, code quality, docs presence, safety (no secrets), declared dependencies.
-3. **Run the CI gate** before deciding MERGE — `scripts/ci_gate.sh <branch>` exits 0 if `prisma format`, `prisma validate`, `tsc --noEmit`, and `eslint --max-warnings=0` all pass on that branch. Any non-zero exit auto-flips the verdict to REQUEST_CHANGES with the failure tail copied into the report. **No branch ships to main without passing this gate.**
+3. **Run the CI gate** — `scripts/ci_gate.sh <branch>` exits 0 if `prisma format`, `prisma validate`, `tsc --noEmit`, and `eslint --max-warnings=0` all pass.
+   - **Normal mode (post-Sprint 1, after May 28):** Any non-zero exit auto-flips the verdict to REQUEST_CHANGES with the failure tail. **No branch ships to main without passing.**
+   - **🚨 Sprint 1 mode (May 13 → May 28):** The gate is **ADVISORY, not blocking**. Run it, capture the output in the shift report, but MERGE the branch anyway if review is otherwise clean. Bugs that ship under advisory mode are filed as Sprint 2 follow-up tasks. The trade-off: short-term velocity for the Milestone 1 demo, with the risk that dev-environment may have lint/type issues until they're patched.
 4. Verdict per branch:
    - **MERGE** — `--no-ff` into main, push back, archive the branch ref.
    - **REQUEST_CHANGES** — leave the branch as-is; record blockers in `assignments/<date>/<dev>.md` (for humans) or in the next dev-shift queue (for AI).
 5. **Legal flag (advisory, non-blocking):** if a PR touches PHI fields (Patient, Consultation, LabResult), billing tables (Invoice, Payment), or consent / auth flows, PM Agent files a one-paragraph memo into `docs/legal/<date>-<branch>.md` and emails Aman a heads-up. **The merge proceeds either way** — Aman's role is advisory, not a gate.
-6. Foundation-phase carve-outs: don't block on missing tests, missing JSDoc, or style preferences. **The CI gate is non-negotiable** — those are code-correctness checks, not style.
+6. Foundation-phase carve-outs: don't block on missing tests, missing JSDoc, or style preferences. **CI gate enforcement varies by mode** (see step 3). In Sprint 1 mode, still run it for visibility; in normal mode, it's non-negotiable.
 7. SLA: ≤60 tool uses per nightly review.
 
 ## PM email-assignment playbook
