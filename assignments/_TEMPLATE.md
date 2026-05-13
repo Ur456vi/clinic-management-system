@@ -5,8 +5,7 @@ PM uses this when composing the morning email to each human junior. Substitute t
 ---
 
 To: {{dev_name}} <{{dev_email}}>
-Cc: kunal@chirpin.in
-From: Vyara PM <onboarding@resend.dev>
+Cc: kunal@chirpin.in, varunpratapsingh191@gmail.com
 Subject: [Vyara] Today's assignments — {{date}}
 
 Hi {{first_name}},

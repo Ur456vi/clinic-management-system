@@ -62,7 +62,7 @@ fi
 # --- compose the report ------------------------------------------------------
 cat > "$REPORT" <<EOM
 To: Kunal <kunal@chirpin.in>
-From: Vyara PM <onboarding@resend.dev>
+Cc: Varun Pratap Singh <varunpratapsingh191@gmail.com>
 Subject: [Vyara] Daily task report — $TODAY
 
 Hi Kunal,

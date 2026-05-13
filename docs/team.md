@@ -1,6 +1,19 @@
 # Team roster
 
-A hybrid team: AI agents handle backend foundations and infrastructure; two human junior developers own the frontend implementation.
+A hybrid team with a clear chain of command:
+
+- **Leadership** — CEO (Varun) + Secondary PM (Kunal, client-facing)
+- **Operations** — PM Agent (AI) runs day-to-day project management
+- **Execution** — AI dev agents on backend, two human juniors on frontend
+
+The team reports to **Kunal and Varun** for status and visibility. Operational direction (assignments, code review, merges) comes from the PM Agent.
+
+## Leadership
+
+| Name | Email | Role | Responsibilities |
+|---|---|---|---|
+| Varun Pratap Singh | varunpratapsingh191@gmail.com | CEO | Strategy, ultimate decisions, full visibility on every report and assignment. |
+| Kunal | kunal@chirpin.in | Secondary PM (client-facing) | Updates and manages the client. Receives every status update so he can translate it into client comms. |
 
 ## AI agents
 
@@ -8,7 +21,7 @@ A hybrid team: AI agents handle backend foundations and infrastructure; two huma
 |---|---|---|---|
 | Orchestrator | `Orchestrator` | 23:00 – 11:00 | Plans nightly work, spawns dev agents, no merges |
 | Dev Agent (×2 max parallel) | `Dev-Agent-<TASK>` | 23:00 – 11:00 | One backend task per branch, commits, returns to orchestrator |
-| PM Agent | `PM-Agent` | 07:30 – 08:30 | Reviews + auto-merges branches from AI and human devs; drafts assignments for the 09:00 emailer to send. |
+| PM Agent | `PM-Agent` | 07:30 – 08:30 | Primary PM. Reviews + auto-merges branches from AI and human devs; drafts daily assignments; reports up to Kunal + Varun via the 12:00 daily-reports cron. |
 
 ## Human developers
 

@@ -7,16 +7,25 @@ For team identity, see [`team.md`](./team.md).
 ## Org chart
 
 ```
-Orchestrator (AI, night-shift engineering manager)
-   │
-   ├── Dev Agent A (AI)   ┐
-   │                       ├──→ task/** branches  ┐
-   ├── Dev Agent B (AI)   ┘                        │
-   │                                                ├──→ PM Agent (AI)  ──→  main
-   ├── Urvi Sharma (human, frontend)               │
-   └── Yasha Sakeel (human, frontend)              ┘
-        └──→ task/FE-** branches
+                  Varun Pratap Singh (CEO)
+                    │
+              Kunal (Secondary PM, client-facing)
+                    │
+              PM Agent (Primary PM, AI)
+                    │
+   ┌─────────────────┼────────────────────────┐
+   ▼                 ▼                        ▼
+Urvi Sharma     Yasha Sakeel              Orchestrator (AI)
+(frontend)      (frontend)                     │
+   │              │                  ┌─────────┴─────────┐
+   ▼              ▼                  ▼                   ▼
+urvi/** branches  yasha/** branches  Dev Agent A (AI)    Dev Agent B (AI)
+                                     │                   │
+                                     ▼                   ▼
+                                    task/** branches  ──┘
 ```
+
+**Reporting**: the team (humans + AI dev agents) reports to **Kunal + Varun** via the 12:00 daily-reports cron. Operational direction (assignments, review, merges) comes from PM Agent.
 
 ## Shift schedule
 

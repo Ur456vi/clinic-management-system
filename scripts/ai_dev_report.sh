@@ -63,7 +63,7 @@ done
 # --- Compose the email ------------------------------------------------------
 cat > "$REPORT" <<EOM
 To: Kunal <kunal@chirpin.in>
-From: Vyara PM <onboarding@resend.dev>
+Cc: Varun Pratap Singh <varunpratapsingh191@gmail.com>
 Subject: [Vyara] AI developer report — $TODAY
 
 Hi Kunal,
