@@ -25,7 +25,7 @@ Orchestrator (AI, night-shift engineering manager)
 | AI dev agents (×2 max) | ~05:00 – 06:30 | `0 5 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. Moved out of the IST peak window (23-04 IST overlaps Anthropic's US-business-hours load). |
 | PM Agent | 07:30 – 08:30 | `30 7 * * *` | Reviews every open `task/**` and `chore/**` branch (AI + human), auto-merges approved ones, **drafts** today's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. Off-peak (07:30 IST = 02:00 UTC = 9 PM EST previous day). |
 | Emailer | 09:00 daily | `0 9 * * *` | Reads `assignments/<today>/*.md` and sends each via Resend. Enforces a hard cap of `VYARA_EMAIL_DAILY_MAX` (default 90) recipient-sends per calendar day. Logs to `assignments/.email-log-<date>.txt`. |
-| Daily Report | 12:00 daily | `0 12 * * *` | Generates `reports/<date>.md` summarizing the last 24h's merges, commits, open PRs, drafted assignments, and emails sent — then emails it to **kunal@chirpin.in**. Counts toward the daily 90-send cap. Moved to IST off-peak (12:00 IST = 06:30 UTC = lowest Anthropic load). |
+| Daily Reports | 12:00 daily | `0 12 * * *` | Generates **two** reports and emails both to **kunal@chirpin.in**: (a) `reports/<date>.md` — overall git activity (merges, commits, open PRs, drafted assignments, emails sent); (b) `reports/ai-dev-<date>.md` — AI-developer activity (commits by Dev-Agent-*, PM merge verdicts, per-branch throughput, still-open branches). Both count toward the 90-send cap. Off-peak (12:00 IST = 06:30 UTC). |
 | Human juniors | 10:00 – 19:00 | manual | Frontend tasks (FE-**). Read assignments emailed by the 09:00 job. Branch + commit + push to remote. |
 
 ## Token & rate-limit policy
