@@ -58,11 +58,12 @@ PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, plus 
 
 1. Run `git --no-pager diff --stat main..<branch>` and inspect each touched file.
 2. Score on: scope match, code quality, docs presence, safety (no secrets), declared dependencies.
-3. Verdict per branch:
+3. **Run the CI gate** before deciding MERGE — `scripts/ci_gate.sh <branch>` exits 0 if `prisma format`, `prisma validate`, `tsc --noEmit`, and `eslint --max-warnings=0` all pass on that branch. Any non-zero exit auto-flips the verdict to REQUEST_CHANGES with the failure tail copied into the report. **No branch ships to main without passing this gate.**
+4. Verdict per branch:
    - **MERGE** — `--no-ff` into main, push back, archive the branch ref.
    - **REQUEST_CHANGES** — leave the branch as-is; record blockers in `assignments/<date>/<dev>.md` (for humans) or in the next dev-shift queue (for AI).
-4. Foundation-phase carve-outs: don't block on missing tests, missing JSDoc, or style preferences.
-5. SLA: ≤45 tool uses per nightly review.
+5. Foundation-phase carve-outs: don't block on missing tests, missing JSDoc, or style preferences. **The CI gate is non-negotiable** — those are code-correctness checks, not style.
+6. SLA: ≤45 tool uses per nightly review.
 
 ## PM email-assignment playbook
 
