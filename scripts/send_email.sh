@@ -24,12 +24,14 @@ set -euo pipefail
 
 BODY_FILE=""
 CLI_TO=""
+CLI_CC=""
 CLI_SUBJECT=""
 CLI_FROM=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --to)         CLI_TO="$2"; shift 2 ;;
+    --cc)         CLI_CC="$2"; shift 2 ;;
     --subject)    CLI_SUBJECT="$2"; shift 2 ;;
     --from)       CLI_FROM="$2"; shift 2 ;;
     --body-file)  BODY_FILE="$2"; shift 2 ;;
@@ -60,8 +62,9 @@ touch "$LOG_FILE"
 
 # --- Parse headers from body file -------------------------------------------
 # Reads until first blank line; remaining lines are the body.
-declare TO SUBJECT FROM BODY
+declare TO CC SUBJECT FROM BODY
 TO="$CLI_TO"
+CC="$CLI_CC"
 SUBJECT="$CLI_SUBJECT"
 FROM="$CLI_FROM"
 BODY=""
@@ -75,6 +78,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     fi
     case "$line" in
       To:*)      [ -z "$TO" ]      && TO="${line#To:}"      && TO="${TO# }"     ;;
+      Cc:*)      [ -z "$CC" ]      && CC="${line#Cc:}"      && CC="${CC# }"     ;;
       Subject:*) [ -z "$SUBJECT" ] && SUBJECT="${line#Subject:}" && SUBJECT="${SUBJECT# }" ;;
       From:*)    [ -z "$FROM" ]    && FROM="${line#From:}"  && FROM="${FROM# }" ;;
       *) ;; # ignore unknown headers
@@ -89,9 +93,19 @@ done < "$BODY_FILE"
 [ -n "$FROM" ]    || FROM="${EMAIL_FROM:-Vyara PM <onboarding@resend.dev>}"
 
 # --- Daily cap check --------------------------------------------------------
-SENT_TODAY=$(wc -l < "$LOG_FILE" | tr -d ' ')
-if [ "$SENT_TODAY" -ge "$MAX" ]; then
-  echo "[email] daily cap reached ($SENT_TODAY/$MAX) — refusing to send to $TO" >&2
+# Recipient-sends already counted today (sum of to + cc per send)
+SENT_TODAY=$(awk '
+  /^.* SENT  /  { n=1; if ($0 ~ /cc=/) { cc=$0; sub(/.*cc=/,"",cc); sub(/ .*/,"",cc); split(cc, a, ","); for (i in a) if (a[i] != "") n++ } total += n }
+  END { print total+0 }
+' "$LOG_FILE")
+# This send will count: 1 (to) + (count of cc addresses, if any)
+THIS_SEND=1
+if [ -n "$CC" ]; then
+  CC_COUNT=$(awk -F, '{n=0; for (i=1; i<=NF; i++) if ($i ~ /[^[:space:]]/) n++; print n}' <<<"$CC")
+  THIS_SEND=$((1 + CC_COUNT))
+fi
+if [ $((SENT_TODAY + THIS_SEND)) -gt "$MAX" ]; then
+  echo "[email] daily cap would be exceeded ($SENT_TODAY+$THIS_SEND > $MAX) — refusing to send to $TO${CC:+ cc=$CC}" >&2
   exit 3
 fi
 
@@ -104,12 +118,16 @@ fi
 
 PAYLOAD=$(python3 -c '
 import json, sys
-print(json.dumps({
+payload = {
   "from":    sys.argv[1],
   "to":      [sys.argv[2]],
   "subject": sys.argv[3],
   "text":    sys.argv[4],
-}))' "$FROM" "$TO" "$SUBJECT" "$BODY")
+}
+cc = sys.argv[5].strip() if len(sys.argv) > 5 else ""
+if cc:
+    payload["cc"] = [a.strip() for a in cc.split(",") if a.strip()]
+print(json.dumps(payload))' "$FROM" "$TO" "$SUBJECT" "$BODY" "$CC")
 
 HTTP_CODE=$(curl -sS -o /tmp/resend.out -w "%{http_code}" \
   -X POST "https://api.resend.com/emails" \
@@ -119,10 +137,10 @@ HTTP_CODE=$(curl -sS -o /tmp/resend.out -w "%{http_code}" \
 
 if [[ "$HTTP_CODE" =~ ^2 ]]; then
   ID=$(python3 -c 'import json,sys; print(json.load(open("/tmp/resend.out")).get("id","?"))' 2>/dev/null || echo "?")
-  echo "$(date -u +%FT%TZ) SENT  $TO  id=$ID" >> "$LOG_FILE"
-  echo "[email] sent to $TO (id=$ID) — daily $(wc -l < "$LOG_FILE" | tr -d ' ')/$MAX"
+  echo "$(date -u +%FT%TZ) SENT  $TO${CC:+ cc=$CC}  id=$ID" >> "$LOG_FILE"
+  echo "[email] sent to $TO${CC:+ cc=$CC} (id=$ID) — daily ~$(wc -l < "$LOG_FILE" | tr -d ' ') sends, recipient-cap $MAX"
 else
-  echo "$(date -u +%FT%TZ) FAIL  $TO  http=$HTTP_CODE" >> "$LOG_FILE"
+  echo "$(date -u +%FT%TZ) FAIL  $TO${CC:+ cc=$CC}  http=$HTTP_CODE" >> "$LOG_FILE"
   echo "[email] FAILED to send to $TO (http $HTTP_CODE):" >&2
   cat /tmp/resend.out >&2
   exit 1
