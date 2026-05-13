@@ -1,0 +1,8 @@
+2026-05-13T07:21:59Z SENT  starklabsindia@gmail.com  id=5d58f08a-4b6b-4249-bfa6-907a2f17fd54  (handoff for Urvi+Yasha)
+2026-05-13T07:22:16Z SENT  starklabsindia@gmail.com  (FULL handoff re-send — Urvi+Yasha bodies embedded)
+2026-05-13T07:22:40Z RESEND  starklabsindia@gmail.com  (handoff with Urvi+Yasha bodies)
+2026-05-13T07:33:20Z ATTEMPT  varunpratapsingh191@gmail.com  (copy of handoff)
+2026-05-13T07:43:01Z SENT  varunpratapsingh191@gmail.com  (from=hello@algoborne.com, full handoff)
+2026-05-13T07:45:40Z SENT  sharmaurvi48@gmail.com  cc=kunal@chirpin.in,varunpratapsingh191@gmail.com  http=200  id=ba6f2d57-41fb-487b-8f08-20c752434cf8  (Urvi assignment)
+2026-05-13T07:45:40Z SENT  yasha6519@gmail.com  cc=kunal@chirpin.in,varunpratapsingh191@gmail.com  http=200  id=f1c02c35-a985-4ed6-887f-90ad7cfbe561  (Yasha assignment)
+2026-05-13T07:53:32Z SENT  kunal@chirpin.in  cc=varunpratapsingh191@gmail.com  (org hierarchy announcement)
