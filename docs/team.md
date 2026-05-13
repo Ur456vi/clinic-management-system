@@ -8,7 +8,7 @@ A hybrid team: AI agents handle backend foundations and infrastructure; two huma
 |---|---|---|---|
 | Orchestrator | `Orchestrator` | 23:00 – 11:00 | Plans nightly work, spawns dev agents, no merges |
 | Dev Agent (×2 max parallel) | `Dev-Agent-<TASK>` | 23:00 – 11:00 | One backend task per branch, commits, returns to orchestrator |
-| PM Agent | `PM-Agent` | 02:00 – 03:00 | Reviews + auto-merges branches from AI and human devs, emails next-day assignments to humans |
+| PM Agent | `PM-Agent` | 07:30 – 08:30 | Reviews + auto-merges branches from AI and human devs; drafts assignments for the 09:00 emailer to send. |
 
 ## Human developers
 
@@ -22,19 +22,21 @@ Humans pick up frontend tasks (FE-** in `Vyara_Development_Tasks.xlsx`). They co
 ## Daily rhythm
 
 ```
-02:00  PM Agent reviews open PRs, auto-merges, drafts today's assignments
-03:00  PM shift closes
 05:00  AI dev shift starts (off-peak)
         └─ Orchestrator picks 2 backend tasks, spawns 2 dev agents
-06:30  Dev agents finish; branches open (will be reviewed by next 02:00 PM)
+06:30  Dev agents finish; branches open
+07:30  PM Agent reviews fresh AI PRs + any human PRs from yesterday evening
+        ├─ Auto-merges approved branches into main
+        └─ Drafts today's frontend assignments to assignments/<DATE>/<dev>.md
+08:30  PM shift closes
 09:00  Emailer sends today's assignments to Urvi & Yasha (Cc Kunal)
 10:00  Urvi and Yasha online; pick up assignments from inbox
 12:00  Daily task report → kunal@chirpin.in (off-peak)
 19:00  Urvi and Yasha push their day's branches; sign off
-02:00  Cycle repeats
+05:00  Cycle repeats
 ```
 
-> Branches opened at 05:00 wait for the **next** 02:00 PM shift (≈21 h SLA). This is intentional: it keeps every LLM-heavy job out of the IST peak window (18:30–04:30 IST = Anthropic's US-business-hours load).
+> Every LLM-heavy job runs in the IST off-peak window (05:00–18:30 IST = US night → US early-morning = Anthropic's lowest load). AI dev PRs get same-day review (≈2.5 h SLA); human PRs pushed at 19:00 get reviewed the next morning at 07:30 (≈12.5 h SLA).
 
 ## Communication
 
