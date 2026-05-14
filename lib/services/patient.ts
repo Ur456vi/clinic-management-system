@@ -81,7 +81,12 @@ export async function listPatients(
   const where: Prisma.PatientWhereInput = {}
 
   if (input.status) {
-    where.status = input.status
+    // BE-12: `status` may now be a single enum value or an array of them
+    // (comma-separated in the query string). Both shapes map cleanly onto
+    // Prisma's `equals` / `in` operators.
+    where.status = Array.isArray(input.status)
+      ? { in: input.status }
+      : input.status
   } else {
     where.status = { not: PatientStatus.ARCHIVED }
   }
