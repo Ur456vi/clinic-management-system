@@ -1,0 +1,1198 @@
+openapi: 3.1.0
+info:
+  title: Vyara API
+  version: 0.1.0
+  summary: Vyara clinic-management backend — Sprint 1 surface.
+  description: |
+    Machine-readable contract for the Vyara backend as shipped to `main` at
+    the end of Sprint 1 Day 2. Source of truth for this spec is the code in
+    `app/api/**` together with `docs/api-reference.md`. When the two
+    diverge, `docs/api-reference.md` wins for prose and this file wins for
+    wire shapes.
+
+    Conventions (full prose in `docs/api-conventions.md`):
+
+    * Auth is cookie-based: NextAuth JWT in `next-auth.session-token`
+      (HttpOnly, SameSite=Lax, Secure in prod), 12-hour TTL. Send
+      `credentials: "include"` from the browser.
+    * Success responses use a `{ data, ... }` envelope; list endpoints add
+      `pagination.next` and a top-level `nextCursor` mirror.
+    * Errors use `{ error: { code, message, details? } }`.
+    * Dates are ISO 8601 UTC. Enums are SCREAMING_SNAKE_CASE.
+    * Pagination is keyset (cursor + limit); `limit` defaults to 20, max 100.
+
+    See [`/swagger`](/swagger) for an interactive playground served from
+    this same spec.
+  contact:
+    name: Vyara Backend
+    email: backend@vyara.local
+  license:
+    name: Proprietary
+servers:
+  - url: http://localhost:3000
+    description: Local dev (default)
+  - url: "{baseUrl}"
+    description: Configured (override via baseUrl variable)
+    variables:
+      baseUrl:
+        default: http://localhost:3000
+        description: Override to point at any environment.
+tags:
+  - name: Health
+    description: Liveness probes (anonymous).
+  - name: Auth
+    description: |
+      NextAuth credentials login and the email-OTP password-reset flow.
+      See the [NextAuth documentation](https://next-auth.js.org/) for the
+      surrounding session, CSRF, and sign-out routes.
+  - name: Patients
+    description: Patient CRUD, search, and soft-delete.
+  - name: Consultations
+    description: |
+      Polymorphic clinical encounters (`RMO` intake / `MAIN` doctor pass).
+      The PATCH endpoint is the autosave path for the consultation form.
+
+security:
+  - sessionCookie: []
+
+paths:
+  # -------------------------------------------------------------------------
+  # Health
+  # -------------------------------------------------------------------------
+  /api/health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Liveness probe
+      description: |
+        Returns `{ status, time, version }`. Safe for uptime monitors and
+        load-balancer healthchecks. Anonymous.
+      security: []
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Health"
+              example:
+                data:
+                  status: ok
+                  time: "2026-05-14T09:00:00.000Z"
+                  version: "0.1.0"
+
+  # -------------------------------------------------------------------------
+  # Auth — NextAuth credentials login
+  # -------------------------------------------------------------------------
+  /api/auth/callback/credentials:
+    post:
+      tags: [Auth]
+      operationId: signInCredentials
+      summary: NextAuth credentials sign-in
+      description: |
+        NextAuth's built-in credentials callback. The FE typically calls
+        this via `signIn("credentials", { ... })` from `next-auth/react`
+        rather than hand-rolling a fetch — that helper handles CSRF
+        token retrieval and the cookie dance.
+
+        See the [NextAuth credentials provider
+        docs](https://next-auth.js.org/providers/credentials) for the
+        full lifecycle. This endpoint is documented here only for FE
+        integrators who want to call it directly.
+
+        On success the server sets `Set-Cookie:
+        next-auth.session-token=...` (HttpOnly, SameSite=Lax, Secure in
+        prod) with a 12-hour TTL, and returns `{ url }` pointing at the
+        configured callback URL. On failure NextAuth redirects to
+        `/login?error=CredentialsSignin` and the helper surfaces
+        `{ ok: false, error: "CredentialsSignin" }`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [email, password, csrfToken]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Trimmed + lowercased server-side.
+                  example: dr.yuvraaj@example.com
+                password:
+                  type: string
+                  format: password
+                  description: Plain text; verified with bcrypt cost 12.
+                  example: Demo@123
+                csrfToken:
+                  type: string
+                  description: Fetch from `GET /api/auth/csrf`.
+      responses:
+        "200":
+          description: |
+            Sign-in succeeded. `Set-Cookie` header carries the session
+            token. Response body is NextAuth's default `{ url }` shape.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "next-auth.session-token=eyJhbGciOi...; Path=/; HttpOnly; SameSite=Lax"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    example: http://localhost:3000/doctor
+        "302":
+          description: |
+            NextAuth redirects on failure (bad credentials / inactive
+            user) — `Location: /login?error=CredentialsSignin`. The
+            `next-auth/react` helper turns this into a non-throwing
+            `{ ok: false }` result.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: "/login?error=CredentialsSignin"
+
+  # -------------------------------------------------------------------------
+  # Auth — Password reset (email OTP)
+  # -------------------------------------------------------------------------
+  /api/auth/password-reset/request:
+    post:
+      tags: [Auth]
+      operationId: passwordResetRequest
+      summary: Request an OTP for password reset
+      description: |
+        Step 1 of the email-OTP reset flow.
+
+        **Always returns 200** when the body parses, regardless of
+        whether the email matches a user — this is the
+        enumeration-resistance guarantee. If the email maps to an
+        active user a 6-digit OTP is generated, bcrypt-hashed, stored
+        with a 15-minute TTL, and emailed via Resend (or logged to
+        stdout in dev).
+
+        Rate-limit: 5 OTPs per user per rolling hour. Excess requests
+        are silently dropped; the caller still sees 200.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "200":
+          description: Request accepted (no signal as to whether the email exists).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Ok"
+              example:
+                data: { ok: true }
+        "400":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/auth/password-reset/verify:
+    post:
+      tags: [Auth]
+      operationId: passwordResetVerify
+      summary: Verify the OTP and exchange it for a reset ticket
+      description: |
+        Step 2: exchange a 6-digit OTP for a short-lived reset ticket
+        (JWT, 5-minute TTL). Pass the ticket back to `confirm`
+        verbatim.
+
+        On failure (bad OTP, expired OTP, no OTP issued, attempts
+        exhausted) all four cases return the same bland 400 with
+        message `Invalid or expired code`. 5 verify attempts per OTP
+        row — once exhausted the row is dead even for the correct
+        code.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetVerify"
+      responses:
+        "200":
+          description: OTP accepted; ticket issued.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [ticket]
+                        properties:
+                          ticket:
+                            type: string
+                            description: Opaque JWT (HS256). Pass to `confirm` verbatim.
+              example:
+                data:
+                  ticket: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/auth/password-reset/confirm:
+    post:
+      tags: [Auth]
+      operationId: passwordResetConfirm
+      summary: Set a new password using a reset ticket
+      description: |
+        Step 3 (final): set a new password using the ticket from
+        `verify`. On success the user's `passwordHash` is updated,
+        any other outstanding OTPs for them are invalidated, and a
+        `password-reset.confirmed` audit row is written — all
+        atomically. The ticket is single-use; replaying it returns the
+        bland 400 with message `Invalid or expired reset ticket`.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetConfirm"
+      responses:
+        "200":
+          description: Password updated.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Ok"
+              example:
+                data: { ok: true }
+        "400":
+          $ref: "#/components/responses/ValidationError"
+
+  # -------------------------------------------------------------------------
+  # Patients
+  # -------------------------------------------------------------------------
+  /api/patients:
+    get:
+      tags: [Patients]
+      operationId: listPatients
+      summary: List, search, filter, and paginate patients
+      description: |
+        Cursor-paginated list. Short-form params (`q`, `doctorId`,
+        `limit`) are canonical; the legacy `search`, `primaryDoctorId`,
+        and `take` aliases continue to work and the short form wins
+        when both are supplied.
+
+        Ordering is `createdAt DESC, id DESC` (stable, keyset-safe).
+        Out-of-range `limit` values clamp silently.
+
+        Response carries both `nextCursor` (BE-12 canonical) and
+        `pagination.next` (BE-07 legacy). New code should read
+        `nextCursor`. When the end of the list is reached both are
+        `null`.
+
+        Default behaviour when `status` is omitted: `ARCHIVED` rows
+        are hidden.
+      parameters:
+        - in: query
+          name: q
+          description: |
+            Case-insensitive substring search across `fullName`,
+            `email`, `phone`, `patientNumber`. Alias of legacy
+            `search`.
+          schema:
+            type: string
+            maxLength: 200
+        - in: query
+          name: search
+          description: Legacy alias of `q`. `q` wins when both are present.
+          schema:
+            type: string
+            maxLength: 200
+        - in: query
+          name: status
+          description: |
+            Comma-separated `PatientStatus` values. When omitted,
+            `ARCHIVED` rows are hidden.
+          schema:
+            type: string
+            example: ACTIVE,INACTIVE
+        - in: query
+          name: doctorId
+          description: Filter to patients with this primary doctor. Alias of `primaryDoctorId`.
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: primaryDoctorId
+          description: Legacy alias of `doctorId`.
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: cursor
+          description: Opaque keyset cursor — the `id` of the last row of the previous page. Omit for page 1.
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: Page size, default 20, max 100. Alias of legacy `take`.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: take
+          description: Legacy alias of `limit`.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Page of patients.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientList"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Patients]
+      operationId: createPatient
+      summary: Create a new patient
+      description: |
+        Creates a patient and assigns `patientNumber` (`PAT-NNNNNN`).
+        `patientNumber` currently uses `MAX+1` and can race under
+        concurrent inserts — the unique index catches collisions and
+        the route returns 409, retry once.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientCreate"
+      responses:
+        "201":
+          description: Patient created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL of the new patient resource.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Patient"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/patients/{id}:
+    parameters:
+      - $ref: "#/components/parameters/PatientId"
+    get:
+      tags: [Patients]
+      operationId: getPatient
+      summary: Fetch one patient
+      description: Writes a `READ` audit row server-side.
+      responses:
+        "200":
+          description: Patient found.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Patient"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Patients]
+      operationId: updatePatient
+      summary: Partial update of a patient
+      description: |
+        Any subset of the create body plus `status`. Sending `{}` is a
+        no-op (an audit row is still written, with an empty diff).
+
+        Setting `primaryDoctorId: null` disconnects the doctor
+        relation. Note: clearing other optional fields is done by
+        omitting them from the body — sending `null` is currently
+        rejected by Zod for non-doctor fields.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientUpdate"
+      responses:
+        "200":
+          description: Patient updated.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Patient"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Patients]
+      operationId: softDeletePatient
+      summary: Soft-delete a patient
+      description: |
+        Sets `status = ARCHIVED` and `deletedAt = now()`. The row stays
+        in the table so historical consultations and audit trails
+        remain referentially intact. Archived patients are hidden from
+        the default `GET /api/patients` list; pass `status=ARCHIVED`
+        explicitly to see them.
+      responses:
+        "204":
+          description: Deleted (no body).
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # -------------------------------------------------------------------------
+  # Consultations
+  # -------------------------------------------------------------------------
+  /api/consultations:
+    post:
+      tags: [Consultations]
+      operationId: createConsultation
+      summary: Create a DRAFT consultation
+      description: |
+        Creates a new `DRAFT` consultation linked to a patient and the
+        calling user as author. The `type` discriminator gates the
+        role check:
+
+        * `RMO`  — allowed for `ADMIN`, `RMO`, `DOCTOR`.
+        * `MAIN` — allowed for `ADMIN`, `DOCTOR`.
+
+        Wrong role → 403. Unknown patient → 404.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationCreate"
+      responses:
+        "201":
+          description: Consultation created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL of the new consultation resource.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Consultation"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/consultations/{id}:
+    description: |
+      Item routes for a single consultation.
+
+      **Role view allow-list (GET):** `ADMIN`, `DOCTOR`, `RMO`,
+      `RECEPTION`, `INFUSION_SPECIALIST`, `REHAB_SPECIALIST`,
+      `AESTHETICS_SPECIALIST`.
+
+      **Role write allow-list (PATCH):** the same matrix as POST,
+      gated by the consultation's `type` (`RMO` => `ADMIN`/`RMO`/`DOCTOR`;
+      `MAIN` => `ADMIN`/`DOCTOR`).
+
+      **Status transition matrix (PATCH `status`):**
+
+      | From          | Allowed `next`              |
+      | ------------- | --------------------------- |
+      | `DRAFT`       | `RMO_DONE`, `IN_PROGRESS`   |
+      | `RMO_DONE`    | `IN_PROGRESS`               |
+      | `IN_PROGRESS` | `SIGNED`                    |
+      | `SIGNED`      | _(terminal — row immutable)_ |
+
+      Any other transition => 400 with message
+      `Illegal status transition: <from> -> <to>`.
+
+      **Shallow-merge semantics on `sections`.** A PATCH that sends
+      `sections` merges into the existing JSONB at the **top level
+      only** — `{ ...existing, ...patch }`. Sending
+      `{ sections: { vitals: ... } }` overwrites only `vitals` and
+      leaves the other top-level keys alone. To clear a sub-field,
+      omit it from the next save; deep-merge is intentionally not
+      supported.
+
+      Any PATCH (including no-op `{}`) against a `SIGNED` row returns
+      400 with message `Consultation is SIGNED and cannot be modified`.
+    parameters:
+      - $ref: "#/components/parameters/ConsultationId"
+    get:
+      tags: [Consultations]
+      operationId: getConsultation
+      summary: Fetch one consultation
+      description: |
+        Returns the full consultation row plus embedded `createdBy`
+        (id, email, role, staff name) and `patient` summary. Writes a
+        `READ` audit row.
+      responses:
+        "200":
+          description: Consultation found.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Consultation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Consultations]
+      operationId: updateConsultation
+      summary: Partial save (autosave) of a consultation
+      description: |
+        Autosave endpoint for the consultation form. Every body field
+        is optional.
+
+        * `sections` is **shallow-merged** at the top level into the
+          existing JSONB.
+        * `status` must be a legal transition from the current status
+          (see the path-level description for the matrix).
+        * `summary` is overwritten verbatim; `null` clears it.
+
+        A SIGNED consultation rejects every PATCH including no-op
+        `{}` with a 400. Autosaves race on the JSONB column with
+        last-write-wins — debounce on the FE (~750 ms).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationPatch"
+      responses:
+        "200":
+          description: Consultation updated.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Consultation"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ===========================================================================
+# Components
+# ===========================================================================
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: |
+        NextAuth JWT session cookie. HttpOnly, SameSite=Lax, Secure in
+        production, 12-hour TTL. Browsers attach it automatically;
+        from `fetch()` use `credentials: "include"`. From
+        `next-auth/react` use `signIn("credentials", ...)`.
+
+  parameters:
+    PatientId:
+      name: id
+      in: path
+      required: true
+      description: Patient UUID.
+      schema:
+        type: string
+        format: uuid
+    ConsultationId:
+      name: id
+      in: path
+      required: true
+      description: Consultation UUID.
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    ValidationError:
+      description: Body or query failed validation, or a domain-rule check (e.g. illegal status transition, PATCH against SIGNED row).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Request validation failed
+              details:
+                - path: [body, email]
+                  message: Invalid email
+    Unauthorized:
+      description: No session cookie or session expired.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required
+    Forbidden:
+      description: Signed in but the caller's role is not in the route's allow-list.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              code: FORBIDDEN
+              message: Role not permitted
+    NotFound:
+      description: Resource id is well-formed but no matching row exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+    Conflict:
+      description: Unique-constraint collision. Rare race; safe to retry.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              code: CONFLICT
+              message: Unique constraint collision
+
+  schemas:
+    # -----------------------------------------------------------------
+    # Envelopes
+    # -----------------------------------------------------------------
+    Envelope:
+      type: object
+      description: Standard success envelope. List endpoints add `pagination` and `nextCursor`.
+      required: [data]
+      properties:
+        data:
+          description: Endpoint-specific payload.
+    Pagination:
+      type: object
+      description: Keyset pagination cursor.
+      properties:
+        next:
+          type: [string, "null"]
+          description: |
+            Cursor for the next page (`id` of the last returned row),
+            or `null` at the end of the list.
+        total:
+          type: integer
+          description: Optional. Present only on cheap-to-count lists.
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          $ref: "#/components/schemas/Error"
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - VALIDATION_ERROR
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - CONFLICT
+            - RATE_LIMITED
+            - INTERNAL_ERROR
+          description: Stable machine-readable error code.
+        message:
+          type: string
+          description: Developer-facing message; surface in logs, not in end-user UI.
+        details:
+          type: array
+          description: Optional structured detail (Zod issues, transition info).
+          items:
+            type: object
+            properties:
+              path:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+              message:
+                type: string
+
+    Ok:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+          const: true
+
+    # -----------------------------------------------------------------
+    # Enums
+    # -----------------------------------------------------------------
+    Role:
+      type: string
+      description: Staff role enum.
+      enum:
+        - ADMIN
+        - DOCTOR
+        - RMO
+        - RECEPTION
+        - INFUSION_SPECIALIST
+        - REHAB_SPECIALIST
+        - AESTHETICS_SPECIALIST
+    PatientStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, ARCHIVED]
+    Sex:
+      type: string
+      enum: [MALE, FEMALE, OTHER, UNDISCLOSED]
+    ConsultationType:
+      type: string
+      enum: [RMO, MAIN]
+    ConsultationStatus:
+      type: string
+      enum: [DRAFT, RMO_DONE, IN_PROGRESS, SIGNED]
+
+    # -----------------------------------------------------------------
+    # Health
+    # -----------------------------------------------------------------
+    Health:
+      type: object
+      required: [status, time, version]
+      properties:
+        status:
+          type: string
+          const: ok
+        time:
+          type: string
+          format: date-time
+        version:
+          type: string
+          description: From `package.json#version`.
+
+    # -----------------------------------------------------------------
+    # Password reset bodies
+    # -----------------------------------------------------------------
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: Trimmed + lowercased server-side.
+    PasswordResetVerify:
+      type: object
+      required: [email, otp]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        otp:
+          type: string
+          pattern: "^\\d{6}$"
+          description: Exactly 6 digits (leading zeros allowed).
+    PasswordResetConfirm:
+      type: object
+      required: [ticket, newPassword]
+      properties:
+        ticket:
+          type: string
+          minLength: 1
+          description: Opaque JWT from `verify`.
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+
+    # -----------------------------------------------------------------
+    # Patient
+    # -----------------------------------------------------------------
+    Patient:
+      type: object
+      required:
+        - id
+        - patientNumber
+        - fullName
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientNumber:
+          type: string
+          example: PAT-000042
+          description: Server-assigned. Format `PAT-NNNNNN`.
+        fullName:
+          type: string
+          maxLength: 200
+        email:
+          type: [string, "null"]
+          format: email
+          maxLength: 254
+        phone:
+          type: [string, "null"]
+          maxLength: 50
+        dateOfBirth:
+          type: [string, "null"]
+          format: date
+          description: ISO 8601 date (no time).
+        sex:
+          oneOf:
+            - $ref: "#/components/schemas/Sex"
+            - type: "null"
+        status:
+          $ref: "#/components/schemas/PatientStatus"
+        primaryDoctorId:
+          type: [string, "null"]
+          format: uuid
+          description: FK to Staff with role=DOCTOR.
+        userId:
+          type: [string, "null"]
+          format: uuid
+          description: |
+            Set only when the patient has self-enrolled for the patient
+            portal (BE-47). Clinic-created patients have `null` here.
+        occupation:
+          type: [string, "null"]
+          maxLength: 200
+        placeOfResidence:
+          type: [string, "null"]
+          maxLength: 200
+        address:
+          type: [string, "null"]
+          maxLength: 500
+        referralSource:
+          type: [string, "null"]
+          maxLength: 200
+        deletedAt:
+          type: [string, "null"]
+          format: date-time
+          description: Set on soft-delete.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PatientCreate:
+      type: object
+      required: [fullName]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: Empty string is treated as absent.
+        phone:
+          type: string
+          maxLength: 50
+        dateOfBirth:
+          type: string
+          format: date
+        sex:
+          $ref: "#/components/schemas/Sex"
+        occupation:
+          type: string
+          maxLength: 200
+        placeOfResidence:
+          type: string
+          maxLength: 200
+        address:
+          type: string
+          maxLength: 500
+        referralSource:
+          type: string
+          maxLength: 200
+        primaryDoctorId:
+          type: string
+          format: uuid
+
+    PatientUpdate:
+      type: object
+      description: |
+        Partial update. Every field is optional. Sending `{}` is a
+        no-op. To clear a non-doctor optional field, omit it (sending
+        `null` is currently rejected by Zod). To disconnect the
+        primary doctor, send `{ "primaryDoctorId": null }`.
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 50
+        dateOfBirth:
+          type: string
+          format: date
+        sex:
+          $ref: "#/components/schemas/Sex"
+        occupation:
+          type: string
+          maxLength: 200
+        placeOfResidence:
+          type: string
+          maxLength: 200
+        address:
+          type: string
+          maxLength: 500
+        referralSource:
+          type: string
+          maxLength: 200
+        primaryDoctorId:
+          type: [string, "null"]
+          format: uuid
+        status:
+          $ref: "#/components/schemas/PatientStatus"
+
+    PatientList:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        nextCursor:
+          type: [string, "null"]
+          description: BE-12 canonical cursor for the next page.
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    # -----------------------------------------------------------------
+    # Consultation
+    # -----------------------------------------------------------------
+    ConsultationSections:
+      type: object
+      additionalProperties: true
+      description: |
+        Free-form JSONB blob. The server validates only that this is a
+        JSON object at the top level — sub-field shapes are FE-owned
+        until the form contract stabilises.
+
+        For `type=RMO` typical top-level keys are `informant`,
+        `demographics`, `medicalHistory`, `socialHistory`,
+        `personalHistory`, `examinationSummary`.
+
+        For `type=MAIN` typical keys are `chiefComplaint`, `hpi`,
+        `assessment`, `diagnosis`, `plan`.
+
+    ConsultationAuthor:
+      type: object
+      description: Embedded summary of the consultation's `createdBy` user.
+      required: [id, email, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          $ref: "#/components/schemas/Role"
+        staff:
+          type: [object, "null"]
+          properties:
+            fullName:
+              type: string
+
+    ConsultationPatientSummary:
+      type: object
+      description: Embedded patient summary on a Consultation response.
+      required: [id, patientNumber, fullName, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientNumber:
+          type: string
+        fullName:
+          type: string
+        sex:
+          oneOf:
+            - $ref: "#/components/schemas/Sex"
+            - type: "null"
+        dateOfBirth:
+          type: [string, "null"]
+          format: date
+        status:
+          $ref: "#/components/schemas/PatientStatus"
+        primaryDoctorId:
+          type: [string, "null"]
+          format: uuid
+
+    Consultation:
+      type: object
+      required:
+        - id
+        - patientId
+        - type
+        - status
+        - sections
+        - createdById
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ConsultationType"
+        status:
+          $ref: "#/components/schemas/ConsultationStatus"
+        sections:
+          $ref: "#/components/schemas/ConsultationSections"
+        summary:
+          type: [string, "null"]
+          maxLength: 2000
+        createdById:
+          type: string
+          format: uuid
+        signedById:
+          type: [string, "null"]
+          format: uuid
+        signedAt:
+          type: [string, "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          $ref: "#/components/schemas/ConsultationAuthor"
+        patient:
+          $ref: "#/components/schemas/ConsultationPatientSummary"
+
+    ConsultationCreate:
+      type: object
+      required: [patientId, type]
+      properties:
+        patientId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/ConsultationType"
+        sections:
+          $ref: "#/components/schemas/ConsultationSections"
+        summary:
+          type: string
+          maxLength: 2000
+
+    ConsultationPatch:
+      type: object
+      description: |
+        Partial save. All fields optional. `sections` shallow-merges
+        at the top level; `status` must be a legal transition;
+        `summary: null` clears it.
+      properties:
+        sections:
+          $ref: "#/components/schemas/ConsultationSections"
+        status:
+          $ref: "#/components/schemas/ConsultationStatus"
+        summary:
+          type: [string, "null"]
+          maxLength: 2000

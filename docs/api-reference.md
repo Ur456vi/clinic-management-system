@@ -2,6 +2,7 @@
 
 > Audience: Vyara frontend developers (Urvi, Yasha, Dhanjay).
 > Last updated: 2026-05-14 (Sprint 1 Day 2).
+> Interactive Swagger UI: [/swagger](/swagger) (served from [`docs/openapi.yaml`](./openapi.yaml)).
 > Status of each endpoint is marked: shipped ✅, in-flight 🚧, backlog 📋.
 > Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
 
