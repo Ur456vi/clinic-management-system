@@ -3,7 +3,7 @@
 > Audience: Vyara frontend developers (Urvi, Yasha, Dhanjay).
 > Last updated: 2026-05-14 (Sprint 1 Day 2).
 > Status of each endpoint is marked: shipped ✅, in-flight 🚧, backlog 📋.
-> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
+> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
 
 This is the one-stop entry point for integrating the Vyara backend from the
 frontend. Every endpoint that has shipped to `main` as of Sprint 1 Day 2 is
@@ -21,6 +21,7 @@ For finer-grained design rationale, follow the deep-dive links above.
    - 3.2 [Auth](#32-auth)
    - 3.3 [Patients](#33-patients)
    - 3.4 [Consultations](#34-consultations)
+   - 3.5 [Appointments](#35-appointments) (in-flight)
 4. [FE-impact notes](#4-fe-impact-notes)
 5. [Coming soon (Sprint 1 backlog)](#5-coming-soon-sprint-1-backlog)
 6. [Open questions / gotchas](#6-open-questions--gotchas)
@@ -981,6 +982,77 @@ Notes:
 
 ---
 
+### 3.5 Appointments
+
+> Status: in-flight as of Sprint 1 Day 2 (BE-27 on
+> `task/BE-27-appointment-model`). Wire-shape is locked; merge to `main`
+> pending review. Until merged, FE call sites can stub against the
+> shapes documented here and in
+> [`api-appointments.md`](./api-appointments.md).
+
+The `Appointment` model is a scheduled clinical encounter between a
+Patient and a Staff member, with a small status machine and a
+server-enforced slot-conflict check.
+
+#### Status lifecycle
+
+```
+REQUESTED --+--> CONFIRMED --+--> COMPLETED
+            |                +--> CANCELLED
+            |                +--> NO_SHOW
+            +--> CANCELLED
+```
+
+Only `REQUESTED` and `CONFIRMED` rows hold a staff slot for conflict
+purposes; `COMPLETED`, `CANCELLED`, `NO_SHOW` are terminal.
+
+#### `POST /api/appointments` 🚧
+
+Body `{ patientId, staffId, departmentId?, startsAt, endsAt, reason?, notes? }`.
+Server validates `endsAt > startsAt` and rejects any overlap on
+`(staffId, [startsAt, endsAt))` for rows in `{REQUESTED, CONFIRMED}`:
+
+```json
+// 409 Conflict
+{
+  "error": {
+    "code": "CONFLICT",
+    "message": "Requested slot overlaps an existing appointment for this staff member",
+    "details": { "code": "SLOT_CONFLICT" }
+  }
+}
+```
+
+Auth: ADMIN, DOCTOR, RMO, RECEPTION. Default `status = REQUESTED`.
+
+#### `GET /api/appointments` 🚧
+
+Cursor-paginated list. Filters: `patientId`, `staffId`, `departmentId`,
+`status` (comma-separated), `from`, `to` (ISO date range on `startsAt`),
+`cursor`, `limit` (default 20, max 100). Order: `startsAt asc, id asc`.
+
+#### `GET /api/appointments/:id` 🚧
+
+Single appointment with embedded patient + staff + department +
+createdBy summaries.
+
+#### `PATCH /api/appointments/:id` 🚧
+
+Update `startsAt` / `endsAt` / `reason` / `notes`. Re-runs the
+slot-conflict check on time changes. Terminal-status rows reject.
+
+#### `POST /api/appointments/:id/transition` 🚧
+
+Body `{ to: AppointmentStatus, reason? }`. Allowed:
+`REQUESTED -> CONFIRMED|CANCELLED`,
+`CONFIRMED -> COMPLETED|CANCELLED|NO_SHOW`. On `CANCELLED` the server
+stamps `cancelledAt` and stores `cancelledReason`.
+
+See [`api-appointments.md`](./api-appointments.md) for full request/
+response shapes and error matrices.
+
+---
+
 ## 4. FE-impact notes
 
 ### Mapping to Sprint 1 FE tasks
@@ -1042,8 +1114,8 @@ These are not yet shipped to `main` — track [`sprint-1-mvp.md`](./sprint-1-mvp
 | 📋     | BE-15      | Consultation signing (`IN_PROGRESS -> SIGNED` write path)| 3   | FE-04 final state.    |
 | 📋     | BE-16      | LabResult model + API                                    | 4–5 | FE-05.                |
 | 📋     | BE-19      | File upload via S3 presigned URL                         | 5   | FE-05.                |
-| 📋     | BE-21      | Appointment model + slots                                | 6   | FE-07, FE-08.         |
-| 📋     | BE-23      | Appointment booking endpoint                             | 7   | FE-08.                |
+| 🚧     | BE-27      | Appointment model + first-cut CRUD + transition endpoint | 6   | FE-07, FE-08.         |
+| 📋     | BE-28      | Appointment scheduling logic (suggested slots)           | 7   | FE-08.                |
 | 📋     | BE-24      | TreatmentPlan model + API                                | 8   | FE-09.                |
 | 📋     | BE-26      | InfusionLog (integrative-medicine specific)              | 9   | FE-09 (history view). |
 | 📋     | BE-37      | Invoice + Razorpay-mock checkout                         | 11  | FE-10.                |

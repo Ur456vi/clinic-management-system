@@ -90,7 +90,7 @@ reviewers can reconstruct the saved diff. Once a consultation reaches
 |---|---|---|
 | BE-16 | `LabResult` | Per-panel rows; analytes JSONB; flags for out-of-range. |
 | BE-24 | `TreatmentPlan`, `PlanItem` | Plan header + line items (Rx, Supplement, IV, Rehab, Aesthetic). |
-| BE-27 | `Appointment` | Patient + staff + room/chair + modality + time range. |
+| BE-27 | `Appointment` | Landed (in-flight on `task/BE-27-appointment-model`). Patient + staff + optional department + half-open time range with server-side slot-conflict check; status machine `REQUESTED -> CONFIRMED -> COMPLETED|CANCELLED|NO_SHOW` (terminal). Service-layer helper `hasSlotConflict()` is reused by BE-28 for suggested slots. |
 | BE-37 | `Invoice`, `InvoiceItem`, `Payment` | Standard billing model with package/session draw-down. |
 
 Each task adds:
