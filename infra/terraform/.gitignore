@@ -1,0 +1,17 @@
+# Terraform state — never commit.
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Local plan files.
+*.tfplan
+*.tfplan.*
+
+# Local .terraform working directory.
+.terraform/
+.terraform.lock.hcl
+
+# tfvars potentially containing secrets.
+*.tfvars
+*.tfvars.json
+!example.tfvars

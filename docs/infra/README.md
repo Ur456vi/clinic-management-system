@@ -72,3 +72,9 @@ The Cloud Engineer agent picks one INF-** task per shift starting after the chor
 - S3 Object Lock retention period (DISHA requires 7 years for clinical records — confirm with Aman)
 - Cross-region replication (if/when added)
 - Vendor data-processing terms for CloudFront edge caching of any PHI-adjacent content
+
+## Status notes
+
+- **INF-02 (in review):** Terraform skeleton + bootstrap module proposed on `infra/INF-02-terraform-skeleton` (2026-05-14, Cloud Engineer). Awaiting human reviewer.
+  - Runbook: `docs/infra/runbooks/tf-bootstrap.md`
+  - Blocked by: **INF-01** — AWS account must exist before bootstrap can be applied.
