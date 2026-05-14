@@ -27,13 +27,24 @@ List patients with search, filtering, and cursor pagination.
 
 ### Query parameters
 
+BE-12 introduced the short-form `q` / `doctorId` / `limit` names. The
+legacy `search` / `primaryDoctorId` / `take` aliases continue to work for
+backwards compatibility with the BE-07 clients; the short form wins if
+both are supplied.
+
 | Name | Type | Notes |
 | --- | --- | --- |
-| `search` | string | Case-insensitive substring match across `fullName`, `email`, `phone`, `patientNumber`. |
-| `status` | `ACTIVE` / `INACTIVE` / `ARCHIVED` | When omitted, ARCHIVED rows are hidden. |
-| `primaryDoctorId` | uuid | Filter to patients with this primary doctor. |
-| `cursor` | string | `id` of the last row from the previous page. Omit for page 1. |
-| `take` | integer | Page size. Default 20, max 100. |
+| `q` *(alias: `search`)* | string | Case-insensitive substring match across `fullName`, `email`, `phone`, `patientNumber`. |
+| `status` | `ACTIVE` / `INACTIVE` / `ARCHIVED` | Single value **or** a comma-separated list (e.g. `status=ACTIVE,INACTIVE`). When omitted, ARCHIVED rows are hidden. |
+| `doctorId` *(alias: `primaryDoctorId`)* | uuid | Filter to patients with this primary (assigned) doctor. |
+| `cursor` | string | Keyset cursor — the `id` of the last row from the previous page. Omit for page 1. |
+| `limit` *(alias: `take`)* | integer | Page size. Default **20**, max **100**. Out-of-range values clamp. |
+
+#### Example request
+
+```
+GET /api/patients?q=jane&status=ACTIVE,INACTIVE&doctorId=8b3f...&limit=20
+```
 
 ### Response (200)
 
@@ -49,20 +60,26 @@ List patients with search, filtering, and cursor pagination.
       "dateOfBirth": "1985-04-12",
       "sex": "FEMALE",
       "status": "ACTIVE",
-      "primaryDoctorId": "...",
+      "primaryDoctorId": "8b3f...",
       "createdAt": "2026-05-13T10:00:00.000Z",
       "updatedAt": "2026-05-13T10:00:00.000Z"
     }
   ],
+  "nextCursor": "f5b5...",
   "pagination": { "next": "f5b5..." }
 }
 ```
 
-Ordering: `createdAt DESC, id DESC` (stable tiebreaker).
+`nextCursor` is the BE-12 contract; `pagination.next` mirrors it for
+clients written against the BE-07 envelope. Both are `null` when the
+caller has reached the end of the result set.
+
+Ordering: `createdAt DESC, id DESC` (stable tiebreaker, safe for keyset
+pagination).
 
 ### Errors
 
-- `400 VALIDATION_ERROR` — bad query string (e.g. malformed UUID, status not in enum, take out of range).
+- `400 VALIDATION_ERROR` — bad query string (e.g. malformed UUID, status not in enum, limit out of range, unknown status token in a comma-separated list).
 - `401 UNAUTHORIZED`.
 
 ---

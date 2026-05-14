@@ -6,12 +6,25 @@
  *
  * Both require an authenticated session. Errors propagate through
  * `defineHandler` -> `errorResponse` so this file stays declarative.
+ *
+ * BE-12 expanded the GET query surface:
+ *   q          - case-insensitive substring match across fullName, email,
+ *                phone, patientNumber (alias of legacy `search`).
+ *   status     - one or more `PatientStatus` values; comma-separated.
+ *   doctorId   - filter on primary doctor (alias of legacy `primaryDoctorId`).
+ *   cursor     - keyset cursor (id of last row of the previous page).
+ *   limit      - page size, default 20, max 100 (alias of legacy `take`).
+ *
+ * The response carries both the standard `{ data, pagination: { next } }`
+ * envelope (BE-07 convention) AND a top-level `nextCursor` field for the
+ * BE-12 contract, so clients written against either spec keep working.
  */
+
+import { NextResponse } from "next/server"
 
 import {
   created,
   defineHandler,
-  paginated,
   requireSession,
 } from "@/lib/api"
 import {
@@ -25,15 +38,26 @@ export const GET = defineHandler(async ({ req }) => {
 
   const sp = req.nextUrl.searchParams
   const query = listPatientsQuerySchema.parse({
+    // BE-12 canonical names
+    q: sp.get("q") ?? undefined,
+    doctorId: sp.get("doctorId") ?? undefined,
+    limit: sp.get("limit") ?? undefined,
+    // legacy aliases (BE-07)
     search: sp.get("search") ?? undefined,
-    status: sp.get("status") ?? undefined,
     primaryDoctorId: sp.get("primaryDoctorId") ?? undefined,
-    cursor: sp.get("cursor") ?? undefined,
     take: sp.get("take") ?? undefined,
+    // shared
+    status: sp.get("status") ?? undefined,
+    cursor: sp.get("cursor") ?? undefined,
   })
 
   const { items, nextCursor } = await listPatients(query)
-  return paginated(items, { next: nextCursor })
+
+  return NextResponse.json({
+    data: items,
+    nextCursor,
+    pagination: { next: nextCursor },
+  })
 })
 
 export const POST = defineHandler(async ({ req }) => {
