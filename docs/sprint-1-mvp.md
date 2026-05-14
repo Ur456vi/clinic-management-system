@@ -94,7 +94,7 @@ INF-07 (Secrets Manager) and INF-09 (CloudWatch alarms) are deferred to Sprint 2
 | Urvi Sharma | Day 1 → Day 15 (May 13 → May 27) | Full sprint, 12h/day |
 | Yasha Sakeel | Day 1 → Day 15 (May 13 → May 27) | Full sprint, 12h/day |
 | **Dhanjay** | **Day 7 → Day 15 (May 19 → May 27)** | **Unavailable Days 1-6 (May 13-18).** Joins from May 19. His scheduled Sprint 1 tasks (FE-05 Day 9, FE-09 Day 10, FE-10 Days 11-12) all fall after his return — no task reshuffling needed. |
-| AI dev agents | All 15 days, 2 shifts/day (05:00 + 14:00 IST) | 4-agent morning + 2-agent afternoon |
+| AI dev agents | All 15 days, 2 shifts/day (05:00 + 14:00 IST) | Sequential, up to 10 tasks/shift. Runs continuously until plan limit or 10-task cap. |
 | Cloud Engineer agent | All 15 days, 09:30 IST | Daily health check + ad-hoc INF work |
 | PM Agent | All 15 days, 07:30 IST | Daily review + drafter, advisory CI gate |
 
@@ -125,9 +125,18 @@ INF-07 (Secrets Manager) and INF-09 (CloudWatch alarms) are deferred to Sprint 2
 
 To hit 30 tasks in 15 days we need ~2 tasks/day average. Adjustments to existing infrastructure:
 
-### AI dev shift — 2 → 4 parallel agents
+### AI dev shift — sequential model (revised May 14)
 
-Scheduled task `vyara-dev-shift-2300` (currently runs 05:00 IST with 2 agents) bumped to **4 agents** for the duration of Sprint 1. Same off-peak window. Watch Anthropic plan usage daily.
+The original Sprint-1 plan bumped the morning cron from 2 → 4 parallel agents. **That bump was reverted on Sprint 1 Day 2** after the parallel model tripped the Anthropic plan limit mid-shift and forfeited 3 of 4 in-flight tasks.
+
+New model (see `docs/org-policy.md` "Token & rate-limit policy"):
+
+- **Sequential, not parallel.** One agent at a time; the next agent is spawned only after the previous one commits and pushes.
+- **Up to 10 tasks per shift.** The orchestrator chains spawns back-to-back until either the 10-task cap or the plan limit hits.
+- **Schema lock is lifted.** With sequential execution, multiple tasks in the same shift may edit `prisma/schema.prisma` safely — each branches off the previous edit.
+- **Continuous productivity, then idle.** The AI dev lane stays active while tokens are available. When the plan limit hits, the orchestrator yields; the next scheduled cron (05:00 or 14:00) resumes.
+
+Net effect: same or higher throughput per token-window with zero parallel-conflict overhead. The 14:00 afternoon shift exists primarily for token-pool recovery — when plan resets land at 15:00 IST, the afternoon shift catches whatever the morning shift didn't finish.
 
 ### Second daily dev shift at 14:00 IST
 
