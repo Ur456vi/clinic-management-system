@@ -1,0 +1,196 @@
+# [Vyara] Two assignments to forward — Urvi + Yasha (2026-05-13)
+
+_(Would have been emailed to varunpratapsingh191@gmail.com — Resend sandbox blocked it.)_
+
+Hi,
+
+Two assignment drafts are ready for Urvi and Yasha. Resend is in sandbox mode and won't deliver to outside addresses yet, so I'm sending the full content here for you to forward.
+
+To unblock fully autonomous delivery: verify a domain at https://resend.com/domains, then set EMAIL_FROM in .env.local to an address on that domain. From the next 09:00 cron onward, real delivery resumes.
+
+Drafts also on disk at:
+  /Users/varunpratapsingh/projects/DR_YUVRAAJ/clinic-management-system/assignments/2026-05-13/urvi.md
+  /Users/varunpratapsingh/projects/DR_YUVRAAJ/clinic-management-system/assignments/2026-05-13/yasha.md
+
+================================================================
+EMAIL 1 — forward to: sharmaurvi48@gmail.com
+              Cc:      kunal@chirpin.in
+              Subject: [Vyara] Unified-portal migration — your steps + today's task (2026-05-13)
+================================================================
+
+Hi Urvi,
+
+Quick context first, then your action items.
+
+## What changed
+
+Yasha had been building the patient portal on the `yasha` branch with a phone+OTP login, while your work (the doctor portal) lived on `main` with an email+password login. We're consolidating both into ONE portal at a single login surface — middleware routes by role after sign-in.
+
+Architecture lives at `docs/unified-portal.md` on main. The migration play-by-play is in `docs/portal-consolidation-plan.md`.
+
+## Good news for you: your code stays where it is
+
+Your doctor portal is already on `main`. Nothing to move. Going forward you'll just branch off the new `main` for each task using the `urvi/` namespace.
+
+## Your tasks this shift
+
+### 1. Pull the new main
+
+```bash
+git fetch origin
+git checkout main
+git pull origin main
+```
+
+You'll see fresh foundation work merged (Prisma schema, NextAuth, middleware, etc.). The doctor portal pages in `app/admin/(dashboard)/` are untouched.
+
+### 2. Start FE-12 — Patient list (real fetch)
+
+Replace the hardcoded patient array in `app/admin/(dashboard)/patients/page.tsx` with a real fetch against the new `/api/patients` endpoint (built by the backend team — see `docs/api-patients.md`).
+
+Acceptance:
+- Table renders patients fetched from `GET /api/patients?take=20` instead of the hardcoded array.
+- Loading state with a skeleton (or a simple spinner is fine for now).
+- Empty state when the list is empty ("No patients yet — add the first one").
+- Error state when the fetch fails ("Couldn't load patients — retry button").
+- The "Add New Patient" button still links to `/admin/patients/add` (no change).
+- Search input still works visually (you can leave it as a controlled state that doesn't yet hit the server; we'll add server-side search in a follow-up).
+- The "29 patients" count label is bugged today — replace it with the actual total from the API response.
+
+Branch + commit:
+
+```bash
+git checkout -b urvi/FE-12-patient-list-fetch
+# do the work
+git add app/admin/\(dashboard\)/patients/page.tsx
+git commit -m "feat(FE-12): fetch patient list from /api/patients
+
+- Replace hardcoded array with TanStack Query call to GET /api/patients
+- Loading skeleton, empty state, error state
+- Show real total in the count label (was '29')
+
+Refs: FE-12"
+git push origin urvi/FE-12-patient-list-fetch
+```
+
+### 3. Optionally: FE-13 — Patient list pagination
+
+If you finish FE-12 with time to spare, layer pagination on top: the API returns a `nextCursor` in the response. Wire a "Load more" button that re-fetches with `?cursor=<next>`.
+
+## How review works
+
+PM Agent runs at 07:30 IST every morning and auto-reviews any branch matching `urvi/**`. If it approves, your branch is merged to `main` and you'll see it in the next morning's email. If it needs changes, you'll get specifics in tomorrow's assignment email.
+
+## Anything else?
+
+If you hit a blocker, reply to this email — PM picks up the thread at the next 07:30 review.
+
+Thanks for the work!
+
+— Vyara PM (autonomous agent)
+
+
+================================================================
+EMAIL 2 — forward to: yasha6519@gmail.com
+              Cc:      kunal@chirpin.in
+              Subject: [Vyara] Unified-portal migration — your steps + today's task (2026-05-13)
+================================================================
+
+Hi Yasha,
+
+Big change in plans — your patient portal needs to come over to `main` (joining Urvi's doctor portal under one unified login). Full context, then your concrete steps.
+
+## What changed
+
+We're collapsing into one portal: a single email+password login at `/`, then role-based middleware routes patients to `/patient/**` and staff to `/admin/**`. Architecture is in `docs/unified-portal.md` on main; full migration plan in `docs/portal-consolidation-plan.md`.
+
+The good news: **your patient-portal pages are kept as-is**. They already live at the right path (`app/patient/(dashboard)/...`). What goes away is your phone+OTP login UI — but only temporarily. We're shipping email+password first because the backend NextAuth provider is already wired for it. Phone+OTP comes back as a tabbed alternative in Phase 2, and your existing OTP UI is the starting point.
+
+## Your steps today
+
+### 1. Sync with the new main
+
+```bash
+git fetch origin
+git checkout main
+git pull origin main
+```
+
+You'll see eight chore branches merged today — Prisma, NextAuth, middleware, the unified-portal foundation, etc. Notice `app/patient/` does NOT yet exist on `main` — that's what you'll bring over.
+
+### 2. Create your migration branch off the new main
+
+```bash
+git checkout -b yasha/migrate-patient-portal main
+```
+
+### 3. Cherry-pick your patient-portal files (NOT your auth files)
+
+```bash
+# Bring over the patient route tree:
+git checkout yasha -- app/patient/
+
+# Bring over patient-specific components:
+git checkout yasha -- components/patient/
+
+# Bring over shared logo if main doesn't already have it:
+git checkout yasha -- components/shared/Logo.tsx 2>/dev/null || true
+```
+
+**Important:** do NOT cherry-pick:
+- `app/auth/page.tsx` and `app/auth/otp/page.tsx` — these would overwrite the unified login. We're parking the phone+OTP UI for Phase 2.
+- `app/page.tsx` — main already has the email+password login.
+- `app/layout.tsx` — main's version is current.
+
+### 4. Wire patient pages to the new auth
+
+Any page that needs to know who the patient is can use:
+
+```tsx
+import { requireUser } from "@/lib/auth"
+
+export default async function PatientDashboardPage() {
+  const user = await requireUser()  // throws UnauthorizedError if not signed in
+  // ... user.userId is the User.id, look up Patient via the userId FK
+  ...
+}
+```
+
+For client components, use `useSession()` from `next-auth/react`.
+
+### 5. Commit + push
+
+```bash
+git add app/patient components/patient components/shared/Logo.tsx
+git commit -m "feat(FE-PATIENT-01): port patient portal pages onto unified main
+
+- Bring app/patient/(dashboard)/* from yasha branch
+- Bring components/patient/* (Header, PatientNavbar, PatientSidebar, Sidebar)
+- Bring components/shared/Logo.tsx
+- Auth handled by the new middleware + NextAuth from main
+- app/auth/ deferred to Phase 2 (phone+OTP)
+
+Refs: FE-PATIENT-01"
+git push origin yasha/migrate-patient-portal
+```
+
+PM Agent reviews at 07:30 IST tomorrow and auto-merges if it passes.
+
+## After the migration lands
+
+You'll continue using the `yasha/` branch namespace for new work: e.g. `yasha/FE-PATIENT-02-results-trend`. The long-lived `yasha` branch can be deleted (or kept as historical reference — your call).
+
+## Phase-2 note
+
+Your phone+OTP login UI is staying in the repo as a reference. After we have email+password working end-to-end, the FE-AUTH-OTP task brings phone+OTP back as a second tab on the login page — and it's your starting point.
+
+## Hit a blocker?
+
+Reply to this email; PM picks it up at the next 07:30 review.
+
+Thanks!
+
+— Vyara PM (autonomous agent)
+
+
+— Vyara PM (autonomous agent)

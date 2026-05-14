@@ -1,5 +1,217 @@
-import { redirect } from 'next/navigation'
+"use client"
+
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function Home() {
-  redirect('/auth')
+  const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (isEnabled) {
+      router.push("/admin/patients")
+    }
+  }
+
+  const isEnabled = email.trim() !== "" && password.trim() !== ""
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center overflow-hidden bg-white font-sans">
+      {/* Main Container */}
+      <div
+        className="flex flex-col items-center gap-6 rounded-[24px] border border-[#EAECF0] bg-[#F9FAFB] pt-10 px-10 pb-8"
+        style={{
+          width: '556px',
+          height: '580px',
+          opacity: 1,
+          boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)',
+        }}
+      >
+        {/* Logo */}
+        <div className="flex flex-col items-center">
+          <Image
+            src="/images/logos/vyara.png"
+            alt="Vyara Logo"
+            width={64}
+            height={65}
+            className="object-contain"
+            priority
+          />
+        </div>
+
+        {/* Header */}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h1
+            style={{
+              fontFamily: 'var(--font-inter), Inter, sans-serif',
+              fontWeight: 600,
+              fontSize: '24px',
+              lineHeight: '32px',
+              color: '#141414'
+            }}
+          >
+            Login
+          </h1>
+          <p
+            style={{
+              fontFamily: 'var(--font-inter), Inter, sans-serif',
+              fontWeight: 400,
+              fontSize: '16px',
+              lineHeight: '24px',
+              color: '#141414'
+            }}
+          >
+            Please enter below details to access the dashboard.
+          </p>
+        </div>
+
+        {/* Form */}
+        <form className="flex w-full flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+          {/* Email Field */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="email"
+              style={{
+                fontFamily: 'var(--font-inter), Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '20px',
+                color: '#141414'
+              }}
+            >
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[14px]">
+                <Mail className="h-5 w-5 text-[#667085]" />
+              </div>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                autoComplete="off"
+                value={email ?? ""}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#B3B5E2] focus:outline-none focus:ring-2 focus:ring-[#B3B5E2]/20"
+                style={{
+                  width: '476px',
+                  height: '48px',
+                  borderRadius: '8px',
+                  paddingTop: '10px',
+                  paddingRight: '14px',
+                  paddingBottom: '10px',
+                  paddingLeft: '44px', // 14px (icon) + 20px (icon size) + 10px (gap)
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Password Field */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="password"
+              style={{
+                fontFamily: 'var(--font-inter), Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: '14px',
+                lineHeight: '20px',
+                color: '#141414'
+              }}
+            >
+              Password
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[14px]">
+                <Lock className="h-5 w-5 text-[#667085]" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Password"
+                autoComplete="new-password"
+                name="password"
+                value={password || ""}
+                onChange={(e) => setPassword(e.target.value)}
+                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#B3B5E2] focus:outline-none focus:ring-2 focus:ring-[#B3B5E2]/20"
+                style={{
+                  width: '476px',
+                  height: '48px',
+                  borderRadius: '8px',
+                  paddingTop: '10px',
+                  paddingRight: '14px',
+                  paddingBottom: '10px',
+                  paddingLeft: '44px', // 14px (icon) + 20px (icon size) + 10px (gap)
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-[14px] text-[#667085] hover:text-[#101828] transition-colors"
+              >
+                {showPassword ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Remember Me & Forget Password */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="remember"
+                className="h-5 w-5 cursor-pointer rounded border-[#D0D5DD] text-[#B3B5E2] focus:ring-[#B3B5E2]"
+              />
+              <label htmlFor="remember" className="cursor-pointer text-sm font-medium text-[#475467]">
+                Remember Me
+              </label>
+            </div>
+            <Link
+              href="/admin/auth/forgot-password"
+              className="text-sm font-semibold text-[#F04438] hover:text-[#D92D20] transition-colors"
+            >
+              Forget Password?
+            </Link>
+          </div>
+
+          {/* Login Button */}
+          <Button
+            className="h-14 w-full text-lg font-bold text-white shadow-sm transition-all"
+            style={{
+              backgroundColor: isEnabled ? '#2E37A4' : '#B3B5E2',
+              opacity: 1,
+            }}
+            variant="default"
+            disabled={!isEnabled}
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+
+          {/* Copyright Text */}
+          <p
+            style={{
+              fontFamily: 'var(--font-inter), Inter, sans-serif',
+              fontWeight: 400,
+              fontSize: '12px',
+              lineHeight: '100%',
+              color: '#000000',
+              textAlign: 'center',
+              marginTop: '4px', // Adding a bit more space above
+              marginBottom: '0px' // Reduced space below
+            }}
+          >
+            Copyright © 2026 - Dr. Yuvraj Singh MD.
+          </p>
+        </form>
+
+      </div>
+    </div>
+  )
 }
