@@ -46,5 +46,8 @@
     "tsx": "^4.19.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
