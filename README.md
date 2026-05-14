@@ -1,5 +1,3 @@
-> Frontend integrators: start at [`docs/api-reference.md`](./docs/api-reference.md) for the canonical Sprint 1 API surface.
-
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
