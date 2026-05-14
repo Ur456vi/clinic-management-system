@@ -77,14 +77,14 @@ enum ConsultationStatus {
 /// A login account. Always 1:1 with Staff for clinic users.
 /// Patient portal logins (BE-47) will use a separate model.
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique @db.Citext
-  passwordHash String   @map("password_hash")
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique @db.Citext
+  passwordHash String    @map("password_hash")
   role         Role
-  isActive     Boolean  @default(true) @map("is_active")
+  isActive     Boolean   @default(true) @map("is_active")
   lastLoginAt  DateTime? @map("last_login_at")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   staff   Staff?
   /// 1:1 back-relation for unified-portal logins where role=PATIENT.
@@ -92,6 +92,8 @@ model User {
 
   consultationsCreated Consultation[] @relation("ConsultationCreator")
   consultationsSigned  Consultation[] @relation("ConsultationSigner")
+
+  passwordResetOtps PasswordResetOtp[]
 
   @@index([role])
   @@map("users")
@@ -112,27 +114,27 @@ model Department {
 }
 
 model Staff {
-  id             String   @id @default(uuid()) @db.Uuid
-  userId         String   @unique @map("user_id") @db.Uuid
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  departmentId   String?  @map("department_id") @db.Uuid
-  department     Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @unique @map("user_id") @db.Uuid
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String?     @map("department_id") @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
 
-  fullName       String   @map("full_name")
+  fullName       String    @map("full_name")
   phone          String?
   dateOfBirth    DateTime? @map("date_of_birth") @db.Date
   specialization String?
-  licenseNumber  String?  @map("license_number")
-  experienceYrs  Int?     @map("experience_yrs")
-  qualifications String[] @default([])
+  licenseNumber  String?   @map("license_number")
+  experienceYrs  Int?      @map("experience_yrs")
+  qualifications String[]  @default([])
   biography      String?
-  avatarUrl      String?  @map("avatar_url")
+  avatarUrl      String?   @map("avatar_url")
   address        String?
-  isActive       Boolean  @default(true) @map("is_active")
+  isActive       Boolean   @default(true) @map("is_active")
   joinedAt       DateTime? @map("joined_at") @db.Date
 
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Patients this staff member is the primary doctor for.
   primaryPatients Patient[] @relation("PrimaryDoctor")
@@ -146,42 +148,48 @@ model Staff {
 // ===========================================================================
 
 model Patient {
-  id              String        @id @default(uuid()) @db.Uuid
+  id            String @id @default(uuid()) @db.Uuid
   /// Human-readable patient number, e.g. "PAT-263040".
   /// Generated via a sequence in BE-09 seed/migration.
-  patientNumber   String        @unique @map("patient_number")
+  patientNumber String @unique @map("patient_number")
 
-  fullName        String        @map("full_name")
-  email           String?       @db.Citext
-  phone           String?
-  dateOfBirth     DateTime?     @map("date_of_birth") @db.Date
-  sex             Sex?
-  occupation      String?
-  placeOfResidence String?      @map("place_of_residence")
-  address         String?
+  fullName         String    @map("full_name")
+  email            String?   @db.Citext
+  phone            String?
+  dateOfBirth      DateTime? @map("date_of_birth") @db.Date
+  sex              Sex?
+  occupation       String?
+  placeOfResidence String?   @map("place_of_residence")
+  address          String?
 
-  status          PatientStatus @default(ACTIVE)
+  status PatientStatus @default(ACTIVE)
+
+  /// Optional 1:1 back-relation to a unified-portal login. Populated for
+  /// patients who have signed up for the patient portal (BE-47 + unified
+  /// portal consolidation). Nullable because clinic-created patients won't
+  /// have a User row until they self-enroll.
+  userId String? @unique @map("user_id") @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   /// Optional primary doctor (Staff with role DOCTOR).
-  primaryDoctorId String?       @map("primary_doctor_id") @db.Uuid
-  primaryDoctor   Staff?        @relation("PrimaryDoctor", fields: [primaryDoctorId], references: [id], onDelete: SetNull)
+  primaryDoctorId String? @map("primary_doctor_id") @db.Uuid
+  primaryDoctor   Staff?  @relation("PrimaryDoctor", fields: [primaryDoctorId], references: [id], onDelete: SetNull)
 
-  referralSource  String?       @map("referral_source")
+  referralSource String? @map("referral_source")
 
   /// Soft delete — set when status becomes ARCHIVED. Keep the row for audit.
-  deletedAt       DateTime?     @map("deleted_at")
+  deletedAt DateTime? @map("deleted_at")
 
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  consultations   Consultation[]
+  consultations Consultation[]
 
   @@index([status])
   @@index([primaryDoctorId])
   @@index([fullName])
   @@map("patients")
 }
-
 
 // ===========================================================================
 // Consultations (BE-13)
@@ -194,33 +202,33 @@ model Patient {
 /// ~150 fields across 30+ sub-sections; per-section tables would explode the
 /// migration surface area with no query benefit at clinic scale.
 model Consultation {
-  id          String             @id @default(uuid()) @db.Uuid
-  patientId   String             @map("patient_id") @db.Uuid
-  patient     Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  type        ConsultationType
-  status      ConsultationStatus @default(DRAFT)
+  type   ConsultationType
+  status ConsultationStatus @default(DRAFT)
 
   /// The RMO or Doctor who started this consultation.
-  createdById String?            @map("created_by_id") @db.Uuid
-  createdBy   User?              @relation("ConsultationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   User?   @relation("ConsultationCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   /// Set when the consultation transitions to SIGNED. After signing the row
   /// is immutable (enforced in BE-14's service layer).
-  signedById  String?            @map("signed_by_id") @db.Uuid
-  signedBy    User?              @relation("ConsultationSigner", fields: [signedById], references: [id], onDelete: SetNull)
-  signedAt    DateTime?          @map("signed_at")
+  signedById String?   @map("signed_by_id") @db.Uuid
+  signedBy   User?     @relation("ConsultationSigner", fields: [signedById], references: [id], onDelete: SetNull)
+  signedAt   DateTime? @map("signed_at")
 
   /// Free-form sectioned content. For RMO: keys "informant", "demographics",
   /// "medicalHistory", "socialHistory", "personalHistory", "examinationSummary".
   /// For MAIN: "chiefComplaint", "hpi", "assessment", "diagnosis", "plan".
-  sections    Json               @default("{}")
+  sections Json @default("{}")
 
   /// Optional summary surfaced in the patient timeline.
-  summary     String?
+  summary String?
 
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([patientId, type, createdAt])
   @@index([status])
@@ -235,20 +243,20 @@ model Consultation {
 /// Append-only audit trail. Every read/write of PHI writes a row here.
 /// Surfaced through an admin viewer endpoint in BE-23.
 model AuditLog {
-  id          BigInt      @id @default(autoincrement())
-  occurredAt  DateTime    @default(now()) @map("occurred_at")
+  id         BigInt   @id @default(autoincrement())
+  occurredAt DateTime @default(now()) @map("occurred_at")
 
   /// Who did it (null for system events).
-  actorUserId String?     @map("actor_user_id") @db.Uuid
+  actorUserId String? @map("actor_user_id") @db.Uuid
 
-  action      AuditAction
+  action     AuditAction
   /// Entity table/model name, e.g. "Patient", "Consultation".
-  entityType  String      @map("entity_type")
+  entityType String      @map("entity_type")
   /// Primary key of the affected row (string so it fits uuid + bigint).
-  entityId    String?     @map("entity_id")
+  entityId   String?     @map("entity_id")
 
   /// Optional structured detail (request ip, before/after diff, etc.).
-  detail      Json?
+  detail Json?
 
   @@index([entityType, entityId])
   @@index([actorUserId, occurredAt])
@@ -286,4 +294,39 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ===========================================================================
+// Password reset (BE-05)
+// ===========================================================================
+
+/// One row per OTP request. The plaintext OTP is never stored — only its
+/// bcrypt hash. The row is burned (usedAt set) on successful verification.
+///
+/// Rate-limit policy lives in the route layer: max 5 requests per email per
+/// rolling hour, counted via `createdAt`. A Sprint-2 hardening item is to
+/// move this to Redis or a token bucket (`docs/auth.md`).
+model PasswordResetOtp {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// bcrypt hash of the 6-digit code.
+  otpHash String @map("otp_hash")
+
+  /// Absolute expiry — set to createdAt + ~15 min at issue time.
+  expiresAt DateTime @map("expires_at")
+
+  /// Set on successful verification. Once non-null the row is consumed and
+  /// cannot satisfy another verify call.
+  usedAt DateTime? @map("used_at")
+
+  /// Number of verify attempts against this OTP. Caller bumps on each
+  /// mismatch and stops accepting the row at 5 attempts.
+  attempts Int @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("password_reset_otps")
 }
