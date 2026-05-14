@@ -70,6 +70,20 @@ consultation as a document. JSONB gives us indexable typed access via
 `@db.JsonB` plus the flexibility to evolve the form without a migration per
 field. Field-level validation moves into a Zod layer in BE-14.
 
+### Autosave & merge semantics (BE-14)
+`PATCH /api/consultations/:id` is the autosave entrypoint. Its `sections`
+field is **shallow-merged** into the existing JSONB column at the top
+level — `{ ...existing, ...patch }`. Last-write-wins per section key. A
+client that wants to update only `vitals` sends
+`{ sections: { vitals: { systolic: 120, diastolic: 78 } } }` and the
+other section keys (informant, history, etc.) are left untouched. Deep
+merge is deliberately *not* supported: clients can clear a sub-field
+just by omitting it from the next save. The merge logic lives in
+`mergeSections()` in `lib/services/consultation.ts`, and the route
+records an `AuditLog UPDATE` row with `{ before, after, patch }` so
+reviewers can reconstruct the saved diff. Once a consultation reaches
+`SIGNED`, the row is immutable — any further PATCH returns 400.
+
 ## Coming in later tasks
 
 | Task | Models | Notes |

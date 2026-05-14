@@ -99,26 +99,77 @@ export type UpdatePatientInput = z.infer<typeof updatePatientSchema>
 // ---------------------------------------------------------------------------
 
 /**
+ * Status filter: accepts a single value or a comma-separated list. Each
+ * token is trimmed and validated against the `PatientStatus` enum. An
+ * empty list collapses to `undefined` so callers can pass `status=` to
+ * mean "no filter".
+ *
+ * Examples:
+ *   ?status=ACTIVE                 -> [ACTIVE]
+ *   ?status=ACTIVE,INACTIVE        -> [ACTIVE, INACTIVE]
+ *   ?status=                       -> undefined
+ */
+const statusListParam = z
+  .string()
+  .trim()
+  .optional()
+  .transform((raw) => {
+    if (raw === undefined || raw === "") return undefined
+    const tokens = raw
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0)
+    return tokens.length === 0 ? undefined : tokens
+  })
+  .pipe(z.array(statusEnum).nonempty().optional())
+
+/**
  * Query string for `GET /api/patients`.
  *
- * `take` / `cursor` are parsed by `parsePagination()` from the BE-07 helpers
- * in the route, but we redeclare them here so the schema doubles as
- * machine-readable docs.
+ * BE-12 added the short-form aliases `q`, `doctorId`, and `limit` to match
+ * the cross-team query-param convention; the legacy `search`,
+ * `primaryDoctorId`, and `take` names continue to work for backwards
+ * compatibility with the FE clients that shipped against BE-07. If both
+ * spellings are supplied the short form wins.
  */
-export const listPatientsQuerySchema = z.object({
-  search: trimmedOptional(200),
-  status: statusEnum.optional(),
-  primaryDoctorId: uuid.optional(),
-  cursor: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v === "" ? undefined : v)),
-  take: z
-    .string()
-    .optional()
-    .transform((v) => (v === undefined || v === "" ? undefined : Number(v)))
-    .pipe(z.number().int().positive().max(100).optional()),
-})
+export const listPatientsQuerySchema = z
+  .object({
+    // search term — `q` is the canonical name, `search` kept as alias
+    q: trimmedOptional(200),
+    search: trimmedOptional(200),
+
+    // status — comma-separated allowed
+    status: statusListParam,
+
+    // assigned-doctor filter — `doctorId` canonical, `primaryDoctorId` alias
+    doctorId: uuid.optional(),
+    primaryDoctorId: uuid.optional(),
+
+    cursor: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v === "" ? undefined : v)),
+
+    // page size — `limit` canonical, `take` kept as alias
+    limit: z
+      .string()
+      .optional()
+      .transform((v) => (v === undefined || v === "" ? undefined : Number(v)))
+      .pipe(z.number().int().positive().max(100).optional()),
+    take: z
+      .string()
+      .optional()
+      .transform((v) => (v === undefined || v === "" ? undefined : Number(v)))
+      .pipe(z.number().int().positive().max(100).optional()),
+  })
+  .transform((v) => ({
+    // collapse aliases — short form wins when both are present
+    search: v.q ?? v.search,
+    status: v.status,
+    primaryDoctorId: v.doctorId ?? v.primaryDoctorId,
+    cursor: v.cursor,
+    take: v.limit ?? v.take,
+  }))
 
 export type ListPatientsQuery = z.infer<typeof listPatientsQuerySchema>

@@ -2,6 +2,8 @@
 
 PM uses this when composing the morning email to each human junior. Substitute the placeholders, then either pipe through `scripts/send_email.sh` or save under `assignments/<YYYY-MM-DD>/<dev>.md`.
 
+**HTML rendering is automatic.** Write the draft as plain markdown — `scripts/send_email.sh` auto-renders a designed HTML version via `scripts/render_email_html.py` at send time (header band, numbered tasks, teal "Notes from PM" callout, signature). If you want to hand-design a specific email, drop a sibling `<basename>.html` next to the `.md` file and it will be used instead.
+
 ---
 
 To: {{dev_name}} <{{dev_email}}>

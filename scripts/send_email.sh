@@ -116,6 +116,24 @@ if [ -z "${RESEND_API_KEY:-}" ]; then
   exit 0
 fi
 
+# HTML body. Preference order:
+#   1. A sibling <basename>.html file next to the .md draft.
+#   2. Auto-rendered from the markdown body via scripts/render_email_html.py.
+# This means every email goes out HTML by default; PMs only have to write .md.
+HTML_FILE="${BODY_FILE%.md}.html"
+HTML_BODY=""
+if [ -r "$HTML_FILE" ] && [ "$HTML_FILE" != "$BODY_FILE" ]; then
+  HTML_BODY="$(cat "$HTML_FILE")"
+elif [ -x "$ROOT/scripts/render_email_html.py" ] || [ -r "$ROOT/scripts/render_email_html.py" ]; then
+  if HTML_BODY="$(python3 "$ROOT/scripts/render_email_html.py" \
+        --subject "$SUBJECT" --body-file "$BODY_FILE" 2>/dev/null)"; then
+    :
+  else
+    echo "[email] HTML auto-render failed; falling back to text-only" >&2
+    HTML_BODY=""
+  fi
+fi
+
 PAYLOAD=$(python3 -c '
 import json, sys
 payload = {
@@ -127,21 +145,32 @@ payload = {
 cc = sys.argv[5].strip() if len(sys.argv) > 5 else ""
 if cc:
     payload["cc"] = [a.strip() for a in cc.split(",") if a.strip()]
-print(json.dumps(payload))' "$FROM" "$TO" "$SUBJECT" "$BODY" "$CC")
+html = sys.argv[6] if len(sys.argv) > 6 else ""
+if html:
+    payload["html"] = html
+print(json.dumps(payload))' "$FROM" "$TO" "$SUBJECT" "$BODY" "$CC" "$HTML_BODY")
 
-HTTP_CODE=$(curl -sS -o /tmp/resend.out -w "%{http_code}" \
+RESP_FILE=$(mktemp -t resend.XXXXXX)
+trap 'rm -f "$RESP_FILE"' EXIT
+
+if HTTP_CODE=$(curl -sS -o "$RESP_FILE" -w "%{http_code}" \
   -X POST "https://api.resend.com/emails" \
   -H "Authorization: Bearer $RESEND_API_KEY" \
   -H "Content-Type: application/json" \
-  -d "$PAYLOAD" || echo "000")
+  -d "$PAYLOAD"); then
+  : # curl ok; HTTP_CODE holds the status
+else
+  HTTP_CODE="000"
+fi
 
 if [[ "$HTTP_CODE" =~ ^2 ]]; then
-  ID=$(python3 -c 'import json,sys; print(json.load(open("/tmp/resend.out")).get("id","?"))' 2>/dev/null || echo "?")
+  ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("id","?"))' "$RESP_FILE" 2>/dev/null || echo "?")
   echo "$(date -u +%FT%TZ) SENT  $TO${CC:+ cc=$CC}  id=$ID" >> "$LOG_FILE"
   echo "[email] sent to $TO${CC:+ cc=$CC} (id=$ID) — daily ~$(wc -l < "$LOG_FILE" | tr -d ' ') sends, recipient-cap $MAX"
 else
   echo "$(date -u +%FT%TZ) FAIL  $TO${CC:+ cc=$CC}  http=$HTTP_CODE" >> "$LOG_FILE"
   echo "[email] FAILED to send to $TO (http $HTTP_CODE):" >&2
-  cat /tmp/resend.out >&2
+  cat "$RESP_FILE" >&2
+  echo >&2
   exit 1
 fi
