@@ -1,6 +1,6 @@
 To: Yasha Sakeel <yasha6519@gmail.com>
 Cc: kunal@chirpin.in, varunpratapsingh191@gmail.com
-From: Vyara PM <onboarding@resend.dev>
+From: Vyara PM <hello@algoborne.com>
 Subject: [Vyara] Sprint 1 Day 2 — onboarding to sprint scope + FE-06 prep (2026-05-14)
 
 Hi Yasha,

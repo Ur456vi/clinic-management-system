@@ -83,7 +83,7 @@ PM reviews branches matching `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhan
 After review/merge, PM picks 1–2 unblocked tasks per human from `Vyara_Development_Tasks.xlsx` (priority: `P0 Foundation` and `P1 Clinical` first, then `P2 Treatment`). Urvi → doctor-portal lane, Yasha → patient-portal lane, Dhanjay → whichever lane needs the most help that shift. For each human:
 
 1. Compose an assignment message (see `assignments/_TEMPLATE.md`).
-2. Save the message to `assignments/<YYYY-MM-DD>/<dev>.md` with RFC822-style headers (To, Cc, Subject, From) so the 09:00 emailer can pick it up.
+2. Save the message to `assignments/<YYYY-MM-DD>/<dev>.md` with RFC822-style headers (To, Cc, Subject, From) so the 09:00 emailer can pick it up. Plain markdown only — the emailer auto-renders a designed HTML version via `scripts/render_email_html.py` at send time. If a specific email needs a custom design, drop a sibling `<basename>.html` and it overrides the auto-render.
 3. **Do not send email** — sending is handled by the 09:00 cron `scripts/send_morning_assignments.sh`. PM is the drafter only.
 
 PM logs every assignment in the shift report.
