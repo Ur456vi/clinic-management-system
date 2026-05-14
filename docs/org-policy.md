@@ -36,7 +36,7 @@ infra/** branches                     Dev Agent A (AI)    Dev Agent B (AI)
 
 | Role | Window (IST) | Cron | Notes |
 |---|---|---|---|
-| AI dev agents (×2 max) | ~05:00 – 06:30 | `0 5 * * *` | Each agent picks one backend task, branches off `main`, opens a PR. Off-peak window. |
+| AI dev agents (sequential, up to 10 tasks/shift) | ~05:00 – exhaustion | `0 5 * * *` | One agent at a time. Each agent picks one backend task, branches off the latest `main` (rebased between agents), commits, and pushes. Orchestrator immediately spawns the next agent. Shift continues until either (a) 10 tasks have shipped, or (b) the Anthropic plan limit is hit, whichever comes first. Off-peak window. |
 | Cloud Engineer — daily health | 09:30 | `30 9 * * *` | Audits open `infra/**` branches, AWS health (when provisioned), backup status, certificate expiry. Reports only on anomalies. ~15 min. |
 | Cloud Engineer — weekly digest | Friday 17:30 | `30 17 * * 5` | Friday-evening infra digest to **Kunal + Varun** (Cc CEO): infra-side changes that week, AWS bill projection, security advisories handled, upcoming maintenance windows. |
 | PM Agent | 07:30 – 08:30 | `30 7 * * *` | Reviews every open `task/**`, `chore/**`, `urvi/**`, `yasha/**`, `dhanjay/**` branch (AI + human), runs the CI gate, auto-merges pass-only, **drafts** today's assignments to `assignments/<DATE>/<dev>.md`. Does NOT send email. |
@@ -47,8 +47,12 @@ infra/** branches                     Dev Agent A (AI)    Dev Agent B (AI)
 
 ## Token & rate-limit policy
 
-- **At most 2 AI dev agents** run concurrently.
-- If a rate limit is hit, the orchestrator pauses, returns control, and the next scheduled shift picks it up.
+- **Sequential, not parallel.** AI dev agents run **one at a time**. The orchestrator spawns the next agent only after the previous one has committed and pushed (or has clearly failed). This guarantees zero file-overlap conflicts — including on `prisma/schema.prisma` — because the next agent always branches off the latest `main` (or the previous still-open branch when its work is a dependency).
+- **Shift target: up to 10 tasks per shift.** A single shift continues spawning agents back-to-back until either:
+  1. 10 task branches have been pushed to the mount, **or**
+  2. the Anthropic plan limit is hit (orchestrator stops and yields; the next scheduled shift resumes from the same backlog ordering).
+- **Schema lock is lifted.** Because agents run sequentially, multiple tasks in the same shift may edit `prisma/schema.prisma` — each one builds on the previous edit, no merge conflict possible. Previously this was capped at one schema-edit per shift to avoid concurrent-edit conflicts; that constraint no longer applies.
+- **Idle policy.** The AI dev lane stays continuously productive while tokens are available. The orchestrator only goes idle when the plan limit is hit; the moment the limit resets, the next scheduled cron resumes work.
 - Branches that didn't make it to merge stay open; PM picks them up at the next 07:30 window.
 
 ## Branch & commit conventions
