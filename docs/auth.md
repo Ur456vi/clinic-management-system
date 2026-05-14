@@ -159,3 +159,83 @@ A dedicated `requireRole` helper will land in a later task.
   layer in a later task.
 - Password reset flow — uses the `VerificationToken` model we declared
   here. Lands with the user-management task.
+
+---
+
+## Password reset (BE-05)
+
+Self-service password reset via a one-time code sent to the registered
+email. Three endpoints, one OTP row per attempt, all rate-limited at the
+DB layer for Sprint 1.
+
+### Endpoints
+
+| Method | Path                                  | Body                              | Success                       |
+|---|---|---|---|
+| POST | `/api/auth/password-reset/request`    | `{ email }`                       | `200 { data: { ok: true } }` (always) |
+| POST | `/api/auth/password-reset/verify`     | `{ email, otp }`                  | `200 { data: { ticket } }`    |
+| POST | `/api/auth/password-reset/confirm`    | `{ ticket, newPassword }`         | `200 { data: { ok: true } }`  |
+
+### Flow
+
+1. **Request.** Client posts the email. The route always returns 200 — we
+   do not leak whether an account exists. If the email maps to an active
+   user AND fewer than 5 OTPs have been issued to that user in the last
+   hour, we:
+   - generate a cryptographically-random 6-digit OTP (Web Crypto, never
+     `Math.random`),
+   - bcrypt-hash it (cost 10 — single-use + short-lived, so we trade a bit
+     of hash strength for latency),
+   - insert a `PasswordResetOtp` row with `expiresAt = now + 15 min`,
+   - send the code via `lib/email.ts` (Resend in prod, console logger in
+     dev / test when `RESEND_API_KEY` is unset). Provider failures are
+     logged but never surfaced to the client.
+
+2. **Verify.** Client posts `{ email, otp }`. We load the most recent
+   un-burned OTP for that user; reject if missing, expired, or the row's
+   `attempts >= 5`. On mismatch we bump `attempts` and return a generic
+   422. On match we burn the row (`usedAt = now()`) and mint a short-lived
+   reset ticket — a JWT with claims `{ sub: userId, jti: otpId, scope:
+   "password-reset" }`, signed with `RESET_TICKET_SECRET` (falls back to
+   `NEXTAUTH_SECRET` when not set), `exp = now + 5 min`.
+
+3. **Confirm.** Client posts `{ ticket, newPassword }`. We verify the
+   ticket signature + expiry, confirm the referenced OTP row exists for
+   the same user and was burned, hash the new password with `bcryptjs`
+   cost 12 (via `lib/passwords.ts`), and write it to `User.passwordHash`
+   in a single transaction that also invalidates any other outstanding
+   OTPs for the user and writes an `AuditLog { action: "UPDATE", detail:
+   { event: "password-reset.confirmed" } }` row.
+
+### Rate-limit policy
+
+- **5 OTP requests per user per rolling hour.** Counted via
+  `PasswordResetOtp.createdAt`. Excess requests are silently dropped —
+  the caller still sees 200, preserving enumeration resistance.
+- **5 verify attempts per OTP.** Once exhausted the row is dead even if
+  the correct code arrives later.
+
+This is a holding pattern; a Sprint-2 hardening task will move both
+limits to Redis with a token bucket, and add a per-IP limit at the edge.
+
+### Email delivery
+
+`lib/email.ts` exposes a single `sendMail({ to, subject, text })` helper.
+It uses the Resend HTTP API directly (no SDK, so the helper is edge-safe)
+when `RESEND_API_KEY` is set, otherwise it logs the payload to stdout so
+local + test environments can still exercise the flow end-to-end.
+
+### Why not reuse `VerificationToken`?
+
+The NextAuth `VerificationToken` model is purpose-built for the magic-link
+provider (no attempt counter, no hash field, primary key is the token
+itself). The OTP flow needs `attempts`, `usedAt`, and a hashed credential
+— a dedicated `PasswordResetOtp` model keeps both flows clean and lets us
+adopt magic links later without a schema collision.
+
+### Open follow-ups
+
+- Move rate-limiting to Redis (Sprint 2).
+- Add per-IP rate-limit at the middleware layer (Sprint 2).
+- Add a structured email template (React Email or MJML) when we have a
+  third transactional template to maintain.
