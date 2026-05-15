@@ -70,6 +70,23 @@ enum ConsultationStatus {
   SIGNED
 }
 
+/// Per-analyte out-of-range flag for a `LabResult` analyte (BE-16).
+///
+/// `LOW` / `HIGH` cover the standard reference-range comparison; the
+/// `CRITICAL_*` variants reserve the future ability for the lab to mark a
+/// value as life-threatening (panic value). `NORMAL` is set by the
+/// flag-computation helper when a numeric value sits inside `[refLow,
+/// refHigh]`. `ABNORMAL` is used for non-numeric analytes (e.g. urine
+/// culture "POSITIVE") that cannot be range-compared.
+enum LabFlag {
+  LOW
+  HIGH
+  CRITICAL_LOW
+  CRITICAL_HIGH
+  NORMAL
+  ABNORMAL
+}
+
 /// Appointment lifecycle (BE-27).
 ///
 ///   REQUESTED  -> CONFIRMED | CANCELLED
@@ -158,6 +175,9 @@ model Staff {
   // Patients this staff member is the primary doctor for.
   primaryPatients Patient[] @relation("PrimaryDoctor")
 
+  // Lab results this staff member ordered (BE-16).
+  labResultsOrdered LabResult[] @relation("LabResultOrderingDoctor")
+
   // Appointments where this staff member is the assigned doctor/RMO (BE-27).
   appointments        Appointment[] @relation("AppointmentStaff")
   // Appointments this staff member created (typically RECEPTION).
@@ -209,6 +229,7 @@ model Patient {
 
   consultations Consultation[]
   appointments  Appointment[]
+  labResults    LabResult[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -254,6 +275,8 @@ model Consultation {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  labResults LabResult[]
 
   @@index([patientId, type, createdAt])
   @@index([status])
@@ -419,4 +442,76 @@ model PasswordResetOtp {
 
   @@index([userId, createdAt(sort: Desc)])
   @@map("password_reset_otps")
+}
+
+// ===========================================================================
+// Lab results (BE-16)
+// ===========================================================================
+
+/// A single lab panel result. One row per panel (CBC, LFT, Vit D, etc.); the
+/// per-analyte rows are stored as a JSON array in `analytes` rather than
+/// normalised into a separate table — at clinic scale (~thousands of results
+/// per year) the JSONB shape is simpler and matches how labs return data.
+///
+/// Each entry in `analytes` is shaped:
+///
+///   {
+///     "name":     "Hemoglobin",
+///     "value":    "13.4" | 13.4,        // string OR number; non-numeric labs are common
+///     "unit":     "g/dL",                // optional
+///     "refLow":   12.0,                  // optional, numeric
+///     "refHigh":  16.0,                  // optional, numeric
+///     "flag":     "LOW" | "HIGH" | "CRITICAL_LOW" | "CRITICAL_HIGH"
+///                 | "NORMAL" | "ABNORMAL"   // optional; computed server-side
+///                                            // when refLow/refHigh present
+///                                            // and not explicitly set.
+///   }
+///
+/// `attachmentKey` / `attachmentMime` are the S3 object key + content-type
+/// for the original PDF/image. They are nullable here and populated by
+/// BE-19's presigned-upload flow once that lands; until then the row exists
+/// without an attachment and the analytes payload is the source of truth.
+model LabResult {
+  id             String        @id @default(uuid()) @db.Uuid
+  patientId      String        @map("patient_id") @db.Uuid
+  patient        Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// Optional — a lab can predate the consultation it eventually feeds into.
+  consultationId String?       @map("consultation_id") @db.Uuid
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+
+  /// Human-readable panel label, e.g. "CBC", "LFT", "Vit D".
+  panelName String @map("panel_name")
+
+  /// When the sample was drawn / collected.
+  collectedAt DateTime  @map("collected_at")
+  /// When the lab issued the report — nullable while the result is pending.
+  reportedAt  DateTime? @map("reported_at")
+
+  /// Doctor who ordered the panel. Nullable for results uploaded outside a
+  /// scheduled consultation (e.g. a patient brings in an old report).
+  orderingDoctorId String? @map("ordering_doctor_id") @db.Uuid
+  orderingDoctor   Staff?  @relation("LabResultOrderingDoctor", fields: [orderingDoctorId], references: [id], onDelete: SetNull)
+
+  /// External lab / facility that produced the report ("Metropolis", "SRL",
+  /// "in-house", ...). Free-form to keep BE-16 unblocked; BE-19+ may promote
+  /// this to a Lab model.
+  labName String? @map("lab_name")
+
+  /// Per-analyte rows. See the doc-block above for the per-element shape.
+  analytes Json @default("[]")
+
+  /// Optional one-liner surfaced in the patient timeline.
+  summary String?
+
+  /// S3 object key for the attached PDF/image. Populated by BE-19 once the
+  /// presigned-upload flow lands; nullable until then.
+  attachmentKey  String? @map("attachment_key")
+  attachmentMime String? @map("attachment_mime")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, collectedAt])
+  @@index([consultationId])
+  @@map("lab_results")
 }
