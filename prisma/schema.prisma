@@ -88,6 +88,20 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+/// Clinical lab panels supported by the lab-results module (BE-16).
+/// Each LabResult row is scoped to exactly one panel.
+enum LabPanel {
+  ROUTINE
+  M_HORMONAL
+  DUTCH
+  AUTOIMMUNE
+  GENETIC
+  TUMOR_MARKERS
+  MICRONUTRIENT
+  METABOLIC
+  STOOL
+}
+
 // ===========================================================================
 // Auth & org
 // ===========================================================================
@@ -209,6 +223,7 @@ model Patient {
 
   consultations Consultation[]
   appointments  Appointment[]
+  labResults    LabResult[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -259,6 +274,67 @@ model Consultation {
   @@index([status])
   @@index([createdById])
   @@map("consultations")
+}
+
+// ===========================================================================
+// Lab results (BE-16)
+// ===========================================================================
+
+/// One row per lab panel collected for a patient. The per-analyte rows
+/// (e.g. TSH, FT4, ferritin) live in the `analytes` JSONB blob — modelled
+/// as an array of `{ name, value, unit, refLow?, refHigh?, flag? }` objects.
+///
+/// We chose JSONB over a normalised LabAnalyte child table because the
+/// analyte set is panel-specific, sparse, and grows as new lab vendors
+/// come online. Querying single analytes across patients is rare at clinic
+/// scale; reading the whole panel as a document is the common path.
+///
+/// Reference-range logic (computing the per-analyte `flag` field —
+/// HIGH / LOW / NORMAL) lives in the service layer for now and runs at
+/// write time. A vendor-aware reference-range engine is planned for BE-18.
+///
+/// `attachmentKey` is the S3 object key for the source PDF/CSV. The
+/// upload pipeline is BE-19 / BE-20 — until then the field is just a
+/// nullable opaque string.
+model LabResult {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Optional Staff/User id of the clinician who ordered the panel.
+  /// Nullable because historical results uploaded retroactively may have
+  /// no known orderer. No FK relation declared yet — lookups join via
+  /// the service layer if needed.
+  orderedById String? @map("ordered_by_id") @db.Uuid
+
+  panel LabPanel
+
+  /// Array of `{ name, value, unit, refLow?, refHigh?, flag? }` objects.
+  /// `flag` is computed server-side on save (see `lib/services/lab-result.ts`).
+  analytes Json @default("[]")
+
+  /// Optional clinician note attached at panel level.
+  notes String?
+
+  /// S3 object key for the source artefact (PDF / CSV). Populated by the
+  /// upload pipeline (BE-19 / BE-20); nullable until then.
+  attachmentKey String? @map("attachment_key")
+
+  /// When the sample was collected and when the lab reported it. Both are
+  /// optional because some uploads only carry one or the other.
+  collectedAt DateTime? @map("collected_at")
+  reportedAt  DateTime? @map("reported_at")
+
+  /// Soft-delete marker. Lab results are PHI — we never hard-delete; we
+  /// hide the row from listings and let audit reviewers recover it.
+  deletedAt DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, panel, reportedAt])
+  @@index([patientId, deletedAt])
+  @@map("lab_results")
 }
 
 // ===========================================================================
