@@ -1160,3 +1160,60 @@ alongside each merge).
 *Questions, gaps, or wire shapes that don't match what the FE sees?
 File an issue in the Sprint 1 thread on the team channel, or page the
 PM Agent (cron `vyara-pm-review-0730`).*
+
+---
+
+## 7. Staff (BE-30)
+
+> Deep dive: [`api-staff.md`](./api-staff.md).
+
+CRUD for clinic-side users. A `Staff` row pairs a `User` (login account)
+with display info, role, and an optional `Department`. Routes live under
+`/api/staff` and follow the standard BE-07 envelope + cursor pagination.
+
+The wire shape exposes both `firstName`/`lastName` and `fullName` even
+though the BE-03 DB column is only `fullName` — the service joins on
+write and splits on read. A schema migration (BE-30b) will collapse the
+gap.
+
+### 7.1 Endpoints at a glance
+
+| Method | Path                | Auth                | Notes |
+| ------ | ------------------- | ------------------- | ----- |
+| GET    | `/api/staff`        | any clinic role     | List + filters: `q`, `role` (comma list), `departmentId`, `cursor`, `limit`. Order `fullName asc, id asc`. |
+| POST   | `/api/staff`        | **ADMIN only**      | Creates User + Staff atomically. `email` must be unique. `password` optional (bcrypt cost 12); if omitted, account is locked until password-reset OTP. |
+| GET    | `/api/staff/:id`    | any clinic role     | Returns Staff with `user.email` + department summary. Writes a READ audit row. |
+| PATCH  | `/api/staff/:id`    | ADMIN, OR self*     | *Self may patch only `firstName`/`lastName`/`phone`. Role/department self-edits return 400 `SELF_ROLE_CHANGE`. Email mutation returns 400 `EMAIL_IMMUTABLE`. |
+| DELETE | `/api/staff/:id`    | **ADMIN only**      | Soft-delete: `Staff.isActive=false` AND `User.isActive=false`. Cannot archive yourself (400 `CANNOT_ARCHIVE_SELF`). |
+
+### 7.2 Soft-delete model (interim)
+
+Because `archivedAt` / `disabledAt` columns don't yet exist on `Staff` /
+`User`, soft-delete is implemented by flipping the existing `isActive`
+flags on **both** rows. The credentials provider already rejects sign-in
+for `User.isActive=false`, so the account is locked immediately. List
+endpoints hide rows where either flag is false. BE-30b will add the
+proper timestamps and a `?includeArchived=true` query flag.
+
+### 7.3 Error codes specific to Staff
+
+These are surfaced in `error.details.code` on top of a generic
+`VALIDATION_ERROR` (400) envelope:
+
+| `details.code`         | When |
+| ---------------------- | ---- |
+| `EMAIL_IMMUTABLE`      | `PATCH /api/staff/:id` body contains `email`. |
+| `SELF_ROLE_CHANGE`     | Non-admin self-PATCH tries to change `role` or `departmentId`. |
+| `CANNOT_ARCHIVE_SELF`  | `DELETE /api/staff/:id` where the target's `userId` matches the actor. |
+
+### 7.4 Known gaps
+
+- Staff **availability** (working hours, shift coverage) is intentionally
+  not part of this PR — it's tracked as the second half of the original
+  ticket under follow-up note **BE-30b** and will land alongside BE-28
+  scheduling.
+- The DB still lacks `archivedAt` on Staff and `disabledAt` on User; we
+  soft-delete via `isActive`. Tracked under BE-30b / BE-27 schema work.
+- `Staff.firstName` / `Staff.lastName` columns are not split yet — the
+  API synthesises them from `fullName` (last-whitespace split). Surnames
+  with internal whitespace round-trip lossily today.
