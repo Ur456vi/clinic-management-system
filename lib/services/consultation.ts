@@ -21,6 +21,8 @@ import { ConsultationStatus, ConsultationType, Role } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { ConflictError } from "@/lib/api"
+import { notifyDoctorHandoff } from "@/lib/services/notifications"
 import {
   ALLOWED_STATUS_TRANSITIONS,
   type CreateConsultationInput,
@@ -352,3 +354,132 @@ export async function updateConsultation(
 // ---------------------------------------------------------------------------
 
 export type { Consultation }
+
+// ---------------------------------------------------------------------------
+// Transition (BE-15 — explicit handoff state machine)
+// ---------------------------------------------------------------------------
+
+/**
+ * Roles authorised to drive each state transition. The state machine is
+ * narrower than the generic PATCH path because BE-15 ties each move to a
+ * concrete shift role:
+ *
+ *   DRAFT       -> RMO_DONE     RMO finished intake, hand off to doctor
+ *   RMO_DONE    -> IN_PROGRESS  Doctor picked the case off the queue
+ *   IN_PROGRESS -> SIGNED       Doctor signed the chart (terminal)
+ *
+ * Anything else is a 409 Conflict at the route layer.
+ */
+const TRANSITION_ROLES: Partial<
+  Record<ConsultationStatus, Partial<Record<ConsultationStatus, readonly Role[]>>>
+> = {
+  DRAFT: {
+    RMO_DONE: [Role.ADMIN, Role.RMO, Role.DOCTOR],
+  },
+  RMO_DONE: {
+    IN_PROGRESS: [Role.ADMIN, Role.DOCTOR],
+  },
+  IN_PROGRESS: {
+    SIGNED: [Role.ADMIN, Role.DOCTOR],
+  },
+}
+
+/** Statuses the BE-15 endpoint will accept as `to`. */
+export type TransitionTarget =
+  | typeof ConsultationStatus.RMO_DONE
+  | typeof ConsultationStatus.IN_PROGRESS
+  | typeof ConsultationStatus.SIGNED
+
+/** Input contract for `transitionConsultation`. */
+export type TransitionConsultationInput = {
+  to: TransitionTarget
+  notes?: string
+}
+
+/**
+ * Drive a consultation through the BE-15 state machine.
+ *
+ *   - 404 if the consultation does not exist.
+ *   - 409 if `to` is not a legal next state for the current `from`.
+ *   - 403 if the actor's role is not allowed to perform that transition.
+ *
+ * Side effects:
+ *   - On `DRAFT -> RMO_DONE`, fires `notifyDoctorHandoff` (best-effort).
+ *   - On `IN_PROGRESS -> SIGNED`, stamps `signedAt` and `signedById`.
+ *   - Always writes an UPDATE audit row with `{ from, to, notes? }`.
+ *
+ * NOTE: there is no `assigneeUserId` column on Consultation today, so
+ * the doctor that picked a case off the RMO queue is recorded only in
+ * the AuditLog detail. If/when an assignee column lands, populate it
+ * here on the `RMO_DONE -> IN_PROGRESS` branch.
+ */
+export async function transitionConsultation(
+  id: string,
+  input: TransitionConsultationInput,
+  actor: { userId: string; role: Role },
+): Promise<ConsultationWithRelations> {
+  const before = await db.consultation.findUnique({ where: { id } })
+  if (!before) throw new NotFoundError("Consultation not found")
+
+  const allowedFrom = TRANSITION_ROLES[before.status]
+  const rolesForTarget = allowedFrom?.[input.to]
+  if (!rolesForTarget) {
+    throw new ConflictError(
+      `Illegal transition: ${before.status} -> ${input.to}`,
+    )
+  }
+  if (!rolesForTarget.includes(actor.role)) {
+    throw new ForbiddenError(
+      `Role ${actor.role} cannot transition ${before.status} -> ${input.to}`,
+    )
+  }
+
+  const after = await db.$transaction(async (tx) => {
+    const data: Prisma.ConsultationUpdateInput = {
+      status: input.to,
+    }
+
+    if (input.to === ConsultationStatus.SIGNED) {
+      data.signedAt = new Date()
+      data.signedBy = { connect: { id: actor.userId } }
+    }
+
+    const updated = await tx.consultation.update({
+      where: { id },
+      data,
+      include: CONSULTATION_INCLUDE,
+    })
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: "Consultation",
+        entityId: updated.id,
+        detail: {
+          event: "transition",
+          from: before.status,
+          to: updated.status,
+          ...(input.notes ? { notes: input.notes } : {}),
+        },
+      },
+    })
+
+    return updated
+  })
+
+  // Fan-out (best-effort, outside the transaction so a notification
+  // failure never rolls back the state change).
+  if (
+    before.status === ConsultationStatus.DRAFT &&
+    input.to === ConsultationStatus.RMO_DONE
+  ) {
+    await notifyDoctorHandoff({
+      consultationId: after.id,
+      patientId: after.patientId,
+      fromUserId: actor.userId,
+    })
+  }
+
+  return after
+}
