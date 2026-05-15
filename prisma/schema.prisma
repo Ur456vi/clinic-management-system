@@ -88,6 +88,32 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
+/// Treatment plan lifecycle (BE-24).
+///
+///   DRAFT   -> SIGNED   (doctor signs the plan; immutable thereafter)
+///   SIGNED  -> REVOKED  (clinician revokes a signed plan)
+///   DRAFT   -> REVOKED  (drafts can be discarded as well)
+///
+/// Service layer enforces transitions; SIGNED is otherwise terminal for
+/// content edits — only the sign endpoint stamps `signedAt`/`signedById`.
+enum TreatmentPlanStatus {
+  DRAFT
+  SIGNED
+  REVOKED
+}
+
+/// Plan-item discriminator. The line items in a TreatmentPlan are a flat
+/// list across these five clinical buckets — keeps the FE list rendering
+/// trivial. Per-kind structured fields will land in BE-26 (protocol
+/// library).
+enum PlanItemKind {
+  RX
+  SUPPLEMENT
+  IV
+  REHAB
+  AESTHETIC
+}
+
 // ===========================================================================
 // Auth & org
 // ===========================================================================
@@ -110,6 +136,9 @@ model User {
 
   consultationsCreated Consultation[] @relation("ConsultationCreator")
   consultationsSigned  Consultation[] @relation("ConsultationSigner")
+
+  treatmentPlansCreated TreatmentPlan[] @relation("PlanCreator")
+  treatmentPlansSigned  TreatmentPlan[] @relation("PlanSigner")
 
   passwordResetOtps PasswordResetOtp[]
 
@@ -207,8 +236,9 @@ model Patient {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  consultations Consultation[]
-  appointments  Appointment[]
+  consultations  Consultation[]
+  appointments   Appointment[]
+  treatmentPlans TreatmentPlan[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -352,6 +382,90 @@ model Appointment {
   // Patient timeline view orders most-recent first.
   @@index([patientId, startsAt(sort: Desc)])
   @@map("appointments")
+}
+
+// ===========================================================================
+// Treatment plans (BE-24)
+// ===========================================================================
+
+/// A clinical treatment plan attached to a Patient. Composed of a header
+/// (title, summary, status, signature stamp) and an ordered list of
+/// `TreatmentPlanItem` rows that span five clinical kinds — Rx,
+/// supplement, IV, rehab, aesthetic.
+///
+/// Lifecycle: DRAFT -> SIGNED -> REVOKED (see `TreatmentPlanStatus`).
+/// Once SIGNED the plan is immutable from the PATCH endpoint; only
+/// `/sign` and a future `/revoke` (BE-25) may alter the row. The plan
+/// is created at version 1 — versioning beyond v1 (immutable history of
+/// edits) is deferred to BE-25.
+///
+/// onDelete policy:
+///   - Patient: `Cascade` — wiping a patient wipes their plans (PHI).
+///   - createdBy / signedBy User: `SetNull` — keep the plan intact even
+///     when an authoring account is removed.
+model TreatmentPlan {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Doctor (or admin acting on their behalf) who drafted this plan.
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   User?   @relation("PlanCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  status TreatmentPlanStatus @default(DRAFT)
+
+  title   String
+  summary String?
+
+  /// Stamped when the plan transitions to SIGNED. After signing the row
+  /// is immutable from the PATCH endpoint (enforced in the service).
+  signedAt   DateTime? @map("signed_at")
+  signedById String?   @map("signed_by_id") @db.Uuid
+  signedBy   User?     @relation("PlanSigner", fields: [signedById], references: [id], onDelete: SetNull)
+
+  /// Plan version number. Sprint 1 ships v1 only; BE-25 will introduce
+  /// immutable revisions on edit-after-sign.
+  version Int @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items TreatmentPlanItem[]
+
+  @@index([patientId, status])
+  @@index([patientId, createdAt])
+  @@map("treatment_plans")
+}
+
+/// One line item on a TreatmentPlan. Cascade-deleted with its parent
+/// (line items have no meaning standalone).
+///
+/// `kind` discriminates the clinical bucket; the structured fields
+/// (`dose`, `frequency`, `durationDays`, `instructions`) are deliberately
+/// loose strings/ints in Sprint 1 — the protocol library (BE-26) will
+/// constrain them per-kind.
+model TreatmentPlanItem {
+  id     String        @id @default(uuid()) @db.Uuid
+  planId String        @map("plan_id") @db.Uuid
+  plan   TreatmentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  kind PlanItemKind
+
+  name         String
+  dose         String?
+  frequency    String?
+  durationDays Int?    @map("duration_days")
+  instructions String?
+
+  /// Display order within the plan. Defaults to 0 — service callers
+  /// should pass a monotonic sequence when ordering matters.
+  sequence Int @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([planId, sequence])
+  @@map("treatment_plan_items")
 }
 
 // ===========================================================================
