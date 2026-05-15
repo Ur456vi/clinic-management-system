@@ -70,6 +70,24 @@ enum ConsultationStatus {
   SIGNED
 }
 
+/// Appointment lifecycle (BE-27).
+///
+///   REQUESTED  -> CONFIRMED | CANCELLED
+///   CONFIRMED  -> COMPLETED | CANCELLED | NO_SHOW
+///   COMPLETED / CANCELLED / NO_SHOW are terminal.
+///
+/// Only REQUESTED + CONFIRMED rows participate in slot-conflict checks —
+/// once a slot is COMPLETED / CANCELLED / NO_SHOW it no longer holds the
+/// staff member's time. Transitions are enforced in the service layer
+/// (`lib/services/appointment.ts`).
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
 // ===========================================================================
 // Auth & org
 // ===========================================================================
@@ -108,7 +126,8 @@ model Department {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  staff Staff[]
+  staff        Staff[]
+  appointments Appointment[]
 
   @@map("departments")
 }
@@ -138,6 +157,11 @@ model Staff {
 
   // Patients this staff member is the primary doctor for.
   primaryPatients Patient[] @relation("PrimaryDoctor")
+
+  // Appointments where this staff member is the assigned doctor/RMO (BE-27).
+  appointments        Appointment[] @relation("AppointmentStaff")
+  // Appointments this staff member created (typically RECEPTION).
+  createdAppointments Appointment[] @relation("AppointmentCreatedBy")
 
   @@index([departmentId])
   @@map("staff")
@@ -184,6 +208,7 @@ model Patient {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   consultations Consultation[]
+  appointments  Appointment[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -262,6 +287,71 @@ model AuditLog {
   @@index([actorUserId, occurredAt])
   @@index([occurredAt])
   @@map("audit_logs")
+}
+
+// ===========================================================================
+// Appointments (BE-27)
+// ===========================================================================
+
+/// A scheduled clinical encounter between a Patient and a Staff member
+/// (typically a doctor or RMO). The lifecycle is `AppointmentStatus` —
+/// transitions are gated in `lib/services/appointment.ts`.
+///
+/// Slot-conflict semantics:
+/// On create / time-edit, the service rejects any overlap on `staffId`
+/// with another appointment whose status is in `{REQUESTED, CONFIRMED}`.
+/// COMPLETED / CANCELLED / NO_SHOW rows no longer hold the slot.
+///
+/// onDelete policy:
+///   - Patient & Staff: `Restrict` — never silently lose a scheduled
+///     appointment when a person is removed.
+///   - Department: `SetNull` — departments can be retired without
+///     dropping historical bookings.
+model Appointment {
+  id String @id @default(uuid()) @db.Uuid
+
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  /// Assigned doctor / RMO for this appointment.
+  staffId String @map("staff_id") @db.Uuid
+  staff   Staff  @relation("AppointmentStaff", fields: [staffId], references: [id], onDelete: Restrict)
+
+  /// Optional department snapshot — useful for room/queue routing in
+  /// later sprints. SetNull keeps history intact if the department is
+  /// retired.
+  departmentId String?     @map("department_id") @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  startsAt DateTime @map("starts_at") @db.Timestamptz()
+  endsAt   DateTime @map("ends_at") @db.Timestamptz()
+
+  status AppointmentStatus @default(REQUESTED)
+
+  /// Short free-text reason for the visit (chief complaint shorthand).
+  reason String?
+  /// Optional reception/clinical notes attached to the booking itself
+  /// (not the consultation — that's a separate row).
+  notes  String?
+
+  /// Who booked the appointment. Optional — system-created bookings
+  /// (e.g. follow-up suggestions in BE-28) may have no creator.
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   Staff?  @relation("AppointmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  /// Stamped when the row transitions to CANCELLED. Kept for audit /
+  /// patient-timeline display alongside `cancelledReason`.
+  cancelledAt     DateTime? @map("cancelled_at") @db.Timestamptz()
+  cancelledReason String?   @map("cancelled_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Slot-conflict checks scan by (staffId, startsAt).
+  @@index([staffId, startsAt])
+  // Patient timeline view orders most-recent first.
+  @@index([patientId, startsAt(sort: Desc)])
+  @@map("appointments")
 }
 
 // ===========================================================================
