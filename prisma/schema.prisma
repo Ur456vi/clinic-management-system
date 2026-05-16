@@ -169,8 +169,17 @@ model Department {
   slug        String   @unique
   description String?
   isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  /// Default service pricing for this department (BE-31).
+  ///
+  /// JSONB map of `serviceCode -> priceCents` (integer paise/cents).
+  /// Example: `{ "consultation": 50000, "follow_up": 30000 }`.
+  /// Read by the appointment + invoice surfaces to seed line-item amounts
+  /// when a more specific override isn't set. The shape is intentionally
+  /// open-ended for Sprint 1 — BE-37 will introduce a normalised
+  /// `ServicePrice` table and migrate values out of this column.
+  defaultPricing Json?    @map("default_pricing")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   staff        Staff[]
   appointments Appointment[]
