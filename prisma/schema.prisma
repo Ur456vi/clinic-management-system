@@ -330,3 +330,4 @@ model PasswordResetOtp {
   @@index([userId, createdAt(sort: Desc)])
   @@map("password_reset_otps")
 }
+
