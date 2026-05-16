@@ -76,3 +76,23 @@ export const updateConsultationSchema = z.object({
 export type UpdateConsultationInput = z.infer<typeof updateConsultationSchema>
 
 export const consultationIdParamSchema = z.object({ id: uuid })
+
+/**
+ * Body schema for the BE-15 transition endpoint.
+ *
+ * `to` is restricted to the three forward states the BE-15 state machine
+ * can drive a consultation into. `notes` is an optional free-text reason
+ * surfaced in the audit log (handover comment, sign-off note, etc.).
+ */
+export const transitionConsultationSchema = z.object({
+  to: z.enum([
+    ConsultationStatus.RMO_DONE,
+    ConsultationStatus.IN_PROGRESS,
+    ConsultationStatus.SIGNED,
+  ]),
+  notes: z.string().trim().max(2000).optional(),
+})
+
+export type TransitionConsultationBody = z.infer<
+  typeof transitionConsultationSchema
+>
