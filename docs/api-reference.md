@@ -4,7 +4,7 @@
 > Last updated: 2026-05-14 (Sprint 1 Day 2).
 > Interactive Swagger UI: [/swagger](/swagger) (served from [`docs/openapi.yaml`](./openapi.yaml)).
 > Status of each endpoint is marked: shipped ✅, in-flight 🚧, backlog 📋.
-> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
+> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`api-staff.md`](./api-staff.md), [`api-audit-logs.md`](./api-audit-logs.md), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
 
 This is the one-stop entry point for integrating the Vyara backend from the
 frontend. Every endpoint that has shipped to `main` as of Sprint 1 Day 2 is
@@ -1218,3 +1218,50 @@ These are surfaced in `error.details.code` on top of a generic
 - `Staff.firstName` / `Staff.lastName` columns are not split yet — the
   API synthesises them from `fullName` (last-whitespace split). Surnames
   with internal whitespace round-trip lossily today.
+
+---
+
+## 8. Audit logs (BE-23)
+
+> Deep dive: [`api-audit-logs.md`](./api-audit-logs.md).
+
+Every read or write of PHI in `lib/services/**` writes a row into the
+`AuditLog` table via the `recordAudit()` helper (`lib/services/audit.ts`).
+The full table is surfaced through one ADMIN-only viewer endpoint.
+
+### 8.1 Endpoint at a glance
+
+| Method | Path                       | Auth         | Notes |
+| ------ | -------------------------- | ------------ | ----- |
+| GET    | `/api/admin/audit-logs`    | **ADMIN**    | List with filters + keyset pagination. Order `occurredAt desc, id desc`. Default page **100**, max **500**. |
+
+### 8.2 Filters
+
+`entityType`, `entityId`, `actorUserId`, `action`, `from`, `to`,
+`cursor`, `limit`. See [`api-audit-logs.md`](./api-audit-logs.md) for
+shapes and examples.
+
+### 8.3 What gets audited
+
+| Service       | Mutations            | Reads (detail GET only) |
+| ------------- | -------------------- | ----------------------- |
+| Patient       | CREATE / UPDATE / DELETE (soft) | `GET /api/patients/:id`      |
+| Consultation  | CREATE / UPDATE (sampled, see below) | `GET /api/consultations/:id` |
+| Staff         | CREATE / UPDATE / DELETE (soft) | `GET /api/staff/:id`         |
+| Appointment   | CREATE / UPDATE / transition | `GET /api/appointments/:id`  |
+
+**READ scope.** List endpoints (`GET /api/patients`, etc.) deliberately
+do not emit per-item READ rows — the multiplicative cost would balloon
+the table for negligible compliance value. Only detail GETs are
+instrumented.
+
+**Autosave sampling.** `PATCH /api/consultations/:id` (the autosave
+path) is sampled at **one UPDATE row per 60-second window** per
+`(actorUserId, consultationId)`. Status transitions on consultations
+bypass the sampler and always write. The sampler is in-memory per app
+process — fine for Sprint 1 (single pod), revisit for multi-pod.
+
+### 8.4 BigInt id serialisation
+
+`AuditLog.id` is a Postgres `BigInt`. The wire shape stringifies it so
+`JSON.parse` round-trips cleanly and cursors are stable.

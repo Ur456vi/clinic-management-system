@@ -34,6 +34,7 @@ import {
   ValidationError,
 } from "@/lib/api/errors"
 import { hashPassword } from "@/lib/passwords"
+import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import type {
   CreateStaffInput,
@@ -192,20 +193,12 @@ export async function getStaff(
   })
   if (!row) throw new NotFoundError("Staff not found")
 
-  try {
-    await db.auditLog.create({
-      data: {
-        actorUserId,
-        action: "READ",
-        entityType: "Staff",
-        entityId: row.id,
-      },
-    })
-  } catch (err) {
-    // Audit failure must not break the read.
-    // eslint-disable-next-line no-console
-    console.error("[staff.getStaff] audit write failed", err)
-  }
+  await recordAudit({
+    actorUserId,
+    action: "READ",
+    entityType: "Staff",
+    entityId: row.id,
+  })
 
   return toDTO(row)
 }
@@ -265,8 +258,8 @@ export async function createStaff(
       include: STAFF_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId,
         action: "CREATE",
         entityType: "Staff",
@@ -283,7 +276,8 @@ export async function createStaff(
           passwordSet: Boolean(input.password),
         },
       },
-    })
+      { tx },
+    )
 
     return toDTO(staff)
   })
@@ -377,8 +371,8 @@ export async function updateStaff(
       include: STAFF_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId: policy.actorUserId,
         action: "UPDATE",
         entityType: "Staff",
@@ -398,7 +392,8 @@ export async function updateStaff(
           },
         },
       },
-    })
+      { tx },
+    )
 
     return toDTO(after)
   })
@@ -446,8 +441,8 @@ export async function softDeleteStaff(
       include: STAFF_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId,
         action: "DELETE",
         entityType: "Staff",
@@ -464,6 +459,7 @@ export async function softDeleteStaff(
           method: "soft-delete (isActive=false on Staff+User)",
         },
       },
-    })
+      { tx },
+    )
   })
 }

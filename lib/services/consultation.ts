@@ -17,10 +17,11 @@
  */
 
 import type { Consultation, Prisma } from "@prisma/client"
-import { ConsultationStatus, ConsultationType, Role } from "@prisma/client"
+import { AuditAction, ConsultationStatus, ConsultationType, Role } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
 import {
   ALLOWED_STATUS_TRANSITIONS,
   type CreateConsultationInput,
@@ -188,15 +189,22 @@ export async function createConsultation(
       include: CONSULTATION_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId: actor.userId,
         action: "CREATE",
         entityType: "Consultation",
         entityId: created.id,
-        detail: { after: { id: created.id, type: created.type, patientId: created.patientId } },
+        detail: {
+          after: {
+            id: created.id,
+            type: created.type,
+            patientId: created.patientId,
+          },
+        },
       },
-    })
+      { tx },
+    )
 
     return created
   })
@@ -229,19 +237,12 @@ export async function getConsultation(
   })
   if (!consultation) throw new NotFoundError("Consultation not found")
 
-  try {
-    await db.auditLog.create({
-      data: {
-        actorUserId: actor.userId,
-        action: "READ",
-        entityType: "Consultation",
-        entityId: consultation.id,
-      },
-    })
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("[consultation.getConsultation] audit write failed", err)
-  }
+  await recordAudit({
+    actorUserId: actor.userId,
+    action: "READ",
+    entityType: "Consultation",
+    entityId: consultation.id,
+  })
 
   return consultation
 }
@@ -321,27 +322,36 @@ export async function updateConsultation(
       include: CONSULTATION_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
-        actorUserId: actor.userId,
-        action: "UPDATE",
-        entityType: "Consultation",
-        entityId: after.id,
-        detail: {
-          before: {
-            status: before.status,
-            sections: before.sections,
-            summary: before.summary,
-          },
-          after: {
-            status: after.status,
-            sections: after.sections,
-            summary: after.summary,
-          },
-          patch: input as unknown as Prisma.InputJsonValue,
+    // Autosave is the dominant caller of this endpoint. To keep the
+    // table readable we sample by (actor, consultationId) on 60-second
+    // windows. Status changes are infrequent and should always land,
+    // so they bypass the sampler.
+    const isStatusChange =
+      input.status !== undefined && input.status !== before.status
+    const auditInput = {
+      actorUserId: actor.userId,
+      action: AuditAction.UPDATE,
+      entityType: "Consultation",
+      entityId: after.id,
+      detail: {
+        before: {
+          status: before.status,
+          sections: before.sections as unknown as Prisma.InputJsonValue,
+          summary: before.summary,
         },
-      },
-    })
+        after: {
+          status: after.status,
+          sections: after.sections as unknown as Prisma.InputJsonValue,
+          summary: after.summary,
+        },
+        patch: input as unknown as Prisma.InputJsonValue,
+      } as unknown as Prisma.InputJsonValue,
+    }
+    if (isStatusChange) {
+      await recordAudit(auditInput, { tx })
+    } else {
+      await recordAuditSampled(auditInput, { tx })
+    }
 
     return after
   })
