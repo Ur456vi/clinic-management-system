@@ -38,9 +38,13 @@ type EnvShape = {
   WHATSAPP_VERIFY_TOKEN: string | undefined
 
   // Storage (optional in dev, required for lab uploads)
+  // BE-19: AWS_S3_BUCKET_PHI / _ASSETS are the canonical names. The
+  // legacy S3_BUCKET stays for backwards compat with earlier tasks.
   S3_ENDPOINT: string | undefined
   S3_REGION: string
   S3_BUCKET: string
+  AWS_S3_BUCKET_PHI: string | undefined
+  AWS_S3_BUCKET_ASSETS: string | undefined
   S3_ACCESS_KEY_ID: string | undefined
   S3_SECRET_ACCESS_KEY: string | undefined
   S3_PUBLIC_URL: string | undefined
@@ -144,10 +148,15 @@ const env: EnvShape = {
   WHATSAPP_VERIFY_TOKEN: optional("WHATSAPP_VERIFY_TOKEN"),
 
   S3_ENDPOINT: optional("S3_ENDPOINT"),
-  S3_REGION: optional("S3_REGION", "auto")!,
+  // AWS_REGION wins if set (canonical for BE-19), falls back to S3_REGION,
+  // then to "ap-south-1" — Mumbai is our default per infra docs.
+  S3_REGION: optional("AWS_REGION", optional("S3_REGION", "ap-south-1"))!,
   S3_BUCKET: optional("S3_BUCKET", "vyara-uploads")!,
-  S3_ACCESS_KEY_ID: optional("S3_ACCESS_KEY_ID"),
-  S3_SECRET_ACCESS_KEY: optional("S3_SECRET_ACCESS_KEY"),
+  AWS_S3_BUCKET_PHI: optional("AWS_S3_BUCKET_PHI"),
+  AWS_S3_BUCKET_ASSETS: optional("AWS_S3_BUCKET_ASSETS"),
+  // Accept either the AWS-canonical names or the legacy S3_* aliases.
+  S3_ACCESS_KEY_ID: optional("AWS_ACCESS_KEY_ID", optional("S3_ACCESS_KEY_ID")),
+  S3_SECRET_ACCESS_KEY: optional("AWS_SECRET_ACCESS_KEY", optional("S3_SECRET_ACCESS_KEY")),
   S3_PUBLIC_URL: optional("S3_PUBLIC_URL"),
 
   RAZORPAY_KEY_ID: optional("RAZORPAY_KEY_ID"),
