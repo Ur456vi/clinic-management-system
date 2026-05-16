@@ -131,6 +131,22 @@ enum PlanItemKind {
   AESTHETIC
 }
 
+/// Infusion log lifecycle (BE-26).
+///
+///   SCHEDULED   -> IN_PROGRESS | ABORTED
+///   IN_PROGRESS -> COMPLETED   | ABORTED
+///   COMPLETED / ABORTED are terminal.
+///
+/// Transitions are enforced in the service layer
+/// (`lib/services/infusion-log.ts`); the route layer is a thin wrapper
+/// that calls `transitionInfusionLog`.
+enum InfusionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  ABORTED
+}
+
 // ===========================================================================
 // Auth & org
 // ===========================================================================
@@ -221,6 +237,9 @@ model Staff {
   // Appointments this staff member created (typically RECEPTION).
   createdAppointments Appointment[] @relation("AppointmentCreatedBy")
 
+  // Infusion logs administered by this staff member (BE-26).
+  infusionLogs InfusionLog[] @relation("InfusionStaff")
+
   @@index([departmentId])
   @@map("staff")
 }
@@ -270,6 +289,7 @@ model Patient {
   labResults     LabResult[]
   treatmentPlans TreatmentPlan[]
   invoices       Invoice[]
+  infusionLogs   InfusionLog[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -317,6 +337,7 @@ model Consultation {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   labResults LabResult[]
+  infusions  InfusionLog[]
 
   @@index([patientId, type, createdAt])
   @@index([status])
@@ -816,5 +837,65 @@ model Payment {
   @@index([status])
   @@index([gatewayRef])
   @@map("payments")
+}
+
+
+// ===========================================================================
+// Infusion logs (BE-26)
+// ===========================================================================
+
+/// A single integrative-medicine IV / infusion encounter. Recorded by the
+/// infusion-specialist or supervising clinician for protocol traceability:
+/// what was administered, by whom, when started/completed, and whether the
+/// patient had a reaction. The `agents` JSONB array carries the per-agent
+/// order (name + dose + unit + sequence) — modelled loose because the
+/// integrative protocol library is still in flight; the validation layer
+/// (`lib/validation/infusion-log.ts`) constrains the shape.
+///
+/// Lifecycle: SCHEDULED -> IN_PROGRESS -> COMPLETED, or -> ABORTED from
+/// any non-terminal state (see `InfusionStatus`). Transitions are gated
+/// in `lib/services/infusion-log.ts`.
+///
+/// onDelete policy:
+///   - Patient & Staff: `Restrict` — never silently lose an infusion
+///     record when a person is removed (clinical traceability).
+///   - Consultation: `SetNull` — keep the infusion intact if the
+///     originating consultation is removed.
+model InfusionLog {
+  id             String  @id @default(uuid()) @db.Uuid
+  patientId      String  @map("patient_id") @db.Uuid
+  consultationId String? @map("consultation_id") @db.Uuid
+  staffId        String  @map("staff_id") @db.Uuid
+
+  /// Free-form protocol label, e.g. "Myers' Cocktail", "Glutathione Push".
+  protocol String
+  /// Per-agent order. Validated as
+  /// `Array<{ name: string; dose: number; unit: string; sequence: number }>`
+  /// at the route boundary; stored verbatim here.
+  agents   Json
+
+  startedAt   DateTime  @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  /// Free-text reaction note — populated when the patient flags any
+  /// adverse response (rash, dizziness, vasovagal, etc.). Null on a
+  /// clean infusion.
+  reaction String?
+
+  status InfusionStatus @default(SCHEDULED)
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  consultation Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  staff        Staff         @relation("InfusionStaff", fields: [staffId], references: [id], onDelete: Restrict)
+
+  @@index([patientId])
+  @@index([staffId])
+  @@index([status])
+  @@map("infusion_logs")
 }
 
