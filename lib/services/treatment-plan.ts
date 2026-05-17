@@ -25,10 +25,11 @@
  */
 
 import type { Prisma, TreatmentPlan } from "@prisma/client"
-import { Role, TreatmentPlanStatus } from "@prisma/client"
+import { NotificationKind, Role, TreatmentPlanStatus } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { emitNotification } from "@/lib/services/notifications"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import {
   ALLOWED_PLAN_TRANSITIONS,
@@ -420,6 +421,26 @@ export async function signPlan(
         },
       },
     })
+
+    // BE-45 fan-out: if the patient has a linked unified-portal User
+    // login, drop a PLAN_SIGNED notification into their feed. Runs
+    // inside the same transaction so the notification commits with the
+    // plan signature (or rolls back together on failure).
+    const patient = await tx.patient.findUnique({
+      where: { id: after.patientId },
+      select: { userId: true },
+    })
+    if (patient?.userId) {
+      await emitNotification({
+        userId: patient.userId,
+        kind: NotificationKind.PLAN_SIGNED,
+        title: "Your treatment plan has been signed",
+        body: after.title,
+        sourceType: "TreatmentPlan",
+        sourceRefId: after.id,
+        tx,
+      })
+    }
 
     return after
   })
