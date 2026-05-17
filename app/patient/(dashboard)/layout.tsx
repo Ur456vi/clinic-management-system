@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { UserAvatar } from "@/components/ui/UserAvatar"
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -37,6 +38,7 @@ export default function PatientDashboardLayout({ children }: { children: React.R
   const pathname = usePathname()
   const { data: session } = useSession()
   const displayName = session?.user?.fullName ?? "Loading…"
+  const avatarUrl = session?.user?.avatarUrl ?? null
   const displayRole = session?.user?.role
     ? session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase().replace(/_/g, " ")
     : ""
@@ -134,14 +136,7 @@ export default function PatientDashboardLayout({ children }: { children: React.R
             </div>
             
             <button className="flex items-center gap-3 hover:bg-gray-50 p-1.5 pr-3 rounded-lg transition-all group">
-              <div className="relative h-9 w-9 overflow-hidden rounded-full border border-[#EAECF0]">
-                <Image
-                  src="/images/avatars/patient-avatar.png"
-                  alt="Patient Profile"
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <UserAvatar name={displayName} src={avatarUrl} size={36} />
               <div className="flex flex-col items-start">
                 <span className="text-sm font-semibold text-[#101828] leading-tight">{displayName}</span>
                 <span className="text-xs text-[#667085]">{displayRole}</span>

@@ -23,6 +23,8 @@ declare module "next-auth" {
       role: Role
       /** Display name from Staff.fullName / Patient.fullName (email fallback). */
       fullName: string
+      /** Optional profile image URL from Staff.avatarUrl. */
+      avatarUrl: string | null
     } & DefaultSession["user"]
   }
 
@@ -32,6 +34,7 @@ declare module "next-auth" {
     email: string
     role: Role
     fullName: string
+    avatarUrl: string | null
   }
 }
 
@@ -45,5 +48,7 @@ declare module "next-auth/jwt" {
     role: Role
     /** Display name. */
     fullName: string
+    /** Profile image URL (nullable). */
+    avatarUrl: string | null
   }
 }

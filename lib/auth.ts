@@ -35,6 +35,7 @@ export type AuthorizedUser = {
   email: string
   role: Role
   fullName: string
+  avatarUrl: string | null
 }
 
 /** Shape of `session.user` after our session callback runs. */
@@ -43,6 +44,7 @@ export type SessionUser = {
   email: string
   role: Role
   fullName: string
+  avatarUrl: string | null
 }
 
 export const authOptions: NextAuthOptions = {
@@ -73,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         const user = await db.user.findUnique({
           where: { email },
           include: {
-            staff: { select: { fullName: true } },
+            staff: { select: { fullName: true, avatarUrl: true } },
             patient: { select: { fullName: true } },
           },
         })
@@ -110,11 +112,14 @@ export const authOptions: NextAuthOptions = {
           user.patient?.fullName ??
           user.email
 
+        const avatarUrl = user.staff?.avatarUrl ?? null
+
         return {
           id: user.id,
           email: user.email,
           role: user.role,
           fullName,
+          avatarUrl,
         }
       },
     }),
@@ -129,6 +134,7 @@ export const authOptions: NextAuthOptions = {
         token.email = u.email
         token.role = u.role
         token.fullName = u.fullName
+        token.avatarUrl = u.avatarUrl
       }
       return token
     },
@@ -140,6 +146,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email as string
         session.user.role = token.role as Role
         session.user.fullName = (token.fullName as string) ?? token.email
+        session.user.avatarUrl = (token.avatarUrl as string | null) ?? null
       }
       return session
     },
@@ -172,5 +179,6 @@ export async function requireUser(): Promise<SessionUser> {
     email: u.email,
     role: u.role,
     fullName: u.fullName,
+    avatarUrl: u.avatarUrl,
   }
 }
