@@ -37,6 +37,10 @@ import {
   type PlanItemInput,
   type UpdateTreatmentPlanInput,
 } from "@/lib/validation/treatment-plan"
+import {
+  materializeAppointmentsForPlan,
+  type MaterializationResult,
+} from "@/lib/services/plan-materialization"
 
 // ---------------------------------------------------------------------------
 // Role gates
@@ -372,14 +376,27 @@ export async function updatePlan(
  * Flip a DRAFT plan to SIGNED. Stamps `signedAt` (server clock) and
  * `signedById` (the actor) atomically. `version` stays at 1 in Sprint 1.
  *
+ * Side-effect (BE-29): once the row flips to SIGNED, in the same
+ * transaction we call `materializeAppointmentsForPlan` to seed the
+ * recurring appointment sequence for any in-clinic plan items (IV,
+ * REHAB, AESTHETIC). The result counts ride alongside the plan in
+ * the return shape so the sign endpoint can surface them to the FE.
+ *
  * Idempotency note: re-signing a SIGNED plan throws 400 — clients
  * should treat the SIGNED status as the success signal and refrain from
- * retrying once they've seen it.
+ * retrying once they've seen it. The materialization step is itself
+ * idempotent: if appointments already exist for this plan they will
+ * not be duplicated.
  */
+export type SignPlanResult = {
+  plan: TreatmentPlanWithRelations
+  materialization: MaterializationResult
+}
+
 export async function signPlan(
   id: string,
   actor: { userId: string; role: Role },
-): Promise<TreatmentPlanWithRelations> {
+): Promise<SignPlanResult> {
   assertWriteRole(actor)
 
   return db.$transaction(async (tx) => {
@@ -393,11 +410,12 @@ export async function signPlan(
       )
     }
 
+    const signedAt = new Date()
     const after = await tx.treatmentPlan.update({
       where: { id },
       data: {
         status: TreatmentPlanStatus.SIGNED,
-        signedAt: new Date(),
+        signedAt,
         signedById: actor.userId,
       },
       include: PLAN_INCLUDE,
@@ -421,7 +439,15 @@ export async function signPlan(
       },
     })
 
-    return after
+    // BE-29: materialize recurring appointments AFTER the status flip,
+    // within the same transaction so a failure rolls back the sign.
+    const materialization = await materializeAppointmentsForPlan(after.id, {
+      tx,
+      signedAt,
+      signedById: actor.userId,
+    })
+
+    return { plan: after, materialization }
   })
 }
 
