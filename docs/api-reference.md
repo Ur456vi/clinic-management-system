@@ -4,7 +4,7 @@
 > Last updated: 2026-05-14 (Sprint 1 Day 2).
 > Interactive Swagger UI: [/swagger](/swagger) (served from [`docs/openapi.yaml`](./openapi.yaml)).
 > Status of each endpoint is marked: shipped ✅, in-flight 🚧, backlog 📋.
-> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
+> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`api-appointment-booking.md`](./api-appointment-booking.md) (BE-23 in-flight), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
 
 This is the one-stop entry point for integrating the Vyara backend from the
 frontend. Every endpoint that has shipped to `main` as of Sprint 1 Day 2 is
@@ -1051,6 +1051,16 @@ stamps `cancelledAt` and stores `cancelledReason`.
 
 See [`api-appointments.md`](./api-appointments.md) for full request/
 response shapes and error matrices.
+
+#### Booking-flow endpoints (BE-23 in-flight)
+
+- `GET  /api/appointments/availability` — list free slots for a staff
+  member in a given window (≤14 days).
+- `POST /api/appointments/book` — patient self-book, or admin/reception
+  on-behalf book, into a free slot.
+
+See [`api-appointment-booking.md`](./api-appointment-booking.md) for the
+full reference.
 
 ---
 
