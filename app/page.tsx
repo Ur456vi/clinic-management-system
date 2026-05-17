@@ -6,17 +6,41 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { signIn } from "next-auth/react"
 
 export default function Home() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isEnabled) {
-      router.push("/admin/patients")
+    if (!isEnabled || isLoading) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Invalid email or password")
+      } else {
+        // middleware will handle the redirect to the correct lane
+        router.refresh()
+        router.push("/admin/dashboard")
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -71,6 +95,13 @@ export default function Home() {
             Please enter below details to access the dashboard.
           </p>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="w-full p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 text-center">
+            {error}
+          </div>
+        )}
 
         {/* Form */}
         <form className="flex w-full flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
@@ -184,14 +215,14 @@ export default function Home() {
           <Button 
             className="h-14 w-full text-lg font-bold text-white shadow-sm transition-all"
             style={{
-              backgroundColor: isEnabled ? '#2E37A4' : '#B3B5E2',
+              backgroundColor: isEnabled && !isLoading ? '#2E37A4' : '#B3B5E2',
               opacity: 1,
             }}
             variant="default"
-            disabled={!isEnabled}
+            disabled={!isEnabled || isLoading}
             onClick={handleLogin}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
 
           {/* Copyright Text */}
