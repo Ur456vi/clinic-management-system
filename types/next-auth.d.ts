@@ -2,8 +2,8 @@
  * Module augmentation for next-auth.
  *
  * The default `Session.user` only has { name, email, image }. We add our own
- * `userId` and `role` claims, and the JWT carries the same triple so the two
- * sides stay in sync.
+ * `userId`, `role`, and `fullName` claims, and the JWT carries the same set
+ * so the two sides stay in sync.
  *
  * These augmentations are picked up automatically because `types/` is in the
  * default `tsconfig.json` `include` glob ("**\/*.ts").
@@ -21,6 +21,8 @@ declare module "next-auth" {
       email: string
       /** Clinic-side role from the `Role` enum. */
       role: Role
+      /** Display name from Staff.fullName / Patient.fullName (email fallback). */
+      fullName: string
     } & DefaultSession["user"]
   }
 
@@ -29,6 +31,7 @@ declare module "next-auth" {
     id: string
     email: string
     role: Role
+    fullName: string
   }
 }
 
@@ -40,5 +43,7 @@ declare module "next-auth/jwt" {
     email: string
     /** Clinic-side role. */
     role: Role
+    /** Display name. */
+    fullName: string
   }
 }

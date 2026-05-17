@@ -34,6 +34,7 @@ export type AuthorizedUser = {
   id: string
   email: string
   role: Role
+  fullName: string
 }
 
 /** Shape of `session.user` after our session callback runs. */
@@ -41,6 +42,7 @@ export type SessionUser = {
   userId: string
   email: string
   role: Role
+  fullName: string
 }
 
 export const authOptions: NextAuthOptions = {
@@ -68,7 +70,13 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) return null
 
-        const user = await db.user.findUnique({ where: { email } })
+        const user = await db.user.findUnique({
+          where: { email },
+          include: {
+            staff: { select: { fullName: true } },
+            patient: { select: { fullName: true } },
+          },
+        })
         if (!user || !user.isActive) return null
 
         const ok = await verifyPassword(password, user.passwordHash)
@@ -97,10 +105,16 @@ export const authOptions: NextAuthOptions = {
           console.error("[auth] failed to record login audit", err)
         }
 
+        const fullName =
+          user.staff?.fullName ??
+          user.patient?.fullName ??
+          user.email
+
         return {
           id: user.id,
           email: user.email,
           role: user.role,
+          fullName,
         }
       },
     }),
@@ -114,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         token.userId = u.id
         token.email = u.email
         token.role = u.role
+        token.fullName = u.fullName
       }
       return token
     },
@@ -124,6 +139,7 @@ export const authOptions: NextAuthOptions = {
         session.user.userId = token.userId as string
         session.user.email = token.email as string
         session.user.role = token.role as Role
+        session.user.fullName = (token.fullName as string) ?? token.email
       }
       return session
     },
@@ -155,5 +171,6 @@ export async function requireUser(): Promise<SessionUser> {
     userId: u.userId,
     email: u.email,
     role: u.role,
+    fullName: u.fullName,
   }
 }

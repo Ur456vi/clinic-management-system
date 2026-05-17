@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { 
   LayoutDashboard, 
   Users, 
@@ -38,6 +39,11 @@ const bottomItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const displayName = session?.user?.fullName ?? "Loading…"
+  const displayRole = session?.user?.role
+    ? session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase().replace(/_/g, " ")
+    : ""
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -139,8 +145,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
               </div>
               <div className="flex flex-col items-start">
-                <span className="text-sm font-semibold text-[#101828] leading-tight">Amit Singh</span>
-                <span className="text-xs text-[#667085]">Patient</span>
+                <span className="text-sm font-semibold text-[#101828] leading-tight">{displayName}</span>
+                <span className="text-xs text-[#667085]">{displayRole}</span>
               </div>
               <ChevronDown className="h-4 w-4 text-[#667085] group-hover:text-[#101828] transition-colors" />
             </button>
