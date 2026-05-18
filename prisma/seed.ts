@@ -425,6 +425,10 @@ async function seedPatients(
   staffIdByEmail: Map<string, string>,
 ): Promise<number> {
   let count = 0
+  let userCount = 0
+  // Same hash as staff — one bcrypt for the entire demo seed.
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_COST)
+
   for (const p of PATIENTS) {
     const primaryDoctorId = p.primaryDoctorEmail
       ? (staffIdByEmail.get(p.primaryDoctorEmail) ?? null)
@@ -433,6 +437,30 @@ async function seedPatients(
     const dob = p.dateOfBirth ? new Date(p.dateOfBirth) : null
     const status: PatientStatus = p.status ?? "ACTIVE"
     const deletedAt = status === "ARCHIVED" ? new Date() : null
+
+    // If the patient has an email, mint a PATIENT User row so they can log
+    // in to the patient portal with email + DEMO_PASSWORD. The Patient.userId
+    // 1:1 link is set below in the same upsert. Without this block, patients
+    // exist in the DB but have no auth credential, so NextAuth's authorize()
+    // can't find them at the login screen.
+    let userId: string | null = null
+    if (p.email) {
+      const user = await db.user.upsert({
+        where: { email: p.email },
+        update: {
+          role: "PATIENT",
+          passwordHash,
+          isActive: true,
+        },
+        create: {
+          email: p.email,
+          role: "PATIENT",
+          passwordHash,
+        },
+      })
+      userId = user.id
+      userCount += 1
+    }
 
     await db.patient.upsert({
       // patientNumber is the stable natural key — re-runs match on it.
@@ -449,6 +477,8 @@ async function seedPatients(
         primaryDoctorId,
         referralSource: p.referralSource ?? null,
         deletedAt,
+        // Refresh the User link on re-runs — User.id is stable (upsert by email).
+        userId,
       },
       create: {
         patientNumber: p.patientNumber,
@@ -463,11 +493,12 @@ async function seedPatients(
         primaryDoctorId,
         referralSource: p.referralSource ?? null,
         deletedAt,
+        userId,
       },
     })
     count += 1
   }
-  console.log(`  patients: ${count}`)
+  console.log(`  patients: ${count} (${userCount} with portal logins)`)
   return count
 }
 
@@ -489,8 +520,8 @@ async function main() {
   // the TreatmentPlan + PlanItem models land on main.
 
   console.log("Seed complete.")
-  console.log(`  Doctor demo login: dr.yuvraaj@example.com / ${DEMO_PASSWORD}`)
-  console.log(`  Patient demo email: priya.patient@example.com (PAT-100001)`)
+  console.log(`  Doctor demo login:  dr.yuvraaj@example.com    / ${DEMO_PASSWORD}`)
+  console.log(`  Patient demo login: priya.patient@example.com / ${DEMO_PASSWORD}  (PAT-100001)`)
 }
 
 main()
