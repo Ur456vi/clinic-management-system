@@ -6,7 +6,7 @@
  * Default service pricing
  * -----------------------
  * `Department.defaultPricing` is a JSONB column shaped as
- * `{ [serviceCode: string]: number /* paise */ }`. Validation lives in
+ * `{ [serviceCode: string]: number (paise) }`. Validation lives in
  * `lib/validation/department.ts`; this layer treats the value as an
  * opaque, already-validated `Record<string, number>` and stores it
  * verbatim. Callers that want to clear the field should send

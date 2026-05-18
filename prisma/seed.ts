@@ -40,6 +40,7 @@ type Role =
   | "INFUSION_SPECIALIST"
   | "REHAB_SPECIALIST"
   | "AESTHETICS_SPECIALIST"
+  | "PATIENT"
 type Sex = "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED"
 type PatientStatus = "ACTIVE" | "INACTIVE" | "ARCHIVED"
 import bcrypt from "bcryptjs"
