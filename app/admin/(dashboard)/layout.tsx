@@ -4,23 +4,22 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { UserAvatar } from "@/components/ui/UserAvatar"
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  UserSquare2, 
-  Building2, 
-  FileText, 
-  BarChart3, 
-  Settings, 
+import { UserMenu } from "@/components/ui/UserMenu"
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  UserSquare2,
+  Building2,
+  FileText,
+  BarChart3,
+  Settings,
   HelpCircle,
+  User,
   Search,
   Moon,
   Bell,
-  ChevronDown,
-  ChevronsLeft
+  ChevronsLeft,
 } from "lucide-react"
 
 const sidebarItems = [
@@ -38,14 +37,14 @@ const bottomItems = [
   { name: "Help & Support", icon: HelpCircle, href: "/admin/help" },
 ]
 
+const userMenuItems = [
+  { label: "My profile", href: "/admin/profile", icon: User },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { label: "Help & Support", href: "/admin/help", icon: HelpCircle },
+]
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { data: session } = useSession()
-  const displayName = session?.user?.fullName ?? "Loading…"
-  const avatarUrl = session?.user?.avatarUrl ?? null
-  const displayRole = session?.user?.role
-    ? session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase().replace(/_/g, " ")
-    : ""
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -137,14 +136,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
             </div>
             
-            <button className="flex items-center gap-3 hover:bg-gray-50 p-1.5 pr-3 rounded-lg transition-all group">
-              <UserAvatar name={displayName} src={avatarUrl} size={36} />
-              <div className="flex flex-col items-start">
-                <span className="text-sm font-semibold text-[#101828] leading-tight">{displayName}</span>
-                <span className="text-xs text-[#667085]">{displayRole}</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-[#667085] group-hover:text-[#101828] transition-colors" />
-            </button>
+            <UserMenu items={userMenuItems} />
           </div>
         </header>
 
