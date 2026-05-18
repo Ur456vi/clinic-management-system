@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full items-center justify-center overflow-hidden bg-white font-sans">
       {/* Main Container */}
-      <div 
+      <div
         className="flex flex-col items-center gap-6 rounded-[24px] border border-[#EAECF0] bg-[#F9FAFB] pt-10 px-10 pb-8"
         style={{
           width: '556px',
@@ -60,11 +60,11 @@ export default function Home() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center">
-          <Image 
-            src="/images/logos/vyara.png" 
-            alt="Vyara Logo" 
-            width={64} 
-            height={65} 
+          <Image
+            src="/images/logos/vyara.png"
+            alt="Vyara Logo"
+            width={64}
+            height={65}
             className="object-contain"
             priority
           />
@@ -72,7 +72,7 @@ export default function Home() {
 
         {/* Header */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 
+          <h1
             style={{
               fontFamily: 'var(--font-inter), Inter, sans-serif',
               fontWeight: 600,
@@ -83,7 +83,7 @@ export default function Home() {
           >
             Login
           </h1>
-          <p 
+          <p
             style={{
               fontFamily: 'var(--font-inter), Inter, sans-serif',
               fontWeight: 400,
@@ -107,8 +107,8 @@ export default function Home() {
         <form className="flex w-full flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
           {/* Email Field */}
           <div className="flex flex-col gap-1.5">
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               style={{
                 fontFamily: 'var(--font-inter), Inter, sans-serif',
                 fontWeight: 500,
@@ -146,8 +146,8 @@ export default function Home() {
 
           {/* Password Field */}
           <div className="flex flex-col gap-1.5">
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               style={{
                 fontFamily: 'var(--font-inter), Inter, sans-serif',
                 fontWeight: 500,
@@ -203,8 +203,8 @@ export default function Home() {
                 Remember Me
               </label>
             </div>
-            <Link 
-              href="/admin/auth/forgot-password" 
+            <Link
+              href="/admin/auth/forgot-password"
               className="text-sm font-semibold text-[#F04438] hover:text-[#D92D20] transition-colors"
             >
               Forget Password?
@@ -212,7 +212,7 @@ export default function Home() {
           </div>
 
           {/* Login Button */}
-          <Button 
+          <Button
             className="h-14 w-full text-lg font-bold text-white shadow-sm transition-all"
             style={{
               backgroundColor: isEnabled && !isLoading ? '#2E37A4' : '#B3B5E2',
@@ -226,7 +226,7 @@ export default function Home() {
           </Button>
 
           {/* Copyright Text */}
-          <p 
+          <p
             style={{
               fontFamily: 'var(--font-inter), Inter, sans-serif',
               fontWeight: 400,
