@@ -6,7 +6,18 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { signIn } from "next-auth/react"
+import { getSession, signIn } from "next-auth/react"
+
+// Roles that land in the patient portal. Everything else (DOCTOR, ADMIN,
+// RMO, RECEPTION, INFUSION_SPECIALIST, REHAB_SPECIALIST,
+// AESTHETICS_SPECIALIST) lands in the admin/staff portal. Keep this in
+// sync with middleware.ts and lib/auth.ts.
+const PATIENT_ROLES = new Set(["PATIENT"])
+
+function landingForRole(role: string | null | undefined): string {
+  if (role && PATIENT_ROLES.has(role)) return "/patient/dashboard"
+  return "/admin/dashboard"
+}
 
 export default function Home() {
   const router = useRouter()
@@ -33,9 +44,18 @@ export default function Home() {
       if (result?.error) {
         setError("Invalid email or password")
       } else {
-        // middleware will handle the redirect to the correct lane
+        // Read the freshly issued session to learn the user's role, then
+        // route to the right portal directly (one redirect instead of
+        // letting the middleware bounce a wrong-lane URL).
+        const session = await getSession()
+        const role = (session?.user as { role?: string } | undefined)?.role ?? null
+        const next = new URLSearchParams(window.location.search).get("next")
+        const destination =
+          next && (next.startsWith("/admin/") || next.startsWith("/patient/"))
+            ? next
+            : landingForRole(role)
         router.refresh()
-        router.push("/admin/dashboard")
+        router.push(destination)
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
