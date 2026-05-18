@@ -8,6 +8,8 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSession, signIn } from "next-auth/react"
 
+import { notify } from "@/lib/notify"
+
 // Roles that land in the patient portal. Everything else (DOCTOR, ADMIN,
 // RMO, RECEPTION, INFUSION_SPECIALIST, REHAB_SPECIALIST,
 // AESTHETICS_SPECIALIST) lands in the admin/staff portal. Keep this in
@@ -43,6 +45,9 @@ export default function Home() {
 
       if (result?.error) {
         setError("Invalid email or password")
+        notify.error("Invalid email or password", {
+          description: "Double-check your credentials and try again.",
+        })
       } else {
         // Read the freshly issued session to learn the user's role, then
         // route to the right portal directly (one redirect instead of
@@ -57,8 +62,11 @@ export default function Home() {
         router.refresh()
         router.push(destination)
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please try again.")
+      notify.error("Something went wrong", {
+        description: "We couldn't reach the server. Please try again.",
+      })
     } finally {
       setIsLoading(false)
     }

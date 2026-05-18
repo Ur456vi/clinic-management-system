@@ -28,6 +28,7 @@ import { signOut, useSession } from "next-auth/react"
 import { ChevronDown, LogOut, type LucideIcon } from "lucide-react"
 
 import { UserAvatar } from "@/components/ui/UserAvatar"
+import { notify } from "@/lib/notify"
 
 export type UserMenuItem = {
   label: string
@@ -89,6 +90,9 @@ export function UserMenu({
 
   const handleSignOut = async () => {
     setOpen(false)
+    // Demo of the centralized notify API — frontend devs can drop this
+    // call anywhere on the client, no hook or provider plumbing needed.
+    notify.info("Signing you out…", { duration: 1500 })
     await signOut({ callbackUrl: signOutRedirect })
   }
 

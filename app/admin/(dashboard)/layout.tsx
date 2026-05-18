@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { UserMenu } from "@/components/ui/UserMenu"
 import {
   LayoutDashboard,
@@ -17,7 +18,6 @@ import {
   HelpCircle,
   User,
   Search,
-  Moon,
   Bell,
   ChevronsLeft,
 } from "lucide-react"
@@ -126,16 +126,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 border-r border-[#EAECF0] pr-4 mr-2">
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors">
-                <Moon className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative">
+            <div className="flex items-center gap-1 border-r border-[#EAECF0] dark:border-[#374151] pr-4 mr-2">
+              <ThemeToggle className="inline-flex items-center justify-center p-2 rounded-lg text-[#667085] hover:bg-gray-50 hover:text-[#101828] dark:text-[#94A3B8] dark:hover:bg-[#1F2937] dark:hover:text-white transition-colors cursor-pointer" iconSize={20} />
+              <button className="p-2 text-[#667085] hover:bg-gray-50 dark:text-[#94A3B8] dark:hover:bg-[#1F2937] rounded-lg transition-colors relative">
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0F172A]"></span>
               </button>
             </div>
-            
+
             <UserMenu items={userMenuItems} />
           </div>
         </header>

@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Search, Moon, Bell, User, CalendarCheck2, HelpCircle } from "lucide-react";
+import { Search, Bell, User, CalendarCheck2, HelpCircle } from "lucide-react";
 
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { UserMenu } from "@/components/ui/UserMenu";
 
 const patientMenuItems = [
@@ -29,21 +30,15 @@ export default function Header() {
 
       <div className="flex items-center gap-4">
         {/* Icons */}
-        <div className="flex gap-2 border-r border-[#EAECF0] pr-4">
+        <div className="flex gap-2 border-r border-[#EAECF0] dark:border-[#374151] pr-4">
+          <ThemeToggle />
           <button
             type="button"
-            className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-[#F9FAFB] transition-colors text-[#6C7688]"
-            aria-label="Toggle theme"
-          >
-            <Moon className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-[#F9FAFB] transition-colors text-[#6C7688] relative"
+            className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-[#F9FAFB] dark:hover:bg-[#1F2937] transition-colors text-[#6C7688] dark:text-[#94A3B8] relative"
             aria-label="Notifications"
           >
             <Bell className="w-5 h-5" />
-            <div className="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></div>
+            <div className="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0F172A]"></div>
           </button>
         </div>
 
