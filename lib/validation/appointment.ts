@@ -225,3 +225,60 @@ export type ListAppointmentsQuery = z.infer<typeof listAppointmentsQuerySchema>
 // ---------------------------------------------------------------------------
 
 export const appointmentIdParamSchema = z.object({ id: uuid })
+
+// ---------------------------------------------------------------------------
+// Plan-link decoder (BE-29)
+// ---------------------------------------------------------------------------
+
+/**
+ * Shape of the plan-link marker embedded in `Appointment.notes` for
+ * appointments synthesized by `materializeAppointmentsForPlan` (BE-29).
+ *
+ * The marker is a single line of JSON written as the FIRST line of the
+ * notes field. Reception staff may append free-text below it on a
+ * subsequent line; the parser tolerates that and ignores anything past
+ * the first newline.
+ */
+export type AppointmentPlanLink = {
+  planId: string
+  planItemId: string
+  sequence: number
+}
+
+/**
+ * Decode the plan-link from an appointment's `notes`. Returns `null` for:
+ *   - notes that are `null` / empty,
+ *   - notes whose first line isn't valid JSON,
+ *   - JSON whose shape doesn't match (missing fields, wrong types).
+ *
+ * Deliberately permissive: this is a best-effort lookup used by the FE
+ * timeline view to fold the appointment back under its parent plan; an
+ * invalid marker should not throw.
+ */
+export function parsePlanLinkFromNotes(
+  notes: string | null,
+): AppointmentPlanLink | null {
+  if (!notes) return null
+  const firstLine = notes.split("\n", 1)[0]?.trim()
+  if (!firstLine || firstLine[0] !== "{") return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(firstLine)
+  } catch {
+    return null
+  }
+  if (!parsed || typeof parsed !== "object") return null
+  const obj = parsed as Record<string, unknown>
+  if (
+    typeof obj.planId !== "string" ||
+    typeof obj.planItemId !== "string" ||
+    typeof obj.sequence !== "number"
+  ) {
+    return null
+  }
+  return {
+    planId: obj.planId,
+    planItemId: obj.planItemId,
+    sequence: obj.sequence,
+  }
+}
