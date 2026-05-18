@@ -36,8 +36,10 @@ import { LabFlag, Role } from "@prisma/client"
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError } from "@/lib/errors"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
+import { getDownloadUrl } from "@/lib/services/storage"
 import type {
   AnalyteInput,
+  AttachLabResultBody,
   CreateLabResultInput,
   ListLabResultsQuery,
   UpdateLabResultInput,
@@ -442,3 +444,208 @@ export async function updateLabResult(
 // ---------------------------------------------------------------------------
 
 export type { LabResult }
+
+// ---------------------------------------------------------------------------
+// Attachment helpers (BE-20)
+// ---------------------------------------------------------------------------
+//
+// `attachToLabResult` links an already-uploaded S3 object (the caller went
+// through BE-19's presigned-PUT flow first) to the row. We do NOT verify
+// the object exists in S3 — that would mean an extra HEAD round-trip per
+// attach and the worst case (broken key) surfaces immediately on the next
+// download attempt. The cleanup of orphaned S3 objects is a Sprint-2 job.
+
+/** Default presigned-download TTL for lab attachments — 5 minutes. */
+const ATTACHMENT_DOWNLOAD_TTL_SEC = 300
+
+export type LabResultAttachmentDownload = {
+  downloadUrl: string
+  expiresInSeconds: number
+  attachmentKey: string
+  attachmentUploadedAt: Date
+}
+
+/**
+ * Attach an uploaded S3 object to an existing lab result.
+ *
+ *  - Restricted to `WRITE_ROLES`.
+ *  - Persists `attachmentKey`, optionally `attachmentMime`, and stamps
+ *    `attachmentUploadedAt = now()` in a single transaction.
+ *  - Writes an UPDATE audit row with `{ before, after }` describing the
+ *    attachment fields (not the whole row).
+ */
+export async function attachToLabResult(
+  id: string,
+  payload: AttachLabResultBody,
+  actor: { userId: string; role: Role },
+): Promise<LabResultWithRelations> {
+  if (!WRITE_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(
+      `Role ${actor.role} cannot modify a lab result`,
+    )
+  }
+
+  return db.$transaction(async (tx) => {
+    const before = await tx.labResult.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        attachmentKey: true,
+        attachmentMime: true,
+        attachmentUploadedAt: true,
+      },
+    })
+    if (!before) throw new NotFoundError("Lab result not found")
+
+    const now = new Date()
+    const after = await tx.labResult.update({
+      where: { id },
+      data: {
+        attachmentKey: payload.key,
+        ...(payload.contentType !== undefined
+          ? { attachmentMime: payload.contentType }
+          : {}),
+        attachmentUploadedAt: now,
+      },
+      include: LAB_RESULT_INCLUDE,
+    })
+
+    await writeAudit(tx, {
+      actorUserId: actor.userId,
+      action: "UPDATE",
+      entityId: after.id,
+      detail: {
+        attachment: {
+          before: {
+            attachmentKey: before.attachmentKey,
+            attachmentMime: before.attachmentMime,
+            attachmentUploadedAt: before.attachmentUploadedAt,
+          },
+          after: {
+            attachmentKey: after.attachmentKey,
+            attachmentMime: after.attachmentMime,
+            attachmentUploadedAt: after.attachmentUploadedAt,
+          },
+          sizeBytes: payload.sizeBytes ?? null,
+        },
+      },
+    })
+
+    return after
+  })
+}
+
+/**
+ * Clear `attachmentKey` + `attachmentUploadedAt` on a lab result. We
+ * deliberately do NOT issue a `DeleteObject` against S3 — that's the
+ * Sprint-2 cleanup job's responsibility, so detaching is idempotent and
+ * cannot corrupt a row by tearing it half-way down.
+ */
+export async function detachFromLabResult(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (!WRITE_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(
+      `Role ${actor.role} cannot modify a lab result`,
+    )
+  }
+
+  await db.$transaction(async (tx) => {
+    const before = await tx.labResult.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        attachmentKey: true,
+        attachmentMime: true,
+        attachmentUploadedAt: true,
+      },
+    })
+    if (!before) throw new NotFoundError("Lab result not found")
+
+    await tx.labResult.update({
+      where: { id },
+      data: {
+        attachmentKey: null,
+        attachmentMime: null,
+        attachmentUploadedAt: null,
+      },
+    })
+
+    await writeAudit(tx, {
+      actorUserId: actor.userId,
+      action: "UPDATE",
+      entityId: before.id,
+      detail: {
+        attachment: {
+          before: {
+            attachmentKey: before.attachmentKey,
+            attachmentMime: before.attachmentMime,
+            attachmentUploadedAt: before.attachmentUploadedAt,
+          },
+          after: {
+            attachmentKey: null,
+            attachmentMime: null,
+            attachmentUploadedAt: null,
+          },
+        },
+      },
+    })
+  })
+}
+
+/**
+ * Mint a presigned GET URL for the lab result's attachment.
+ *
+ *  - `READ_ROLES` gate.
+ *  - Returns `null` when the row exists but has no attachment — the
+ *    route handler turns that into a 404.
+ *  - Writes a READ audit row (action=READ, entityType=LabResult) with
+ *    the attachment key in the detail.
+ *  - Throws `NotFoundError` when the row itself does not exist.
+ */
+export async function getLabResultAttachmentDownload(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<LabResultAttachmentDownload | null> {
+  if (!READ_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(`Role ${actor.role} cannot view lab results`)
+  }
+
+  const row = await db.labResult.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      attachmentKey: true,
+      attachmentUploadedAt: true,
+    },
+  })
+  if (!row) throw new NotFoundError("Lab result not found")
+  if (!row.attachmentKey || !row.attachmentUploadedAt) return null
+
+  const signed = await getDownloadUrl({
+    bucket: "phi",
+    key: row.attachmentKey,
+    ttlSec: ATTACHMENT_DOWNLOAD_TTL_SEC,
+    asAttachment: true,
+  })
+
+  await writeAudit(db, {
+    actorUserId: actor.userId,
+    action: "READ",
+    entityId: row.id,
+    detail: {
+      attachment: {
+        key: row.attachmentKey,
+        ttlSec: signed.ttlSec,
+      },
+    },
+  })
+
+  return {
+    downloadUrl: signed.url,
+    expiresInSeconds: signed.ttlSec,
+    attachmentKey: row.attachmentKey,
+    attachmentUploadedAt: row.attachmentUploadedAt,
+  }
+}

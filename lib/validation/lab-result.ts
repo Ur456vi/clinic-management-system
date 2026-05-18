@@ -111,3 +111,19 @@ export const listLabResultsQuerySchema = z
 export type ListLabResultsQuery = z.infer<typeof listLabResultsQuerySchema>
 
 export const labResultIdParamSchema = z.object({ id: uuid })
+
+/**
+ * Body for `PUT /api/lab-results/:id/attachment` (BE-20).
+ *
+ * The S3 object has already been uploaded by the client via the BE-19
+ * presigned-PUT flow (`POST /api/files/upload-url`); this body just
+ * describes the key + optional metadata so we can persist it on the
+ * `LabResult` row.
+ */
+export const attachLabResultBodySchema = z.object({
+  key: z.string().trim().min(1, "Required").max(1024),
+  contentType: z.string().trim().min(1).max(200).optional(),
+  sizeBytes: z.number().int().nonnegative().max(25 * 1024 * 1024).optional(),
+})
+
+export type AttachLabResultBody = z.infer<typeof attachLabResultBodySchema>

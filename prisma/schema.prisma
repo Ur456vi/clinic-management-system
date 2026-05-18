@@ -657,6 +657,7 @@ model LabResult {
   /// presigned-upload flow lands; nullable until then.
   attachmentKey  String?  @map("attachment_key")
   attachmentMime String?  @map("attachment_mime")
+  attachmentUploadedAt DateTime? @map("attachment_uploaded_at")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
