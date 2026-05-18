@@ -173,6 +173,7 @@ model User {
 
   treatmentPlansCreated TreatmentPlan[] @relation("PlanCreator")
   treatmentPlansSigned  TreatmentPlan[] @relation("PlanSigner")
+  treatmentPlansRevoked TreatmentPlan[] @relation("PlanRevoker")
 
   passwordResetOtps PasswordResetOtp[]
 
@@ -483,9 +484,24 @@ model TreatmentPlan {
   signedById String?   @map("signed_by_id") @db.Uuid
   signedBy   User?     @relation("PlanSigner", fields: [signedById], references: [id], onDelete: SetNull)
 
-  /// Plan version number. Sprint 1 ships v1 only; BE-25 will introduce
-  /// immutable revisions on edit-after-sign.
+  /// Plan version number. v1 for first issuance; cloning via the
+  /// `/version` endpoint (BE-25) increments from the source row.
   version Int @default(1)
+
+  /// Back-pointer to the plan this row was cloned from (BE-25). NULL on
+  /// the root version. SetNull on delete so a pruned ancestor does not
+  /// orphan its descendants.
+  previousVersionId String?         @map("previous_version_id") @db.Uuid
+  previousVersion   TreatmentPlan?  @relation("PlanVersionChain", fields: [previousVersionId], references: [id], onDelete: SetNull)
+  nextVersions      TreatmentPlan[] @relation("PlanVersionChain")
+
+  /// Revoke metadata (BE-25). Stamped when the plan transitions to
+  /// REVOKED — `revokedById` is the actor (admin or signing doctor),
+  /// `revokeReason` is the optional free-text note from the request.
+  revokedAt    DateTime? @map("revoked_at")
+  revokedById  String?   @map("revoked_by_id") @db.Uuid
+  revokedBy    User?     @relation("PlanRevoker", fields: [revokedById], references: [id], onDelete: SetNull)
+  revokeReason String?   @map("revoke_reason")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -494,6 +510,7 @@ model TreatmentPlan {
 
   @@index([patientId, status])
   @@index([patientId, createdAt])
+  @@index([previousVersionId])
   @@map("treatment_plans")
 }
 
