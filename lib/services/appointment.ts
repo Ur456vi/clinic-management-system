@@ -21,6 +21,7 @@ import { AppointmentStatus, Role } from "@prisma/client"
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { ConflictError } from "@/lib/api"
+import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import {
   ALLOWED_APPOINTMENT_TRANSITIONS,
@@ -229,8 +230,8 @@ export async function createAppointment(
       include: APPOINTMENT_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId: actor.userId,
         action: "CREATE",
         entityType: "Appointment",
@@ -246,7 +247,8 @@ export async function createAppointment(
           },
         },
       },
-    })
+      { tx },
+    )
 
     return created
   })
@@ -336,19 +338,12 @@ export async function getAppointment(
   })
   if (!appointment) throw new NotFoundError("Appointment not found")
 
-  try {
-    await db.auditLog.create({
-      data: {
-        actorUserId: actor.userId,
-        action: "READ",
-        entityType: "Appointment",
-        entityId: appointment.id,
-      },
-    })
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("[appointment.getAppointment] audit write failed", err)
-  }
+  await recordAudit({
+    actorUserId: actor.userId,
+    action: "READ",
+    entityType: "Appointment",
+    entityId: appointment.id,
+  })
 
   return appointment
 }
@@ -422,8 +417,8 @@ export async function updateAppointment(
       include: APPOINTMENT_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId: actor.userId,
         action: "UPDATE",
         entityType: "Appointment",
@@ -449,7 +444,8 @@ export async function updateAppointment(
           },
         },
       },
-    })
+      { tx },
+    )
 
     return after
   })
@@ -513,8 +509,8 @@ export async function transitionAppointment(
       include: APPOINTMENT_INCLUDE,
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId: actor.userId,
         action: "UPDATE",
         entityType: "Appointment",
@@ -524,7 +520,8 @@ export async function transitionAppointment(
           reason: input.reason ?? null,
         },
       },
-    })
+      { tx },
+    )
 
     return after
   })

@@ -19,6 +19,7 @@ import { PatientStatus } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/errors"
+import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import type {
   CreatePatientInput,
@@ -140,20 +141,12 @@ export async function getPatient(
   const patient = await db.patient.findUnique({ where: { id } })
   if (!patient) throw new NotFoundError("Patient not found")
 
-  try {
-    await db.auditLog.create({
-      data: {
-        actorUserId,
-        action: "READ",
-        entityType: "Patient",
-        entityId: patient.id,
-      },
-    })
-  } catch (err) {
-    // Audit failure must not break the read; log and continue.
-    // eslint-disable-next-line no-console
-    console.error("[patient.getPatient] audit write failed", err)
-  }
+  await recordAudit({
+    actorUserId,
+    action: "READ",
+    entityType: "Patient",
+    entityId: patient.id,
+  })
 
   return patient
 }
@@ -188,15 +181,16 @@ export async function createPatient(
       },
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId,
         action: "CREATE",
         entityType: "Patient",
         entityId: created.id,
-        detail: { after: created },
+        detail: { after: created as unknown as Prisma.InputJsonValue },
       },
-    })
+      { tx },
+    )
 
     return created
   })
@@ -240,15 +234,19 @@ export async function updatePatient(
 
     const after = await tx.patient.update({ where: { id }, data })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId,
         action: "UPDATE",
         entityType: "Patient",
         entityId: after.id,
-        detail: { before, after },
+        detail: {
+          before: before as unknown as Prisma.InputJsonValue,
+          after: after as unknown as Prisma.InputJsonValue,
+        },
       },
-    })
+      { tx },
+    )
 
     return after
   })
@@ -279,15 +277,19 @@ export async function softDeletePatient(
       },
     })
 
-    await tx.auditLog.create({
-      data: {
+    await recordAudit(
+      {
         actorUserId,
         action: "DELETE",
         entityType: "Patient",
         entityId: after.id,
-        detail: { before, after },
+        detail: {
+          before: before as unknown as Prisma.InputJsonValue,
+          after: after as unknown as Prisma.InputJsonValue,
+        },
       },
-    })
+      { tx },
+    )
 
     return after
   })
