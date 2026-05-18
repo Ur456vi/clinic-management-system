@@ -221,3 +221,116 @@ storing it. There is no merge semantics; clients re-post the full panel.
 - `401 UNAUTHORIZED`.
 - `403 FORBIDDEN` — wrong role, or `consultationId` belongs to a different patient.
 - `404 NOT_FOUND`.
+
+---
+
+## Attachment endpoints
+
+Three routes rooted at `/api/lab-results/:id/attachment` (BE-20) link an
+already-uploaded S3 object — uploaded via the BE-19 presigned-PUT flow at
+`POST /api/files/upload-url` — to a `LabResult` row, and mint short-lived
+presigned download URLs for it.
+
+The lab attachment is stored on the row itself as
+`attachmentKey` (S3 object key), `attachmentMime`, and
+`attachmentUploadedAt`. The actual PDF/image lives in the `phi` bucket;
+this server never sees the bytes.
+
+### `PUT /api/lab-results/:id/attachment`
+
+Attach an uploaded object to the lab result. The S3 PUT must already have
+completed against the URL returned by `POST /api/files/upload-url`; this
+endpoint just persists the `key` plus optional metadata.
+
+**Auth**: `ADMIN`, `DOCTOR`, `RMO` (WRITE_ROLES).
+
+#### Request body
+
+```json
+{
+  "key": "phi/2026/05/abc123.pdf",
+  "contentType": "application/pdf",
+  "sizeBytes": 184320
+}
+```
+
+| Field         | Type    | Required | Notes                                     |
+| ------------- | ------- | -------- | ----------------------------------------- |
+| `key`         | string  | yes      | S3 object key returned by the upload-URL route. |
+| `contentType` | string  | no       | When provided, stored as `attachmentMime`. |
+| `sizeBytes`   | integer | no       | Recorded on the audit row; not persisted on the LabResult. |
+
+#### Response (200)
+
+The updated lab result, in the same shape as `GET /api/lab-results/:id`.
+
+#### Errors
+
+- `400 VALIDATION_ERROR` — missing/invalid `key`.
+- `401 UNAUTHORIZED`.
+- `403 FORBIDDEN` — caller's role is not in WRITE_ROLES.
+- `404 NOT_FOUND` — lab result does not exist.
+
+#### Audit
+
+One `AuditLog` row with `action=UPDATE`, `entityType=LabResult`,
+`entityId=<id>`, and `detail.attachment.{before,after,sizeBytes}`.
+
+### `DELETE /api/lab-results/:id/attachment`
+
+Detach the current attachment by clearing `attachmentKey`,
+`attachmentMime`, and `attachmentUploadedAt`. **Does not delete the
+underlying S3 object** — that is the responsibility of a Sprint-2
+cleanup job, so detach is idempotent and safe to retry.
+
+**Auth**: `ADMIN`, `DOCTOR`, `RMO` (WRITE_ROLES).
+
+#### Response
+
+`204 No Content`.
+
+#### Errors
+
+- `401 UNAUTHORIZED`.
+- `403 FORBIDDEN`.
+- `404 NOT_FOUND` — lab result does not exist.
+
+#### Audit
+
+One `AuditLog` row with `action=UPDATE` and a `detail.attachment.before`
+snapshot.
+
+### `GET /api/lab-results/:id/attachment`
+
+Mint a short-lived presigned GET URL for the current attachment.
+Returns `404` when the row exists but has no attachment.
+
+**Auth**: every authenticated clinic role (READ_ROLES).
+
+#### Response (200)
+
+```json
+{
+  "data": {
+    "downloadUrl": "https://...signed-get-url...",
+    "expiresInSeconds": 300,
+    "attachmentKey": "phi/2026/05/abc123.pdf",
+    "attachmentUploadedAt": "2026-05-18T08:24:11.000Z"
+  }
+}
+```
+
+The URL is `Content-Disposition: attachment` so browsers open the
+download dialog rather than inlining the PDF.
+
+#### Errors
+
+- `401 UNAUTHORIZED`.
+- `403 FORBIDDEN`.
+- `404 NOT_FOUND` — either the lab result does not exist, or it has no
+  attachment set.
+
+#### Audit
+
+One `AuditLog` row with `action=READ`, `entityType=LabResult`,
+`entityId=<id>`, and `detail.attachment.{key,ttlSec}`.
