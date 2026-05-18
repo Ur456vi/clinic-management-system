@@ -51,6 +51,46 @@ tags:
     description: |
       Polymorphic clinical encounters (`RMO` intake / `MAIN` doctor pass).
       The PATCH endpoint is the autosave path for the consultation form.
+  - name: Departments
+    description: Clinic department directory + default service pricing (BE-31).
+  - name: Staff
+    description: Doctor + clinical staff directory and CRUD (BE-14).
+  - name: Appointments
+    description: |
+      Appointment scheduling — staff-side CRUD plus the BE-23
+      patient-self-book + availability endpoints used by the patient
+      portal booking widget.
+  - name: TreatmentPlans
+    description: |
+      Doctor-authored treatment plans (BE-24). Signing a plan auto-
+      materializes recurring `Appointment` rows via BE-29.
+  - name: LabResults
+    description: |
+      LabResult model + per-panel analyte JSON (BE-16) and PDF attachment
+      upload/download (BE-20) keyed off the BE-19 presigned-URL service.
+  - name: InfusionLogs
+    description: |
+      Integrative-medicine infusion sessions with explicit state machine
+      (BE-26).
+  - name: Invoices
+    description: Invoice + InvoiceItem + Payment CRUD (BE-37).
+  - name: Payments
+    description: |
+      Razorpay-mock checkout integration (BE-41). Mock mode for Sprint 1;
+      real Razorpay live keys land in Sprint 2.
+  - name: Files
+    description: |
+      S3 presigned-URL upload + download endpoints (BE-19). The PHI
+      bucket holds patient-identifying uploads; the assets bucket holds
+      public images.
+  - name: Notifications
+    description: |
+      In-app notification feed for both staff and patients (BE-45).
+      Service-layer emitters drop into this feed via `emitNotification`.
+  - name: AuditLogs
+    description: |
+      Admin-only audit-log viewer (BE-23-audit-log-infra). Every domain
+      mutation writes an AuditLog row via the service layer.
 
 security:
   - sessionCookie: []
@@ -652,6 +692,792 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+
+  # -------------------------------------------------------------------------
+  # Probes (BE-55)
+  # -------------------------------------------------------------------------
+  /api/ready:
+    get:
+      tags: [Health]
+      operationId: getReady
+      summary: Readiness probe with DB round-trip
+      description: |
+        Like `/api/health` but additionally performs a `SELECT 1` against
+        Postgres so it returns 503 if the DB is unreachable. Anonymous.
+      security: []
+      responses:
+        "200":
+          description: Service + DB reachable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "503":
+          description: Service up but DB unreachable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # -------------------------------------------------------------------------
+  # Departments (BE-12 + BE-31)
+  # -------------------------------------------------------------------------
+  /api/departments:
+    get:
+      tags: [Departments]
+      operationId: listDepartments
+      summary: List departments
+      responses:
+        "200":
+          description: Department list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Departments]
+      operationId: createDepartment
+      summary: Create a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                description: { type: string, nullable: true }
+                defaultPricing:
+                  type: object
+                  additionalProperties: { type: integer, description: Price in paise }
+                  nullable: true
+                isActive: { type: boolean }
+      responses:
+        "201":
+          description: Created.
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/departments/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Departments]
+      operationId: getDepartment
+      summary: Get a department
+      responses:
+        "200": { description: OK }
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Departments]
+      operationId: updateDepartment
+      summary: Update a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                description: { type: string, nullable: true }
+                defaultPricing:
+                  type: object
+                  nullable: true
+                isActive: { type: boolean }
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      tags: [Departments]
+      operationId: archiveDepartment
+      summary: Archive a department (soft delete)
+      responses:
+        "204": { description: Archived }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # -------------------------------------------------------------------------
+  # Staff (BE-14)
+  # -------------------------------------------------------------------------
+  /api/staff:
+    get:
+      tags: [Staff]
+      operationId: listStaff
+      summary: List staff with role + department filters
+      parameters:
+        - in: query
+          name: role
+          schema: { $ref: "#/components/schemas/Role" }
+        - in: query
+          name: departmentId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        "200": { description: Staff list }
+    post:
+      tags: [Staff]
+      operationId: createStaff
+      summary: Create a staff member (also mints the User login)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, fullName, role]
+              properties:
+                email: { type: string, format: email }
+                fullName: { type: string }
+                role: { $ref: "#/components/schemas/Role" }
+                phone: { type: string, nullable: true }
+                departmentId: { type: string, format: uuid, nullable: true }
+                specialization: { type: string }
+                qualifications: { type: array, items: { type: string } }
+      responses:
+        "201": { description: Created }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/staff/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Staff]
+      operationId: getStaff
+      summary: Get a staff member
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Staff]
+      operationId: updateStaff
+      summary: Update a staff member
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [Staff]
+      operationId: deactivateStaff
+      summary: Deactivate (soft delete) a staff member
+      responses:
+        "204": { description: Deactivated }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # -------------------------------------------------------------------------
+  # Appointments (BE-27 + BE-23)
+  # -------------------------------------------------------------------------
+  /api/appointments:
+    get:
+      tags: [Appointments]
+      operationId: listAppointments
+      summary: List appointments with patient/staff/status/window filters
+      parameters:
+        - in: query
+          name: patientId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: staffId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { type: string, description: "Comma-separated AppointmentStatus list" }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        "200": { description: Appointment page }
+    post:
+      tags: [Appointments]
+      operationId: createAppointment
+      summary: Staff-side create (DOCTOR / RMO / RECEPTION / ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientId, staffId, startsAt, endsAt]
+              properties:
+                patientId: { type: string, format: uuid }
+                staffId: { type: string, format: uuid }
+                departmentId: { type: string, format: uuid, nullable: true }
+                startsAt: { type: string, format: date-time }
+                endsAt: { type: string, format: date-time }
+                reason: { type: string }
+                notes: { type: string }
+      responses:
+        "201": { description: Created }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/appointments/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Appointments]
+      operationId: getAppointment
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [Appointments]
+      operationId: updateAppointment
+      summary: Reschedule / update fields on an appointment
+      responses:
+        "200": { description: OK }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/appointments/{id}/transition:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Appointments]
+      operationId: transitionAppointment
+      summary: Drive the appointment state machine (REQUESTED → CONFIRMED → ...)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to:
+                  type: string
+                  enum: [REQUESTED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW]
+                reason: { type: string }
+      responses:
+        "200": { description: Transitioned }
+        "400": { description: Illegal transition }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/appointments/availability:
+    get:
+      tags: [Appointments]
+      operationId: listAvailability
+      summary: List free slot windows for a staff member (BE-23)
+      parameters:
+        - in: query
+          name: staffId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: query
+          name: from
+          required: true
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          required: true
+          schema: { type: string, format: date-time }
+        - in: query
+          name: durationMins
+          schema: { type: integer, default: 30, maximum: 240 }
+      responses:
+        "200":
+          description: Free slot list (max 96).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        start: { type: string, format: date-time }
+                        end: { type: string, format: date-time }
+  /api/appointments/book:
+    post:
+      tags: [Appointments]
+      operationId: bookAppointment
+      summary: Patient-self-book or ADMIN/RECEPTION on-behalf book (BE-23)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [staffId, scheduledAt]
+              properties:
+                patientId:
+                  type: string
+                  format: uuid
+                  description: |
+                    Required for ADMIN/RECEPTION on-behalf branch. Omit
+                    for patient self-book — derived from session.
+                staffId: { type: string, format: uuid }
+                scheduledAt: { type: string, format: date-time }
+                durationMins: { type: integer, default: 30 }
+                reason: { type: string }
+                notes: { type: string }
+      responses:
+        "201": { description: Booked }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  # -------------------------------------------------------------------------
+  # Consultation transition (BE-15)
+  # -------------------------------------------------------------------------
+  /api/consultations/{id}/transition:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Consultations]
+      operationId: transitionConsultation
+      summary: Drive the consultation state machine (DRAFT → RMO_DONE → IN_PROGRESS → SIGNED)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { $ref: "#/components/schemas/ConsultationStatus" }
+                notes: { type: string }
+      responses:
+        "200": { description: Transitioned }
+        "400": { description: Illegal transition }
+
+  # -------------------------------------------------------------------------
+  # TreatmentPlans (BE-24 + BE-29)
+  # -------------------------------------------------------------------------
+  /api/treatment-plans:
+    get:
+      tags: [TreatmentPlans]
+      operationId: listTreatmentPlans
+      summary: List treatment plans
+      parameters:
+        - in: query
+          name: patientId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { type: string, enum: [DRAFT, SIGNED] }
+      responses:
+        "200": { description: List }
+    post:
+      tags: [TreatmentPlans]
+      operationId: createTreatmentPlan
+      summary: Create a draft treatment plan
+      responses:
+        "201": { description: Created }
+  /api/treatment-plans/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [TreatmentPlans]
+      operationId: getTreatmentPlan
+      responses:
+        "200": { description: OK }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [TreatmentPlans]
+      operationId: updateTreatmentPlan
+      summary: Update a DRAFT plan (SIGNED plans are immutable)
+      responses:
+        "200": { description: OK }
+        "400": { description: Plan is signed }
+  /api/treatment-plans/{id}/sign:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [TreatmentPlans]
+      operationId: signTreatmentPlan
+      summary: Sign a treatment plan (materializes appointments + fires PLAN_SIGNED notification)
+      responses:
+        "200":
+          description: Signed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plan: { type: object }
+                  materialization:
+                    type: object
+                    description: Summary of materialized appointments
+
+  # -------------------------------------------------------------------------
+  # LabResults (BE-16 + BE-20 attachment)
+  # -------------------------------------------------------------------------
+  /api/lab-results:
+    get:
+      tags: [LabResults]
+      operationId: listLabResults
+      summary: List lab results for a patient
+      parameters:
+        - in: query
+          name: patientId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: List }
+    post:
+      tags: [LabResults]
+      operationId: createLabResult
+      summary: Create a lab result (per-panel analytes JSON, OOR computed server-side)
+      responses:
+        "201": { description: Created }
+  /api/lab-results/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [LabResults]
+      operationId: getLabResult
+      responses:
+        "200": { description: OK }
+    patch:
+      tags: [LabResults]
+      operationId: updateLabResult
+      responses:
+        "200": { description: OK }
+    delete:
+      tags: [LabResults]
+      operationId: deleteLabResult
+      responses:
+        "204": { description: Deleted }
+  /api/lab-results/{id}/attachment:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [LabResults]
+      operationId: attachLabResultFile
+      summary: Attach an uploaded PDF/image to a lab result (BE-20)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [attachmentKey, attachmentMime]
+              properties:
+                attachmentKey: { type: string, description: S3 object key from /api/files/upload-url }
+                attachmentMime: { type: string }
+      responses:
+        "200": { description: Attached }
+    get:
+      tags: [LabResults]
+      operationId: getLabResultAttachmentDownloadUrl
+      summary: Get a presigned download URL for the attached PDF
+      responses:
+        "200":
+          description: Presigned URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string }
+                  expiresAt: { type: string, format: date-time }
+
+  # -------------------------------------------------------------------------
+  # InfusionLogs (BE-26)
+  # -------------------------------------------------------------------------
+  /api/infusion-logs:
+    get:
+      tags: [InfusionLogs]
+      operationId: listInfusionLogs
+      responses:
+        "200": { description: List }
+    post:
+      tags: [InfusionLogs]
+      operationId: createInfusionLog
+      responses:
+        "201": { description: Created }
+  /api/infusion-logs/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [InfusionLogs]
+      operationId: getInfusionLog
+      responses:
+        "200": { description: OK }
+    patch:
+      tags: [InfusionLogs]
+      operationId: updateInfusionLog
+      responses:
+        "200": { description: OK }
+  /api/infusion-logs/{id}/transition:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [InfusionLogs]
+      operationId: transitionInfusionLog
+      summary: Drive the infusion-session state machine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { type: string, enum: [SCHEDULED, IN_PROGRESS, COMPLETED, ABORTED] }
+      responses:
+        "200": { description: Transitioned }
+
+  # -------------------------------------------------------------------------
+  # Invoices + Payments (BE-37 + BE-41)
+  # -------------------------------------------------------------------------
+  /api/invoices:
+    get:
+      tags: [Invoices]
+      operationId: listInvoices
+      responses:
+        "200": { description: List }
+    post:
+      tags: [Invoices]
+      operationId: createInvoice
+      summary: Create an invoice with line items
+      responses:
+        "201": { description: Created }
+  /api/invoices/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Invoices]
+      operationId: getInvoice
+      responses:
+        "200": { description: OK }
+    patch:
+      tags: [Invoices]
+      operationId: updateInvoice
+      responses:
+        "200": { description: OK }
+  /api/invoices/{id}/payments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Invoices]
+      operationId: listInvoicePayments
+      responses:
+        "200": { description: List }
+    post:
+      tags: [Invoices]
+      operationId: recordInvoicePayment
+      summary: Record a manual payment against an invoice
+      responses:
+        "201": { description: Recorded }
+  /api/payments/razorpay/order:
+    post:
+      tags: [Payments]
+      operationId: createRazorpayOrder
+      summary: Create a Razorpay order (mock mode in Sprint 1)
+      responses:
+        "201": { description: Order created }
+  /api/payments/razorpay/verify:
+    post:
+      tags: [Payments]
+      operationId: verifyRazorpaySignature
+      summary: Verify Razorpay signature after client-side checkout
+      responses:
+        "200": { description: Verified + Payment row created }
+        "400": { description: Invalid signature }
+  /api/payments/razorpay/webhook:
+    post:
+      tags: [Payments]
+      operationId: razorpayWebhook
+      summary: Razorpay webhook receiver (HMAC-signed)
+      security: []
+      description: |
+        Webhook endpoint. Trusts Razorpay's HMAC signature, not the
+        session cookie. Returns 401 on signature mismatch.
+      responses:
+        "200": { description: Ack }
+        "401": { description: Bad signature }
+
+  # -------------------------------------------------------------------------
+  # Files (BE-19)
+  # -------------------------------------------------------------------------
+  /api/files/upload-url:
+    post:
+      tags: [Files]
+      operationId: getUploadUrl
+      summary: Mint a presigned PUT URL for S3 upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [filename, mime]
+              properties:
+                filename: { type: string }
+                mime: { type: string }
+                bucket: { type: string, enum: [phi, assets], default: phi }
+      responses:
+        "200":
+          description: Presigned URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string }
+                  key: { type: string }
+                  expiresAt: { type: string, format: date-time }
+  /api/files/download-url:
+    get:
+      tags: [Files]
+      operationId: getDownloadUrl
+      summary: Mint a presigned GET URL for S3 download
+      parameters:
+        - in: query
+          name: key
+          required: true
+          schema: { type: string }
+        - in: query
+          name: bucket
+          schema: { type: string, enum: [phi, assets] }
+      responses:
+        "200": { description: Presigned URL }
+
+  # -------------------------------------------------------------------------
+  # Patient timeline (BE-21)
+  # -------------------------------------------------------------------------
+  /api/patients/{id}/timeline:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Patients]
+      operationId: getPatientTimeline
+      summary: Merged consultations + appointments + lab results + invoices feed
+      parameters:
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        "200": { description: Timeline page }
+
+  # -------------------------------------------------------------------------
+  # Notifications (BE-45)
+  # -------------------------------------------------------------------------
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      operationId: listNotifications
+      summary: List the authenticated user's notifications
+      parameters:
+        - in: query
+          name: unreadOnly
+          schema: { type: boolean }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: Notification page }
+  /api/notifications/{id}/read:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Notifications]
+      operationId: markNotificationRead
+      summary: Mark one notification read
+      responses:
+        "200": { description: OK }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/notifications/read-all:
+    post:
+      tags: [Notifications]
+      operationId: markAllNotificationsRead
+      summary: Mark every notification read for the current user
+      responses:
+        "200": { description: OK }
+
+  # -------------------------------------------------------------------------
+  # Admin / AuditLogs
+  # -------------------------------------------------------------------------
+  /api/admin/audit-logs:
+    get:
+      tags: [AuditLogs]
+      operationId: listAuditLogs
+      summary: List audit log rows (ADMIN only)
+      parameters:
+        - in: query
+          name: actorUserId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: action
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: cursor
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer }
+      responses:
+        "200": { description: AuditLog page }
+        "403": { $ref: "#/components/responses/Forbidden" }
 
 # ===========================================================================
 # Components
