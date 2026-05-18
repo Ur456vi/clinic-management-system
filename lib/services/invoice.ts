@@ -25,6 +25,7 @@
 import type { Prisma } from "@prisma/client"
 import {
   InvoiceStatus,
+  NotificationKind,
   PaymentMethod,
   PaymentStatus,
   Role,
@@ -37,6 +38,7 @@ import {
   ValidationError,
 } from "@/lib/errors"
 import { ConflictError } from "@/lib/api"
+import { emitNotification } from "@/lib/services/notifications"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import {
   ALLOWED_INVOICE_TRANSITIONS,
@@ -526,6 +528,31 @@ export async function recordPayment(
         },
       },
     })
+
+    // BE-45 fan-out: only on the DRAFT/ISSUED/PARTIALLY_PAID -> PAID
+    // edge. We deliberately skip the PARTIALLY_PAID transition (clinic
+    // staff don't want a bell on every partial payment) and we skip
+    // when the patient has no linked portal User.
+    if (
+      nextStatus === InvoiceStatus.PAID &&
+      invoice.status !== InvoiceStatus.PAID
+    ) {
+      const patient = await tx.patient.findUnique({
+        where: { id: invoice.patientId },
+        select: { userId: true },
+      })
+      if (patient?.userId) {
+        await emitNotification({
+          userId: patient.userId,
+          kind: NotificationKind.PAYMENT_RECEIVED,
+          title: "Payment received — invoice paid in full",
+          body: `Invoice ${invoice.invoiceNumber}`,
+          sourceType: "Invoice",
+          sourceRefId: invoice.id,
+          tx,
+        })
+      }
+    }
 
     return { invoice: updated, paymentId: payment.id }
   })
