@@ -71,6 +71,10 @@ const VIEW_ROLES: readonly Role[] = [
  * sibling services so the FE can render the plan-detail card with one
  * round-trip.
  */
+// Note: do NOT use `as const` here — it deep-freezes the orderBy array
+// and Prisma's $itemsArgs.orderBy expects a mutable array. `satisfies`
+// preserves the precise literal types for GetPayload inference while
+// keeping the array assignable to Prisma's mutable input type.
 const PLAN_INCLUDE = {
   patient: {
     select: {
@@ -100,9 +104,12 @@ const PLAN_INCLUDE = {
     },
   },
   items: {
-    orderBy: [{ sequence: "asc" as const }, { createdAt: "asc" as const }],
+    orderBy: [
+      { sequence: "asc" },
+      { createdAt: "asc" },
+    ] as Prisma.TreatmentPlanItemOrderByWithRelationInput[],
   },
-} as const
+} satisfies Prisma.TreatmentPlanInclude
 
 export type TreatmentPlanWithRelations = Prisma.TreatmentPlanGetPayload<{
   include: typeof PLAN_INCLUDE

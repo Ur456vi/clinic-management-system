@@ -227,6 +227,66 @@ export type ListAppointmentsQuery = z.infer<typeof listAppointmentsQuerySchema>
 export const appointmentIdParamSchema = z.object({ id: uuid })
 
 // ---------------------------------------------------------------------------
+// Availability + patient-self booking (BE-23)
+// ---------------------------------------------------------------------------
+
+/**
+ * `GET /api/appointments/availability` query params. Bound to ≤ 14 days
+ * per call to keep slot enumeration bounded.
+ */
+export const availabilityQuerySchema = z
+  .object({
+    staffId: uuid,
+    from: isoDateTime,
+    to: isoDateTime,
+    /** Slot length in minutes. Defaults to 30 (the standard consult slot). */
+    durationMins: z
+      .string()
+      .optional()
+      .transform((v) =>
+        v === undefined || v === "" ? 30 : Number(v),
+      )
+      .pipe(z.number().int().positive().max(240)),
+  })
+  .refine((v) => v.to.getTime() > v.from.getTime(), {
+    message: "`to` must be after `from`",
+    path: ["to"],
+  })
+  .refine(
+    (v) => v.to.getTime() - v.from.getTime() <= 14 * 24 * 60 * 60 * 1000,
+    {
+      message: "Availability window cannot exceed 14 days",
+      path: ["to"],
+    },
+  )
+
+export type AvailabilityQuery = z.infer<typeof availabilityQuerySchema>
+
+/**
+ * `POST /api/appointments/book` body. Two flows share this schema:
+ *
+ *  - **Self-book:** authenticated patient calls with no `patientId`; the
+ *    service derives the patient via `Patient.userId`.
+ *  - **On-behalf:** ADMIN / RECEPTION calls with an explicit `patientId`.
+ *    The route handler gates this branch by role; the schema accepts it
+ *    optionally either way.
+ *
+ * Wire format mirrors the staff-side create schema in field names so the
+ * patient-portal booking widget can share the same form types.
+ */
+export const bookAppointmentSchema = z
+  .object({
+    patientId: uuid.optional(),
+    staffId: uuid,
+    scheduledAt: isoDateTime,
+    durationMins: z.number().int().positive().max(240).default(30),
+    reason: trimmedOptional(500),
+    notes: trimmedOptional(2000),
+  })
+
+export type BookAppointmentInput = z.infer<typeof bookAppointmentSchema>
+
+// ---------------------------------------------------------------------------
 // Plan-link decoder (BE-29)
 // ---------------------------------------------------------------------------
 

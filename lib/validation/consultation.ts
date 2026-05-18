@@ -76,3 +76,19 @@ export const updateConsultationSchema = z.object({
 export type UpdateConsultationInput = z.infer<typeof updateConsultationSchema>
 
 export const consultationIdParamSchema = z.object({ id: uuid })
+
+/**
+ * `POST /api/consultations/:id/transition` body (BE-15).
+ *
+ * Drives the explicit state machine declared in ALLOWED_STATUS_TRANSITIONS.
+ * `notes` is optional context surfaced to the recipient — for the
+ * RMO→doctor handoff it shows up on the doctor's queue card.
+ */
+export const transitionConsultationSchema = z.object({
+  to: statusEnum,
+  notes: z.string().trim().max(1000).optional(),
+})
+
+export type TransitionConsultationInput = z.infer<
+  typeof transitionConsultationSchema
+>

@@ -78,20 +78,20 @@ export const GET = defineHandler(async ({ req }) => {
 
   // Cursor: row id (BigInt as string). We page on `(occurredAt desc, id
   // desc)`; the BigInt PK is monotonic so it's a sufficient tie-break
-  // and a self-describing cursor.
-  const cursorClause = query.cursor
-    ? {
-        cursor: { id: BigInt(query.cursor) },
-        skip: 1,
-      }
-    : {}
-
-  const rows = await db.auditLog.findMany({
+  // and a self-describing cursor. Build the findMany args object
+  // explicitly typed so TS doesn't widen the `cursor` / `skip` union
+  // into something Prisma rejects.
+  const findArgs: Prisma.AuditLogFindManyArgs = {
     where,
-    ...cursorClause,
     take: take + 1,
     orderBy: [{ occurredAt: "desc" }, { id: "desc" }],
-  })
+  }
+  if (query.cursor) {
+    findArgs.cursor = { id: BigInt(query.cursor) }
+    findArgs.skip = 1
+  }
+
+  const rows = await db.auditLog.findMany(findArgs)
 
   let nextCursor: string | null = null
   if (rows.length > take) {
