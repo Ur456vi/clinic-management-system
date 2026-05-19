@@ -24,7 +24,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import { errorResponse } from "./errors"
+import { applyCors, preflight } from "./cors"
+import { errorResponse, ForbiddenError } from "./errors"
 
 export type HandlerContext<P = Record<string, string | string[]>> = {
   /** The incoming request. */
@@ -90,9 +91,23 @@ export function defineHandler<P = Record<string, string | string[]>>(
 
     let res: Response
     try {
-      res = await fn({ req, params, requestId, startedAt })
+      const pre = preflight(req)
+      if (pre) {
+        res = pre
+      } else {
+        assertSameOriginIfMutating(req)
+        res = await fn({ req, params, requestId, startedAt })
+      }
     } catch (err) {
       res = errorResponse(err)
+    }
+
+    // CORS headers go on every response (including errors + preflight).
+    try {
+      applyCors(req, res)
+    } catch {
+      // Headers may be immutable on some Response objects; the re-wrap
+      // below for x-request-id also handles this case.
     }
 
     // Tag the outgoing response with the request id. We may receive an
@@ -119,3 +134,42 @@ export function defineHandler<P = Record<string, string | string[]>>(
     return res
   }
 }
+
+// ---------------------------------------------------------------------------
+// CSRF — same-origin guard for mutating methods (BE-52)
+// ---------------------------------------------------------------------------
+
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"])
+
+function hostOf(value: string | null): string | null {
+  if (!value) return null
+  try {
+    return new URL(value).host
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Reject cross-origin mutating requests by comparing the Origin (or Referer)
+ * host with the request URL host. Webhooks under `/api/webhooks/` are
+ * exempt — they are authenticated by signature, not by cookie.
+ */
+function assertSameOriginIfMutating(req: NextRequest): void {
+  const method = req.method.toUpperCase()
+  if (!MUTATING_METHODS.has(method)) return
+
+  const pathname = req.nextUrl?.pathname ?? ""
+  if (pathname.startsWith("/api/webhooks/")) return
+
+  const expected = req.nextUrl?.host
+  if (!expected) return
+
+  const originHost =
+    hostOf(req.headers.get("origin")) ?? hostOf(req.headers.get("referer"))
+
+  if (!originHost || originHost !== expected) {
+    throw new ForbiddenError("CSRF: cross-origin mutating request rejected")
+  }
+}
+
