@@ -25,6 +25,7 @@ import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
 import {
   ALLOWED_STATUS_TRANSITIONS,
   type CreateConsultationInput,
+  type TransitionConsultationInput,
   type UpdateConsultationInput,
 } from "@/lib/validation/consultation"
 
@@ -352,6 +353,95 @@ export async function updateConsultation(
     } else {
       await recordAuditSampled(auditInput, { tx })
     }
+
+    return after
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Status transitions (BE-15)
+// ---------------------------------------------------------------------------
+
+/**
+ * Drive a consultation through the explicit state machine. Centralizes
+ * role gating + transition validation so the route handler stays a
+ * one-line delegate. Wraps the status flip + audit row in a transaction.
+ *
+ * Role rules (Sprint 1):
+ *   DRAFT       → RMO_DONE     : author = RMO|DOCTOR|ADMIN
+ *   DRAFT       → IN_PROGRESS  : author = DOCTOR|ADMIN
+ *   RMO_DONE    → IN_PROGRESS  : author = DOCTOR|ADMIN
+ *   IN_PROGRESS → SIGNED       : author = DOCTOR|ADMIN
+ *
+ * SIGNED is terminal — any attempt past it raises ValidationError.
+ *
+ * Notification fan-out is intentionally NOT attempted here in Sprint 1;
+ * BE-45 will wire the handoff notification on RMO_DONE → IN_PROGRESS.
+ */
+export async function transitionConsultation(
+  id: string,
+  input: TransitionConsultationInput,
+  actor: { userId: string; role: Role },
+): Promise<ConsultationWithRelations> {
+  return db.$transaction(async (tx) => {
+    const before = await tx.consultation.findUnique({
+      where: { id },
+      select: { id: true, status: true, type: true, patientId: true },
+    })
+    if (!before) throw new NotFoundError("Consultation not found")
+
+    if (before.status === input.to) {
+      throw new ValidationError(`Consultation is already ${before.status}`)
+    }
+
+    const allowed = ALLOWED_STATUS_TRANSITIONS[before.status] ?? []
+    if (!allowed.includes(input.to)) {
+      throw new ValidationError(
+        `Illegal transition: ${before.status} -> ${input.to}`,
+      )
+    }
+
+    // Role gate per target status. Doctors handle every non-RMO step;
+    // RMOs only complete the RMO pass.
+    const isAdminOrDoctor =
+      actor.role === Role.ADMIN || actor.role === Role.DOCTOR
+    if (input.to === ConsultationStatus.RMO_DONE) {
+      if (!isAdminOrDoctor && actor.role !== Role.RMO) {
+        throw new ForbiddenError(
+          `Role ${actor.role} cannot mark a consultation RMO_DONE`,
+        )
+      }
+    } else if (!isAdminOrDoctor) {
+      throw new ForbiddenError(
+        `Role ${actor.role} cannot transition consultations to ${input.to}`,
+      )
+    }
+
+    const data: Prisma.ConsultationUpdateInput = { status: input.to }
+    if (input.to === ConsultationStatus.SIGNED) {
+      data.signedAt = new Date()
+      data.signedBy = { connect: { id: actor.userId } }
+    }
+
+    const after = await tx.consultation.update({
+      where: { id },
+      data,
+      include: CONSULTATION_INCLUDE,
+    })
+
+    await recordAudit(
+      {
+        actorUserId: actor.userId,
+        action: AuditAction.UPDATE,
+        entityType: "Consultation",
+        entityId: after.id,
+        detail: {
+          transition: { from: before.status, to: after.status },
+          notes: input.notes ?? null,
+        },
+      },
+      { tx },
+    )
 
     return after
   })

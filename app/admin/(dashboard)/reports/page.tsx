@@ -33,7 +33,7 @@ export default function ReportsPage() {
             <TrendingUp className="h-3 w-3" /> <span>+12% from last month</span>
           </p>
         </div>
-        
+
         <div className="bg-white border border-[#EAECF0] rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-[#667085]">Appointments</h3>
@@ -44,7 +44,7 @@ export default function ReportsPage() {
             <TrendingUp className="h-3 w-3" /> <span>+5% from last month</span>
           </p>
         </div>
-        
+
         <div className="bg-white border border-[#EAECF0] rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-[#667085]">Clinical Activities</h3>

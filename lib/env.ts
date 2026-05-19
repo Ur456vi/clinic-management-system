@@ -44,6 +44,14 @@ type EnvShape = {
   S3_ACCESS_KEY_ID: string | undefined
   S3_SECRET_ACCESS_KEY: string | undefined
   S3_PUBLIC_URL: string | undefined
+  /**
+   * BE-19 split: PHI bucket holds patient-identifying uploads (lab PDFs,
+   * consent forms). ASSETS bucket holds non-PHI public assets (logos,
+   * UI images). Storage service routes by logical label. Both fall back
+   * to S3_BUCKET when set so a single-bucket dev setup still works.
+   */
+  AWS_S3_BUCKET_PHI: string | undefined
+  AWS_S3_BUCKET_ASSETS: string | undefined
 
   // Payments
   RAZORPAY_KEY_ID: string | undefined
@@ -149,6 +157,8 @@ const env: EnvShape = {
   S3_ACCESS_KEY_ID: optional("S3_ACCESS_KEY_ID"),
   S3_SECRET_ACCESS_KEY: optional("S3_SECRET_ACCESS_KEY"),
   S3_PUBLIC_URL: optional("S3_PUBLIC_URL"),
+  AWS_S3_BUCKET_PHI: optional("AWS_S3_BUCKET_PHI", process.env.S3_BUCKET),
+  AWS_S3_BUCKET_ASSETS: optional("AWS_S3_BUCKET_ASSETS", process.env.S3_BUCKET),
 
   RAZORPAY_KEY_ID: optional("RAZORPAY_KEY_ID"),
   RAZORPAY_KEY_SECRET: optional("RAZORPAY_KEY_SECRET"),

@@ -50,3 +50,8 @@ export {
   MAX_PAGE_SIZE,
   type PaginationInput,
 } from "./pagination"
+
+export {
+  requirePatientSession,
+  type PatientSession,
+} from "./patient-session"

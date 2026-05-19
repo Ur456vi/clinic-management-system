@@ -25,6 +25,8 @@ import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import {
   ALLOWED_APPOINTMENT_TRANSITIONS,
+  type AvailabilityQuery,
+  type BookAppointmentInput,
   type CreateAppointmentInput,
   type ListAppointmentsQuery,
   type TransitionAppointmentInput,
@@ -525,6 +527,186 @@ export async function transitionAppointment(
 
     return after
   })
+}
+
+// ---------------------------------------------------------------------------
+// Availability + patient-self booking (BE-23)
+// ---------------------------------------------------------------------------
+
+/**
+ * `listAvailability` — return the list of free `durationMins` slot
+ * windows for `staffId` between `from` and `to`.
+ *
+ * Sprint-1 algorithm: enumerate fixed slots stepping by `durationMins`
+ * starting at `from`, then filter out any whose [start, end) range
+ * overlaps an existing slot-holding appointment. Clinic working-hours
+ * overlay + per-doctor schedules land in BE-28; for now we trust the
+ * caller's window.
+ *
+ * Returns at most 96 slots to bound the response size; the schema also
+ * caps the window at 14 days.
+ */
+export async function listAvailability(
+  query: AvailabilityQuery,
+  actor: { userId: string; role: Role },
+): Promise<{ start: Date; end: Date }[]> {
+  if (!VIEW_ROLES.includes(actor.role) && actor.role !== Role.PATIENT) {
+    throw new ForbiddenError(`Role ${actor.role} cannot view availability`)
+  }
+
+  const staff = await db.staff.findUnique({
+    where: { id: query.staffId },
+    select: { id: true },
+  })
+  if (!staff) throw new NotFoundError("Staff not found")
+
+  const stepMs = query.durationMins * 60 * 1000
+  const candidates: { start: Date; end: Date }[] = []
+  for (
+    let t = query.from.getTime();
+    t + stepMs <= query.to.getTime() && candidates.length < 96;
+    t += stepMs
+  ) {
+    candidates.push({ start: new Date(t), end: new Date(t + stepMs) })
+  }
+  if (candidates.length === 0) return []
+
+  // Pull all slot-holding appointments overlapping the window in a
+  // single query, then filter candidates in memory. Cheaper than N
+  // per-slot conflict queries.
+  const overlapping = await db.appointment.findMany({
+    where: {
+      staffId: query.staffId,
+      status: { in: [...SLOT_HOLDING_STATUSES] },
+      startsAt: { lt: query.to },
+      endsAt: { gt: query.from },
+    },
+    select: { startsAt: true, endsAt: true },
+  })
+
+  return candidates.filter((slot) => {
+    return !overlapping.some(
+      (a) =>
+        a.startsAt.getTime() < slot.end.getTime() &&
+        a.endsAt.getTime() > slot.start.getTime(),
+    )
+  })
+}
+
+/**
+ * `bookAppointmentForSelf` — patient self-book branch of BE-23.
+ *
+ * Resolves the patient via `Patient.userId`. Returns 403 if the
+ * authenticated user has no linked patient record. Re-checks the slot
+ * inside `db.$transaction` and creates a REQUESTED appointment.
+ */
+export async function bookAppointmentForSelf(
+  input: BookAppointmentInput,
+  actor: { userId: string; role: Role },
+): Promise<AppointmentWithRelations> {
+  return db.$transaction(async (tx) => {
+    const patient = await tx.patient.findUnique({
+      where: { userId: actor.userId },
+      select: { id: true },
+    })
+    if (!patient) {
+      throw new ForbiddenError(
+        "Your account is not linked to a patient record. Please contact the clinic.",
+      )
+    }
+    return bookCore(
+      tx,
+      { ...input, patientId: patient.id },
+      actor,
+      "SELF",
+    )
+  })
+}
+
+/**
+ * `bookAppointmentForPatient` — on-behalf branch of BE-23. Route layer
+ * has already gated this to ADMIN / RECEPTION.
+ */
+export async function bookAppointmentForPatient(
+  input: BookAppointmentInput & { patientId: string },
+  actor: { userId: string; role: Role },
+): Promise<AppointmentWithRelations> {
+  return db.$transaction(async (tx) => {
+    return bookCore(tx, input, actor, "ON_BEHALF")
+  })
+}
+
+/**
+ * Internal: shared booking logic for both self + on-behalf paths.
+ * Validates staff exists, asserts the slot is free, creates the row
+ * with REQUESTED status, writes the audit log.
+ */
+async function bookCore(
+  tx: Prisma.TransactionClient,
+  input: BookAppointmentInput & { patientId: string },
+  actor: { userId: string; role: Role },
+  channel: "SELF" | "ON_BEHALF",
+): Promise<AppointmentWithRelations> {
+  const startsAt = input.scheduledAt
+  const endsAt = new Date(startsAt.getTime() + input.durationMins * 60 * 1000)
+
+  const staff = await tx.staff.findUnique({
+    where: { id: input.staffId },
+    select: { id: true, departmentId: true },
+  })
+  if (!staff) throw new NotFoundError("Staff not found")
+
+  const conflict = await hasSlotConflict({
+    staffId: input.staffId,
+    startsAt,
+    endsAt,
+    tx,
+  })
+  if (conflict) {
+    throw new ConflictError(
+      "That slot is no longer free — please pick another one.",
+    )
+  }
+
+  // Resolve creator's Staff row (null for patient self-book).
+  const actorStaff = await tx.staff.findUnique({
+    where: { userId: actor.userId },
+    select: { id: true },
+  })
+
+  const created = await tx.appointment.create({
+    data: {
+      patientId: input.patientId,
+      staffId: input.staffId,
+      departmentId: staff.departmentId,
+      startsAt,
+      endsAt,
+      status: AppointmentStatus.REQUESTED,
+      reason: input.reason ?? null,
+      notes: input.notes ?? null,
+      createdById: actorStaff?.id ?? null,
+    },
+    include: APPOINTMENT_INCLUDE,
+  })
+
+  await recordAudit(
+    {
+      actorUserId: actor.userId,
+      action: "CREATE",
+      entityType: "Appointment",
+      entityId: created.id,
+      detail: {
+        channel,
+        patientId: created.patientId,
+        staffId: created.staffId,
+        startsAt: created.startsAt,
+        endsAt: created.endsAt,
+      },
+    },
+    { tx },
+  )
+
+  return created
 }
 
 // ---------------------------------------------------------------------------

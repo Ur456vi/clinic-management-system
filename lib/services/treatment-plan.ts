@@ -71,6 +71,10 @@ const VIEW_ROLES: readonly Role[] = [
  * sibling services so the FE can render the plan-detail card with one
  * round-trip.
  */
+// Note: do NOT use `as const` here — it deep-freezes the orderBy array
+// and Prisma's $itemsArgs.orderBy expects a mutable array. `satisfies`
+// preserves the precise literal types for GetPayload inference while
+// keeping the array assignable to Prisma's mutable input type.
 const PLAN_INCLUDE = {
   patient: {
     select: {
@@ -100,9 +104,12 @@ const PLAN_INCLUDE = {
     },
   },
   items: {
-    orderBy: [{ sequence: "asc" as const }, { createdAt: "asc" as const }],
+    orderBy: [
+      { sequence: "asc" },
+      { createdAt: "asc" },
+    ] as Prisma.TreatmentPlanItemOrderByWithRelationInput[],
   },
-} as const
+} satisfies Prisma.TreatmentPlanInclude
 
 export type TreatmentPlanWithRelations = Prisma.TreatmentPlanGetPayload<{
   include: typeof PLAN_INCLUDE
@@ -469,6 +476,182 @@ export async function signPlan(
     }
 
     return { plan: after, materialization }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Revoke (BE-25)
+// ---------------------------------------------------------------------------
+
+/**
+ * Flip a SIGNED plan to REVOKED. Stamps `revokedAt` / `revokedById` and
+ * (optionally) `revokeReason` atomically with the audit row.
+ *
+ * Authorization beyond the WRITE_ROLES gate:
+ *   - ADMIN may revoke any plan.
+ *   - DOCTOR may revoke only a plan they themselves signed (or, if
+ *     unsigned, drafted — though DRAFT plans always 409 below, this
+ *     check is harmless).
+ *
+ * DRAFT plans cannot be revoked through this endpoint — callers should
+ * delete the draft via PATCH-with-empty or the future DELETE path. We
+ * return ValidationError → 400 to keep the surface predictable; the
+ * route layer maps 409 from the spec onto the same envelope.
+ *
+ * Re-revoking is a no-op error (already-REVOKED plans throw 400).
+ */
+export async function revokePlan(
+  id: string,
+  actor: { userId: string; role: Role },
+  reason?: string,
+): Promise<TreatmentPlanWithRelations> {
+  assertWriteRole(actor)
+
+  return db.$transaction(async (tx) => {
+    const before = await tx.treatmentPlan.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Treatment plan not found")
+
+    const allowed = ALLOWED_PLAN_TRANSITIONS[before.status] ?? []
+    if (!allowed.includes(TreatmentPlanStatus.REVOKED)) {
+      throw new ValidationError(
+        `Cannot revoke a plan in status ${before.status}`,
+      )
+    }
+
+    // DOCTOR-scope check: only the signer (or original drafter when
+    // unsigned, which can't reach here today) may revoke. Admin bypasses.
+    if (actor.role === Role.DOCTOR) {
+      const ownedByActor =
+        before.signedById === actor.userId ||
+        before.createdById === actor.userId
+      if (!ownedByActor) {
+        throw new ForbiddenError(
+          "Doctors may only revoke plans they signed or authored",
+        )
+      }
+    }
+
+    const revokedAt = new Date()
+    const after = await tx.treatmentPlan.update({
+      where: { id },
+      data: {
+        status: TreatmentPlanStatus.REVOKED,
+        revokedAt,
+        revokedById: actor.userId,
+        revokeReason: reason ?? null,
+      },
+      include: PLAN_INCLUDE,
+    })
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: "TreatmentPlan",
+        entityId: after.id,
+        detail: {
+          before: { status: before.status },
+          after: {
+            status: after.status,
+            revokedAt: after.revokedAt,
+            revokedById: after.revokedById,
+            revokeReason: after.revokeReason,
+          },
+          op: "REVOKE",
+        },
+      },
+    })
+
+    return after
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Version (BE-25)
+// ---------------------------------------------------------------------------
+
+/**
+ * Clone a plan into a fresh DRAFT — header + items — and increment the
+ * version counter. Works from any source status (DRAFT / SIGNED /
+ * REVOKED): the use case is editing a signed plan without mutating the
+ * immutable record, but the FE also wants the "copy as new draft"
+ * affordance off a revoked plan.
+ *
+ * The new row:
+ *   - `status = DRAFT`
+ *   - `version = source.version + 1`
+ *   - `previousVersionId = source.id`
+ *   - `createdById = actor.userId` (the cloning user, not the original
+ *     author — keeps audit clean)
+ *   - `signedAt`, `signedById`, `revokedAt`, `revokedById`,
+ *     `revokeReason` all reset to NULL
+ *   - items copied verbatim (preserving `sequence`); new item ids
+ *
+ * Records a CREATE audit row on the new plan with `op: "VERSION"` and
+ * the source id in `detail.before.previousVersionId` for replay.
+ */
+export async function versionPlan(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<TreatmentPlanWithRelations> {
+  assertWriteRole(actor)
+
+  return db.$transaction(async (tx) => {
+    const source = await tx.treatmentPlan.findUnique({
+      where: { id },
+      include: { items: { orderBy: [{ sequence: "asc" }, { createdAt: "asc" }] } },
+    })
+    if (!source) throw new NotFoundError("Treatment plan not found")
+
+    const created = await tx.treatmentPlan.create({
+      data: {
+        patientId: source.patientId,
+        createdById: actor.userId,
+        title: source.title,
+        summary: source.summary,
+        status: TreatmentPlanStatus.DRAFT,
+        version: source.version + 1,
+        previousVersionId: source.id,
+        items: {
+          createMany: {
+            data: source.items.map((item, idx) => ({
+              kind: item.kind,
+              name: item.name,
+              dose: item.dose,
+              frequency: item.frequency,
+              durationDays: item.durationDays,
+              instructions: item.instructions,
+              sequence: item.sequence ?? idx,
+            })),
+          },
+        },
+      },
+      include: PLAN_INCLUDE,
+    })
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: "CREATE",
+        entityType: "TreatmentPlan",
+        entityId: created.id,
+        detail: {
+          before: {
+            previousVersionId: source.id,
+            previousVersion: source.version,
+            previousStatus: source.status,
+          },
+          after: {
+            id: created.id,
+            version: created.version,
+            itemCount: created.items.length,
+          },
+          op: "VERSION",
+        },
+      },
+    })
+
+    return created
   })
 }
 
