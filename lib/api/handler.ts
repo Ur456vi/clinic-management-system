@@ -24,6 +24,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server"
+import { childLogger } from "../logger"
 import { errorResponse } from "./errors"
 
 export type HandlerContext<P = Record<string, string | string[]>> = {
@@ -88,11 +89,17 @@ export function defineHandler<P = Record<string, string | string[]>>(
     const params =
       (ctx?.params as Promise<P> | undefined) ?? (NO_PARAMS as Promise<P>)
 
+    const log = childLogger(requestId)
+
     let res: Response
     try {
       res = await fn({ req, params, requestId, startedAt })
     } catch (err) {
-      res = errorResponse(err)
+      // Log the unhandled throw with a stack before mapping it to a response.
+      // `errorResponse` will also classify it (4xx warn / 5xx error) but this
+      // line guarantees the stack is captured even if the mapper changes.
+      log.error({ err }, "unhandled")
+      res = errorResponse(err, { requestId })
     }
 
     // Tag the outgoing response with the request id. We may receive an
@@ -111,9 +118,17 @@ export function defineHandler<P = Record<string, string | string[]>>(
     const elapsed =
       (typeof performance !== "undefined" ? performance.now() : Date.now()) -
       startedAt
-    // eslint-disable-next-line no-console
-    console.log(
-      `[${requestId}] ${method} ${path} -> ${res.status} in ${elapsed.toFixed(1)}ms`,
+    const durationMs = Number(elapsed.toFixed(1))
+    // Mirror the legacy `[req-id] METHOD PATH -> STATUS in Xms` line through
+    // pino, with structured fields for log aggregation.
+    log.info(
+      {
+        method,
+        path,
+        status: res.status,
+        durationMs,
+      },
+      "request",
     )
 
     return res

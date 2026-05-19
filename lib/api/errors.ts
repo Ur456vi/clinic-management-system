@@ -20,6 +20,8 @@
 
 import { NextResponse } from "next/server"
 
+import { childLogger, logger } from "../logger"
+
 // ---------------------------------------------------------------------------
 // Error codes — keep in sync with docs/api-conventions.md
 // ---------------------------------------------------------------------------
@@ -155,12 +157,31 @@ function buildBody(
 /**
  * Convert any thrown value into a `NextResponse` carrying the error envelope.
  *
- * Unknown errors are logged with `console.error` (so the request-id-tagged
- * line emitted by `defineHandler` has a stack trace nearby) and surfaced
- * as a generic 500 — never leak internal messages to clients.
+ * Logging policy (BE-10):
+ *   - Known `AppError` 4xx responses log at `warn` (expected, recoverable).
+ *   - Known `AppError` 5xx responses and anything we don't recognise log at
+ *     `error` with the stack — these are real bugs we want to chase.
+ *   - Unknown throws are never echoed to the client; the response body stays
+ *     a generic `INTERNAL_ERROR`.
+ *
+ * `requestId` is optional so existing call sites keep working; when provided
+ * the log line is bound to the request via `childLogger`.
  */
-export function errorResponse(err: unknown): NextResponse<ApiErrorBody> {
+export function errorResponse(
+  err: unknown,
+  opts: { requestId?: string } = {},
+): NextResponse<ApiErrorBody> {
+  const log = opts.requestId ? childLogger(opts.requestId) : logger
+
   if (err instanceof AppError) {
+    if (err.statusCode >= 500) {
+      log.error({ err, code: err.code, status: err.statusCode }, "app_error")
+    } else {
+      log.warn(
+        { code: err.code, status: err.statusCode, message: err.message },
+        "app_error",
+      )
+    }
     return NextResponse.json<ApiErrorBody>(
       buildBody(err.code, err.message, err.details),
       { status: err.statusCode },
@@ -168,6 +189,7 @@ export function errorResponse(err: unknown): NextResponse<ApiErrorBody> {
   }
 
   if (isZodError(err)) {
+    log.warn({ issues: err.issues }, "validation_error")
     return NextResponse.json<ApiErrorBody>(
       buildBody("VALIDATION_ERROR", "Request validation failed", err.issues),
       { status: 400 },
@@ -176,6 +198,7 @@ export function errorResponse(err: unknown): NextResponse<ApiErrorBody> {
 
   if (isPrismaKnownRequestError(err)) {
     if (err.code === "P2025") {
+      log.warn({ prismaCode: err.code }, "prisma_not_found")
       return NextResponse.json<ApiErrorBody>(
         buildBody("NOT_FOUND", "Resource not found"),
         { status: 404 },
@@ -183,6 +206,7 @@ export function errorResponse(err: unknown): NextResponse<ApiErrorBody> {
     }
     if (err.code === "P2002") {
       const target = err.meta?.target
+      log.warn({ prismaCode: err.code, target }, "prisma_conflict")
       return NextResponse.json<ApiErrorBody>(
         buildBody(
           "CONFLICT",
@@ -194,8 +218,7 @@ export function errorResponse(err: unknown): NextResponse<ApiErrorBody> {
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.error("[api] unhandled error:", err)
+  log.error({ err }, "unhandled_error")
   return NextResponse.json<ApiErrorBody>(
     buildBody("INTERNAL_ERROR", "Unexpected error"),
     { status: 500 },
