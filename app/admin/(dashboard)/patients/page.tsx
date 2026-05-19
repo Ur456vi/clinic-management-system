@@ -1,92 +1,103 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { 
   Search, 
   Filter, 
   Plus, 
-  MoreVertical,
-  User
+  MoreHorizontal,
+  User,
+  Loader2,
+  AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const patients = [
-  {
-    name: "Dr. Sumit Mittal",
-    id: "PAT-263040",
-    email: "ndao.m@outlook.com",
-    phone: "772478743",
-    status: "Active",
-    registrationDate: "29/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Akanksha Jain",
-    id: "PAT-263039",
-    email: "patient@aidoc.com",
-    phone: "01536166567",
-    status: "Active",
-    registrationDate: "28/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Sonali Mittal",
-    id: "PAT-263038",
-    email: "admin@pharmacy.com",
-    phone: "01536166567",
-    status: "Active",
-    registrationDate: "28/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Tarun Gupta",
-    id: "PAT-263037",
-    email: "uo@oiu.gt",
-    phone: "056677888",
-    status: "Active",
-    registrationDate: "19/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Sarita Jain",
-    id: "PAT-263036",
-    email: "vakilbetter6762@gmail.com",
-    phone: "07738285764",
-    status: "Active",
-    registrationDate: "15/3/2026",
-    assignedDoctor: "aaaa"
-  },
-  {
-    name: "Dr. Nilesh Arora",
-    id: "PAT-263035",
-    email: "pat@yopmail.com",
-    phone: "9090909090",
-    status: "Active",
-    registrationDate: "15/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Rakshita Gupta",
-    id: "PAT-263034",
-    email: "testp@yopmail.com",
-    phone: "00000000",
-    status: "Active",
-    registrationDate: "3/3/2026",
-    assignedDoctor: "No"
-  },
-  {
-    name: "Dr. Amit Singh",
-    id: "PAT-263033",
-    email: "pushkarmali9137@gmail.com",
-    phone: "165 5 5646565",
-    status: "Active",
-    registrationDate: "1/3/2026",
-    assignedDoctor: "No"
-  }
-]
+type Patient = {
+  id: string
+  patientNumber: string
+  fullName: string
+  email?: string
+  phone?: string
+  status: string
+  createdAt: string
+  primaryDoctorId?: string
+}
+
+function PatientActionMenu({ patientId }: { patientId: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, [isOpen]);
+
+  return (
+    <div className="relative inline-block text-left">
+      <button 
+        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+        className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
+      >
+        <MoreHorizontal className="h-5 w-5" />
+      </button>
+      
+      {isOpen && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 mt-1 w-32 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-10"
+        >
+          <div className="py-1">
+            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors">
+              View
+            </button>
+            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors">
+              Edit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PatientsPage() {
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const fetchPatients = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/patients?take=20")
+      if (!res.ok) throw new Error("Failed to fetch")
+      const json = await res.json()
+      setPatients(json.data || [])
+    } catch (err: any) {
+      setError(err.message || "An error occurred")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPatients()
+  }, [])
+
+  // formatting helper
+  const formatDate = (isoStr: string) => {
+    const d = new Date(isoStr)
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    })
+  }
+
   return (
     <div className="flex flex-col gap-8">
       {/* Page Header */}
@@ -103,6 +114,8 @@ export default function PatientsPage() {
             <input
               type="text"
               placeholder="Search patients by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-11 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
             />
           </div>
@@ -110,7 +123,9 @@ export default function PatientsPage() {
             <Filter className="h-4 w-4" />
             <span>All patients</span>
           </button>
-          <span className="text-sm text-[#667085]">29 patients</span>
+          {!isLoading && !error && (
+            <span className="text-sm text-[#667085]">{patients.length} patient{patients.length !== 1 ? 's' : ''}</span>
+          )}
         </div>
         
         <Link href="/admin/patients/add">
@@ -136,44 +151,80 @@ export default function PatientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAECF0]">
-              {patients.map((patient, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
+              {isLoading && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-[#667085]">
+                      <Loader2 className="h-8 w-8 animate-spin text-[#2E37A4] mb-4" />
+                      <p className="text-sm font-medium">Loading patients...</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              
+              {!isLoading && error && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-[#d92d20]">
+                      <AlertCircle className="h-8 w-8 mb-4" />
+                      <p className="text-sm font-medium mb-4">Couldn't load patients</p>
+                      <Button variant="outline" onClick={fetchPatients}>
+                        Retry
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {!isLoading && !error && patients.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-[#667085]">
+                      <User className="h-8 w-8 mb-4 text-[#D0D5DD]" />
+                      <p className="text-sm font-medium">No patients yet — add the first one</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+
+              {!isLoading && !error && patients.map((patient) => (
+                <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
                         <User className="h-5 w-5 text-[#2E37A4]" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-[#101828]">{patient.name}</span>
-                        <span className="text-xs text-[#667085]">ID: {patient.id}</span>
+                        <span className="text-sm font-semibold text-[#101828]">{patient.fullName}</span>
+                        <span className="text-xs text-[#667085]">ID: {patient.patientNumber}</span>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span className="text-sm text-[#101828]">{patient.email}</span>
-                      <span className="text-xs text-[#667085]">{patient.phone}</span>
+                      <span className="text-sm text-[#101828]">{patient.email || "—"}</span>
+                      <span className="text-xs text-[#667085]">{patient.phone || "—"}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ECFDF3] text-[#027A48] border border-[#ABEFC6]">
-                      {patient.status}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                      patient.status === "ACTIVE" 
+                        ? "bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]"
+                        : patient.status === "INACTIVE"
+                        ? "bg-[#F2F4F7] text-[#344054] border-[#D0D5DD]"
+                        : "bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]"
+                    }`}>
+                      {patient.status.charAt(0) + patient.status.slice(1).toLowerCase()}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-[#667085]">
-                    {patient.registrationDate}
+                    {formatDate(patient.createdAt)}
                   </td>
                   <td className="px-6 py-4 text-sm text-[#667085]">
-                    {patient.assignedDoctor}
+                    {patient.primaryDoctorId ? "Assigned" : "No"}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <button className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b]">View</button>
-                      <button className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b]">Edit</button>
-                      <button className="text-[#667085] hover:text-[#101828]">
-                        <MoreVertical className="h-5 w-5" />
-                      </button>
-                    </div>
+                    <PatientActionMenu patientId={patient.id} />
                   </td>
                 </tr>
               ))}
