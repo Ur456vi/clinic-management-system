@@ -96,6 +96,28 @@ export type ListTreatmentPlansQuery = z.infer<
 
 export const treatmentPlanIdParamSchema = z.object({ id: uuid })
 
+/**
+ * BE-25: optional revoke reason. Empty / whitespace-only strings collapse
+ * to `undefined` so the service can branch on presence cleanly.
+ */
+export const revokeTreatmentPlanSchema = z.object({
+  reason: trimmedOptional(2000),
+})
+
+export type RevokeTreatmentPlanInput = z.infer<
+  typeof revokeTreatmentPlanSchema
+>
+
+/**
+ * BE-25: the `/version` endpoint has no body. Exported as an explicit
+ * schema so the route handler can keep the parse-everything contract.
+ */
+export const versionTreatmentPlanSchema = z.object({}).strict().optional()
+
+export type VersionTreatmentPlanInput = z.infer<
+  typeof versionTreatmentPlanSchema
+>
+
 /** Allowed transitions for the lifecycle helper (used by /sign + later /revoke). */
 export const ALLOWED_PLAN_TRANSITIONS: Record<
   TreatmentPlanStatus,

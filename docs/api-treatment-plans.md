@@ -12,10 +12,13 @@ Endpoints for the doctor-side treatment-plan workflow. See
 | `GET`   | `/api/treatment-plans/:id`        | Fetch one plan + items                  | `ADMIN`, `DOCTOR`, `RMO`, `RECEPTION` |
 | `PATCH` | `/api/treatment-plans/:id`        | Edit DRAFT (header + replace items)     | `ADMIN`, `DOCTOR` |
 | `POST`  | `/api/treatment-plans/:id/sign`   | Flip DRAFT → SIGNED; materialize appts  | `ADMIN`, `DOCTOR` |
+| `POST`  | `/api/treatment-plans/:id/revoke` | Flip SIGNED → REVOKED                    | `ADMIN`, signing `DOCTOR` |
+| `POST`  | `/api/treatment-plans/:id/version`| Clone any status into a fresh DRAFT      | `ADMIN`, `DOCTOR` |
 
 Lifecycle: `DRAFT → SIGNED → REVOKED`. `SIGNED` is immutable from
-`PATCH` — only `/sign` (and the future `/revoke`, BE-25) mutate the
-row past that point.
+`PATCH` — only `/sign` and `/revoke` (BE-25) mutate the row past that
+point. `/version` (BE-25) does not mutate the source row at all; it
+creates a new DRAFT linked back via `previousVersionId`.
 
 ## Sign endpoint behaviour (BE-29)
 
@@ -132,3 +135,90 @@ fields at top level inside `data`). Three additive fields ride along:
   (deferred — requires a schema migration).
 - Rescheduling / regeneration when items are edited (plans are
   immutable after sign in Sprint 1, so this can't happen yet).
+
+## Revoke endpoint behaviour (BE-25)
+
+`POST /api/treatment-plans/:id/revoke` flips a `SIGNED` plan to
+`REVOKED` in a single transaction with the audit-log write.
+
+### Request
+
+```jsonc
+// Body is optional. All three of these are equivalent:
+//   1. No body.
+//   2. {}
+//   3. { "reason": "Patient changed protocol" }
+{
+  "reason": "Patient changed protocol"   // optional, max 2000 chars
+}
+```
+
+### Behaviour
+
+- Stamps `revokedAt` (server clock), `revokedById` (the actor), and
+  `revokeReason` (or NULL when omitted/blank).
+- DRAFT plans cannot be revoked — delete-then-recreate via `PATCH` is
+  the right shape for unsigned work. Returns `400` with the message
+  `Cannot revoke a plan in status DRAFT`.
+- Already-`REVOKED` plans return `400` (same code path, status
+  `REVOKED`).
+- Authorization: `ADMIN` may revoke any plan; `DOCTOR` may revoke only
+  plans they signed or originally authored. Other doctors get `403`.
+- Plan items, materialized appointments, and invoice links are left
+  untouched — `revoke` is purely a header-state flip. Downstream
+  appointment cancellation lives in BE-30 (future work).
+
+### Response
+
+`200 OK` — the updated plan in the standard `data` envelope (same shape
+as `GET /api/treatment-plans/:id`, with `status: "REVOKED"` and the
+three revoke fields populated).
+
+### Errors
+
+| Code | When |
+|---|---|
+| `400` | Plan is DRAFT or already REVOKED |
+| `403` | Caller is DOCTOR but did not sign / author this plan |
+| `404` | `id` does not match any plan |
+
+## Version endpoint behaviour (BE-25)
+
+`POST /api/treatment-plans/:id/version` clones the source plan into a
+fresh `DRAFT`. The source row is **not** modified — version chaining is
+strictly forward, recorded via the `previousVersionId` back-pointer on
+the new row.
+
+### Request
+
+Empty body.
+
+### Behaviour
+
+- Source can be in any status (`DRAFT`, `SIGNED`, or `REVOKED`). Typical
+  use case is "edit a signed plan" without breaking the immutable record;
+  cloning off a revoked plan is also supported for re-issuance.
+- New plan fields:
+  - `status = "DRAFT"`
+  - `version = source.version + 1`
+  - `previousVersionId = source.id`
+  - `createdById = <calling user>` (the cloning actor, not the original
+    author — keeps the audit trail honest)
+  - `signedAt`, `signedById`, `revokedAt`, `revokedById`, `revokeReason`
+    all `null` on the clone
+- Items copied verbatim (kind, name, dose, frequency, durationDays,
+  instructions, sequence). New row ids are generated.
+- Materialized appointments are **not** copied — signing the new draft
+  re-runs materialization via the standard `/sign` path.
+
+### Response
+
+`201 Created`, `Location: /api/treatment-plans/<new-id>`, body is the
+new plan in the `data` envelope.
+
+### Errors
+
+| Code | When |
+|---|---|
+| `403` | Caller is not ADMIN / DOCTOR |
+| `404` | `id` does not match any plan |
