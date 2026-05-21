@@ -51,6 +51,8 @@ export {
   type PaginationInput,
 } from "./pagination"
 
+export { logger, childLogger } from "../logger"
+
 export {
   requirePatientSession,
   type PatientSession,
