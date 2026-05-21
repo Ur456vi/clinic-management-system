@@ -67,6 +67,9 @@ type EnvShape = {
 
   // Feature flags
   FEATURE_PATIENT_PORTAL: boolean
+
+  // Security (BE-52) — comma-separated origin allow-list for CORS.
+  CORS_ALLOWED_ORIGINS: string[] | undefined
 }
 
 class EnvError extends Error {
@@ -110,6 +113,15 @@ function boolOpt(name: string, fallback: boolean): boolean {
   const v = process.env[name]
   if (v === undefined) return fallback
   return v.toLowerCase() === "true" || v === "1"
+}
+
+function listOpt(name: string): string[] | undefined {
+  const v = process.env[name]
+  if (!v || v.trim() === "") return undefined
+  return v
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
 }
 
 function oneOf<T extends string>(
@@ -174,6 +186,8 @@ const env: EnvShape = {
   SENTRY_DSN: optional("SENTRY_DSN"),
 
   FEATURE_PATIENT_PORTAL: boolOpt("FEATURE_PATIENT_PORTAL", false),
+
+  CORS_ALLOWED_ORIGINS: listOpt("CORS_ALLOWED_ORIGINS"),
 }
 
 // In production, hard-fail on any missing required var.
