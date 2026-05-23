@@ -47,12 +47,10 @@ jobs:
           command_timeout: 20m
           script: |
             set -e
-
             APP_DIR=/home/ec2-user/vyara
 
             echo '=== Setting up app directory ==='
-            mkdir -p $APP_DIR
-            cd $APP_DIR
+            mkdir -p $APP_DIR && cd $APP_DIR
 
             if [ ! -d .git ]; then
               git init
@@ -62,8 +60,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo '=== Installing dependencies ==='
-            npm install
+            echo '=== Installing production dependencies ==='
+            npm ci --omit=dev --prefer-offline 2>/dev/null || npm install --omit=dev
 
             echo '=== Generating Prisma client ==='
             npm run prisma:generate
@@ -75,19 +73,19 @@ jobs:
             if [ ! -f /home/ec2-user/.vyara_seeded ]; then
               npm run prisma:seed
               touch /home/ec2-user/.vyara_seeded
-              echo 'Seed complete.'
+              echo 'Seed done.'
             else
-              echo 'Seed already ran, skipping.'
+              echo 'Seed skipped.'
             fi
 
-            echo '=== Setting up Nginx ==='
+            echo '=== Setting up Nginx (once) ==='
             if ! command -v nginx > /dev/null 2>&1; then
               sudo yum install -y nginx
             fi
-
-            printf 'server {\n    listen 80;\n    server_name _;\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection upgrade;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_cache_bypass $http_upgrade;\n    }\n}\n' | sudo tee /etc/nginx/conf.d/vyara.conf
-
-            sudo nginx -t && sudo systemctl enable nginx && sudo systemctl restart nginx
+            if [ ! -f /etc/nginx/conf.d/vyara.conf ]; then
+              printf 'server {\n    listen 80;\n    server_name _;\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection upgrade;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_cache_bypass $http_upgrade;\n    }\n}\n' | sudo tee /etc/nginx/conf.d/vyara.conf
+              sudo nginx -t && sudo systemctl enable nginx && sudo systemctl restart nginx
+            fi
 
             echo '=== Restarting app with PM2 ==='
             cd $APP_DIR
@@ -96,6 +94,5 @@ jobs:
             else
               pm2 start npm --name vyara-dev -- start
             fi
-
             pm2 save
             echo '=== Deploy complete ==='
