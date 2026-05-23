@@ -58,12 +58,13 @@ jobs:
             echo "=== Syncing DB schema ==="
             npx prisma db push --accept-data-loss
             echo "=== Seeding DB (one-time only) ==="
-            USER_COUNT=$(node -e "const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();p.user.count().then(n=>{console.log(n);p.$disconnect();}).catch(()=>{console.log(0);p.$disconnect();})")
-            if [ "$USER_COUNT" = "0" ]; then
-              echo "DB is empty, running seed..."
+            if [ ! -f /home/ec2-user/.vyara_seeded ]; then
+              echo "Running seed for the first time..."
               npm run prisma:seed
+              touch /home/ec2-user/.vyara_seeded
+              echo "Seed complete, flag file created."
             else
-              echo "DB already has $USER_COUNT users, skipping seed."
+              echo "Seed already ran (flag file exists), skipping."
             fi
             echo "=== Building app ==="
             npm run build
