@@ -78,10 +78,7 @@ jobs:
               echo 'Seed skipped.'
             fi
 
-            echo '=== Setting up Nginx (once) ==='
-            if ! command -v nginx > /dev/null 2>&1; then
-              sudo yum install -y nginx
-            fi
+            
             if [ ! -f /etc/nginx/conf.d/vyara.conf ]; then
               printf 'server {\n    listen 80;\n    server_name _;\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection upgrade;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_cache_bypass $http_upgrade;\n    }\n}\n' | sudo tee /etc/nginx/conf.d/vyara.conf
               sudo nginx -t && sudo systemctl enable nginx && sudo systemctl restart nginx
