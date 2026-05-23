@@ -55,8 +55,16 @@ jobs:
             npm install
             echo "=== Running Prisma generate ==="
             npm run prisma:generate
-            echo "=== Running DB migrations ==="
-            npm run prisma:deploy
+            echo "=== Syncing DB schema ==="
+            npx prisma db push --accept-data-loss
+            echo "=== Seeding DB (one-time only) ==="
+            USER_COUNT=$(node -e "const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();p.user.count().then(n=>{console.log(n);p.$disconnect();}).catch(()=>{console.log(0);p.$disconnect();})")
+            if [ "$USER_COUNT" = "0" ]; then
+              echo "DB is empty, running seed..."
+              npm run prisma:seed
+            else
+              echo "DB already has $USER_COUNT users, skipping seed."
+            fi
             echo "=== Building app ==="
             npm run build
             echo "=== Restarting app with PM2 ==="
