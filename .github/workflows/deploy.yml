@@ -2,74 +2,78 @@ name: Deploy to EC2 (vyara-dev)
 
 on:
   push:
-      branches:
-            - main
+    branches:
+      - main
 
-            jobs:
-              deploy:
-                  name: Build & Deploy
-                      runs-on: ubuntu-latest
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
 
-                          steps:
-                                - name: Checkout code
-                                        uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-                                              - name: Setup Node.js
-                                                      uses: actions/setup-node@v4
-                                                              with:
-                                                                        node-version: '20'
-                                                                                  cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-                                                                                        - name: Install dependencies
-                                                                                                run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-                                                                                                      - name: Run Prisma generate
-                                                                                                              run: npm run prisma:generate
-                                                                                                              
-                                                                                                                    - name: Build Next.js app
-                                                                                                                            run: npm run build
-                                                                                                                                    env:
-                                                                                                                                              DATABASE_URL: ${{ secrets.DATABASE_URL }}
-                                                                                                                                                        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-                                                                                                                                                                  NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-                                                                                                                                                                            AWS_REGION: ap-south-1
-                                                                                                                                                                                      AWS_S3_BUCKET: vyara-dev-app-storage
-                                                                                                                                                                                      
-                                                                                                                                                                                            - name: Deploy to EC2 via SSH
-                                                                                                                                                                                                    uses: appleboy/ssh-action@v1.0.3
-                                                                                                                                                                                                            with:
-                                                                                                                                                                                                                      host: ${{ secrets.EC2_HOST }}
-                                                                                                                                                                                                                                username: ${{ secrets.EC2_USER }}
-                                                                                                                                                                                                                                          key: ${{ secrets.EC2_KEY }}
-                                                                                                                                                                                                                                                    port: 22
-                                                                                                                                                                                                                                                              script: |
-                                                                                                                                                                                                                                                                          set -e
-                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                      echo "=== Navigating to app directory ==="
-                                                                                                                                                                                                                                                                                                  cd /home/ec2-user/vyara || (mkdir -p /home/ec2-user/vyara && cd /home/ec2-user/vyara && git clone https://github.com/Ur456vi/clinic-management-system.git . && cd /home/ec2-user/vyara)
-                                                                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                                                                              echo "=== Pulling latest code ==="
-                                                                                                                                                                                                                                                                                                                          git fetch origin main
-                                                                                                                                                                                                                                                                                                                                      git reset --hard origin/main
-                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                  echo "=== Installing dependencies ==="
-                                                                                                                                                                                                                                                                                                                                                              npm ci --prefer-offline
-                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                          echo "=== Running Prisma generate ==="
-                                                                                                                                                                                                                                                                                                                                                                                      npm run prisma:generate
-                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                  echo "=== Running DB migrations ==="
-                                                                                                                                                                                                                                                                                                                                                                                                              npm run prisma:deploy
-                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                          echo "=== Building app ==="
-                                                                                                                                                                                                                                                                                                                                                                                                                                      npm run build
-                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  echo "=== Restarting app with PM2 ==="
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              if pm2 list | grep -q "vyara-dev"; then
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            pm2 restart vyara-dev
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        else
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      pm2 start npm --name "vyara-dev" -- start
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  fi
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              pm2 save
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          echo "=== Deploy complete! ==="
+      - name: Run Prisma generate
+        run: npm run prisma:generate
+
+      - name: Build Next.js app
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          AWS_REGION: ap-south-1
+          AWS_S3_BUCKET: vyara-dev-app-storage
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            set -e
+
+            echo "=== Navigating to app directory ==="
+            if [ ! -d /home/ec2-user/vyara/.git ]; then
+              mkdir -p /home/ec2-user/vyara
+              git clone https://github.com/Ur456vi/clinic-management-system.git /home/ec2-user/vyara
+            fi
+            cd /home/ec2-user/vyara
+
+            echo "=== Pulling latest code ==="
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== Installing dependencies ==="
+            npm ci --prefer-offline
+
+            echo "=== Running Prisma generate ==="
+            npm run prisma:generate
+
+            echo "=== Running DB migrations ==="
+            npm run prisma:deploy
+
+            echo "=== Building app ==="
+            npm run build
+
+            echo "=== Restarting app with PM2 ==="
+            if pm2 list | grep -q "vyara-dev"; then
+              pm2 restart vyara-dev
+            else
+              pm2 start npm --name "vyara-dev" -- start
+            fi
+            pm2 save
+
+            echo "=== Deploy complete! ==="
