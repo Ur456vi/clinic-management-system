@@ -48,9 +48,9 @@ jobs:
           script: |
             set -e
 
-            APP_DIR="/home/ec2-user/vyara"
+            APP_DIR=/home/ec2-user/vyara
 
-            echo "=== Setting up app directory ==="
+            echo '=== Setting up app directory ==='
             mkdir -p $APP_DIR
             cd $APP_DIR
 
@@ -62,53 +62,35 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            echo "=== Installing dependencies ==="
+            echo '=== Installing dependencies ==='
             npm install
 
-            echo "=== Generating Prisma client ==="
+            echo '=== Generating Prisma client ==='
             npm run prisma:generate
 
-            echo "=== Syncing DB schema ==="
+            echo '=== Syncing DB schema ==='
             npx prisma db push --accept-data-loss
 
-            echo "=== Running seed (one-time) ==="
+            echo '=== Running seed (one-time) ==='
             if [ ! -f /home/ec2-user/.vyara_seeded ]; then
               npm run prisma:seed
               touch /home/ec2-user/.vyara_seeded
-              echo "Seed complete."
+              echo 'Seed complete.'
             else
-              echo "Seed already ran, skipping."
+              echo 'Seed already ran, skipping.'
             fi
 
-            echo "=== Setting up Nginx ==="
-            if ! command -v nginx &> /dev/null; then
+            echo '=== Setting up Nginx ==='
+            if ! command -v nginx > /dev/null 2>&1; then
               sudo yum install -y nginx
             fi
 
-            sudo tee /etc/nginx/conf.d/vyara.conf > /dev/null << 'NGINXEOF'
-server {
-    listen 80;
-    server_name _;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-NGINXEOF
+            printf 'server {\n    listen 80;\n    server_name _;\n\n    location / {\n        proxy_pass http://127.0.0.1:3000;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade $http_upgrade;\n        proxy_set_header Connection upgrade;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n        proxy_cache_bypass $http_upgrade;\n    }\n}\n' | sudo tee /etc/nginx/conf.d/vyara.conf
 
             sudo nginx -t && sudo systemctl enable nginx && sudo systemctl restart nginx
 
-            echo "=== Restarting app with PM2 ==="
+            echo '=== Restarting app with PM2 ==='
             cd $APP_DIR
-
             if pm2 describe vyara-dev > /dev/null 2>&1; then
               pm2 restart vyara-dev
             else
@@ -116,4 +98,4 @@ NGINXEOF
             fi
 
             pm2 save
-            echo "=== Deploy complete ==="
+            echo '=== Deploy complete ==='
