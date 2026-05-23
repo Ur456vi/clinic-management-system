@@ -40,12 +40,14 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            set -e
             echo "=== Setup app directory ==="
-            if [ ! -d /home/ec2-user/vyara ]; then
-              mkdir -p /home/ec2-user/vyara
-              git clone https://github.com/Ur456vi/clinic-management-system.git /home/ec2-user/vyara
-            fi
+            mkdir -p /home/ec2-user/vyara
             cd /home/ec2-user/vyara
+            if [ ! -d .git ]; then
+              git init
+              git remote add origin https://github.com/Ur456vi/clinic-management-system.git
+            fi
             echo "=== Pulling latest code ==="
             git fetch origin main
             git reset --hard origin/main
