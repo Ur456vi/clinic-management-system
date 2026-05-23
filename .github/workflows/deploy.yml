@@ -22,8 +22,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Prisma generate
-        run: npx prisma generate
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Build Next.js app
         run: npm run build
@@ -32,6 +34,8 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -39,40 +43,77 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
+          port: 22
+          command_timeout: 20m
           script: |
             set -e
-            echo "=== Setup app directory ==="
-            mkdir -p /home/ec2-user/vyara
-            cd /home/ec2-user/vyara
+
+            APP_DIR="/home/ec2-user/vyara"
+
+            echo "=== Setting up app directory ==="
+            mkdir -p $APP_DIR
+            cd $APP_DIR
+
             if [ ! -d .git ]; then
               git init
               git remote add origin https://github.com/Ur456vi/clinic-management-system.git
             fi
-            echo "=== Pulling latest code ==="
+
             git fetch origin main
             git reset --hard origin/main
+
             echo "=== Installing dependencies ==="
             npm install
-            echo "=== Running Prisma generate ==="
+
+            echo "=== Generating Prisma client ==="
             npm run prisma:generate
+
             echo "=== Syncing DB schema ==="
             npx prisma db push --accept-data-loss
-            echo "=== Seeding DB (one-time only) ==="
+
+            echo "=== Running seed (one-time) ==="
             if [ ! -f /home/ec2-user/.vyara_seeded ]; then
-              echo "Running seed for the first time..."
               npm run prisma:seed
               touch /home/ec2-user/.vyara_seeded
-              echo "Seed complete, flag file created."
+              echo "Seed complete."
             else
-              echo "Seed already ran (flag file exists), skipping."
+              echo "Seed already ran, skipping."
             fi
-            echo "=== Building app ==="
-            npm run build
+
+            echo "=== Setting up Nginx ==="
+            if ! command -v nginx &> /dev/null; then
+              sudo yum install -y nginx
+            fi
+
+            sudo tee /etc/nginx/conf.d/vyara.conf > /dev/null << 'NGINXEOF'
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+NGINXEOF
+
+            sudo nginx -t && sudo systemctl enable nginx && sudo systemctl restart nginx
+
             echo "=== Restarting app with PM2 ==="
-            if pm2 list | grep -q "vyara-dev"; then
+            cd $APP_DIR
+
+            if pm2 describe vyara-dev > /dev/null 2>&1; then
               pm2 restart vyara-dev
             else
-              pm2 start npm --name "vyara-dev" -- start
+              pm2 start npm --name vyara-dev -- start
             fi
+
             pm2 save
-            echo "=== Deploy complete! ==="
+            echo "=== Deploy complete ==="
