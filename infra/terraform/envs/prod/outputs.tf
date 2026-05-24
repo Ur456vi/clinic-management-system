@@ -27,3 +27,23 @@ output "rds_security_group_id" {
   value       = module.rds.security_group_id
   description = "RDS security group ID."
 }
+
+output "alb_dns_name" {
+  value       = module.web.alb_dns_name
+  description = "Public DNS name of the ALB. Route 53 alias target (INF-08)."
+}
+
+output "alb_zone_id" {
+  value       = module.web.alb_zone_id
+  description = "ALB hosted zone ID — needed for Route 53 A-ALIAS records (INF-08)."
+}
+
+output "web_security_group_id" {
+  value       = module.web.web_security_group_id
+  description = "EC2 web tier SG. Already wired into the RDS module; exported for INF-07 / INF-10 reference."
+}
+
+output "asg_name" {
+  value       = module.web.autoscaling_group_name
+  description = "ASG name — INF-09 alarms + INF-10 deploys reference this."
+}
