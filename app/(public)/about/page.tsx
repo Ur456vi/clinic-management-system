@@ -10,8 +10,8 @@ import type { Metadata } from "next";
 import {
   CTAButton,
   EcgLine,
-  FigmaImage,
   HeroPattern,
+  PortraitPlaceholder,
   QuoteCard,
   SectionEyebrow,
   SectionHeading,
@@ -43,8 +43,7 @@ const CHAPTERS = [
     title: "A Different Beginning",
     eyebrow: "Years in Internal Medicine and Critical Care",
     body: "Managing the most complex, life-threatening conditions across multiple disciplines: Neurosciences (NIMHANS, Bangalore), Cardiology (Kokilaben Institute), Oncology (Kidwai Memorial Institute), Advanced Clinical Care (with Oncology Faculty, Gurgaon).",
-    image: "/images/landing/about-chapter-01.jpg",
-    imageAlt: "Young Dr. Singh in the ICU",
+    image: "Young Dr. Singh in the ICU — clinical scene",
     alignment: "left" as const,
   },
   {
@@ -52,8 +51,7 @@ const CHAPTERS = [
     title: "What Critical Care Teaches You",
     eyebrow: "By the time most diseases present, the biology has already been altered for years.",
     body: "Most patients begin years earlier. Metabolic dysfunction starts unnoticed. Hormonal shifts dismissed as 'normal'. Chronic inflammation that silently progressed. \"It's normal.\" \"It's age.\" \"It's stress.\" It rarely is.",
-    image: "/images/landing/about-chapter-02.jpg",
-    imageAlt: "Anatomical heart illustration",
+    image: "Anatomical heart illustration — cardiac decline reference",
     alignment: "right" as const,
   },
   {
@@ -61,8 +59,7 @@ const CHAPTERS = [
     title: "The Question That Changed Everything",
     eyebrow: "What if these conditions could be identified and corrected before they reached the ICU?",
     body: "From Intervention to Predictive, Preventive and Precision Medicine. A shift from treating breakdowns to optimizing physiology — addressing the root causes of disease and aging.",
-    image: "/images/landing/about-chapter-03.jpg",
-    imageAlt: "Dr. Singh studying scans — analytical work",
+    image: "Dr. Singh studying scans — analytical work",
     alignment: "left" as const,
   },
   {
@@ -70,8 +67,7 @@ const CHAPTERS = [
     title: "A Defining Phase",
     eyebrow: "During the COVID-19 pandemic, extensive frontline work and setting up comprehensive home-based ICU care for patients with limited access to hospital resources.",
     body: "A formative period that crystallised the institute's commitment to physician-led, systems-based precision care.",
-    image: "/images/landing/about-chapter-04.jpg",
-    imageAlt: "Pandemic-era clinical work",
+    image: "Pandemic-era clinical work — protective gear",
     alignment: "right" as const,
   },
   {
@@ -79,8 +75,7 @@ const CHAPTERS = [
     title: "The Founding of the Institute",
     eyebrow: "A precision-medicine institute, structured around the principles refined across three decades of clinical practice.",
     body: "The Institute of Precision Metabolic & Hormonal Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",
-    image: "/images/landing/about-chapter-05.jpg",
-    imageAlt: "Modern clinical institute",
+    image: "Modern clinical institute — reception/lobby",
     alignment: "left" as const,
   },
 ];
@@ -133,12 +128,9 @@ export default function AboutPage() {
             >
               <HeroPattern className="h-full w-full" opacity={0.15} />
             </div>
-            <FigmaImage
-              src="/images/landing/about-hero-doctor.jpg"
-              alt="Dr. Yuvraaj Singh in clinical setting"
-              aspect="tall"
-              priority
-              position="top center"
+            <PortraitPlaceholder
+              label="Dr. Yuvraaj Singh — arms-crossed portrait in clinical setting"
+              aspect="portrait"
               className="relative z-10 mx-auto max-w-md"
             />
           </div>
@@ -173,9 +165,8 @@ export default function AboutPage() {
                 {c.alignment === "left" ? (
                   <>
                     <div className="relative md:col-span-5">
-                      <FigmaImage
-                        src={c.image}
-                        alt={c.imageAlt}
+                      <PortraitPlaceholder
+                        label={c.image}
                         aspect="landscape"
                         className="mx-auto"
                       />
@@ -186,9 +177,8 @@ export default function AboutPage() {
                   <>
                     <ChapterBody chapter={c} />
                     <div className="relative md:col-span-5">
-                      <FigmaImage
-                        src={c.image}
-                        alt={c.imageAlt}
+                      <PortraitPlaceholder
+                        label={c.image}
                         aspect="landscape"
                         className="mx-auto"
                       />

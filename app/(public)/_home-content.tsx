@@ -11,8 +11,8 @@ import Link from "next/link";
 import {
   CTAButton,
   EcgLine,
-  FigmaImage,
   HeroPattern,
+  PortraitPlaceholder,
   QuoteCard,
   SectionEyebrow,
   SectionHeading,
@@ -225,12 +225,9 @@ export default function HomeContent() {
             >
               <HeroPattern className="h-full w-full" opacity={0.15} />
             </div>
-            <FigmaImage
-              src="/images/landing/home-hero-doctor.jpg"
-              alt="Dr. Yuvraaj Singh in a lab coat with stethoscope, against a honeycomb backdrop"
-              aspect="tall"
-              priority
-              position="top center"
+            <PortraitPlaceholder
+              label="Dr. Yuvraaj Singh — lab-coat hero portrait (sepia, against honeycomb backdrop)"
+              aspect="portrait"
               className="relative z-10 mx-auto max-w-md"
             />
           </div>
@@ -326,11 +323,9 @@ export default function HomeContent() {
             >
               <HeroPattern className="h-full w-full" opacity={0.12} />
             </div>
-            <FigmaImage
-              src="/images/landing/home-care-doctor.jpg"
-              alt="Dr. Yuvraaj Singh — seated clinical portrait"
-              aspect="tall"
-              position="top center"
+            <PortraitPlaceholder
+              label="Dr. Yuvraaj Singh — seated portrait against honeycomb backdrop"
+              aspect="portrait"
               className="relative z-10 mx-auto max-w-md"
             />
           </div>
@@ -500,9 +495,8 @@ export default function HomeContent() {
                 className="overflow-hidden rounded-xl border bg-white"
                 style={{ borderColor: "var(--brand-rule)" }}
               >
-                <FigmaImage
-                  src={area.image}
-                  alt={`${area.title} — illustration from the Figma design`}
+                <PortraitPlaceholder
+                  label={`${area.title} — illustration`}
                   aspect="landscape"
                   className="rounded-none rounded-t-xl"
                 />

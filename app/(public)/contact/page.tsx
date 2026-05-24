@@ -10,8 +10,8 @@ import type { Metadata } from "next";
 
 import {
   CTAButton,
-  FigmaImage,
   HeroPattern,
+  PortraitPlaceholder,
   QuoteCard,
   SectionEyebrow,
   SectionHeading,
@@ -141,11 +141,9 @@ export default function ContactPage() {
             >
               <HeroPattern className="h-full w-full" opacity={0.12} />
             </div>
-            <FigmaImage
-              src="/images/landing/contact-clinic-reception.jpg"
-              alt="Institute of Precision Metabolic & Hormonal Health reception area"
+            <PortraitPlaceholder
+              label="Clinic reception with INSTITUTE OF PRECISION METABOLIC & HORMONAL HEALTH wall signage"
               aspect="landscape"
-              priority
               className="relative z-10 mx-auto max-w-xl"
             />
           </div>
@@ -252,9 +250,8 @@ export default function ContactPage() {
 
           {/* Quote + portrait column */}
           <div className="flex flex-col gap-6">
-            <FigmaImage
-              src="/images/landing/contact-doctor-chart.jpg"
-              alt="Dr. Singh reviewing patient chart"
+            <PortraitPlaceholder
+              label="Dr. Singh reviewing patient chart"
               aspect="landscape"
               className="w-full"
             />

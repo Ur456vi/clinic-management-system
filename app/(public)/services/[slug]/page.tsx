@@ -14,8 +14,8 @@ import type { Metadata } from "next";
 import {
   CTAButton,
   EcgLine,
-  FigmaImage,
   HeroPattern,
+  PortraitPlaceholder,
   QuoteCard,
   SectionEyebrow,
   SectionHeading,
@@ -134,12 +134,9 @@ function ServiceHero({ svc }: { svc: ServiceContent }) {
           >
             <HeroPattern className="h-full w-full" opacity={0.15} />
           </div>
-          <FigmaImage
-            src={svc.heroImage}
-            alt={`${svc.heroTitle} — hero image`}
-            aspect="tall"
-            priority
-            position="top center"
+          <PortraitPlaceholder
+            label={`${svc.heroTitle} — subject portrait`}
+            aspect="portrait"
             className="relative z-10 mx-auto max-w-md"
           />
         </div>

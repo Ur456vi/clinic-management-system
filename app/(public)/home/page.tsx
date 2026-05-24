@@ -76,7 +76,7 @@ export default function HomePage() {
                                                                         </li>
                                                                 ))}
                                                         </ul>
-                                                        <p className="text-[#5A4A3A] text-sm mb-3 font-medium">And yet, you've been told:</p>
+                                                        <p className="text-[#5A4A3A] text-sm mb-3 font-medium">And yet, you&apos;ve been told:</p>
                                                         <ul className="space-y-2">
                                                                 {['"Everything looks normal."', '"It\'s just stress."', '"It\'s part of aging."'].map((q) => (
                                                                         <li key={q} className="text-[#7B1B2A] italic text-sm">{q}</li>
