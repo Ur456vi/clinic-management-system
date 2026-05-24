@@ -1,20 +1,33 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const allAppointments = [
-  { date: "30 Apr 2025", time: "09:30 AM", doctor: "Dr. Sumit Mittal", spec: "Cardiologist", mode: "In-person", status: "Checked Out" },
-  { date: "15 Apr 2025", time: "11:20 AM", doctor: "Dr. Akangsha Jain", spec: "Orthopedic Surgeon", mode: "Online", status: "Checked In" },
-  { date: "02 Apr 2025", time: "08:15 AM", doctor: "Dr. Sonal Mittal", spec: "Pediatrician", mode: "In-Person", status: "Cancelled" },
-  { date: "27 Mar 2025", time: "02:00 PM", doctor: "Dr. Tarun Gupta", spec: "Gynecologist", mode: "Online", status: "Schedule", scheduleDate: "30 Apr 2025" },
-  { date: "12 Mar 2025", time: "05:40 PM", doctor: "Dr. Raika Jain", spec: "Psychiatrist", mode: "Online", status: "Confirmed" },
-  { date: "24 Feb 2025", time: "09:20 AM", doctor: "Dr. Nilesh Arora", spec: "Neurosurgeon", mode: "In-Person", status: "Cancelled" },
-  { date: "18 Feb 2025", time: "11:40 AM", doctor: "Dr. Kaushik Gupta", spec: "Oncologist", mode: "Online", status: "Confirmed" },
-  { date: "01 Feb 2025", time: "04:00 PM", doctor: "Dr. Anki Singh", spec: "Pulmonologist", mode: "Online", status: "Checked Out" },
-  { date: "25 Jan 2025", time: "03:10 PM", doctor: "Dr. Ganesh Gupta", spec: "Urologist", mode: "Online", status: "Schedule", scheduleDate: "28 Jan 2025" },
-  { date: "12 Jan 2025", time: "02:10 PM", doctor: "Dr. Saurabh Jain", spec: "Cardiologist", mode: "In-Person", status: "Cancelled" },
-  { date: "05 Jan 2025", time: "10:00 AM", doctor: "Dr. Priya Sharma", spec: "Dermatologist", mode: "Online", status: "Confirmed" },
-  { date: "28 Dec 2024", time: "03:30 PM", doctor: "Dr. Rahul Verma", spec: "Orthopedic", mode: "In-Person", status: "Checked Out" },
+// Mode capitalization is normalised to "In-Person" / "Online"
+// (BUG-031: the seed list mixed "in-person" / "In-Person" / "In-person").
+type AppointmentRow = {
+  date: string;            // display: "30 Apr 2025"
+  isoDate: string;         // for filtering: "2025-04-30"
+  time: string;
+  doctor: string;
+  spec: string;
+  mode: "Online" | "In-Person";
+  status: "Checked Out" | "Checked In" | "Cancelled" | "Schedule" | "Confirmed";
+  scheduleDate?: string;
+};
+
+const allAppointments: AppointmentRow[] = [
+  { date: "30 Apr 2025", isoDate: "2025-04-30", time: "09:30 AM", doctor: "Dr. Sumit Mittal",    spec: "Cardiologist",         mode: "In-Person", status: "Checked Out" },
+  { date: "15 Apr 2025", isoDate: "2025-04-15", time: "11:20 AM", doctor: "Dr. Akangsha Jain",   spec: "Orthopedic Surgeon",   mode: "Online",    status: "Checked In" },
+  { date: "02 Apr 2025", isoDate: "2025-04-02", time: "08:15 AM", doctor: "Dr. Sonal Mittal",    spec: "Pediatrician",         mode: "In-Person", status: "Cancelled" },
+  { date: "27 Mar 2025", isoDate: "2025-03-27", time: "02:00 PM", doctor: "Dr. Tarun Gupta",     spec: "Gynecologist",         mode: "Online",    status: "Schedule", scheduleDate: "30 Apr 2025" },
+  { date: "12 Mar 2025", isoDate: "2025-03-12", time: "05:40 PM", doctor: "Dr. Raika Jain",      spec: "Psychiatrist",         mode: "Online",    status: "Confirmed" },
+  { date: "24 Feb 2025", isoDate: "2025-02-24", time: "09:20 AM", doctor: "Dr. Nilesh Arora",    spec: "Neurosurgeon",         mode: "In-Person", status: "Cancelled" },
+  { date: "18 Feb 2025", isoDate: "2025-02-18", time: "11:40 AM", doctor: "Dr. Kaushik Gupta",   spec: "Oncologist",           mode: "Online",    status: "Confirmed" },
+  { date: "01 Feb 2025", isoDate: "2025-02-01", time: "04:00 PM", doctor: "Dr. Anki Singh",      spec: "Pulmonologist",        mode: "Online",    status: "Checked Out" },
+  { date: "25 Jan 2025", isoDate: "2025-01-25", time: "03:10 PM", doctor: "Dr. Ganesh Gupta",    spec: "Urologist",            mode: "Online",    status: "Schedule", scheduleDate: "28 Jan 2025" },
+  { date: "12 Jan 2025", isoDate: "2025-01-12", time: "02:10 PM", doctor: "Dr. Saurabh Jain",    spec: "Cardiologist",         mode: "In-Person", status: "Cancelled" },
+  { date: "05 Jan 2025", isoDate: "2025-01-05", time: "10:00 AM", doctor: "Dr. Priya Sharma",    spec: "Dermatologist",        mode: "Online",    status: "Confirmed" },
+  { date: "28 Dec 2024", isoDate: "2024-12-28", time: "03:30 PM", doctor: "Dr. Rahul Verma",     spec: "Orthopedic",           mode: "In-Person", status: "Checked Out" },
 ];
 
 const statusConfig: Record<string, { color: string; bg: string }> = {
@@ -32,27 +45,44 @@ export default function AppointmentsPage() {
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState("Recent");
+  const [sortBy, setSortBy] = useState<"Recent" | "Oldest" | "Name">("Recent");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [dateFrom, setDateFrom] = useState("01/10/2026");
-  const [dateTo, setDateTo] = useState("01/22/2026");
+  // ISO yyyy-mm-dd format so the native date inputs round-trip cleanly
+  // and the filter can do real string compares (BUG-029: the previous
+  // mm/dd/yyyy text inputs never actually filtered anything).
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  // Filter & search
-  const filtered = allAppointments.filter((apt) => {
-    const matchSearch =
-      apt.doctor.toLowerCase().includes(search.toLowerCase()) ||
-      apt.spec.toLowerCase().includes(search.toLowerCase()) ||
-      apt.status.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "All" || apt.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    let rows = allAppointments.filter((apt) => {
+      const matchSearch =
+        !q ||
+        apt.doctor.toLowerCase().includes(q) ||
+        apt.spec.toLowerCase().includes(q) ||
+        apt.status.toLowerCase().includes(q);
+      const matchStatus = filterStatus === "All" || apt.status === filterStatus;
+      const matchFrom = !dateFrom || apt.isoDate >= dateFrom;
+      const matchTo = !dateTo || apt.isoDate <= dateTo;
+      return matchSearch && matchStatus && matchFrom && matchTo;
+    });
 
-  const totalPages = Math.ceil(filtered.length / rowsPerPage);
+    if (sortBy === "Recent") {
+      rows = [...rows].sort((a, b) => b.isoDate.localeCompare(a.isoDate));
+    } else if (sortBy === "Oldest") {
+      rows = [...rows].sort((a, b) => a.isoDate.localeCompare(b.isoDate));
+    } else if (sortBy === "Name") {
+      rows = [...rows].sort((a, b) => a.doctor.localeCompare(b.doctor));
+    }
+
+    return rows;
+  }, [search, filterStatus, dateFrom, dateTo, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const handleNewAppointment = () => {
-    // Logic for new appointment
-    console.log("Opening new appointment modal/form");
+    router.push("/patient/appointments/new");
   };
 
   return (
@@ -84,7 +114,7 @@ export default function AppointmentsPage() {
             </svg>
           </button>
           {/* New Appointment */}
-          <button 
+          <button
             onClick={handleNewAppointment}
             className="bg-[#2E37A4] hover:bg-[#1e2570] text-white border-none rounded-lg px-5 py-2.5 text-sm font-bold cursor-pointer transition-colors shadow-sm ml-1"
           >
@@ -104,24 +134,45 @@ export default function AppointmentsPage() {
                 <circle cx="11" cy="11" r="7" stroke="#A1A1A1" strokeWidth="2" />
                 <path d="M21 21l-4.35-4.35" stroke="#A1A1A1" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <input 
-                type="text" 
-                placeholder="Search appointments..." 
-                value={search} 
-                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} 
-                className="border-none outline-none text-sm text-[#141414] bg-transparent w-full" 
+              <input
+                type="text"
+                placeholder="Search appointments..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+                className="border-none outline-none text-sm text-[#141414] bg-transparent w-full"
               />
             </div>
 
-            {/* Date Range */}
+            {/* Date Range — native date pickers so the filter actually works */}
             <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB]">
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="17" rx="2" stroke="#6C7688" strokeWidth="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <input type="text" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="border-none outline-none text-sm text-[#141414] bg-transparent w-20" />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+                aria-label="From date"
+                className="border-none outline-none text-sm text-[#141414] bg-transparent"
+              />
               <span className="text-[#6C7688] font-bold">-</span>
-              <input type="text" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="border-none outline-none text-sm text-[#141414] bg-transparent w-20" />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+                aria-label="To date"
+                className="border-none outline-none text-sm text-[#141414] bg-transparent"
+              />
+              {(dateFrom || dateTo) ? (
+                <button
+                  onClick={() => { setDateFrom(""); setDateTo(""); }}
+                  className="text-xs font-semibold text-[#2E37A4] hover:underline ml-1"
+                  type="button"
+                >
+                  Clear
+                </button>
+              ) : null}
             </div>
           </div>
 
@@ -131,9 +182,9 @@ export default function AppointmentsPage() {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <path d="M4 6h16M7 12h10M10 18h4" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <select 
-                value={filterStatus} 
-                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} 
+              <select
+                value={filterStatus}
+                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
                 className="border-none outline-none text-sm font-semibold text-[#141414] bg-transparent cursor-pointer"
               >
                 <option value="All">All Statuses</option>
@@ -150,9 +201,9 @@ export default function AppointmentsPage() {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <path d="M3 6h18M6 12h12M9 18h6" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <select 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)} 
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="border-none outline-none text-sm font-semibold text-[#141414] bg-transparent cursor-pointer"
               >
                 <option value="Recent">Sort By: Recent</option>
@@ -191,7 +242,7 @@ export default function AppointmentsPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-9 h-9 rounded-full bg-[#EEF0FF] flex items-center justify-center text-sm font-bold text-[#2E37A4] flex-shrink-0">
-                          {apt.doctor.charAt(4)}
+                          {apt.doctor.replace(/^Dr\.\s*/, "").charAt(0)}
                         </div>
                         <div>
                           <p className="m-0 text-sm font-bold text-[#141414]">{apt.doctor}</p>
@@ -206,8 +257,8 @@ export default function AppointmentsPage() {
                     {/* Status */}
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <span 
-                          className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" 
+                        <span
+                          className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap"
                           style={{ color: statusConfig[apt.status]?.color ?? "#141414", backgroundColor: statusConfig[apt.status]?.bg ?? "#F2F4F7" }}
                         >
                           {apt.status}
@@ -229,9 +280,9 @@ export default function AppointmentsPage() {
           {/* Rows per page */}
           <div className="flex items-center gap-2 text-sm text-[#6C7688] font-medium">
             <span>Rows per page:</span>
-            <select 
-              value={rowsPerPage} 
-              onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }} 
+            <select
+              value={rowsPerPage}
+              onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
               className="border border-[#D0D0D0] rounded px-1.5 py-0.5 text-sm text-[#141414] bg-white cursor-pointer"
             >
               {ROWS_PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}

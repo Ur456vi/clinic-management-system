@@ -4,6 +4,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------------
+ * Public landing-page brand tokens. Sourced from the Figma file
+ * "clinic-dryuvraaj" (file key SrJXZ6F175iHYjb4UDXSF8). Only the public
+ * marketing site uses these — admin/patient portals keep their own tokens.
+ * ------------------------------------------------------------------------- */
+:root {
+  --brand-burgundy: #7A2329;        /* nav bar, accents, "Care" emphasis */
+  --brand-burgundy-dark: #5E1A1F;   /* hover/pressed */
+  --brand-burgundy-soft: #F2E2E2;   /* very light burgundy tint */
+  --brand-olive: #6D7956;           /* CTA primary, callout boxes */
+  --brand-olive-dark: #545E42;      /* olive hover */
+  --brand-olive-soft: #DDE1D2;      /* olive tint */
+  --brand-cream: #F5EDE0;           /* page background */
+  --brand-cream-2: #FAF6EE;         /* lighter cream / cards */
+  --brand-cream-3: #EFE6D2;         /* slightly darker cream / dividers */
+  --brand-ink: #1F1F1F;             /* primary text */
+  --brand-ink-soft: #4B4B4B;        /* secondary text */
+  --brand-mute: #6B7280;            /* muted gray */
+  --brand-rule: #D9CFBE;            /* hairline rules on cream */
+  --brand-rule-soft: #ECE3D3;
+  --brand-success: #4E7A3F;
+  --brand-warning: #B5642A;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-script: var(--font-pinyon), "Pinyon Script", cursive;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

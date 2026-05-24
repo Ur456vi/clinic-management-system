@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Playfair_Display, Pinyon_Script } from "next/font/google";
 import "./globals.css";
 
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -22,9 +22,24 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+// Public-site brand fonts. Playfair Display = display serif used for headings.
+// Pinyon Script = the cursive logotype that reads "Dr. Yuvraaj Singh M.D."
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const pinyon = Pinyon_Script({
+  variable: "--font-pinyon",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
 export const metadata: Metadata = {
-  title: "Vyara — Clinic Management",
-  description: "Vyara clinic management system",
+  title: "Institute of Precision Metabolic & Hormonal Health — Dr. Yuvraaj Singh M.D.",
+  description:
+    "Physician-led precision health for individuals who refuse to normalize decline. An advanced systems-based clinical institute focused on hormonal, metabolic and regenerative health.",
 };
 
 export default function RootLayout({
@@ -35,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${playfair.variable} ${pinyon.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

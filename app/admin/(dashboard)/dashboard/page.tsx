@@ -1,15 +1,16 @@
 "use client"
 
 import React from "react"
-import { 
-  Users, 
-  Calendar, 
-  UserSquare2, 
+import Link from "next/link"
+import {
+  Users,
+  Calendar,
+  UserSquare2,
   FileText,
   TrendingUp,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react"
 
 const stats = [
@@ -55,7 +56,12 @@ export default function DashboardPage() {
         <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
           <div className="px-6 py-4 border-b border-[#EAECF0] flex items-center justify-between">
             <h3 className="text-base font-bold text-[#101828]">Upcoming Appointments</h3>
-            <button className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b]">View All</button>
+            <Link
+              href="/admin/appointments"
+              className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b]"
+            >
+              View All
+            </Link>
           </div>
           <div className="p-0 overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -134,7 +140,12 @@ export default function DashboardPage() {
                   <p className="text-xs text-[#F04438]">5 invoices over 30 days</p>
                 </div>
               </div>
-              <button className="text-xs font-bold text-[#B42318] hover:underline">Take Action</button>
+              <Link
+                href="/admin/invoices"
+                className="text-xs font-bold text-[#B42318] hover:underline"
+              >
+                Take Action
+              </Link>
             </div>
           </div>
         </div>

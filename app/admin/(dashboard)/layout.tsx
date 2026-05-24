@@ -6,6 +6,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { UserMenu } from "@/components/ui/UserMenu"
+import { NotificationBell } from "@/components/ui/NotificationBell"
 import {
   LayoutDashboard,
   Users,
@@ -18,7 +19,6 @@ import {
   HelpCircle,
   User,
   Search,
-  Bell,
   ChevronsLeft,
 } from "lucide-react"
 
@@ -128,10 +128,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 border-r border-[#EAECF0] dark:border-[#374151] pr-4 mr-2">
               <ThemeToggle className="inline-flex items-center justify-center p-2 rounded-lg text-[#667085] hover:bg-gray-50 hover:text-[#101828] dark:text-[#94A3B8] dark:hover:bg-[#1F2937] dark:hover:text-white transition-colors cursor-pointer" iconSize={20} />
-              <button className="p-2 text-[#667085] hover:bg-gray-50 dark:text-[#94A3B8] dark:hover:bg-[#1F2937] rounded-lg transition-colors relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0F172A]"></span>
-              </button>
+              <NotificationBell
+                buttonClassName="p-2 text-[#667085] hover:bg-gray-50 dark:text-[#94A3B8] dark:hover:bg-[#1F2937] rounded-lg transition-colors relative"
+              />
             </div>
 
             <UserMenu items={userMenuItems} />
