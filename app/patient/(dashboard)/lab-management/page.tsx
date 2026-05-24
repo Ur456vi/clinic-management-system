@@ -1,164 +1,270 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
-// ─── TYPES ────────────────────────────────────────────────────────────────────
+// ——— TYPES ———————————————————————————————————————————
 type Status = "completed" | "pending" | "inprogress" | "cancelled";
 type Priority = "urgent" | "routine" | "stat";
 
 interface TestOrder {
-  id: string;
-  name: string;
-  email: string;
-  type: string;
-  status: Status;
-  priority: Priority;
-  date: string;
+    id: string;
+    name: string;
+    email: string;
+    type: string;
+    status: Status;
+    priority: Priority;
+    date: string;
 }
 
-// ─── MOCK DATA ────────────────────────────────────────────────────────────────
-const INITIAL_ORDERS: TestOrder[] = [
-  { id: "LAB-001", name: "Ahmed Singh", email: "ahmed@example.com", type: "Complete Blood Count", status: "completed", priority: "routine", date: "Apr 21, 2026" },
-  { id: "LAB-002", name: "Van Ablo", email: "van@example.com", type: "Lipid Panel", status: "pending", priority: "urgent", date: "May 10, 2026" },
-  { id: "LAB-003", name: "Zainab Sher", email: "zainab@example.com", type: "Thyroid Function", status: "inprogress", priority: "stat", date: "May 12, 2026" },
-];
-
+// ——— HELPERS ———————————————————————————————————————————
 const PER_PAGE = 10;
 
 function getInitials(name: string): string {
-  return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
 }
 
-export default function LaboratoryManagementPage() {
-  const [orders] = useState<TestOrder[]>(INITIAL_ORDERS);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Status | "">("");
-  const [priorityFilter, setPriorityFilter] = useState<Priority | "">("");
+function formatStatus(status: string): string {
+    const map: Record<string, string> = {
+          completed: "Completed",
+          pending: "Pending",
+          inprogress: "In Progress",
+          cancelled: "Cancelled",
+    };
+    return map[status] ?? status;
+}
 
+// ——— PAGE COMPONENT ————————————————————————————————————
+export default function LaboratoryManagementPage() {
+    const [orders, setOrders] = useState<TestOrder[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All Statuses");
+    const [priorityFilter, setPriorityFilter] = useState("All Priorities");
+    const [page, setPage] = useState(1);
+
+  // Fetch the logged-in patient's own lab results from the API
+  useEffect(() => {
+        async function fetchLabResults() {
+                try {
+                          setLoading(true);
+                          setError(null);
+                          const res = await fetch("/api/patient/me/lab-results");
+                          if (!res.ok) {
+                                      throw new Error(`Failed to fetch lab results: ${res.status}`);
+                          }
+                          const data = await res.json();
+                          // Map API response to TestOrder shape
+                  const mapped: TestOrder[] = (data.data ?? data ?? []).map((item: any) => ({
+                              id: item.id ?? item.labResultId ?? "",
+                              name: item.patient?.name ?? item.patientName ?? "",
+                              email: item.patient?.email ?? item.patientEmail ?? "",
+                              type: item.testType ?? item.type ?? "Unknown",
+                              status: (item.status ?? "pending").toLowerCase() as Status,
+                              priority: (item.priority ?? "routine").toLowerCase() as Priority,
+                              date: item.orderedAt ?? item.createdAt ?? "",
+                  }));
+                          setOrders(mapped);
+                } catch (err: any) {
+                          setError(err.message ?? "Failed to load lab results.");
+                } finally {
+                          setLoading(false);
+                }
+        }
+        fetchLabResults();
+  }, []);
+
+  // ——— FILTERS ————————————————————————————————————————
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return orders.filter(r => {
-      if (q && !r.name.toLowerCase().includes(q) && !r.id.toLowerCase().includes(q) && !r.type.toLowerCase().includes(q)) return false;
-      if (statusFilter && r.status !== statusFilter) return false;
-      if (priorityFilter && r.priority !== priorityFilter) return false;
-      return true;
-    });
+        return orders.filter((o) => {
+                const matchSearch =
+                          !search ||
+                          o.id.toLowerCase().includes(search.toLowerCase()) ||
+                          o.name.toLowerCase().includes(search.toLowerCase()) ||
+                          o.type.toLowerCase().includes(search.toLowerCase());
+                const matchStatus =
+                          statusFilter === "All Statuses" ||
+                          o.status.toLowerCase() === statusFilter.toLowerCase();
+                const matchPriority =
+                          priorityFilter === "All Priorities" ||
+                          o.priority.toLowerCase() === priorityFilter.toLowerCase();
+                return matchSearch && matchStatus && matchPriority;
+        });
   }, [orders, search, statusFilter, priorityFilter]);
 
-  const stats = useMemo(() => ({
-    total: orders.length,
-    completed: orders.filter(o => o.status === "completed").length,
-    pending: orders.filter(o => o.status === "pending").length,
-    urgent: orders.filter(o => o.priority === "urgent").length,
-  }), [orders]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  return (
-    <div className="p-6 flex flex-col gap-6 max-w-[1600px] mx-auto animate-in fade-in duration-500">
-      {/* Page Header */}
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-[#141414]">Laboratory Management</h1>
-          <p className="text-sm font-bold text-[#667085] mt-0.5">Manage lab tests, results, and reports</p>
-        </div>
-        <button className="bg-[#2E37A4] hover:bg-[#1e2570] text-white border-none rounded-lg px-5 py-2.5 text-sm font-bold cursor-pointer transition-colors shadow-sm">
-          + New Test Order
-        </button>
-      </div>
+  // Stats
+  const total = orders.length;
+    const completedCount = orders.filter((o) => o.status === "completed").length;
+    const pendingCount = orders.filter((o) => o.status === "pending").length;
+    const urgentCount = orders.filter((o) => o.priority === "urgent" || o.priority === "stat").length;
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Total Tests", value: stats.total, color: "#2E37A4", bg: "#EEF0FB" },
-          { label: "Completed", value: stats.completed, color: "#10B981", bg: "#D1FAE5" },
-          { label: "Pending", value: stats.pending, color: "#F59E0B", bg: "#FEF3C7" },
-          { label: "Urgent", value: stats.urgent, color: "#EF4444", bg: "#FEE2E2" },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl p-5 border border-[#EAECF0] shadow-sm flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest">{s.label}</span>
-            <span className="text-3xl font-bold text-[#141414]">{s.value}</span>
-            <div className="w-fit px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" style={{ color: s.color, backgroundColor: s.bg }}>Active</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Table Card */}
-      <div className="bg-white rounded-xl border border-[#EAECF0] overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-[#F2F4F7] flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] min-w-[280px] focus-within:border-[#2E37A4] transition-colors">
-            <input 
-              type="text" 
-              placeholder="Search by test no, patient..." 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)} 
-              className="border-none outline-none text-sm text-[#141414] bg-transparent w-full" 
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as Status | "")} className="h-10 border border-[#D0D0D0] rounded-lg px-3 bg-white text-sm font-bold text-[#141414] outline-none cursor-pointer">
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="inprogress">In Progress</option>
-            </select>
-            <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value as Priority | "")} className="h-10 border border-[#D0D0D0] rounded-lg px-3 bg-white text-sm font-bold text-[#141414] outline-none cursor-pointer">
-              <option value="">All Priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="routine">Routine</option>
-              <option value="stat">STAT</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-[#F9FAFB]">
-                {["Test No.", "Patient", "Test Type", "Status", "Priority", "Ordered Date"].map((h) => (
-                  <th key={h} className="p-4 text-left text-[#667085] font-bold text-xs uppercase tracking-wider border-b border-[#F2F4F7]">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2F4F7]">
-              {filtered.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4 font-mono text-xs font-bold text-[#2E37A4]">{row.id}</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#EEF0FB] flex items-center justify-center text-xs font-bold text-[#2E37A4]">
-                        {getInitials(row.name)}
-                      </div>
-                      <div>
-                        <p className="m-0 font-bold text-[#141414]">{row.name}</p>
-                        <p className="m-0 text-xs text-[#667085] font-medium">{row.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 font-medium text-[#141414]">{row.type}</td>
-                  <td className="p-4">
-                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
-                      row.status === "completed" ? "bg-[#D1FAE5] text-[#065F46]" :
-                      row.status === "pending" ? "bg-[#FEF3C7] text-[#92400E]" : "bg-[#DBEAFE] text-[#1E40AF]"
-                    }`}>
-                      {row.status}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border ${
-                      row.priority === "urgent" ? "bg-[#FEE2E2] text-[#991B1B] border-[#FCA5A5]" :
-                      row.priority === "stat" ? "bg-[#EDE9FE] text-[#5B21B6] border-[#C4B5FD]" : "bg-[#D1FAE5] text-[#065F46] border-[#6EE7B7]"
-                    }`}>
-                      {row.priority}
-                    </span>
-                  </td>
-                  <td className="p-4 text-[#667085] font-medium">{row.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <footer className="mt-auto py-6 text-center border-t border-[#EAECF0]">
-        <p className="m-0 text-xs text-[#6C7688] font-bold">Copyright © 2026 - Vyara.</p>
-      </footer>
-    </div>
-  );
-}
+  // ——— RENDER ——————————————————————————————————————————
+  if (loading) {
+        return (
+                <div className="p-6 text-center text-gray-400">Loading lab results…</div>div>
+              );
+  }
+  
+    if (error) {
+          return (
+                  <div className="p-6 text-center text-red-500">
+                          <p>Error: {error}</p>p>
+                          <button
+                                      className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                                      onClick={() => window.location.reload()}
+                                    >
+                                    Retry
+                          </button>button>
+                  </div>div>
+                );
+    }
+  
+    return (
+          <div className="p-6 space-y-6">
+            {/* Header */}
+                <div className="flex items-center justify-between">
+                        <div>
+                                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                              Laboratory Management
+                                  </h1>h1>
+                                  <p className="text-sm text-gray-500">Manage lab tests, results, and reports</p>p>
+                        </div>div>
+                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                                  + New Test Order
+                        </button>button>
+                </div>div>
+          
+            {/* Summary Cards */}
+                <div className="grid grid-cols-4 gap-4">
+                  {[
+            { label: "TOTAL TESTS", value: total, badge: "ACTIVE" },
+            { label: "COMPLETED", value: completedCount, badge: "ACTIVE" },
+            { label: "PENDING", value: pendingCount, badge: "ACTIVE" },
+            { label: "URGENT", value: urgentCount, badge: "ACTIVE" },
+                    ].map((card) => (
+                                <div key={card.label} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                            <p className="text-xs text-gray-500 uppercase tracking-wide">{card.label}</p>p>
+                                            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{card.value}</p>p>
+                                            <span className="text-xs text-green-600 font-medium">{card.badge}</span>span>
+                                </div>div>
+                              ))}
+                </div>div>
+          
+            {/* Filters */}
+                <div className="flex gap-3 items-center">
+                        <input
+                                    type="text"
+                                    placeholder="Search by test no, patient..."
+                                    value={search}
+                                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  />
+                        <select
+                                    value={statusFilter}
+                                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  >
+                                  <option>All Statuses</option>option>
+                                  <option>completed</option>option>
+                                  <option>pending</option>option>
+                                  <option>inprogress</option>option>
+                                  <option>cancelled</option>option>
+                        </select>select>
+                        <select
+                                    value={priorityFilter}
+                                    onChange={(e) => { setPriorityFilter(e.target.value); setPage(1); }}
+                                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  >
+                                  <option>All Priorities</option>option>
+                                  <option>urgent</option>option>
+                                  <option>routine</option>option>
+                                  <option>stat</option>option>
+                        </select>select>
+                </div>div>
+          
+            {/* Table */}
+            {paginated.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                              No lab results found.
+                    </div>div>
+                  ) : (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                              <table className="w-full text-sm">
+                                          <thead className="bg-gray-50 dark:bg-gray-700 text-xs text-gray-500 uppercase tracking-wide">
+                                                        <tr>
+                                                                        <th className="px-4 py-3 text-left">Test No.</th>th>
+                                                                        <th className="px-4 py-3 text-left">Patient</th>th>
+                                                                        <th className="px-4 py-3 text-left">Test Type</th>th>
+                                                                        <th className="px-4 py-3 text-left">Status</th>th>
+                                                                        <th className="px-4 py-3 text-left">Priority</th>th>
+                                                                        <th className="px-4 py-3 text-left">Ordered Date</th>th>
+                                                        </tr>tr>
+                                          </thead>thead>
+                                          <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                            {paginated.map((order) => (
+                                      <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                                                        <td className="px-4 py-3 font-medium text-indigo-600">{order.id}</td>td>
+                                                        <td className="px-4 py-3">
+                                                                            <div className="flex items-center gap-2">
+                                                                                                  <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                                                                                                    {getInitials(order.name)}
+                                                                                                    </div>div>
+                                                                                                  <div>
+                                                                                                                          <p className="font-medium text-gray-900 dark:text-white">{order.name}</p>p>
+                                                                                                                          <p className="text-xs text-gray-500">{order.email}</p>p>
+                                                                                                    </div>div>
+                                                                            </div>div>
+                                                        </td>td>
+                                                        <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{order.type}</td>td>
+                                                        <td className="px-4 py-3">
+                                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                              order.status === "completed" ? "bg-green-100 text-green-700" :
+                                                              order.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                              order.status === "inprogress" ? "bg-blue-100 text-blue-700" :
+                                                              "bg-red-100 text-red-700"
+                                      }`}>
+                                                                              {formatStatus(order.status)}
+                                                                            </span>span>
+                                                        </td>td>
+                                                        <td className="px-4 py-3">
+                                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                              order.priority === "urgent" ? "bg-red-100 text-red-700" :
+                                                              order.priority === "stat" ? "bg-orange-100 text-orange-700" :
+                                                              "bg-gray-100 text-gray-700"
+                                      }`}>
+                                                                              {order.priority}
+                                                                            </span>span>
+                                                        </td>td>
+                                                        <td className="px-4 py-3 text-gray-500">
+                                                          {order.date ? new Date(order.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                                                        </td>td>
+                                      </tr>tr>
+                                    ))}
+                                          </tbody>tbody>
+                              </table>table>
+                    </div>div>
+                )}
+          
+            {/* Pagination */}
+            {totalPages > 1 && (
+                    <div className="flex justify-center gap-2">
+                              <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded border text-sm disabled:opacity-40">Prev</button>button>
+                              <span className="px-3 py-1 text-sm text-gray-600">Page {page} of {totalPages}</span>span>
+                              <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded border text-sm disabled:opacity-40">Next</button>button>
+                    </div>div>
+                )}
+          
+            {/* Footer */}
+                <div className="text-center text-xs text-gray-400">
+                        Copyright © 2026 - Vyara.
+                </div>div>
+          </div>div>
+        );
+}</div>
