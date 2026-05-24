@@ -1,391 +1,393 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  Download, 
-  Printer, 
-  Info, 
-  FileText,
-  Calendar,
-  MoreVertical,
-  ChevronLeft,
-  Share2
+import {
+    Search,
+    Filter,
+    ChevronDown,
+    Download,
+    Printer,
+    Info,
+    FileText,
+    Calendar,
+    MoreVertical,
+    ChevronLeft,
+    Share2
 } from "lucide-react";
 
-// ─── TYPES ────────────────────────────────────────────────────────────────────
+// ——— TYPES ———————————————————————————————————————————
 interface Medicine {
-  sno: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  duration: string;
-  timings: string;
+    sno: string;
+    name: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    timings: string;
 }
 
 interface Prescription {
-  id: string;
-  doctorName: string;
-  specialty: string;
-  avatar: string;
-  prescribedOn: string;
-  clinic: string;
-  department: string;
-  consultationType: string;
-  patientName: string;
-  age: string;
-  gender: string;
-  blood: string;
-  patientId: string;
-  category: string;
-  medicines: Medicine[];
-  advice: string;
-  followUp: string;
+    id: string;
+    doctorName: string;
+    specialty: string;
+    date: string;
+    category: string;
+    // Patient info is populated from the logged-in session, NOT hardcoded
+  patientName?: string;
+    patientId?: string;
+    gender?: string;
+    bloodGroup?: string;
+    consultationType?: string;
+    medicines?: Medicine[];
+    followUpDate?: string;
+    notes?: string;
 }
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-const PRESCRIPTIONS: Prescription[] = [
+// ——— MOCK PRESCRIPTIONS (list only - no patient PII) ————
+// Note: Patient info is fetched dynamically from /api/patient/me
+const MOCK_PRESCRIPTIONS: Prescription[] = [
   {
-    id: "#PRE0025", doctorName: "Dr. Sumit Mittal", specialty: "Cardiologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sumit",
-    prescribedOn: "30 Apr 2025", clinic: "Trustcare Clinic", department: "Cardiology OP",
-    consultationType: "Video", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Cardiology Prescription",
-    medicines: [
-      { sno: "01", name: "Ecosprin 75MG", dosage: "75mg", frequency: "1-0-1", duration: "1 month", timings: "Before meal" },
-      { sno: "02", name: "Axer 90MG Tab", dosage: "90 mg", frequency: "1-1-1", duration: "1 month", timings: "After meal"  },
-    ],
-    advice: "Avoid strenuous exercise for a week. Chronology of events that have led the patient to seek medical care.",
-    followUp: "30 Jul 2025",
+        id: "#PRE0025",
+        doctorName: "Dr. Sumit Mittal",
+        specialty: "Cardiologist",
+        date: "30 Apr 2025",
+        category: "Cardiology Prescription",
+        consultationType: "Video",
+        medicines: [
+          { sno: "01", name: "Ecosprin 75MG", dosage: "75mg", frequency: "1-0-1", duration: "1 month", timings: "Before meal" },
+          { sno: "02", name: "Axer 90MG Tab", dosage: "90 mg", frequency: "1-1-1", duration: "1 month", timings: "After meal" },
+              ],
+        followUpDate: "30 Jun 2025",
   },
   {
-    id: "#PRE0024", doctorName: "Dr. Akanksha Jain", specialty: "Orthopedic Surgeon", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Akanksha",
-    prescribedOn: "15 Apr 2025", clinic: "Trustcare Clinic", department: "Orthopedics OP",
-    consultationType: "In-person", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Orthopedic Prescription",
-    medicines: [], advice: "Rest well.", followUp: "15 May 2025",
+        id: "#PRE0024",
+        doctorName: "Dr. Akanksha Jain",
+        specialty: "Orthopedic Surgeon",
+        date: "15 Apr 2025",
+        category: "Orthopedic Prescription",
+        consultationType: "In-Person",
+        medicines: [
+          { sno: "01", name: "Ibuprofen 400mg", dosage: "400mg", frequency: "1-0-1", duration: "2 weeks", timings: "After meal" },
+              ],
+        followUpDate: "15 May 2025",
   },
   {
-    id: "#PRE0023", doctorName: "Dr. Sonali Mittal", specialty: "Pediatrician", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sonali",
-    prescribedOn: "02 Apr 2025", clinic: "Trustcare Clinic", department: "Pediatrics",
-    consultationType: "In-person", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "General Checkup",
-    medicines: [], advice: "Balanced diet.", followUp: "02 May 2025",
+        id: "#PRE0023",
+        doctorName: "Dr. Sonali Mittal",
+        specialty: "Pediatrician",
+        date: "02 Apr 2025",
+        category: "General Prescription",
+        consultationType: "In-Person",
+        medicines: [],
+        followUpDate: "",
   },
   {
-    id: "#PRE0022", doctorName: "Dr. Tarun Gupta", specialty: "Gynecologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tarun",
-    prescribedOn: "27 Mar 2025", clinic: "Trustcare Clinic", department: "Gynecology",
-    consultationType: "Video", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Follow-up",
-    medicines: [], advice: "Take vitamins.", followUp: "17 Apr 2025",
+        id: "#PRE0022",
+        doctorName: "Dr. Tarun Gupta",
+        specialty: "Gynecologist",
+        date: "27 Mar 2025",
+        category: "Gynecology Prescription",
+        consultationType: "Online",
+        medicines: [],
+        followUpDate: "",
   },
   {
-    id: "#PRE0021", doctorName: "Dr. Sarita Jain", specialty: "Psychiatrist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarita",
-    prescribedOn: "12 Mar 2025", clinic: "Trustcare Clinic", department: "Psychiatry",
-    consultationType: "In-person", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Mental Health",
-    medicines: [], advice: "Regular therapy.", followUp: "26 Mar 2025",
+        id: "#PRE0021",
+        doctorName: "Dr. Raika Jain",
+        specialty: "Psychiatrist",
+        date: "12 Mar 2025",
+        category: "Psychiatry Prescription",
+        consultationType: "Online",
+        medicines: [],
+        followUpDate: "",
   },
-  {
-    id: "#PRE0020", doctorName: "Dr. Nilesh Arora", specialty: "Neurosurgeon", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nilesh",
-    prescribedOn: "05 Mar 2025", clinic: "Trustcare Clinic", department: "Neurology",
-    consultationType: "Video", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Brain Scan Review",
-    medicines: [], advice: "Adequate sleep.", followUp: "05 Apr 2025",
-  },
-  {
-    id: "#PRE0019", doctorName: "Dr. Rakshita Gupta", specialty: "Oncologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rakshita",
-    prescribedOn: "24 Feb 2025", clinic: "Trustcare Clinic", department: "Oncology",
-    consultationType: "In-person", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Routine Checkup",
-    medicines: [], advice: "Stay hydrated.", followUp: "24 Aug 2025",
-  },
-  {
-    id: "#PRE0018", doctorName: "Dr. Amit Singh", specialty: "Pulmonologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=DoctorAmit",
-    prescribedOn: "16 Feb 2025", clinic: "Trustcare Clinic", department: "Pulmonology",
-    consultationType: "Video", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Asthma Review",
-    medicines: [], advice: "Use inhaler.", followUp: "16 Apr 2025",
-  },
-  {
-    id: "#PRE0017", doctorName: "Dr. Suresh Gupta", specialty: "Urologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Suresh",
-    prescribedOn: "01 Feb 2025", clinic: "Trustcare Clinic", department: "Urology",
-    consultationType: "In-person", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Kidney Health",
-    medicines: [], advice: "Drink water.", followUp: "01 Mar 2025",
-  },
-  {
-    id: "#PRE0016", doctorName: "Dr. Saurabh Jain", specialty: "Cardiologist", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Saurabh",
-    prescribedOn: "25 Jan 2025", clinic: "Trustcare Clinic", department: "Cardiology",
-    consultationType: "Video", patientName: "Amit Singh", age: "28Y", gender: "Male",
-    blood: "O+ve", patientId: "PT0025", category: "Heart Rate Monitor",
-    medicines: [], advice: "Light cardio.", followUp: "25 Apr 2025",
-  },
-];
+  ];
 
+// ——— PATIENT PROFILE TYPE ————————————————————————————
+interface PatientProfile {
+    name: string;
+    id: string;
+    gender: string;
+    bloodGroup: string;
+}
+
+// ——— PAGE COMPONENT ——————————————————————————————————
 export default function PrescriptionsPage() {
-  const [selected, setSelected] = useState<Prescription | null>(null);
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("Recent");
+    const [search, setSearch] = useState("");
+    const [sort, setSort] = useState("Recent");
+    const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
+    const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(null);
+    const [profileLoading, setProfileLoading] = useState(true);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    const list = q
-      ? PRESCRIPTIONS.filter(
-          (p) =>
-            p.id.toLowerCase().includes(q) ||
-            p.doctorName.toLowerCase().includes(q) ||
-            p.specialty.toLowerCase().includes(q)
-        )
-      : [...PRESCRIPTIONS];
-    return sortBy === "Recent" ? list : list.reverse();
-  }, [search, sortBy]);
+  // Fetch the logged-in patient's own profile (for use in prescription detail)
+  useEffect(() => {
+        async function fetchProfile() {
+                try {
+                          const res = await fetch("/api/patient/me");
+                          if (res.ok) {
+                                      const data = await res.json();
+                                      setPatientProfile({
+                                                    name: data.name ?? data.firstName ?? "—",
+                                                    id: data.patientId ?? data.id ?? "—",
+                                                    gender: data.gender ?? "—",
+                                                    bloodGroup: data.bloodGroup ?? "—",
+                                      });
+                          }
+                } catch {
+                          // If profile fetch fails, we show placeholder text
+                } finally {
+                          setProfileLoading(false);
+                }
+        }
+        fetchProfile();
+  }, []);
 
-  if (selected) {
-    return (
-      <div className="p-8 flex flex-col gap-6 max-w-[1000px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="flex justify-between items-center">
-          <button 
-            onClick={() => setSelected(null)}
-            className="flex items-center gap-2 text-[#2E37A4] font-bold text-sm bg-white border border-[#EAECF0] px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-all shadow-sm"
-          >
-            <ChevronLeft size={18} />
-            Back to Prescriptions
-          </button>
-          <div className="flex items-center gap-3">
-             <button className="flex items-center gap-2 bg-white border border-[#EAECF0] rounded-lg px-4 py-2 text-sm font-bold text-[#141414] hover:bg-gray-50 transition-all shadow-sm">
-              <Share2 size={16} className="text-[#6C7688]" />
-              Share
-            </button>
-             <button className="flex items-center gap-2 bg-[#2E37A4] border-none rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-[#1e2570] transition-all shadow-sm">
-              <Download size={16} />
-              Download PDF
-            </button>
-          </div>
-        </div>
+  const filteredPrescriptions = useMemo(() => {
+        let result = [...MOCK_PRESCRIPTIONS];
+        if (search) {
+                result = result.filter(
+                          (p) =>
+                                      p.doctorName.toLowerCase().includes(search.toLowerCase()) ||
+                                      p.id.toLowerCase().includes(search.toLowerCase()) ||
+                                      p.category.toLowerCase().includes(search.toLowerCase())
+                        );
+        }
+        if (sort === "Recent") {
+                result = result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        }
+        return result;
+  }, [search, sort]);
 
-        <div className="bg-white rounded-2xl border border-[#EAECF0] overflow-hidden shadow-md">
-          {/* Prescription Header */}
-          <div className="p-8 border-b border-[#F2F4F7] bg-[#F9FAFB] flex justify-between items-start">
-            <div className="flex gap-6">
-              <div className="w-20 h-20 rounded-2xl bg-white p-2 shadow-sm border border-[#EAECF0] flex items-center justify-center">
-                 <div className="w-full h-full bg-[#2E37A4] rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-3xl">V</span>
-                 </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-black text-[#141414] tracking-tight">{selected.clinic}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                   <span className="text-sm font-bold text-[#2E37A4]">{selected.doctorName}</span>
-                   <span className="w-1 h-1 rounded-full bg-[#D1D5DD]" />
-                   <span className="text-sm font-bold text-[#6C7688]">{selected.specialty}</span>
-                </div>
-                <p className="text-xs font-bold text-[#98A2B3] mt-2 uppercase tracking-widest">{selected.department}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="bg-[#EEF0FF] text-[#2E37A4] text-xs font-black px-4 py-2 rounded-full inline-block shadow-sm">
-                ID: {selected.id}
-              </div>
-              <p className="text-xs font-bold text-[#6C7688] mt-4">Date: <span className="text-[#141414]">{selected.prescribedOn}</span></p>
-            </div>
-          </div>
-
-          <div className="p-8 flex flex-col gap-10">
-            {/* Patient & Consultation Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-               <div>
-                  <h3 className="text-[11px] font-black text-[#98A2B3] uppercase tracking-[0.2em] mb-4">Patient Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between border-b border-[#F2F4F7] pb-2">
-                      <span className="text-sm font-bold text-[#6C7688]">Name</span>
-                      <span className="text-sm font-bold text-[#141414]">{selected.patientName}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#F2F4F7] pb-2">
-                      <span className="text-sm font-bold text-[#6C7688]">ID / Gender</span>
-                      <span className="text-sm font-bold text-[#141414]">{selected.patientId} / {selected.gender}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#F2F4F7] pb-2">
-                      <span className="text-sm font-bold text-[#6C7688]">Blood Group</span>
-                      <span className="text-sm font-bold text-[#141414]">{selected.blood}</span>
-                    </div>
-                  </div>
-               </div>
-               <div>
-                  <h3 className="text-[11px] font-black text-[#98A2B3] uppercase tracking-[0.2em] mb-4">Consultation Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between border-b border-[#F2F4F7] pb-2">
-                      <span className="text-sm font-bold text-[#6C7688]">Type</span>
-                      <span className="text-sm font-bold text-[#2E37A4]">{selected.consultationType}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#F2F4F7] pb-2">
-                      <span className="text-sm font-bold text-[#6C7688]">Category</span>
-                      <span className="text-sm font-bold text-[#141414]">{selected.category}</span>
-                    </div>
-                  </div>
-               </div>
-            </div>
-
-            {/* Medication List */}
-            <div>
-              <h3 className="text-[11px] font-black text-[#98A2B3] uppercase tracking-[0.2em] mb-4">Prescribed Medication</h3>
-              <div className="border border-[#EAECF0] rounded-2xl overflow-hidden shadow-sm">
-                <table className="w-full border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-[#F9FAFB]">
-                      {["S.No", "Medicine", "Dosage", "Frequency", "Duration", "Timings"].map((h) => (
-                        <th key={h} className="px-5 py-4 text-left text-[#667085] font-black uppercase tracking-widest border-b border-[#EAECF0]">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#F2F4F7]">
-                    {selected.medicines.length > 0 ? selected.medicines.map((m, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4 font-bold text-[#6C7688]">{m.sno}</td>
-                        <td className="px-5 py-4 font-black text-[#141414] text-sm">{m.name}</td>
-                        <td className="px-5 py-4 font-bold text-[#141414]">{m.dosage}</td>
-                        <td className="px-5 py-4 font-bold text-[#2E37A4]">{m.frequency}</td>
-                        <td className="px-5 py-4 font-bold text-[#141414]">{m.duration}</td>
-                        <td className="px-5 py-4">
-                           <span className="bg-[#F2F4F7] text-[#6C7688] px-2.5 py-1 rounded-md font-bold">{m.timings}</span>
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={6} className="px-5 py-10 text-center text-sm font-bold text-[#98A2B3]">No medications prescribed.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Notes & Signatures */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               <div className="bg-[#F9FAFB] rounded-2xl p-6 border border-[#EAECF0]">
-                  <h4 className="text-sm font-black text-[#141414] mb-3 flex items-center gap-2">
-                    <Info size={16} className="text-[#2E37A4]" />
-                    Doctor's Advice
-                  </h4>
-                  <p className="text-sm text-[#6C7688] font-medium leading-relaxed">{selected.advice}</p>
-               </div>
-               <div className="flex flex-col justify-between items-end pr-4">
-                  <div className="text-right">
-                    <h4 className="text-sm font-black text-[#141414] mb-1">Follow Up Date</h4>
-                    <p className="text-sm font-bold text-[#F04438]">{selected.followUp}</p>
-                  </div>
-                  <div className="mt-12 text-center">
-                    <div className="w-48 h-1 bg-[#EAECF0] mb-3" />
-                    <p className="text-lg font-serif italic text-[#141414]">{selected.doctorName.replace("Dr. ", "")}</p>
-                    <p className="text-xs font-black text-[#2E37A4] uppercase tracking-widest">{selected.doctorName}</p>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-        <p className="text-center text-xs font-black text-[#98A2B3] opacity-60">Copyright © 2026 — Vyara Medical Systems.</p>
-      </div>
-    );
+  if (selectedPrescription) {
+        // Prescription Detail View - use logged-in patient's own data
+      const profile = patientProfile;
+        return (
+                <div className="p-6 max-w-4xl mx-auto">
+                  {/* Back button */}
+                        <button
+                                    onClick={() => setSelectedPrescription(null)}
+                                    className="flex items-center gap-2 text-sm text-indigo-600 hover:underline mb-4"
+                                  >
+                                  <ChevronLeft size={16} /> Back to Prescriptions
+                        </button>button>
+                
+                  {/* Header Actions */}
+                        <div className="flex justify-end gap-3 mb-4">
+                                  <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                                              <Share2 size={14} /> Share
+                                  </button>button>
+                                  <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+                                              <Download size={14} /> Download PDF
+                                  </button>button>
+                        </div>div>
+                
+                  {/* Prescription Card */}
+                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-6">
+                          {/* Clinic Header */}
+                                  <div className="flex items-start justify-between">
+                                              <div className="flex items-center gap-4">
+                                                            <div className="w-16 h-16 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                                                            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-300">V</span>span>
+                                                            </div>div>
+                                                            <div>
+                                                                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Vyara Clinic</h2>h2>
+                                                                            <p className="text-sm text-indigo-600">
+                                                                              {selectedPrescription.doctorName} • {selectedPrescription.specialty}
+                                                                            </p>p>
+                                                                            <p className="text-xs text-gray-500 uppercase tracking-wide mt-0.5">
+                                                                              {selectedPrescription.category}
+                                                                            </p>p>
+                                                            </div>div>
+                                              </div>div>
+                                              <div className="text-right">
+                                                            <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-medium">
+                                                                            ID: {selectedPrescription.id}
+                                                            </span>span>
+                                                            <p className="text-sm text-gray-500 mt-1">Date: {selectedPrescription.date}</p>p>
+                                              </div>div>
+                                  </div>div>
+                        
+                          {/* Patient Information — uses logged-in patient's own data */}
+                                  <div className="grid grid-cols-2 gap-6 border-t pt-4">
+                                              <div>
+                                                            <h3 className="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-3">
+                                                                            Patient Information
+                                                            </h3>h3>
+                                                {profileLoading ? (
+                                  <p className="text-sm text-gray-400">Loading patient info...</p>p>
+                                ) : (
+                                  <div className="space-y-2 text-sm">
+                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-500">Name</span>span>
+                                                                        <span className="font-medium text-gray-900 dark:text-white">
+                                                                          {profile?.name ?? "—"}
+                                                                        </span>span>
+                                                    </div>div>
+                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-500">ID / Gender</span>span>
+                                                                        <span className="font-medium text-gray-900 dark:text-white">
+                                                                          {profile?.id ?? "—"} / {profile?.gender ?? "—"}
+                                                                        </span>span>
+                                                    </div>div>
+                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-500">Blood Group</span>span>
+                                                                        <span className="font-medium text-gray-900 dark:text-white">
+                                                                          {profile?.bloodGroup ?? "—"}
+                                                                        </span>span>
+                                                    </div>div>
+                                  </div>div>
+                                                            )}
+                                              </div>div>
+                                              <div>
+                                                            <h3 className="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-3">
+                                                                            Consultation Details
+                                                            </h3>h3>
+                                                            <div className="space-y-2 text-sm">
+                                                                            <div className="flex justify-between">
+                                                                                              <span className="text-gray-500">Type</span>span>
+                                                                                              <span className="font-medium text-indigo-600">
+                                                                                                {selectedPrescription.consultationType ?? "—"}
+                                                                                                </span>span>
+                                                                            </div>div>
+                                                                            <div className="flex justify-between">
+                                                                                              <span className="text-gray-500">Category</span>span>
+                                                                                              <span className="font-medium text-gray-900 dark:text-white">
+                                                                                                {selectedPrescription.category}
+                                                                                                </span>span>
+                                                                            </div>div>
+                                                            </div>div>
+                                              </div>div>
+                                  </div>div>
+                        
+                          {/* Medicines */}
+                          {selectedPrescription.medicines && selectedPrescription.medicines.length > 0 && (
+                              <div className="border-t pt-4">
+                                            <h3 className="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-3">
+                                                            Prescribed Medication
+                                            </h3>h3>
+                                            <table className="w-full text-sm">
+                                                            <thead className="bg-gray-50 dark:bg-gray-700 text-xs text-gray-500 uppercase">
+                                                                              <tr>
+                                                                                                  <th className="px-3 py-2 text-left">S.No</th>th>
+                                                                                                  <th className="px-3 py-2 text-left">Medicine</th>th>
+                                                                                                  <th className="px-3 py-2 text-left">Dosage</th>th>
+                                                                                                  <th className="px-3 py-2 text-left">Frequency</th>th>
+                                                                                                  <th className="px-3 py-2 text-left">Duration</th>th>
+                                                                                                  <th className="px-3 py-2 text-left">Timings</th>th>
+                                                                              </tr>tr>
+                                                            </thead>thead>
+                                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                                              {selectedPrescription.medicines.map((med) => (
+                                                    <tr key={med.sno}>
+                                                                          <td className="px-3 py-2">{med.sno}</td>td>
+                                                                          <td className="px-3 py-2 font-medium">{med.name}</td>td>
+                                                                          <td className="px-3 py-2">{med.dosage}</td>td>
+                                                                          <td className="px-3 py-2">{med.frequency}</td>td>
+                                                                          <td className="px-3 py-2">{med.duration}</td>td>
+                                                                          <td className="px-3 py-2">
+                                                                                                  <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">{med.timings}</span>span>
+                                                                          </td>td>
+                                                    </tr>tr>
+                                                  ))}
+                                                            </tbody>tbody>
+                                            </table>table>
+                              </div>div>
+                                  )}
+                        
+                          {/* Follow Up */}
+                          {selectedPrescription.followUpDate && (
+                              <div className="border-t pt-4 flex items-center gap-2 text-sm text-gray-600">
+                                            <Calendar size={14} />
+                                            <span>Follow Up Date: <strong>{selectedPrescription.followUpDate}</strong>strong></span>span>
+                              </div>div>
+                                  )}
+                        </div>div>
+                </div>div>
+              );
   }
-
-  return (
-    <div className="p-8 flex flex-col gap-8 max-w-[1600px] mx-auto animate-in fade-in duration-500">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-[#141414]">Prescription</h1>
-        <div className="flex items-center gap-3">
-           <button className="flex items-center gap-2 border border-[#EAECF0] rounded-lg px-4 py-2.5 bg-white text-sm font-bold text-[#141414] hover:bg-gray-50 transition-all shadow-sm">
-            <Download size={18} className="text-[#6C7688]" />
-            Export
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-[#EAECF0] overflow-hidden shadow-sm">
-        {/* Table Header / Filters */}
-        <div className="p-5 flex items-center justify-between border-b border-[#F2F4F7] flex-wrap gap-4">
-          <div className="flex items-center gap-3 w-96 h-11 border border-[#EAECF0] rounded-xl px-4 bg-[#F9FAFB] focus-within:bg-white focus-within:border-[#2E37A4] focus-within:ring-4 focus-within:ring-[#EEF0FF] transition-all">
-            <Search className="w-5 h-5 text-[#98A2B3]" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)} 
-              className="border-none outline-none text-sm text-[#141414] bg-transparent w-full font-medium" 
-            />
-          </div>
-          <div className="flex items-center gap-3">
-             <button className="flex items-center gap-2 h-11 border border-[#EAECF0] rounded-xl px-5 bg-white text-sm font-bold text-[#141414] hover:bg-gray-50 transition-all shadow-sm">
-              <Filter size={18} className="text-[#6C7688]" />
-              Filters
-            </button>
-             <button 
-              className="flex items-center gap-2 h-11 border border-[#EAECF0] rounded-xl px-5 bg-white text-sm font-bold text-[#141414] hover:bg-gray-50 transition-all shadow-sm"
-              onClick={() => setSortBy(sortBy === "Recent" ? "Oldest" : "Recent")}
-            >
-              Sort By: <span className="text-[#2E37A4]">{sortBy}</span>
-              <ChevronDown size={18} className="text-[#6C7688]" />
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-[#F9FAFB]">
-                <th className="px-6 py-5 text-left text-[#667085] font-black text-xs uppercase tracking-[0.2em] border-b border-[#F2F4F7]">Prescription ID</th>
-                <th className="px-6 py-5 text-left text-[#667085] font-black text-xs uppercase tracking-[0.2em] border-b border-[#F2F4F7]">Doctor Name</th>
-                <th className="px-6 py-5 text-left text-[#667085] font-black text-xs uppercase tracking-[0.2em] border-b border-[#F2F4F7]">Prescribed On</th>
-                <th className="px-6 py-5 text-right border-b border-[#F2F4F7]"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2F4F7]">
-              {filtered.map((p) => (
-                <tr 
-                  key={p.id} 
-                  className="hover:bg-[#F9FAFB] transition-all cursor-pointer group"
-                  onClick={() => setSelected(p)}
-                >
-                  <td className="px-6 py-5 font-black text-[#2E37A4]">{p.id}</td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-11 h-11 rounded-full overflow-hidden relative border-2 border-white shadow-sm group-hover:border-[#EEF0FF] transition-all">
-                        <img src={p.avatar} alt={p.doctorName} className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <p className="m-0 font-bold text-[#141414] group-hover:text-[#2E37A4] transition-colors">{p.doctorName}</p>
-                        <p className="m-0 text-xs text-[#6C7688] font-bold">{p.specialty}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 text-[#141414] font-bold">{p.prescribedOn}</td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#98A2B3] group-hover:bg-white group-hover:text-[#2E37A4] transition-all group-hover:shadow-sm">
-                          <Info size={18} />
-                       </div>
-                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#98A2B3] hover:bg-white transition-all hover:shadow-sm">
-                          <MoreVertical size={18} />
-                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination placeholder to match Figma feel */}
-        <div className="p-5 border-t border-[#F2F4F7] flex justify-between items-center bg-[#F9FAFB]">
-           <span className="text-xs font-bold text-[#6C7688]">Row Per Page <span className="text-[#141414] ml-1">10 ▾</span> Entries</span>
-           <div className="flex gap-2">
-              <button className="w-8 h-8 rounded border border-[#EAECF0] bg-white flex items-center justify-center text-[#6C7688] hover:bg-gray-50">1</button>
-              <button className="w-8 h-8 rounded border border-transparent bg-[#2E37A4] text-white flex items-center justify-center shadow-sm">2</button>
-              <button className="w-8 h-8 rounded border border-[#EAECF0] bg-white flex items-center justify-center text-[#6C7688] hover:bg-gray-50">→</button>
-           </div>
-        </div>
-      </div>
-      <p className="text-center text-xs font-bold text-[#98A2B3] mt-auto py-10 opacity-60">Copyright © 2026 — Vyara Medical Systems.</p>
-    </div>
-  );
-}
+  
+    // ——— PRESCRIPTION LIST VIEW ————————————————————————
+    return (
+          <div className="p-6 space-y-4">
+            {/* Header */}
+                <div className="flex items-center justify-between">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Prescription</h1>h1>
+                        <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                                  <Download size={14} /> Export
+                        </button>button>
+                </div>div>
+          
+            {/* Search and Filters */}
+                <div className="flex gap-3 items-center">
+                        <div className="relative flex-1">
+                                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                  <input
+                                                type="text"
+                                                placeholder="Search..."
+                                                value={search}
+                                                onChange={(e) => setSearch(e.target.value)}
+                                                className="w-full pl-9 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                              />
+                        </div>div>
+                        <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                                  <Filter size={14} /> Filters
+                        </button>button>
+                        <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-50"
+                                    onClick={() => setSort(sort === "Recent" ? "Oldest" : "Recent")}>
+                                  Sort By: {sort} <ChevronDown size={14} />
+                        </div>div>
+                </div>div>
+          
+            {/* Table */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <table className="w-full text-sm">
+                                  <thead className="bg-gray-50 dark:bg-gray-700 text-xs text-gray-500 uppercase tracking-wide">
+                                              <tr>
+                                                            <th className="px-4 py-3 text-left">Prescription ID</th>th>
+                                                            <th className="px-4 py-3 text-left">Doctor Name</th>th>
+                                                            <th className="px-4 py-3 text-left">Prescribed On</th>th>
+                                                            <th className="px-4 py-3 text-right">Actions</th>th>
+                                              </tr>tr>
+                                  </thead>thead>
+                                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                    {filteredPrescriptions.map((p) => (
+                          <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-750">
+                                          <td className="px-4 py-3">
+                                                            <span className="font-medium text-indigo-600">{p.id}</span>span>
+                                          </td>td>
+                                          <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700">
+                                                                                  {p.doctorName.replace("Dr. ", "").split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                                                                                  </div>div>
+                                                                                <div>
+                                                                                                      <p className="font-medium text-gray-900 dark:text-white">{p.doctorName}</p>p>
+                                                                                                      <p className="text-xs text-indigo-600">{p.specialty}</p>p>
+                                                                                  </div>div>
+                                                            </div>div>
+                                          </td>td>
+                                          <td className="px-4 py-3 text-gray-500">{p.date}</td>td>
+                                          <td className="px-4 py-3">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                                <button
+                                                                                                        onClick={() => setSelectedPrescription(p)}
+                                                                                                        className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700"
+                                                                                                        title="View prescription"
+                                                                                                      >
+                                                                                                      <Info size={16} />
+                                                                                  </button>button>
+                                                                                <button className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700">
+                                                                                                      <MoreVertical size={16} />
+                                                                                  </button>button>
+                                                            </div>div>
+                                          </td>td>
+                          </tr>tr>
+                        ))}
+                                  </tbody>tbody>
+                        </table>table>
+                  {filteredPrescriptions.length === 0 && (
+                      <div className="text-center py-12 text-gray-500">No prescriptions found.</div>div>
+                        )}
+                </div>div>
+          </div>div>
+        );
+}</div>
