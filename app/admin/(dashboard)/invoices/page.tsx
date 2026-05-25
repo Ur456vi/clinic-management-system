@@ -1,246 +1,222 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+/**
+ * Invoices list — real fetch from /api/invoices.
+ *
+ * Drops the previous hardcoded array of mock "Sumit Mittal" /
+ * "Akanksha Jain" invoices. Status filter maps to the InvoiceStatus
+ * enum; amounts use Intl.NumberFormat for proper currency rendering.
+ */
+
 import Link from "next/link"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Search,
-  Filter,
-  MoreVertical,
-  Eye,
-  Printer,
+  AlertCircle,
   CheckCircle2,
+  Eye,
+  FileText,
+  Filter,
+  Loader2,
+  MoreVertical,
+  Printer,
+  Search,
 } from "lucide-react"
-import { notify } from "@/lib/notify"
 
-// Seed list — diversified patient + email columns (the previous all-
-// "Sumit Mittal" / "sumit1@gmail.com" rows tripped BUG-032), and the
-// "-" sentinel in dueDate has been replaced with a computed due date
-// (BUG-034 — pending and partially-paid invoices should always have one,
-// paid ones can fall back to the invoice date).
-type Invoice = {
+import { Button } from "@/components/ui/button"
+
+type Status = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+
+interface InvoiceRow {
   id: string
-  patient: string
-  email: string
-  amount: string
-  status: "Paid" | "Pending Payment" | "Partially Paid"
-  dueDate: string
-  date: string
+  invoiceNumber: string
+  status: Status
+  totalCents: number
+  paidCents: number
+  currency: string
+  issuedAt: string
+  dueAt: string | null
+  patient: {
+    id: string
+    patientNumber: string
+    fullName: string
+    email: string | null
+  } | null
+  createdAt: string
 }
 
-const invoices: Invoice[] = [
-  { id: "INV-202604-000041", patient: "Sumit Mittal",     email: "sumit.mittal@example.com",     amount: "$400.30", status: "Paid",            dueDate: "Apr 2, 2026",  date: "Apr 2, 2026" },
-  { id: "INV-202604-000040", patient: "Akanksha Jain",    email: "akanksha.jain@example.com",    amount: "$400.30", status: "Pending Payment", dueDate: "Apr 16, 2026", date: "Apr 2, 2026" },
-  { id: "INV-202604-000039", patient: "Sonali Mittal",    email: "sonali.mittal@example.com",    amount: "$900.00", status: "Pending Payment", dueDate: "Apr 25, 2026", date: "Apr 2, 2026" },
-  { id: "INV-202604-000038", patient: "Tarun Gupta",      email: "tarun.gupta@example.com",      amount: "$900.00", status: "Paid",            dueDate: "Apr 1, 2026",  date: "Apr 1, 2026" },
-  { id: "INV-202604-000037", patient: "Sarita Jain",      email: "sarita.jain@example.com",      amount: "$900.00", status: "Paid",            dueDate: "Apr 1, 2026",  date: "Apr 1, 2026" },
-  { id: "INV-202603-000036", patient: "Nilesh Arora",     email: "nilesh.arora@example.com",     amount: "$400.30", status: "Pending Payment", dueDate: "Apr 14, 2026", date: "Mar 31, 2026" },
-  { id: "INV-202603-000035", patient: "Rakshita Gupta",   email: "rakshita.gupta@example.com",   amount: "$400.30", status: "Partially Paid", dueDate: "Apr 14, 2026", date: "Mar 31, 2026" },
-  { id: "INV-202603-000034", patient: "Amit Singh",       email: "amit.singh@example.com",       amount: "$500.00", status: "Pending Payment", dueDate: "Apr 13, 2026", date: "Mar 30, 2026" },
-  { id: "INV-202603-000033", patient: "Neha Sharma",      email: "neha.sharma@example.com",      amount: "$0.30",   status: "Paid",            dueDate: "Mar 29, 2026", date: "Mar 29, 2026" },
-  { id: "INV-202603-000032", patient: "Priya Singh",      email: "priya.singh@example.com",      amount: "$400.00", status: "Paid",            dueDate: "Mar 26, 2026", date: "Mar 26, 2026" },
-  { id: "INV-202603-000031", patient: "Rajesh Verma",     email: "rajesh.verma@example.com",     amount: "$500.00", status: "Partially Paid", dueDate: "Apr 9, 2026",  date: "Mar 26, 2026" },
-  { id: "INV-202603-000030", patient: "Anita Kapoor",     email: "anita.kapoor@example.com",     amount: "$418.30", status: "Paid",            dueDate: "Mar 24, 2026", date: "Mar 24, 2026" },
-  { id: "INV-202603-000029", patient: "Vikram Mehta",     email: "vikram.mehta@example.com",     amount: "$900.00", status: "Partially Paid", dueDate: "Mar 19, 2026", date: "Mar 19, 2026" },
+const STATUS_FILTERS: { label: string; value: Status | "ALL" }[] = [
+  { label: "All statuses", value: "ALL" },
+  { label: "Draft", value: "DRAFT" },
+  { label: "Open", value: "OPEN" },
+  { label: "Partially paid", value: "PARTIALLY_PAID" },
+  { label: "Paid", value: "PAID" },
+  { label: "Void", value: "VOID" },
 ]
 
 export default function InvoicesPage() {
   const router = useRouter()
-  const [showFilter, setShowFilter] = useState(false)
-  const [statusFilter, setStatusFilter] = useState("All Status")
-  const [query, setQuery] = useState("")
+  const [rows, setRows] = useState<InvoiceRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return invoices.filter((inv) => {
-      const matchStatus = statusFilter === "All Status" || inv.status === statusFilter
-      const matchQuery =
-        !q ||
-        inv.id.toLowerCase().includes(q) ||
-        inv.patient.toLowerCase().includes(q) ||
-        inv.email.toLowerCase().includes(q)
-      return matchStatus && matchQuery
-    })
-  }, [query, statusFilter])
-
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Paid":
-        return "bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]"
-      case "Pending Payment":
-        return "bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]"
-      case "Partially Paid":
-        return "bg-[#EFF8FF] text-[#175CD3] border-[#B2DDFF]"
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200"
+  const fetchInvoices = useCallback(async () => {
+    setError(null)
+    try {
+      const url = new URL("/api/invoices", window.location.origin)
+      if (statusFilter !== "ALL") url.searchParams.set("status", statusFilter)
+      url.searchParams.set("limit", "100")
+      const res = await fetch(url.toString(), { credentials: "include" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const items: InvoiceRow[] =
+        json?.items ?? json?.data?.items ?? json?.data ?? []
+      setRows(items)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load invoices")
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [statusFilter])
 
-  const handleView = (id: string) => router.push(`/admin/invoices/${id}`)
-  const handlePrint = (id: string) => {
-    setOpenMenu(null)
-    notify.info("Opening print preview", { description: id })
-    // Defer to the browser print dialog. The actual invoice template
-    // lives on the detail route — open that first, then print.
-    router.push(`/admin/invoices/${id}?print=1`)
-  }
-  const handleMarkPaid = (id: string) => {
-    setOpenMenu(null)
-    notify.success("Invoice marked paid", { description: id })
-  }
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    void fetchInvoices()
+  }, [fetchInvoices])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (!openMenu) return
+    const close = () => setOpenMenu(null)
+    window.addEventListener("click", close)
+    return () => window.removeEventListener("click", close)
+  }, [openMenu])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter(
+      (r) =>
+        r.invoiceNumber.toLowerCase().includes(q) ||
+        r.patient?.fullName.toLowerCase().includes(q) ||
+        r.patient?.email?.toLowerCase().includes(q) ||
+        r.patient?.patientNumber.toLowerCase().includes(q),
+    )
+  }, [rows, search])
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#101828]">Invoices</h1>
-        <p className="text-sm text-[#667085] mt-1">Manage invoices and payments</p>
+    <div className="flex flex-col gap-6 max-w-[1400px]">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[#101828]">Invoices</h1>
+          <p className="text-sm text-[#667085] mt-1">
+            Billing records — issued, paid, partially paid and outstanding.
+          </p>
+        </div>
+        <Link href="/admin/invoices/add">
+          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
+            New Invoice
+          </Button>
+        </Link>
       </div>
 
-      {/* Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1 max-w-md relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-[#667085]" />
-          </div>
+      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
+        <div className="flex-1 min-w-[260px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
           <input
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by invoice number, patient name..."
-            className="block w-full pl-11 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all shadow-sm"
+            placeholder="Search by invoice #, patient name, or email…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </div>
-
         <div className="relative">
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm font-semibold text-[#344054] hover:bg-gray-50 transition-all shadow-sm min-w-[140px] justify-between"
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
+            className="pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           >
-            <span>{statusFilter}</span>
-            <Filter className="h-4 w-4 text-[#667085]" />
-          </button>
-
-          {showFilter && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EAECF0] rounded-xl shadow-lg z-50 py-1">
-              {["All Status", "Pending Payment", "Partially Paid", "Paid"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => {
-                    setStatusFilter(status)
-                    setShowFilter(false)
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] transition-colors"
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-          )}
+            {STATUS_FILTERS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
+        {!loading && !error ? (
+          <span className="text-sm text-[#667085]">
+            {filtered.length} invoice{filtered.length === 1 ? "" : "s"}
+          </span>
+        ) : null}
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-[#EAECF0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0]">
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Invoice #</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Patient</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Due Date</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">
-                  <span className="sr-only">Actions</span>
-                </th>
+              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0] text-xs text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 font-semibold">Invoice</th>
+                <th className="px-6 py-3 font-semibold">Patient</th>
+                <th className="px-6 py-3 font-semibold">Amount</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Issued</th>
+                <th className="px-6 py-3 font-semibold">Due</th>
+                <th className="px-6 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAECF0]">
-              {filtered.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-10 text-center text-sm text-[#667085]">
-                    No invoices match your search.
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-[#667085]">
+                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+                      <p className="text-sm font-medium">Loading invoices…</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <AlertCircle className="h-7 w-7 text-[#D92D20]" />
+                      <p className="text-sm font-semibold text-[#B42318]">
+                        Couldn&apos;t load invoices
+                      </p>
+                      <p className="text-xs text-[#667085] max-w-md">{error}</p>
+                      <Button variant="outline" onClick={() => void fetchInvoices()}>
+                        Retry
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center text-[#667085] gap-3">
+                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-[#2E37A4]" />
+                      </div>
+                      <p className="text-sm font-semibold text-[#101828]">No invoices yet</p>
+                      <p className="text-xs max-w-sm">
+                        New billing records will appear here. Adjust the status filter to widen your search.
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                filtered.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#101828]">
-                      <Link href={`/admin/invoices/${invoice.id}`} className="hover:text-[#2E37A4] transition-colors">
-                        {invoice.id}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-[#101828]">{invoice.patient}</span>
-                        <span className="text-xs text-[#667085]">{invoice.email}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#101828]">
-                      {invoice.amount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(invoice.status)}`}>
-                        <div className="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></div>
-                        {invoice.status}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#667085]">
-                      {invoice.dueDate}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#667085]">
-                      {invoice.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right relative">
-                      <button
-                        aria-label="More actions"
-                        aria-haspopup="menu"
-                        aria-expanded={openMenu === invoice.id}
-                        onClick={() =>
-                          setOpenMenu((cur) => (cur === invoice.id ? null : invoice.id))
-                        }
-                        className="text-[#98A2B3] hover:text-[#667085] transition-colors"
-                      >
-                        <MoreVertical className="h-5 w-5" />
-                      </button>
-                      {openMenu === invoice.id ? (
-                        <div
-                          role="menu"
-                          className="absolute right-6 top-12 z-30 w-44 bg-white border border-[#EAECF0] rounded-lg shadow-lg py-1 text-left"
-                        >
-                          <button
-                            role="menuitem"
-                            onClick={() => {
-                              setOpenMenu(null)
-                              handleView(invoice.id)
-                            }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
-                          >
-                            <Eye className="h-4 w-4" /> View invoice
-                          </button>
-                          <button
-                            role="menuitem"
-                            onClick={() => handlePrint(invoice.id)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
-                          >
-                            <Printer className="h-4 w-4" /> Print
-                          </button>
-                          {invoice.status !== "Paid" ? (
-                            <button
-                              role="menuitem"
-                              onClick={() => handleMarkPaid(invoice.id)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#027A48] hover:bg-[#ECFDF3]"
-                            >
-                              <CheckCircle2 className="h-4 w-4" /> Mark as paid
-                            </button>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </td>
-                  </tr>
+                filtered.map((row) => (
+                  <InvoiceRowItem
+                    key={row.id}
+                    row={row}
+                    openMenu={openMenu}
+                    setOpenMenu={setOpenMenu}
+                    onView={(id) => router.push(`/admin/invoices/${id}`)}
+                  />
                 ))
               )}
             </tbody>
@@ -249,4 +225,147 @@ export default function InvoicesPage() {
       </div>
     </div>
   )
+}
+
+function InvoiceRowItem({
+  row,
+  openMenu,
+  setOpenMenu,
+  onView,
+}: {
+  row: InvoiceRow
+  openMenu: string | null
+  setOpenMenu: (v: string | null) => void
+  onView: (id: string) => void
+}) {
+  const isMenuOpen = openMenu === row.id
+  return (
+    <tr className="hover:bg-[#F9FAFB] transition-colors">
+      <td className="px-6 py-4">
+        <Link
+          href={`/admin/invoices/${row.id}`}
+          className="text-sm font-semibold text-[#2E37A4] hover:underline"
+        >
+          {row.invoiceNumber}
+        </Link>
+        <p className="text-[10px] text-[#98A2B3] font-mono mt-0.5">{row.id}</p>
+      </td>
+      <td className="px-6 py-4">
+        {row.patient ? (
+          <div>
+            <Link
+              href={`/admin/patients/${row.patient.id}`}
+              className="text-sm font-medium text-[#101828] hover:text-[#2E37A4]"
+            >
+              {row.patient.fullName}
+            </Link>
+            <p className="text-xs text-[#667085]">
+              #{row.patient.patientNumber}
+              {row.patient.email ? ` · ${row.patient.email}` : ""}
+            </p>
+          </div>
+        ) : (
+          <span className="text-sm text-[#98A2B3]">—</span>
+        )}
+      </td>
+      <td className="px-6 py-4">
+        <p className="text-sm font-bold text-[#101828]">
+          {formatMoney(row.totalCents, row.currency)}
+        </p>
+        {row.paidCents > 0 && row.paidCents < row.totalCents ? (
+          <p className="text-xs text-[#027A48]">
+            Paid {formatMoney(row.paidCents, row.currency)}
+          </p>
+        ) : null}
+      </td>
+      <td className="px-6 py-4">
+        <StatusPill status={row.status} />
+      </td>
+      <td className="px-6 py-4 text-sm text-[#667085]">
+        {new Date(row.issuedAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
+      </td>
+      <td className="px-6 py-4 text-sm text-[#667085]">
+        {row.dueAt
+          ? new Date(row.dueAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "—"}
+      </td>
+      <td className="px-6 py-4 text-right relative">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpenMenu(isMenuOpen ? null : row.id)
+          }}
+          className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
+          aria-label="Open actions menu"
+        >
+          <MoreVertical className="h-5 w-5" />
+        </button>
+        {isMenuOpen ? (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-10"
+          >
+            <div className="py-1">
+              <button
+                type="button"
+                onClick={() => onView(row.id)}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
+              >
+                <Eye className="h-4 w-4" /> View
+              </button>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
+              >
+                <Printer className="h-4 w-4" /> Print
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </td>
+    </tr>
+  )
+}
+
+function StatusPill({ status }: { status: Status }) {
+  const map: Record<Status, { bg: string; fg: string; label: string; Icon?: typeof CheckCircle2 }> = {
+    DRAFT: { bg: "#F2F4F7", fg: "#344054", label: "Draft" },
+    OPEN: { bg: "#EFF8FF", fg: "#175CD3", label: "Open" },
+    PARTIALLY_PAID: { bg: "#FFF1D6", fg: "#B5642A", label: "Partially Paid" },
+    PAID: { bg: "#ECFDF3", fg: "#027A48", label: "Paid", Icon: CheckCircle2 },
+    VOID: { bg: "#FEF3F2", fg: "#B42318", label: "Void" },
+  }
+  const c = map[status] ?? map.OPEN
+  const Icon = c.Icon
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ background: c.bg, color: c.fg }}
+    >
+      {Icon ? <Icon className="h-3 w-3" /> : null}
+      {c.label}
+    </span>
+  )
+}
+
+function formatMoney(cents: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: currency || "INR",
+      maximumFractionDigits: 2,
+    }).format(cents / 100)
+  } catch {
+    return `${currency} ${(cents / 100).toFixed(2)}`
+  }
 }

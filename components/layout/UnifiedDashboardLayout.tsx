@@ -6,6 +6,8 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { UserMenu, type UserMenuItem } from "@/components/ui/UserMenu"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
+import { NotificationBell } from "@/components/ui/NotificationBell"
 import {
   LayoutDashboard,
   Users,
@@ -20,9 +22,6 @@ import {
   FileSignature,
   ClipboardCheck,
   User,
-  Search,
-  Moon,
-  Bell,
   CalendarCheck2,
   ChevronsLeft,
 } from "lucide-react"
@@ -150,32 +149,22 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="h-[72px] bg-white border-b border-[#EAECF0] px-8 flex items-center justify-between flex-shrink-0">
-          <div className="relative w-[400px]">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-[#667085]" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="block w-full pl-11 pr-3 py-2 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-            />
-          </div>
-
+        {/* Top Header — the global search will be wired up when the
+            search API lands; until then it would be misleading, so the
+            slot is intentionally empty. The Moon and Bell buttons used
+            to be decorative; they're now backed by ThemeToggle and
+            NotificationBell, which have real handlers + a real feed. */}
+        <header className="h-[72px] bg-white border-b border-[#EAECF0] px-8 flex items-center justify-end flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 border-r border-[#EAECF0] pr-4 mr-2">
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors">
-                <Moon className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              <ThemeToggle className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors" />
+              <NotificationBell
+                buttonClassName="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative"
+                iconClassName="h-5 w-5"
+              />
             </div>
-            
-            <UserMenu items={menuItems} signOutRedirect="/login" />
 
+            <UserMenu items={menuItems} signOutRedirect="/login" />
           </div>
         </header>
 

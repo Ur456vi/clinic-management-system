@@ -1,200 +1,254 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+/**
+ * Staff list — real fetch from /api/staff.
+ *
+ * The previous version shipped a hardcoded array of "Sumit Mittal" /
+ * "Akanksha Jain" etc. with `@vyara.health` mock emails. This rewrite
+ * fetches the live list, supports a role filter + free-text search, and
+ * uses the same loading / error / empty / row-action shape as the
+ * appointments rewrite for consistency.
+ */
+
 import Link from "next/link"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Search,
-  Plus,
+  AlertCircle,
   Eye,
-  Pencil,
+  Loader2,
   MoreVertical,
-  User,
+  Pencil,
+  Plus,
+  Search,
   Trash2,
+  UserPlus,
 } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 
-// Seed list — replaced the 6 identical "Sumit Mittal" rows with a
-// realistic mixed roster so QA can actually tell rows apart.
-type StaffMember = { id: string; name: string; email: string; role: string; created: string }
+type Role =
+  | "ADMIN"
+  | "DOCTOR"
+  | "RMO"
+  | "RECEPTION"
+  | "INFUSION_SPECIALIST"
+  | "REHAB_SPECIALIST"
+  | "AESTHETICS_SPECIALIST"
 
-const staffMembers: StaffMember[] = [
-  { id: "STF-1006", name: "Sumit Mittal",     email: "sumit.mittal@vyara.health",     role: "Reception",          created: "26/2/2026" },
-  { id: "STF-1005", name: "Akanksha Jain",    email: "akanksha.jain@vyara.health",    role: "Doctor",             created: "17/2/2026" },
-  { id: "STF-1004", name: "Federico Birri",   email: "federico.birri@vyara.health",   role: "Doctor",             created: "14/2/2026" },
-  { id: "STF-1003", name: "Sonali Mittal",    email: "sonali.mittal@vyara.health",    role: "RMO",                created: "30/1/2026" },
-  { id: "STF-1002", name: "Simran Goel",      email: "simran.goel@vyara.health",      role: "Infusion specialist", created: "29/1/2026" },
-  { id: "STF-1001", name: "Yuvraj Singh",     email: "yuvraj.singh@vyara.health",     role: "Doctor",             created: "22/1/2026" },
+const ROLE_LABEL: Record<Role, string> = {
+  ADMIN: "Admin",
+  DOCTOR: "Doctor",
+  RMO: "RMO",
+  RECEPTION: "Reception",
+  INFUSION_SPECIALIST: "Infusion Specialist",
+  REHAB_SPECIALIST: "Rehab Specialist",
+  AESTHETICS_SPECIALIST: "Aesthetics Specialist",
+}
+
+const ROLE_FILTERS: { label: string; value: Role | "ALL" }[] = [
+  { label: "All roles", value: "ALL" },
+  ...(Object.keys(ROLE_LABEL) as Role[]).map((r) => ({
+    label: ROLE_LABEL[r],
+    value: r,
+  })),
 ]
+
+interface StaffMember {
+  id: string
+  fullName: string
+  email: string
+  role: Role
+  phone: string | null
+  specialization: string | null
+  department: { id: string; name: string } | null
+  createdAt: string
+}
 
 export default function StaffPage() {
   const router = useRouter()
-  const [query, setQuery] = useState("")
+  const [rows, setRows] = useState<StaffMember[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [roleFilter, setRoleFilter] = useState<Role | "ALL">("ALL")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return staffMembers
-    return staffMembers.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.email.toLowerCase().includes(q) ||
-        s.role.toLowerCase().includes(q),
-    )
-  }, [query])
+  const fetchStaff = useCallback(async () => {
+    setError(null)
+    try {
+      const url = new URL("/api/staff", window.location.origin)
+      if (roleFilter !== "ALL") url.searchParams.set("role", roleFilter)
+      url.searchParams.set("limit", "100")
+      const res = await fetch(url.toString(), { credentials: "include" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const items: StaffMember[] = json?.data ?? json?.items ?? []
+      // Some service responses include the User shape under .user — surface
+      // email + role straight off the row by flattening if needed.
+      setRows(
+        items.map((r) => ({
+          id: r.id,
+          fullName: r.fullName,
+          email: r.email,
+          role: r.role,
+          phone: r.phone ?? null,
+          specialization: r.specialization ?? null,
+          department: r.department ?? null,
+          createdAt: r.createdAt,
+        })),
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load staff")
+    } finally {
+      setLoading(false)
+    }
+  }, [roleFilter])
 
-  const handleDetails = (id: string) => router.push(`/admin/staff/${id}`)
-  const handleEdit = (id: string) => router.push(`/admin/staff/${id}?edit=1`)
-  const handleDeactivate = (id: string) => {
-    setOpenMenu(null)
-    notify.success("Staff deactivated", { description: `Deactivated ${id}` })
-  }
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    void fetchStaff()
+  }, [fetchStaff])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Close action menus on outside click
+  useEffect(() => {
+    if (!openMenu) return
+    const close = () => setOpenMenu(null)
+    window.addEventListener("click", close)
+    return () => window.removeEventListener("click", close)
+  }, [openMenu])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter(
+      (r) =>
+        r.fullName.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q) ||
+        (r.specialization ?? "").toLowerCase().includes(q) ||
+        (r.department?.name ?? "").toLowerCase().includes(q),
+    )
+  }, [rows, search])
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#101828]">Staff Members</h1>
-        <p className="text-sm text-[#667085] mt-1">Manage staff member accounts</p>
-      </div>
-
-      {/* Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-[#667085]" />
-            </div>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search staff members by name or email..."
-              className="block w-full pl-11 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-            />
-          </div>
-          <div className="bg-[#F2F4F7] text-[#344054] text-xs font-medium px-3 py-1.5 rounded-full">
-            {filtered.length} staff members
-          </div>
+    <div className="flex flex-col gap-6 max-w-[1400px]">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[#101828]">Staff</h1>
+          <p className="text-sm text-[#667085] mt-1">
+            Clinic users — doctors, RMOs, reception, and specialists.
+          </p>
         </div>
-
         <Link href="/admin/staff/add">
-          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold shadow-sm">
-            <Plus className="h-5 w-5" />
-            <span>Add Staff Member</span>
+          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Add Staff Member
           </Button>
         </Link>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
+      {/* Filter row */}
+      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
+        <div className="flex-1 min-w-[260px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name, email, specialization or department…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          />
+        </div>
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value as Role | "ALL")}
+          className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+        >
+          {ROLE_FILTERS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {!loading && !error ? (
+          <span className="text-sm text-[#667085]">
+            {filtered.length} member{filtered.length === 1 ? "" : "s"}
+          </span>
+        ) : null}
+      </div>
+
+      {/* Body */}
+      <div className="bg-white border border-[#EAECF0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0]">
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Staff Member</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Created</th>
-                <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase tracking-wider">Actions</th>
+              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0] text-xs text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 font-semibold">Member</th>
+                <th className="px-6 py-3 font-semibold">Role</th>
+                <th className="px-6 py-3 font-semibold">Contact</th>
+                <th className="px-6 py-3 font-semibold">Department</th>
+                <th className="px-6 py-3 font-semibold">Created</th>
+                <th className="px-6 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAECF0]">
-              {filtered.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-sm text-[#667085]">
-                    No staff members match your search.
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-[#667085]">
+                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+                      <p className="text-sm font-medium">Loading staff…</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <AlertCircle className="h-7 w-7 text-[#D92D20]" />
+                      <p className="text-sm font-semibold text-[#B42318]">
+                        Couldn&apos;t load staff
+                      </p>
+                      <p className="text-xs text-[#667085] max-w-md">{error}</p>
+                      <Button variant="outline" onClick={() => void fetchStaff()}>
+                        Retry
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center text-[#667085] gap-3">
+                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
+                        <UserPlus className="h-5 w-5 text-[#2E37A4]" />
+                      </div>
+                      <p className="text-sm font-semibold text-[#101828]">
+                        No staff yet
+                      </p>
+                      <p className="text-xs max-w-sm">
+                        Use Add Staff Member to create the first clinic user.
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                filtered.map((staff) => (
-                  <tr key={staff.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
-                          <User className="h-5 w-5 text-[#027A48]" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-[#101828]">{staff.name}</span>
-                          <span className="text-xs text-[#667085]">ID: {staff.id}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#667085]">
-                      {staff.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#344054]">
-                      {staff.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#667085]">
-                      {staff.created}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="relative flex items-center gap-4">
-                        <button
-                          onClick={() => handleDetails(staff.id)}
-                          className="flex items-center gap-1.5 text-sm font-semibold text-[#667085] hover:text-[#101828] transition-colors"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span>Details</span>
-                        </button>
-                        <button
-                          onClick={() => handleEdit(staff.id)}
-                          className="flex items-center gap-1.5 text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b] transition-colors"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          aria-label="More actions"
-                          aria-haspopup="menu"
-                          aria-expanded={openMenu === staff.id}
-                          onClick={() =>
-                            setOpenMenu((cur) => (cur === staff.id ? null : staff.id))
-                          }
-                          className="text-[#98A2B3] hover:text-[#667085] transition-colors"
-                        >
-                          <MoreVertical className="h-5 w-5" />
-                        </button>
-
-                        {openMenu === staff.id ? (
-                          <div
-                            role="menu"
-                            className="absolute right-0 top-8 z-30 w-44 bg-white border border-[#EAECF0] rounded-lg shadow-lg py-1"
-                          >
-                            <button
-                              role="menuitem"
-                              onClick={() => {
-                                setOpenMenu(null)
-                                handleDetails(staff.id)
-                              }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
-                            >
-                              <Eye className="h-4 w-4" /> View details
-                            </button>
-                            <button
-                              role="menuitem"
-                              onClick={() => {
-                                setOpenMenu(null)
-                                handleEdit(staff.id)
-                              }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
-                            >
-                              <Pencil className="h-4 w-4" /> Edit
-                            </button>
-                            <button
-                              role="menuitem"
-                              onClick={() => handleDeactivate(staff.id)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#B42318] hover:bg-[#FEF3F2]"
-                            >
-                              <Trash2 className="h-4 w-4" /> Deactivate
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
+                filtered.map((row) => (
+                  <StaffRow
+                    key={row.id}
+                    row={row}
+                    openMenu={openMenu}
+                    setOpenMenu={setOpenMenu}
+                    onView={(id) => router.push(`/admin/staff/${id}`)}
+                    onEdit={(id) => router.push(`/admin/staff/${id}?edit=1`)}
+                    onDeactivate={(id) => {
+                      setOpenMenu(null)
+                      notify.info("Deactivate flow is pending the backend transition endpoint.", {
+                        description: `Requested for ${id}`,
+                      })
+                    }}
+                  />
                 ))
               )}
             </tbody>
@@ -203,4 +257,115 @@ export default function StaffPage() {
       </div>
     </div>
   )
+}
+
+function StaffRow({
+  row,
+  openMenu,
+  setOpenMenu,
+  onView,
+  onEdit,
+  onDeactivate,
+}: {
+  row: StaffMember
+  openMenu: string | null
+  setOpenMenu: (v: string | null) => void
+  onView: (id: string) => void
+  onEdit: (id: string) => void
+  onDeactivate: (id: string) => void
+}) {
+  const isMenuOpen = openMenu === row.id
+  return (
+    <tr className="hover:bg-[#F9FAFB] transition-colors">
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-[#F4F5FF] flex items-center justify-center text-xs font-bold text-[#2E37A4]">
+            {initials(row.fullName)}
+          </div>
+          <div>
+            <Link
+              href={`/admin/staff/${row.id}`}
+              className="text-sm font-semibold text-[#101828] hover:text-[#2E37A4]"
+            >
+              {row.fullName}
+            </Link>
+            {row.specialization ? (
+              <p className="text-xs text-[#2E37A4]">{row.specialization}</p>
+            ) : null}
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F4F5FF] text-[#3538CD]">
+          {ROLE_LABEL[row.role] ?? row.role}
+        </span>
+      </td>
+      <td className="px-6 py-4">
+        <p className="text-sm text-[#101828]">{row.email}</p>
+        {row.phone ? <p className="text-xs text-[#667085]">{row.phone}</p> : null}
+      </td>
+      <td className="px-6 py-4 text-sm text-[#344054]">
+        {row.department?.name ?? <span className="text-[#98A2B3]">—</span>}
+      </td>
+      <td className="px-6 py-4 text-sm text-[#667085]">
+        {new Date(row.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
+      </td>
+      <td className="px-6 py-4 text-right relative">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpenMenu(isMenuOpen ? null : row.id)
+          }}
+          className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
+          aria-label="Open actions menu"
+        >
+          <MoreVertical className="h-5 w-5" />
+        </button>
+        {isMenuOpen ? (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-10"
+          >
+            <div className="py-1">
+              <button
+                type="button"
+                onClick={() => onView(row.id)}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
+              >
+                <Eye className="h-4 w-4" /> View
+              </button>
+              <button
+                type="button"
+                onClick={() => onEdit(row.id)}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
+              >
+                <Pencil className="h-4 w-4" /> Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => onDeactivate(row.id)}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-[#B42318] hover:bg-[#FEF3F2]"
+              >
+                <Trash2 className="h-4 w-4" /> Deactivate
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </td>
+    </tr>
+  )
+}
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
 }

@@ -405,7 +405,7 @@ function DetailView({
               <span className="text-2xl font-bold text-[#2E37A4]">V</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#101828]">Vyara Clinic</h2>
+              <h2 className="text-xl font-bold text-[#101828]">Institute of Precision Metabolic &amp; Hormonal Health</h2>
               <p className="text-sm font-medium text-[#2E37A4]">
                 {prescription.doctorName} · {prescription.specialty}
               </p>

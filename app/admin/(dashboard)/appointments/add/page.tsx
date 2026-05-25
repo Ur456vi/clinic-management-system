@@ -1,396 +1,636 @@
 "use client"
 
-import React from "react"
-import Link from "next/link"
-import { 
-  ArrowLeft, 
-  User, 
-  Calendar, 
-  FileText, 
-  CheckCircle, 
-  ChevronDown,
-  Search,
-  Clock,
-  MapPin,
-  Video
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+/**
+ * Add Appointment — 4-step wizard wired to real APIs.
+ *
+ *   Step 0 — Patient: search /api/patients and pick the existing row
+ *   Step 1 — Doctor + slot: pick a staff member (/api/staff filtered to
+ *            DOCTOR + RMO), pick date / time / duration
+ *   Step 2 — Reason + notes free text
+ *   Step 3 — Review and submit (POST /api/appointments)
+ *
+ * The previous version of this page had a hardcoded doctor list and
+ * disconnected inputs, and the "Next" button never submitted anything.
+ * This rewrite uses real fetches for the patient & doctor pickers and
+ * POSTs the createAppointmentSchema shape on the final step.
+ */
 
-const steps = [
-  { id: "patient", name: "Patient Information", icon: User },
-  { id: "details", name: "Appointment Details", icon: Calendar },
-  { id: "additional", name: "Additional Information", icon: FileText },
-  { id: "review", name: "Review", icon: CheckCircle },
-]
+import Link from "next/link"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle,
+  ChevronDown,
+  Clock,
+  FileText,
+  Loader2,
+  Save,
+  Search,
+  Stethoscope,
+  User,
+} from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { notify } from "@/lib/notify"
+
+const STEPS = [
+  { id: "patient", name: "Patient", Icon: User },
+  { id: "slot", name: "Doctor & Slot", Icon: Calendar },
+  { id: "details", name: "Details", Icon: FileText },
+  { id: "review", name: "Review", Icon: CheckCircle },
+] as const
+
+type Patient = {
+  id: string
+  patientNumber: string
+  fullName: string
+  email: string | null
+  phone: string | null
+}
+
+type Doctor = {
+  id: string
+  fullName: string
+  specialization: string | null
+  role: string
+}
+
+type FormState = {
+  patient: Patient | null
+  doctor: Doctor | null
+  date: string
+  time: string
+  durationMin: number
+  reason: string
+  notes: string
+}
+
+const empty: FormState = {
+  patient: null,
+  doctor: null,
+  date: "",
+  time: "",
+  durationMin: 30,
+  reason: "",
+  notes: "",
+}
 
 export default function NewAppointmentPage() {
-  const [activeStep, setActiveStep] = React.useState(0)
+  const router = useRouter()
+  const [step, setStep] = useState(0)
+  const [form, setForm] = useState<FormState>(empty)
+  const [submitting, setSubmitting] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
-  const renderStepContent = () => {
-    switch (activeStep) {
-      case 0:
-        return (
-          <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
-                <User className="h-5 w-5 text-[#2E37A4]" />
-              </div>
-              <h2 className="text-xl font-bold text-[#101828]">Patient Information</h2>
-            </div>
+  const canAdvance = useMemo(() => {
+    if (step === 0) return form.patient !== null
+    if (step === 1)
+      return Boolean(form.doctor && form.date && form.time && form.durationMin > 0)
+    return true
+  }, [step, form])
 
-            <div className="space-y-6">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Select Patient <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-[#667085]" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search and select a patient..."
-                    className="block w-full pl-11 pr-10 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                  />
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
+  const next = () => {
+    if (!canAdvance) return
+    if (step < STEPS.length - 1) setStep(step + 1)
+  }
+  const prev = () => step > 0 && setStep(step - 1)
 
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-[#EAECF0]"></div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-base font-semibold text-[#101828] mb-6">
-                  Manual Entry <span className="text-[#667085] font-normal">(or)</span>
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-[#344054]">
-                      Patient Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="Enter patient's email address"
-                      className="w-full px-4 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-[#344054]">
-                      Patient Phone <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Enter patient's phone number"
-                      className="w-full px-4 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      case 1:
-        return (
-          <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
-                <Calendar className="h-5 w-5 text-[#027A48]" />
-              </div>
-              <h2 className="text-xl font-bold text-[#101828]">Appointment Details</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Doctor Name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-[#667085]" />
-                  </div>
-                  <select className="w-full h-11 pl-10 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all cursor-pointer">
-                    <option value="">Select a doctor</option>
-                    <option value="1">Dr. Amit Singh</option>
-                    <option value="2">Dr. Sumit Mittal</option>
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Appointment Type
-                </label>
-                <div className="relative">
-                  <select className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all cursor-pointer">
-                    <option value="consultation">Consultation</option>
-                    <option value="surgery">Surgery</option>
-                    <option value="follow-up">Follow-up</option>
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Appointment Date <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="dd-mm-yyyy"
-                    className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                  />
-                  <Calendar className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Appointment Time <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="--:--"
-                    className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                  />
-                  <Clock className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Status
-                </label>
-                <div className="relative">
-                  <select className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all cursor-pointer">
-                    <option value="scheduled">Scheduled</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Room 101, Building A"
-                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                />
-              </div>
-            </div>
-          </div>
-        )
-      case 2:
-        return (
-          <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center border border-[#E9D7FE]">
-                <FileText className="h-5 w-5 text-[#6941C6]" />
-              </div>
-              <h2 className="text-xl font-bold text-[#101828]">Additional Information</h2>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Reason for Visit <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  placeholder="Describe the reason for the appointment"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[#344054]">
-                  Notes
-                </label>
-                <textarea
-                  placeholder="Add any additional notes or comments"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                />
-              </div>
-
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-[#EAECF0]"></div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <Video className="h-5 w-5 text-[#2E37A4]" />
-                    <span className="text-base font-semibold text-[#101828]">Video Consultation</span>
-                  </div>
-                  <p className="text-sm text-[#667085]">
-                    Enable this to create a video consultation session that the patient can join remotely.
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-[#344054]">Include Video Call</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2E37A4]"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      case 3:
-        return (
-          <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
-                <CheckCircle className="h-5 w-5 text-[#027A48]" />
-              </div>
-              <h2 className="text-xl font-bold text-[#101828]">Review</h2>
-            </div>
-
-            <div className="bg-[#F9FAFB] border border-[#EAECF0] rounded-xl p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <div className="space-y-4">
-                  <h3 className="text-base font-bold text-[#344054]">Patient Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Name:</span>
-                      <span className="text-[#101828]">Not provided</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Email:</span>
-                      <span className="text-[#101828]">Not provided</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Phone:</span>
-                      <span className="text-[#101828]">Not provided</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-base font-bold text-[#344054]">Appointment Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Doctor:</span>
-                      <span className="text-[#101828]">Not provided</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Type:</span>
-                      <span className="text-[#101828]">Consultation</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Date:</span>
-                      <span className="text-[#101828]">Not selected</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Time:</span>
-                      <span className="text-[#101828]">Not selected</span>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="font-semibold text-[#667085] min-w-[60px]">Status:</span>
-                      <span className="text-[#101828]">Scheduled</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      default:
-        // ... (Default remains)
+  const submit = async () => {
+    if (submitting) return
+    if (!form.patient || !form.doctor || !form.date || !form.time) return
+    setSubmitting(true)
+    setFieldErrors({})
+    try {
+      const startsAt = new Date(`${form.date}T${form.time}:00`)
+      if (Number.isNaN(startsAt.getTime())) throw new Error("Invalid date/time")
+      const endsAt = new Date(startsAt.getTime() + form.durationMin * 60_000)
+      const body = {
+        patientId: form.patient.id,
+        staffId: form.doctor.id,
+        startsAt: startsAt.toISOString(),
+        endsAt: endsAt.toISOString(),
+        ...(form.reason.trim() ? { reason: form.reason.trim() } : {}),
+        ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+      }
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        const issues = json?.error?.issues
+        if (Array.isArray(issues)) {
+          const map: Record<string, string> = {}
+          for (const issue of issues) {
+            const path = Array.isArray(issue.path) ? issue.path.join(".") : ""
+            if (path) map[path] = issue.message
+          }
+          setFieldErrors(map)
+        }
+        throw new Error(json?.error?.message ?? "Booking failed")
+      }
+      notify.success("Appointment booked")
+      router.push("/admin/appointments")
+    } catch (err) {
+      notify.error("Couldn't create appointment", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 pb-12">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#101828]">New Appointment</h1>
-          <p className="text-sm text-[#667085] mt-1">Create a new appointment for a patient</p>
+          <p className="text-sm text-[#667085] mt-1">
+            Pick an existing patient, doctor, and slot.
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          {activeStep > 0 && (
-            <Button 
-              variant="outline" 
+          <Link href="/admin/appointments">
+            <Button
+              variant="outline"
+              className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg"
+            >
+              Cancel
+            </Button>
+          </Link>
+          {step > 0 ? (
+            <Button
+              variant="outline"
               className="px-6 h-11 border-[#2E37A4] text-[#2E37A4] font-semibold hover:bg-[#F4F5FF] rounded-lg"
-              onClick={() => setActiveStep(activeStep - 1)}
+              onClick={prev}
             >
               Previous
             </Button>
+          ) : null}
+          {step < STEPS.length - 1 ? (
+            <Button
+              className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg"
+              disabled={!canAdvance}
+              onClick={next}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              className="px-6 h-11 bg-[#12B76A] hover:bg-[#0E9A57] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg inline-flex items-center gap-2"
+              disabled={submitting || !canAdvance}
+              onClick={() => void submit()}
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Book Appointment
+            </Button>
           )}
-          <Button variant="outline" className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold hover:bg-gray-50 rounded-lg">
-            Cancel
-          </Button>
-          <Button 
-            className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] text-white font-semibold rounded-lg"
-            onClick={() => activeStep < steps.length - 1 && setActiveStep(activeStep + 1)}
-          >
-            {activeStep === steps.length - 1 ? "Book Appointment" : "Next"}
-          </Button>
         </div>
       </div>
 
-      {/* Back Link */}
       <div>
-        <button 
-          onClick={() => activeStep > 0 ? setActiveStep(activeStep - 1) : window.history.back()}
-          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium transition-colors"
+        <Link
+          href="/admin/appointments"
+          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
+          <ArrowLeft className="h-4 w-4" /> Back to appointments
+        </Link>
       </div>
 
       {/* Stepper */}
       <div className="border-b border-[#EAECF0]">
-        <div className="flex gap-8 overflow-x-auto no-scrollbar pb-px">
-          {steps.map((step, index) => {
-            const isActive = activeStep === index
-            const isCompleted = activeStep > index
+        <div className="flex gap-8 overflow-x-auto pb-px">
+          {STEPS.map((s, i) => {
+            const isActive = step === i
+            const Icon = s.Icon
             return (
               <button
-                key={step.id}
-                onClick={() => setActiveStep(index)}
+                key={s.id}
+                type="button"
+                onClick={() => i <= step && setStep(i)}
                 className={`flex items-center gap-2 pb-4 px-1 relative transition-all whitespace-nowrap ${
-                  isActive 
-                    ? "text-[#2E37A4]" 
+                  isActive
+                    ? "text-[#2E37A4]"
                     : "text-[#667085] hover:text-[#101828]"
                 }`}
               >
-                <step.icon className={`h-5 w-5 ${isActive ? "text-[#2E37A4]" : "text-[#667085]"}`} />
-                <span className={`text-sm font-medium ${isActive ? "font-semibold" : ""}`}>
-                  {step.name}
+                <Icon className="h-5 w-5" />
+                <span className={`text-sm ${isActive ? "font-semibold" : "font-medium"}`}>
+                  {s.name}
                 </span>
-                {isActive && (
+                {isActive ? (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2E37A4] rounded-full" />
-                )}
+                ) : null}
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* Form Content */}
+      {/* Step body */}
       <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
         <div className="p-8 max-w-[1000px]">
-          {renderStepContent()}
+          {step === 0 ? (
+            <PatientPicker
+              selected={form.patient}
+              onSelect={(p) => setForm({ ...form, patient: p })}
+            />
+          ) : null}
+          {step === 1 ? (
+            <SlotPicker form={form} setForm={setForm} fieldErrors={fieldErrors} />
+          ) : null}
+          {step === 2 ? <DetailsStep form={form} setForm={setForm} /> : null}
+          {step === 3 ? <ReviewStep form={form} /> : null}
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ── Step 0: patient picker ────────────────────────────────────── */
+
+function PatientPicker({
+  selected,
+  onSelect,
+}: {
+  selected: Patient | null
+  onSelect: (p: Patient) => void
+}) {
+  const [query, setQuery] = useState("")
+  const [items, setItems] = useState<Patient[]>([])
+  const [loading, setLoading] = useState(false)
+
+  // Debounced search. The setLoading/setItems calls inside are the
+  // *purpose* of the effect (mirror remote search results into React
+  // state); React 18's set-state-in-effect rule doesn't model that
+  // pattern, so we silence it here.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const url = new URL("/api/patients", window.location.origin)
+        if (query.trim()) url.searchParams.set("q", query.trim())
+        url.searchParams.set("limit", "10")
+        const res = await fetch(url.toString(), { credentials: "include" })
+        if (!res.ok) throw new Error()
+        const json = await res.json()
+        if (!cancelled) setItems(json?.data ?? [])
+      } catch {
+        if (!cancelled) setItems([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }, 250)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [query])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
+          <User className="h-5 w-5 text-[#2E37A4]" />
+        </div>
+        <h2 className="text-xl font-bold text-[#101828]">Select Patient</h2>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by name, email, phone, or patient #…"
+          className="w-full pl-10 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+        />
+      </div>
+
+      <div className="border border-[#EAECF0] rounded-lg divide-y divide-[#EAECF0] max-h-[400px] overflow-y-auto">
+        {loading ? (
+          <div className="p-6 text-center text-sm text-[#667085] flex items-center justify-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" /> Searching…
+          </div>
+        ) : items.length === 0 ? (
+          <div className="p-6 text-center text-sm text-[#667085]">
+            No patients matched.{" "}
+            <Link href="/admin/patients/add" className="text-[#2E37A4] font-semibold hover:underline">
+              Add a new patient
+            </Link>
+            .
+          </div>
+        ) : (
+          items.map((p) => {
+            const isSel = selected?.id === p.id
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onSelect(p)}
+                className={`w-full text-left px-4 py-3 hover:bg-[#F9FAFB] transition-colors ${
+                  isSel ? "bg-[#F4F5FF]" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#101828]">{p.fullName}</p>
+                    <p className="text-xs text-[#667085]">
+                      #{p.patientNumber} · {p.email ?? "no email"} ·{" "}
+                      {p.phone ?? "no phone"}
+                    </p>
+                  </div>
+                  {isSel ? (
+                    <CheckCircle className="h-5 w-5 text-[#12B76A]" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-[#98A2B3] -rotate-90" />
+                  )}
+                </div>
+              </button>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ── Step 1: doctor + slot ─────────────────────────────────────── */
+
+function SlotPicker({
+  form,
+  setForm,
+  fieldErrors,
+}: {
+  form: FormState
+  setForm: (f: FormState) => void
+  fieldErrors: Record<string, string>
+}) {
+  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchDoctors = useCallback(async () => {
+    try {
+      const url = new URL("/api/staff", window.location.origin)
+      url.searchParams.set("limit", "100")
+      const res = await fetch(url.toString(), { credentials: "include" })
+      const json = await res.json()
+      const items = (json?.data ?? json?.items ?? []) as Doctor[]
+      setDoctors(
+        items.filter((d) => d.role === "DOCTOR" || d.role === "RMO"),
+      )
+    } catch {
+      setDoctors([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    void fetchDoctors()
+  }, [fetchDoctors])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
+          <Calendar className="h-5 w-5 text-[#027A48]" />
+        </div>
+        <h2 className="text-xl font-bold text-[#101828]">Doctor &amp; Slot</h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Field label="Doctor" required error={fieldErrors.staffId}>
+          <div className="relative">
+            <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+            <select
+              value={form.doctor?.id ?? ""}
+              onChange={(e) => {
+                const d = doctors.find((x) => x.id === e.target.value) ?? null
+                setForm({ ...form, doctor: d })
+              }}
+              disabled={loading}
+              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
+            >
+              <option value="">
+                {loading
+                  ? "Loading…"
+                  : doctors.length === 0
+                    ? "No doctors yet"
+                    : "Select a doctor"}
+              </option>
+              {doctors.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.fullName}
+                  {d.specialization ? ` · ${d.specialization}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
+
+        <Field label="Duration" required>
+          <select
+            value={String(form.durationMin)}
+            onChange={(e) =>
+              setForm({ ...form, durationMin: Number.parseInt(e.target.value, 10) })
+            }
+            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          >
+            <option value="15">15 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+            <option value="90">90 minutes</option>
+          </select>
+        </Field>
+
+        <Field label="Date" required error={fieldErrors.startsAt}>
+          <input
+            type="date"
+            value={form.date}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          />
+        </Field>
+
+        <Field label="Time" required error={fieldErrors.endsAt}>
+          <div className="relative">
+            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+            <input
+              type="time"
+              value={form.time}
+              onChange={(e) => setForm({ ...form, time: e.target.value })}
+              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            />
+          </div>
+        </Field>
+      </div>
+    </div>
+  )
+}
+
+/* ── Step 2: details ────────────────────────────────────────────── */
+
+function DetailsStep({
+  form,
+  setForm,
+}: {
+  form: FormState
+  setForm: (f: FormState) => void
+}) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center border border-[#E9D7FE]">
+          <FileText className="h-5 w-5 text-[#6941C6]" />
+        </div>
+        <h2 className="text-xl font-bold text-[#101828]">Details</h2>
+      </div>
+
+      <Field label="Reason for visit">
+        <textarea
+          rows={4}
+          value={form.reason}
+          onChange={(e) => setForm({ ...form, reason: e.target.value })}
+          placeholder="Chief complaint, referral context, etc."
+          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+        />
+      </Field>
+      <Field label="Internal notes (optional)">
+        <textarea
+          rows={4}
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          placeholder="Anything reception/doctor should know ahead of the visit"
+          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+        />
+      </Field>
+    </div>
+  )
+}
+
+/* ── Step 3: review ─────────────────────────────────────────────── */
+
+function ReviewStep({ form }: { form: FormState }) {
+  const dateLabel = form.date
+    ? new Date(`${form.date}T${form.time || "00:00"}:00`).toLocaleDateString("en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "—"
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
+          <CheckCircle className="h-5 w-5 text-[#027A48]" />
+        </div>
+        <h2 className="text-xl font-bold text-[#101828]">Review</h2>
+      </div>
+      <div className="bg-[#F9FAFB] border border-[#EAECF0] rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-sm">
+        <ReviewBlock title="Patient">
+          {form.patient ? (
+            <>
+              <p className="font-semibold text-[#101828]">{form.patient.fullName}</p>
+              <p className="text-xs text-[#667085]">
+                #{form.patient.patientNumber}
+                {form.patient.email ? ` · ${form.patient.email}` : ""}
+                {form.patient.phone ? ` · ${form.patient.phone}` : ""}
+              </p>
+            </>
+          ) : (
+            <p className="text-[#98A2B3]">Not selected</p>
+          )}
+        </ReviewBlock>
+        <ReviewBlock title="Doctor">
+          {form.doctor ? (
+            <>
+              <p className="font-semibold text-[#101828]">{form.doctor.fullName}</p>
+              {form.doctor.specialization ? (
+                <p className="text-xs text-[#2E37A4]">{form.doctor.specialization}</p>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-[#98A2B3]">Not selected</p>
+          )}
+        </ReviewBlock>
+        <ReviewBlock title="Date">{dateLabel}</ReviewBlock>
+        <ReviewBlock title="Time">
+          {form.time ? `${form.time} · ${form.durationMin} min` : "—"}
+        </ReviewBlock>
+        {form.reason ? (
+          <ReviewBlock title="Reason" wide>
+            <p className="whitespace-pre-wrap">{form.reason}</p>
+          </ReviewBlock>
+        ) : null}
+        {form.notes ? (
+          <ReviewBlock title="Notes" wide>
+            <p className="whitespace-pre-wrap">{form.notes}</p>
+          </ReviewBlock>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+/* ── tiny atoms ─────────────────────────────────────────────────── */
+
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string
+  required?: boolean
+  error?: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm">
+      <span className="text-[#344054] font-medium">
+        {label}
+        {required ? <span className="text-[#B42318]"> *</span> : null}
+      </span>
+      {children}
+      {error ? <span className="text-xs text-[#B42318]">{error}</span> : null}
+    </label>
+  )
+}
+
+function ReviewBlock({
+  title,
+  wide,
+  children,
+}: {
+  title: string
+  wide?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className={wide ? "md:col-span-2" : ""}>
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#667085] mb-1">
+        {title}
+      </p>
+      <div className="text-[#101828]">{children}</div>
     </div>
   )
 }
