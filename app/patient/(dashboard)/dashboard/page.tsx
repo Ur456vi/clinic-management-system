@@ -156,7 +156,9 @@ export default function DashboardPage() {
   const router = useRouter();
 
   const handleNewAppointment = () => {
-    router.push("/patient/appointments");
+    // Send the patient to the booking flow, not the appointment list,
+    // so the "New Appointment" CTA actually books something new.
+    router.push("/patient/appointments/new");
   };
 
   return (

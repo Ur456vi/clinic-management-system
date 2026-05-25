@@ -3,9 +3,11 @@
  *
  * Protects `/admin/**` (staff only) and `/patient/**` (patients only).
  *
- * - Unauthenticated request to a protected path → redirect to `/`.
+ * - Unauthenticated request to a protected path → redirect to `/login`.
+ * - Authenticated user on `/login` or other auth pages → bounce to dashboard.
  * - Authenticated but on the wrong lane → redirect to the correct lane root.
- * - `/` (login) and `/admin/auth/**` (shared auth pages) are open.
+ * - `/`, `/about`, `/services/**`, `/contact`, `/blog`, `/faq`, and the legal
+ *   pages are PUBLIC — no auth check at all.
  *
  * Reads the NextAuth JWT from the request cookie via `getToken` so role
  * checks happen at the edge without a server-side DB call.
@@ -29,8 +31,23 @@ const PATIENT_ROLES = new Set(["PATIENT"])
 // Paths that need an authenticated user (any role).
 const PROTECTED = [/^\/admin(\/|$)/, /^\/patient(\/|$)/]
 
-// Auth-related pages reachable without a session.
-const PUBLIC_AUTH = [/^\/$/, /^\/admin\/auth(\/|$)/, /^\/auth(\/|$)/]
+// Auth-related pages reachable without a session (where authenticated users
+// should be bounced to their dashboard).
+const PUBLIC_AUTH = [/^\/login(\/|$)/, /^\/admin\/auth(\/|$)/, /^\/auth(\/|$)/]
+
+// Public marketing pages — no auth check, no bounce for authenticated users.
+// They can visit the public site freely while logged in.
+const PUBLIC_MARKETING = [
+  /^\/$/,
+  /^\/about(\/|$)/,
+  /^\/services(\/|$)/,
+  /^\/contact(\/|$)/,
+  /^\/blog(\/|$)/,
+  /^\/faq(\/|$)/,
+  /^\/privacy(\/|$)/,
+  /^\/terms(\/|$)/,
+  /^\/consumer-health-privacy(\/|$)/,
+]
 
 function isProtected(pathname: string) {
   return PROTECTED.some((re) => re.test(pathname))
@@ -38,6 +55,10 @@ function isProtected(pathname: string) {
 
 function isPublicAuth(pathname: string) {
   return PUBLIC_AUTH.some((re) => re.test(pathname))
+}
+
+function isPublicMarketing(pathname: string) {
+  return PUBLIC_MARKETING.some((re) => re.test(pathname))
 }
 
 function landingForRole(role: string): string {
@@ -58,6 +79,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Public marketing pages are always reachable — even by signed-in users.
+  // (We want a logged-in user to be able to browse the marketing site
+  // without getting bounced into their dashboard.)
+  if (isPublicMarketing(pathname)) {
+    return NextResponse.next()
+  }
+
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
@@ -65,14 +93,15 @@ export async function middleware(req: NextRequest) {
 
   const role = typeof token?.role === "string" ? token.role : null
 
-  // 1. Authenticated user on a public auth page → bounce to their dashboard.
+  // 1. Authenticated user on a public auth page (login) → bounce to dashboard.
   if (token && isPublicAuth(pathname)) {
     return NextResponse.redirect(new URL(landingForRole(role ?? "DOCTOR"), req.url))
   }
 
-  // 2. Unauthenticated user on a protected page → bounce to login.
+  // 2. Unauthenticated user on a protected page → bounce to /login with a
+  //    `next` param so we can return them after auth.
   if (!token && isProtected(pathname)) {
-    const url = new URL("/", req.url)
+    const url = new URL("/login", req.url)
     url.searchParams.set("next", pathname)
     return NextResponse.redirect(url)
   }
