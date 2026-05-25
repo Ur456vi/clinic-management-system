@@ -267,6 +267,9 @@ model Patient {
   occupation       String?
   placeOfResidence String?   @map("place_of_residence")
   address          String?
+  /// S3 object key (assets bucket) for the patient's profile photo.
+  /// Same shape as Staff.avatarUrl — null when no avatar is uploaded.
+  avatarUrl        String?   @map("avatar_url")
 
   status PatientStatus @default(ACTIVE)
 

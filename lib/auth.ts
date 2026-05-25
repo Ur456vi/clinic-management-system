@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
           where: { email },
           include: {
             staff: { select: { fullName: true, avatarUrl: true } },
-            patient: { select: { fullName: true } },
+            patient: { select: { fullName: true, avatarUrl: true } },
           },
         })
         if (!user || !user.isActive) return null
@@ -103,7 +103,6 @@ export const authOptions: NextAuthOptions = {
             }),
           ])
         } catch (err) {
-          // eslint-disable-next-line no-console
           console.error("[auth] failed to record login audit", err)
         }
 
@@ -112,7 +111,8 @@ export const authOptions: NextAuthOptions = {
           user.patient?.fullName ??
           user.email
 
-        const avatarUrl = user.staff?.avatarUrl ?? null
+        const avatarUrl =
+          user.staff?.avatarUrl ?? user.patient?.avatarUrl ?? null
 
         return {
           id: user.id,
