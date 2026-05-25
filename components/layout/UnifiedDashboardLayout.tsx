@@ -18,6 +18,7 @@ import {
   HelpCircle,
   FlaskConical,
   FileSignature,
+  ClipboardCheck,
   User,
   Search,
   Moon,
@@ -30,6 +31,7 @@ const adminSidebarItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
   { name: "Patient", icon: Users, href: "/admin/patients" },
   { name: "Appointments", icon: Calendar, href: "/admin/appointments" },
+  { name: "Assessments", icon: ClipboardCheck, href: "/admin/assessments" },
   { name: "Staff", icon: UserSquare2, href: "/admin/staff" },
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
@@ -37,6 +39,7 @@ const adminSidebarItems = [
 ]
 
 const adminBottomItems = [
+  { name: "Profile", icon: User, href: "/admin/profile" },
   { name: "Settings", icon: Settings, href: "/admin/settings" },
   { name: "Help & Support", icon: HelpCircle, href: "/admin/help" },
 ]
@@ -58,6 +61,7 @@ const patientBottomItems = [
 // sidebar items so we can expose role-appropriate shortcuts (e.g. patients
 // land on /patient/profile, staff land on /admin/settings).
 const adminMenuItems: UserMenuItem[] = [
+  { label: "My profile", href: "/admin/profile", icon: User },
   { label: "Settings", href: "/admin/settings", icon: Settings },
   { label: "Help & Support", href: "/admin/help", icon: HelpCircle },
 ]

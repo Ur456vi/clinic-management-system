@@ -302,7 +302,7 @@ export default function HomeContent() {
           </div>
 
           <div className="mt-12 flex justify-center">
-            <CTAButton href="/contact" variant="burgundy" size="lg">
+            <CTAButton href="/assessment" variant="burgundy" size="lg">
               Book An Appointment
             </CTAButton>
           </div>
@@ -472,7 +472,7 @@ export default function HomeContent() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <CTAButton href="/contact" variant="olive">
+            <CTAButton href="/assessment" variant="olive">
               Book Your Appointment Now
             </CTAButton>
           </div>
@@ -666,7 +666,7 @@ export default function HomeContent() {
             </p>
             <div className="mt-6">
               <Link
-                href="/contact"
+                href="/assessment"
                 className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
                 style={{
                   background: "var(--brand-burgundy)",

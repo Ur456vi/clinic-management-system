@@ -1,17 +1,46 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+/**
+ * Patient-side Reports page.
+ *
+ * Visual cleanup (2026-05) to match the rest of the patient dashboard
+ * (Lab Management, Prescriptions, Dashboard):
+ *   - Emoji-as-icons replaced with lucide-react icons
+ *   - Inconsistent palette (#646464/#D0D0D0/#ACB5BD) normalised to the
+ *     project's standard tokens (#667085/#EAECF0/#101828/#2E37A4)
+ *   - Chart.js callback typed properly (no `any`)
+ *   - Card radius bumped to rounded-xl to match the rest of the dashboard
+ *   - Header gets the same title + subtitle treatment used elsewhere
+ *
+ * Charts are still client-side Chart.js rendered into a <canvas>. The
+ * statistics tiles use the same dashboard-style colored backgrounds.
+ *
+ * NOTE: data is still static mock today. Wire up to a real reports API
+ * (`/api/patient/me/reports` or similar) when the backend lands.
+ */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { useEffect, useRef } from "react";
+import type { ScriptableContext } from "chart.js";
+import {
+  Calendar,
+  Activity,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  FlaskConical,
+  FileText,
+} from "lucide-react";
+
+// ─── Mini Donut (SVG, no Chart.js dep) ─────────────────────────────────
+
 interface MiniDonutProps {
   percentage: number;
   color: string;
   size?: number;
 }
 
-// ─── Mini Donut SVG (replaces canvas, no Chart.js dep needed for small donuts) ─
-function MiniDonut({ percentage, color, size = 72 }: MiniDonutProps) {
-  const r = 28;
+function MiniDonut({ percentage, color, size = 60 }: MiniDonutProps) {
+  const r = (size - 16) / 2;
   const cx = size / 2;
   const cy = size / 2;
   const circumference = 2 * Math.PI * r;
@@ -19,52 +48,50 @@ function MiniDonut({ percentage, color, size = 72 }: MiniDonutProps) {
   const gap = circumference - filled;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-      {/* Background track */}
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0">
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F2F4F7" strokeWidth={8} />
       <circle
-        cx={cx} cy={cy} r={r}
-        fill="none"
-        stroke="#E6E6E6"
-        strokeWidth="8"
-      />
-      {/* Filled arc */}
-      <circle
-        cx={cx} cy={cy} r={r}
+        cx={cx}
+        cy={cy}
+        r={r}
         fill="none"
         stroke={color}
-        strokeWidth="8"
+        strokeWidth={8}
         strokeDasharray={`${filled} ${gap}`}
         strokeLinecap="round"
         transform={`rotate(-90 ${cx} ${cy})`}
       />
+      <text
+        x={cx}
+        y={cy + 4}
+        textAnchor="middle"
+        fontSize={size / 4.5}
+        fontWeight={700}
+        fill="#101828"
+        fontFamily="Inter, sans-serif"
+      >
+        {percentage}%
+      </text>
     </svg>
   );
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
+// ─── Progress Bar ──────────────────────────────────────────────────────
+
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = Math.min((value / max) * 100, 100);
   return (
-    <div style={{
-      width: "100%",
-      height: 8,
-      background: "#ECECEC",
-      borderRadius: 12,
-      overflow: "hidden",
-      flexShrink: 0,
-    }}>
-      <div style={{
-        width: `${pct}%`,
-        height: "100%",
-        background: color,
-        borderRadius: 12,
-        transition: "width 0.6s ease",
-      }} />
+    <div className="w-full h-2 bg-[#F2F4F7] rounded-full overflow-hidden flex-shrink-0">
+      <div
+        className="h-full rounded-full transition-[width] duration-700 ease-out"
+        style={{ width: `${pct}%`, background: color }}
+      />
     </div>
   );
 }
 
-// ─── Line Chart (Disease Timeline) ────────────────────────────────────────────
+// ─── Disease Timeline (Chart.js line) ──────────────────────────────────
+
 function DiseaseTimelineChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -72,73 +99,28 @@ function DiseaseTimelineChart() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Dynamic import for Chart.js (works in Next.js)
-    import("chart.js/auto").then(({ default: Chart }) => {
+    let destroyed = false;
+    void import("chart.js/auto").then(({ default: Chart }) => {
+      if (destroyed) return;
       const existing = Chart.getChart(canvas);
       if (existing) existing.destroy();
+
+      const gradient = (color: string) => (ctx: ScriptableContext<"line">) => {
+        const c = ctx.chart.ctx;
+        const g = c.createLinearGradient(0, 0, 0, 320);
+        g.addColorStop(0, `${color}33`); // ~20% opacity
+        g.addColorStop(1, `${color}00`);
+        return g;
+      };
 
       new Chart(canvas, {
         type: "line",
         data: {
           labels: ["Oct 25", "Nov 25", "Dec 25", "Jan 26", "Feb 26", "Mar 26"],
           datasets: [
-            {
-              label: "Diabetes",
-              data: [3, 4, 3.5, 5, 4.2, 5.5],
-              borderColor: "#56CA00",
-              backgroundColor: (context: any) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, "rgba(86, 202, 0, 0.175)");
-                gradient.addColorStop(1, "rgba(86, 202, 0, 0)");
-                return gradient;
-              },
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2.5,
-              pointRadius: 4,
-              pointBackgroundColor: "#56CA00",
-              pointBorderColor: "#fff",
-              pointBorderWidth: 2,
-            },
-            {
-              label: "Lab Tests",
-              data: [4, 3.2, 4.5, 3.8, 4.8, 4],
-              borderColor: "#16B1FF",
-              backgroundColor: (context: any) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, "rgba(22, 177, 255, 0.175)");
-                gradient.addColorStop(1, "rgba(22, 177, 255, 0)");
-                return gradient;
-              },
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2.5,
-              pointRadius: 4,
-              pointBackgroundColor: "#16B1FF",
-              pointBorderColor: "#fff",
-              pointBorderWidth: 2,
-            },
-            {
-              label: "Respiratory Infection",
-              data: [2, 3.5, 2.8, 4, 3, 3.5],
-              borderColor: "#FF4C51",
-              backgroundColor: (context: any) => {
-                const ctx = context.chart.ctx;
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, "rgba(255, 76, 81, 0.175)");
-                gradient.addColorStop(1, "rgba(255, 76, 81, 0)");
-                return gradient;
-              },
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2.5,
-              pointRadius: 4,
-              pointBackgroundColor: "#FF4C51",
-              pointBorderColor: "#fff",
-              pointBorderWidth: 2,
-            },
+            seriesConfig("Diabetes", [3, 4, 3.5, 5, 4.2, 5.5], "#12B76A", gradient("#12B76A")),
+            seriesConfig("Lab Tests", [4, 3.2, 4.5, 3.8, 4.8, 4], "#0BA5EC", gradient("#0BA5EC")),
+            seriesConfig("Respiratory Infection", [2, 3.5, 2.8, 4, 3, 3.5], "#F04438", gradient("#F04438")),
           ],
         },
         options: {
@@ -147,7 +129,7 @@ function DiseaseTimelineChart() {
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: "#141414",
+              backgroundColor: "#101828",
               titleFont: { family: "Inter", size: 12, weight: "bold" },
               bodyFont: { family: "Inter", size: 12 },
               padding: 10,
@@ -158,20 +140,16 @@ function DiseaseTimelineChart() {
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: "#959596", font: { size: 13, family: "Inter" } },
+              ticks: { color: "#98A2B3", font: { size: 12, family: "Inter" } },
             },
             y: {
-              grid: { 
-                color: "#E8E8E8",
-                drawTicks: false,
-                tickBorderDash: [4, 4],
-              },
+              grid: { color: "#F2F4F7", drawTicks: false },
               border: { dash: [4, 4] },
-              ticks: { 
-                color: "#959596", 
-                font: { size: 13, family: "Inter" },
+              ticks: {
+                color: "#98A2B3",
+                font: { size: 12, family: "Inter" },
                 stepSize: 1,
-                padding: 10
+                padding: 10,
               },
               min: 0,
               max: 6,
@@ -180,12 +158,35 @@ function DiseaseTimelineChart() {
         },
       });
     });
+
+    return () => {
+      destroyed = true;
+    };
   }, []);
 
   return <canvas ref={canvasRef} />;
 }
 
-// ─── Donut Chart (Medication Stats) ───────────────────────────────────────────
+type GradientFn = (ctx: ScriptableContext<"line">) => CanvasGradient;
+
+function seriesConfig(label: string, data: number[], color: string, bg: GradientFn) {
+  return {
+    label,
+    data,
+    borderColor: color,
+    backgroundColor: bg,
+    tension: 0.4,
+    fill: true,
+    borderWidth: 2.5,
+    pointRadius: 4,
+    pointBackgroundColor: color,
+    pointBorderColor: "#fff",
+    pointBorderWidth: 2,
+  };
+}
+
+// ─── Medication Donut (Chart.js doughnut) ──────────────────────────────
+
 function MedicationDonutChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -193,7 +194,9 @@ function MedicationDonutChart() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    import("chart.js/auto").then(({ default: Chart }) => {
+    let destroyed = false;
+    void import("chart.js/auto").then(({ default: Chart }) => {
+      if (destroyed) return;
       const existing = Chart.getChart(canvas);
       if (existing) existing.destroy();
 
@@ -204,7 +207,7 @@ function MedicationDonutChart() {
           datasets: [
             {
               data: [21, 70, 9],
-              backgroundColor: ["#1FC6C6", "#F5C842", "#2563eb"],
+              backgroundColor: ["#0BA5EC", "#FDB022", "#2E37A4"],
               borderWidth: 0,
               hoverOffset: 4,
             },
@@ -220,209 +223,356 @@ function MedicationDonutChart() {
               callbacks: {
                 label: (ctx) => ` ${ctx.label}: ${ctx.parsed}%`,
               },
+              backgroundColor: "#101828",
+              cornerRadius: 8,
+              padding: 10,
             },
           },
         },
       });
     });
+
+    return () => {
+      destroyed = true;
+    };
   }, []);
 
   return <canvas ref={canvasRef} />;
 }
 
-// ─── Full Page ────────────────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────
+
 export default function PatientReportsPage() {
   return (
-    <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-[1400px] mx-auto animate-in fade-in duration-500 bg-[#F9FAFB]">
-      {/* Page Title */}
+    <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-[1400px] mx-auto">
+      {/* Page header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-[#141414]">Patient Reports</h1>
-      </div>
-
-      {/* ── STATS ROW ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Card 1: Online + In-Person */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-6 shadow-sm flex items-center gap-8 divide-x divide-[#ACB5BD]">
-          <div className="flex-1 flex items-center justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-[#646464] font-medium leading-tight">Total Online<br/>Appointments</span>
-              <span className="text-2xl font-bold text-[#141414]">30%</span>
-            </div>
-            <MiniDonut percentage={30} color="#56CA00" size={60} />
-          </div>
-          <div className="flex-1 flex items-center justify-between gap-4 pl-8">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-[#646464] font-medium leading-tight">Total In-Person<br/>Appointments</span>
-              <span className="text-2xl font-bold text-[#141414]">70%</span>
-            </div>
-            <MiniDonut percentage={70} color="#16B1FF" size={60} />
-          </div>
-        </div>
-
-        {/* Card 2: Lab Tests + Prescriptions */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-6 shadow-sm flex flex-col justify-center gap-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-[#646464] font-medium">Lab Tests</span>
-            <span className="text-2xl font-bold text-[#141414]">05</span>
-          </div>
-          <div className="h-px bg-[#ACB5BD] w-full" />
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-[#646464] font-medium">Prescriptions</span>
-            <span className="text-2xl font-bold text-[#141414]">15</span>
-          </div>
-        </div>
-
-        {/* Card 3: Treatment + Medications */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-6 shadow-sm flex items-center gap-8 divide-x divide-[#ACB5BD]">
-          <div className="flex-1 flex flex-col gap-4">
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-sm text-[#646464] font-medium leading-tight">Treatment<br/>Completed</span>
-              <span className="text-2xl font-bold text-[#141414]">07</span>
-            </div>
-            <ProgressBar value={62} max={100} color="#2E37A4" />
-          </div>
-          <div className="flex-1 flex flex-col gap-4 pl-8">
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-sm text-[#646464] font-medium leading-tight">Medications<br/>Prescribed</span>
-              <span className="text-2xl font-bold text-[#141414]">15</span>
-            </div>
-            <ProgressBar value={62} max={100} color="#FF6B0F" />
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-[#101828]">Health Reports</h1>
+          <p className="text-sm text-[#667085] mt-1">
+            An overview of your appointments, prescriptions, and clinical trends.
+          </p>
         </div>
       </div>
 
-      {/* ── CHARTS ROW ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── Stat tiles row ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <SplitDonutCard
+          left={{ label: "Total Online Appointments", value: "30%", color: "#12B76A", percent: 30 }}
+          right={{ label: "Total In-Person Appointments", value: "70%", color: "#0BA5EC", percent: 70 }}
+        />
+
+        <CountCard
+          rows={[
+            { icon: <FlaskConical className="h-5 w-5 text-[#2E37A4]" />, label: "Lab Tests", value: "05" },
+            { icon: <FileText className="h-5 w-5 text-[#2E37A4]" />, label: "Prescriptions", value: "15" },
+          ]}
+        />
+
+        <ProgressCard
+          left={{ label: "Treatment Completed", value: "07", color: "#2E37A4", pct: 62 }}
+          right={{ label: "Medications Prescribed", value: "15", color: "#FF6B0F", pct: 62 }}
+        />
+      </div>
+
+      {/* ── Charts row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Disease Timeline */}
-        <div className="lg:col-span-2 bg-white border border-[#D0D0D0] rounded-lg p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center justify-between border-b border-[#ACB5BD] pb-4">
-            <h3 className="text-base font-medium text-[#141414] font-inter">Disease Timeline</h3>
-            <select className="px-5 py-1 border border-[#ACB5BD] rounded-lg bg-[#FBFDFC] text-base text-[#141414] outline-none cursor-pointer hover:border-[#2E37A4] transition-colors">
+        <div className="lg:col-span-2 bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#EAECF0] px-6 py-4">
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-[#2E37A4]" />
+              <h3 className="text-base font-bold text-[#101828]">Disease Timeline</h3>
+            </div>
+            <select
+              defaultValue="Last 6 Months"
+              className="px-3 py-1.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+            >
               <option>Last 6 Months</option>
               <option>Last Year</option>
             </select>
           </div>
-          <div className="relative h-[250px] w-full">
-            <DiseaseTimelineChart />
-          </div>
-          <div className="flex justify-center items-center gap-10 mt-2">
-            {[
-              { color: "#56CA00", label: "Diabetes" },
-              { color: "#16B1FF", label: "Lab Tests" },
-              { color: "#FF4C51", label: "Respiratory Infection" },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-none" style={{ backgroundColor: l.color }} />
-                <span className="text-base text-[#646464] font-inter">{l.label}</span>
-              </div>
-            ))}
+          <div className="p-6 flex flex-col gap-4">
+            <div className="relative h-[250px] w-full">
+              <DiseaseTimelineChart />
+            </div>
+            <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-2">
+              {[
+                { color: "#12B76A", label: "Diabetes" },
+                { color: "#0BA5EC", label: "Lab Tests" },
+                { color: "#F04438", label: "Respiratory Infection" },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm"
+                    style={{ background: l.color }}
+                  />
+                  <span className="text-sm text-[#667085] font-medium">{l.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Medication Stats */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-medium text-[#141414] font-inter">Medication Stats</h3>
-            <select className="px-5 py-1 border border-[#ACB5BD] rounded-lg bg-[#FBFDFC] text-base text-[#141414] outline-none cursor-pointer hover:border-[#2E37A4] transition-colors">
+        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#EAECF0] px-6 py-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-[#2E37A4]" />
+              <h3 className="text-base font-bold text-[#101828]">Medication Stats</h3>
+            </div>
+            <select
+              defaultValue="2026"
+              className="px-3 py-1.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+            >
               <option>2026</option>
               <option>2025</option>
             </select>
           </div>
-          <div className="relative h-[220px] flex items-center justify-center">
-            <MedicationDonutChart />
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-[#141414]">39%</span>
-              <span className="text-[10px] font-bold text-[#9CA3AF] uppercase">Thyroid</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 mt-2">
-            {[
-              { color: "#1FC6C6", label: "Antibiotics", pct: "21%" },
-              { color: "#F5C842", label: "Diabetes", pct: "70%" },
-              { color: "#2563eb", label: "Thyroid", pct: "9%" },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: l.color }} />
-                  <span className="text-sm font-medium text-[#646464]">{l.label}</span>
-                </div>
-                <span className="text-sm font-bold text-[#141414]">{l.pct}</span>
+          <div className="p-6 flex flex-col gap-5">
+            <div className="relative h-[200px] flex items-center justify-center">
+              <MedicationDonutChart />
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-2xl font-bold text-[#101828]">70%</span>
+                <span className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">
+                  Diabetes
+                </span>
               </div>
-            ))}
+            </div>
+            <div className="flex flex-col gap-2.5">
+              {[
+                { color: "#0BA5EC", label: "Antibiotics", pct: "21%" },
+                { color: "#FDB022", label: "Diabetes", pct: "70%" },
+                { color: "#2E37A4", label: "Thyroid", pct: "9%" },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ background: l.color }}
+                    />
+                    <span className="text-sm font-medium text-[#344054]">{l.label}</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#101828]">{l.pct}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── BOTTOM ROW ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      {/* ── Bottom row ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Latest Appointments */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-5 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-blue-500">📅</span>
-              <h3 className="text-sm font-bold text-[#141414]">Latest Appointments</h3>
+        <SectionCard
+          icon={<Calendar className="h-5 w-5 text-[#0BA5EC]" />}
+          title="Latest Appointments"
+          action={{ label: "View all", href: "/patient/appointments" }}
+        >
+          {[
+            { name: "Dr. Sumit Mittal", type: "In Person", bg: "#ECFDF3", fg: "#027A48" },
+            { name: "Dr. Sarita Jain", type: "Online", bg: "#EFF8FF", fg: "#175CD3" },
+          ].map((a) => (
+            <div
+              key={a.name}
+              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] last:border-0"
+            >
+              <span className="text-sm font-semibold text-[#101828]">{a.name}</span>
+              <span
+                className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{ background: a.bg, color: a.fg }}
+              >
+                {a.type}
+              </span>
             </div>
-            <button className="text-xs font-bold text-[#2E37A4] hover:underline bg-transparent border-none cursor-pointer">View all</button>
-          </div>
-          <div className="flex flex-col gap-3">
-            {[
-              { name: "Dr. Sumit Mittal", type: "In Person", color: "text-[#059669] bg-[#ECFDF5]" },
-              { name: "Dr. Sarita Jain", type: "Online", color: "text-[#2563eb] bg-[#EFF6FF]" },
-            ].map((a) => (
-              <div key={a.name} className="flex items-center justify-between py-2 border-b border-[#F2F4F7] last:border-0">
-                <span className="text-sm font-bold text-[#344054]">{a.name}</span>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${a.color}`}>{a.type}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+          ))}
+        </SectionCard>
 
         {/* Recent Activity */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-5 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-purple-500">⚡</span>
-            <h3 className="text-sm font-bold text-[#141414]">Recent Activity</h3>
-          </div>
-          <div className="flex flex-col gap-4">
-            {[
-              { dot: "bg-green-500", text: "Prescription Downloaded", time: "2 minutes ago" },
-              { dot: "bg-orange-500", text: "Appointment Rescheduled", time: "15 minutes ago" },
-            ].map((a) => (
-              <div key={a.text} className="flex items-start gap-3">
-                <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${a.dot}`} />
-                <div>
-                  <p className="m-0 text-sm font-bold text-[#344054]">{a.text}</p>
-                  <p className="m-0 text-[10px] font-medium text-[#667085]">{a.time}</p>
-                </div>
+        <SectionCard
+          icon={<Activity className="h-5 w-5 text-[#7A5AF8]" />}
+          title="Recent Activity"
+        >
+          {[
+            { dot: "#12B76A", text: "Prescription downloaded", time: "2 minutes ago" },
+            { dot: "#F79009", text: "Appointment rescheduled", time: "15 minutes ago" },
+          ].map((a) => (
+            <div key={a.text} className="flex items-start gap-3 py-2.5">
+              <span
+                className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                style={{ background: a.dot }}
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-[#101828]">{a.text}</p>
+                <p className="text-xs text-[#667085] mt-0.5">{a.time}</p>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+        </SectionCard>
 
         {/* Performance */}
-        <div className="bg-white border border-[#D0D0D0] rounded-lg p-5 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-green-600">📈</span>
-            <h3 className="text-sm font-bold text-[#141414]">Performance</h3>
-          </div>
-          <div className="flex flex-col gap-3">
-            {[
-              { label: "Patient Satisfaction", val: "4.8/5.0", color: "text-green-600" },
-              { label: "Attendance Rate", val: "94%", color: "text-green-600" },
-            ].map((p) => (
-              <div key={p.label} className="flex items-center justify-between py-2 border-b border-[#F2F4F7] last:border-0">
-                <span className="text-sm font-medium text-[#667085]">{p.label}</span>
-                <span className={`text-sm font-bold ${p.color}`}>{p.val}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <SectionCard
+          icon={<TrendingUp className="h-5 w-5 text-[#12B76A]" />}
+          title="Performance"
+        >
+          {[
+            { label: "Patient Satisfaction", val: "4.8/5.0", trend: "up" as const },
+            { label: "Attendance Rate", val: "94%", trend: "up" as const },
+          ].map((p) => (
+            <div
+              key={p.label}
+              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] last:border-0"
+            >
+              <span className="text-sm font-medium text-[#667085]">{p.label}</span>
+              <span className="inline-flex items-center gap-1 text-sm font-bold text-[#027A48]">
+                {p.trend === "up" ? (
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                ) : (
+                  <ArrowDownRight className="h-3.5 w-3.5" />
+                )}
+                {p.val}
+              </span>
+            </div>
+          ))}
+        </SectionCard>
       </div>
+    </div>
+  );
+}
 
-      {/* Footer */}
-      <footer className="mt-auto py-6 text-center border-t border-[#EAECF0]">
-        <p className="m-0 text-xs text-[#6C7688] font-bold">Copyright © 2026 - Vyara.</p>
-      </footer>
+// ─── Reusable cards ────────────────────────────────────────────────────
+
+function SplitDonutCard({
+  left,
+  right,
+}: {
+  left: { label: string; value: string; color: string; percent: number };
+  right: { label: string; value: string; color: string; percent: number };
+}) {
+  return (
+    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex items-center gap-5">
+      <SplitDonutColumn {...left} />
+      <div className="h-16 w-px bg-[#EAECF0]" />
+      <SplitDonutColumn {...right} />
+    </div>
+  );
+}
+
+function SplitDonutColumn({
+  label,
+  value,
+  color,
+  percent,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  percent: number;
+}) {
+  return (
+    <div className="flex-1 flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-xs text-[#667085] font-semibold uppercase tracking-wider leading-tight">
+          {label}
+        </span>
+        <span className="text-2xl font-bold text-[#101828]">{value}</span>
+      </div>
+      <MiniDonut percentage={percent} color={color} size={64} />
+    </div>
+  );
+}
+
+function CountCard({
+  rows,
+}: {
+  rows: { icon: React.ReactNode; label: string; value: string }[];
+}) {
+  return (
+    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col justify-center gap-3">
+      {rows.map((r, i) => (
+        <div key={r.label}>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#F4F5FF] flex items-center justify-center">
+                {r.icon}
+              </div>
+              <span className="text-sm font-medium text-[#344054]">{r.label}</span>
+            </div>
+            <span className="text-2xl font-bold text-[#101828]">{r.value}</span>
+          </div>
+          {i < rows.length - 1 ? <div className="h-px bg-[#EAECF0]" /> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProgressCard({
+  left,
+  right,
+}: {
+  left: { label: string; value: string; color: string; pct: number };
+  right: { label: string; value: string; color: string; pct: number };
+}) {
+  return (
+    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col gap-4">
+      <ProgressRow {...left} />
+      <div className="h-px bg-[#EAECF0]" />
+      <ProgressRow {...right} />
+    </div>
+  );
+}
+
+function ProgressRow({
+  label,
+  value,
+  color,
+  pct,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  pct: number;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-center gap-2">
+        <span className="text-sm text-[#667085] font-medium leading-tight">{label}</span>
+        <span className="text-2xl font-bold text-[#101828]">{value}</span>
+      </div>
+      <ProgressBar value={pct} max={100} color={color} />
+    </div>
+  );
+}
+
+function SectionCard({
+  icon,
+  title,
+  action,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  action?: { label: string; href: string };
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon}
+          <h3 className="text-sm font-bold text-[#101828]">{title}</h3>
+        </div>
+        {action ? (
+          <a
+            href={action.href}
+            className="text-xs font-bold text-[#2E37A4] hover:underline"
+          >
+            {action.label}
+          </a>
+        ) : null}
+      </div>
+      <div className="flex flex-col">{children}</div>
     </div>
   );
 }
