@@ -126,7 +126,7 @@ export default function Footer() {
               Precision medicine for individuals who expect clarity, structure, and measurable outcomes from their health.
             </p>
             <Link
-              href="/contact"
+              href="/assessment"
               className="inline-block rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition-colors hover:opacity-95"
               style={{
                 background: "var(--brand-burgundy)",

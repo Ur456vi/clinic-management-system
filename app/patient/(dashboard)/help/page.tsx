@@ -13,7 +13,23 @@ export default function HelpPage() {
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-bold text-[#2E37A4]">Contact Support</h3>
-            <p className="text-sm text-[#667085]">Email us at support@vyara.com or call our 24/7 helpline at +91 12345 67890.</p>
+            <p className="text-sm text-[#667085]">
+              Email us at{" "}
+              <a
+                href="mailto:care@precisionhealth.in"
+                className="text-[#2E37A4] font-medium hover:underline"
+              >
+                care@precisionhealth.in
+              </a>{" "}
+              or call our 24/7 helpline at{" "}
+              <a
+                href="tel:+919976540310"
+                className="text-[#2E37A4] font-medium hover:underline"
+              >
+                +91 99765 40310
+              </a>
+              .
+            </p>
           </div>
         </div>
       </div>

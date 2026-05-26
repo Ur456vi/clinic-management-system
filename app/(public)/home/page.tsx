@@ -84,7 +84,7 @@ export default function HomePage() {
                                                         </ul>
                                                 </div>
                                         </div>
-                                        <Link href="/contact" className="inline-block bg-[#7B1B2A] text-white font-semibold px-8 py-4 rounded hover:bg-[#9B2535] transition-colors">
+                                        <Link href="/assessment" className="inline-block bg-[#7B1B2A] text-white font-semibold px-8 py-4 rounded hover:bg-[#9B2535] transition-colors">
                                                 Book An Appointment
                                         </Link>
                                 </div>
@@ -162,8 +162,8 @@ export default function HomePage() {
                                         <h2 className="text-3xl lg:text-4xl font-serif text-white mb-4">Begin With A Clinical Assessment</h2>
                                         <p className="text-[#E8C8C0] mb-8 text-sm leading-relaxed">Start your physician-led biological evaluation. Take our health assessment questionnaire to understand how your biology is functioning.</p>
                                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                                <Link href="/quiz" className="bg-white text-[#7B1B2A] font-semibold px-8 py-4 rounded hover:bg-[#FAF8F3] transition-colors">Take Health Assessment</Link>
-                                                <Link href="/contact" className="border-2 border-white text-white font-semibold px-8 py-4 rounded hover:bg-white hover:text-[#7B1B2A] transition-colors">Book Consultation</Link>
+                                                <Link href="/assessment" className="bg-white text-[#7B1B2A] font-semibold px-8 py-4 rounded hover:bg-[#FAF8F3] transition-colors">Take Health Assessment</Link>
+                                                <Link href="/assessment" className="border-2 border-white text-white font-semibold px-8 py-4 rounded hover:bg-white hover:text-[#7B1B2A] transition-colors">Book Consultation</Link>
                                         </div>
                                 </div>
                         </section>

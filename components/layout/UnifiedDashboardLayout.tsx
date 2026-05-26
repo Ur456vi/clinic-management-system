@@ -5,31 +5,32 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { UserAvatar } from "@/components/ui/UserAvatar"
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  UserSquare2, 
-  Building2, 
-  FileText, 
-  BarChart3, 
-  Settings, 
+import { UserMenu, type UserMenuItem } from "@/components/ui/UserMenu"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
+import { NotificationBell } from "@/components/ui/NotificationBell"
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  UserSquare2,
+  Building2,
+  FileText,
+  BarChart3,
+  Settings,
   HelpCircle,
-  FlaskConical, 
+  FlaskConical,
   FileSignature,
+  ClipboardCheck,
   User,
-  Search,
-  Moon,
-  Bell,
-  ChevronDown,
-  ChevronsLeft
+  CalendarCheck2,
+  ChevronsLeft,
 } from "lucide-react"
 
 const adminSidebarItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
   { name: "Patient", icon: Users, href: "/admin/patients" },
   { name: "Appointments", icon: Calendar, href: "/admin/appointments" },
+  { name: "Assessments", icon: ClipboardCheck, href: "/admin/assessments" },
   { name: "Staff", icon: UserSquare2, href: "/admin/staff" },
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
@@ -37,6 +38,7 @@ const adminSidebarItems = [
 ]
 
 const adminBottomItems = [
+  { name: "Profile", icon: User, href: "/admin/profile" },
   { name: "Settings", icon: Settings, href: "/admin/settings" },
   { name: "Help & Support", icon: HelpCircle, href: "/admin/help" },
 ]
@@ -54,20 +56,30 @@ const patientBottomItems = [
   { name: "Help & Support", icon: HelpCircle, href: "/patient/help" },
 ]
 
+// Items rendered inside the header avatar dropdown. Kept distinct from the
+// sidebar items so we can expose role-appropriate shortcuts (e.g. patients
+// land on /patient/profile, staff land on /admin/settings).
+const adminMenuItems: UserMenuItem[] = [
+  { label: "My profile", href: "/admin/profile", icon: User },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
+  { label: "Help & Support", href: "/admin/help", icon: HelpCircle },
+]
+
+const patientMenuItems: UserMenuItem[] = [
+  { label: "My profile", href: "/patient/profile", icon: User },
+  { label: "My appointments", href: "/patient/appointments", icon: CalendarCheck2 },
+  { label: "Help & Support", href: "/patient/help", icon: HelpCircle },
+]
+
 export default function UnifiedDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const displayName = session?.user?.fullName ?? "Loading…"
-  const avatarUrl = session?.user?.avatarUrl ?? null
-  
   const rawRole = session?.user?.role
-  const displayRole = rawRole
-    ? rawRole.charAt(0) + rawRole.slice(1).toLowerCase().replace(/_/g, " ")
-    : ""
 
   const isPatient = rawRole === "PATIENT"
   const sidebarItems = isPatient ? patientSidebarItems : adminSidebarItems
   const bottomItems = isPatient ? patientBottomItems : adminBottomItems
+  const menuItems = isPatient ? patientMenuItems : adminMenuItems
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -137,38 +149,22 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header */}
-        <header className="h-[72px] bg-white border-b border-[#EAECF0] px-8 flex items-center justify-between flex-shrink-0">
-          <div className="relative w-[400px]">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-[#667085]" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="block w-full pl-11 pr-3 py-2 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-            />
-          </div>
-
+        {/* Top Header — the global search will be wired up when the
+            search API lands; until then it would be misleading, so the
+            slot is intentionally empty. The Moon and Bell buttons used
+            to be decorative; they're now backed by ThemeToggle and
+            NotificationBell, which have real handlers + a real feed. */}
+        <header className="h-[72px] bg-white border-b border-[#EAECF0] px-8 flex items-center justify-end flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 border-r border-[#EAECF0] pr-4 mr-2">
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors">
-                <Moon className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              <ThemeToggle className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors" />
+              <NotificationBell
+                buttonClassName="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative"
+                iconClassName="h-5 w-5"
+              />
             </div>
-            
-            <button className="flex items-center gap-3 hover:bg-gray-50 p-1.5 pr-3 rounded-lg transition-all group">
-              <UserAvatar name={displayName} src={avatarUrl} size={36} />
-              <div className="flex flex-col items-start">
-                <span className="text-sm font-semibold text-[#101828] leading-tight">{displayName}</span>
-                <span className="text-xs text-[#667085]">{displayRole}</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-[#667085] group-hover:text-[#101828] transition-colors" />
-            </button>
+
+            <UserMenu items={menuItems} signOutRedirect="/login" />
           </div>
         </header>
 

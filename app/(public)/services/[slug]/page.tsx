@@ -100,7 +100,7 @@ function ServiceHero({ svc }: { svc: ServiceContent }) {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <CTAButton href="/contact" variant="olive">
+            <CTAButton href="/assessment" variant="olive">
               Book Consultation
             </CTAButton>
             <CTAButton href="#approach" variant="burgundy-outline">
@@ -411,7 +411,7 @@ function ClosingBand() {
             Start your physician-led biological evaluation.
           </p>
           <div className="mt-6">
-            <CTAButton href="/contact" variant="burgundy" size="lg">
+            <CTAButton href="/assessment" variant="burgundy" size="lg">
               Request A Consultation
             </CTAButton>
           </div>

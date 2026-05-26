@@ -267,6 +267,9 @@ model Patient {
   occupation       String?
   placeOfResidence String?   @map("place_of_residence")
   address          String?
+  /// S3 object key (assets bucket) for the patient's profile photo.
+  /// Same shape as Staff.avatarUrl — null when no avatar is uploaded.
+  avatarUrl        String?   @map("avatar_url")
 
   status PatientStatus @default(ACTIVE)
 
@@ -295,6 +298,10 @@ model Patient {
   treatmentPlans TreatmentPlan[]
   invoices       Invoice[]
   infusionLogs   InfusionLog[]
+  /// Every completed public-site Health Assessment quiz is captured here.
+  /// One row per attempt — retakes are stored as fresh rows so the doctor
+  /// can compare scores over time.
+  assessmentSubmissions AssessmentSubmission[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -969,4 +976,99 @@ model Notification {
   @@index([userId, readAt, createdAt(sort: Desc)])
   @@index([sourceType, sourceRefId])
   @@map("notifications")
+}
+
+// ===========================================================================
+// AssessmentSubmission — public-site Health Assessment quiz capture.
+// ===========================================================================
+
+/// Severity band from the scoring engine. Mirrored from the public-site
+/// `SeverityBand` TypeScript type so the admin views can format submissions
+/// consistently.
+enum AssessmentBand {
+  OPTIMAL
+  MILD
+  MODERATE
+  SIGNIFICANT
+}
+
+/// Lifecycle of an assessment-driven booking. Reception confirms a slot
+/// → CONFIRMED. Doctor sees the patient → COMPLETED. Patient cancels or
+/// no-shows → CANCELLED.
+enum AssessmentSubmissionStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+/// One row per completed Health Assessment quiz on the public site.
+///
+/// Each quiz submission is an immutable record — when a returning patient
+/// retakes the quiz we INSERT a fresh row (we never update). That gives
+/// the doctor a longitudinal view of how a patient's score moves over
+/// time. The `patientId` links every row to the (auto-upserted) patient.
+///
+/// `answers`, `byCategory`, `topRisks`, and `suggestedFocus` are stored
+/// as JSONB so the schema doesn't need to change every time the public
+/// quiz adds a new question or category.
+model AssessmentSubmission {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Patient this submission belongs to. We upsert by email when a brand-
+  /// new visitor books an assessment so a Patient always exists by the
+  /// time the row is written. Restrict on delete — we don't want to lose
+  /// clinical-history artefacts when a patient row gets removed.
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  /// Snapshot of the contact details supplied at the time of booking.
+  /// These can drift from the Patient row over time (the patient may
+  /// later update their phone number, for example), and we want the
+  /// booking record to preserve the values the patient actually gave us.
+  contactName  String  @map("contact_name")
+  contactEmail String  @map("contact_email") @db.Citext
+  contactPhone String  @map("contact_phone")
+  contactSex   String? @map("contact_sex")
+
+  /// Requested booking slot. UTC timestamp combined from the date +
+  /// time strings the booking form posts. We keep the raw time string
+  /// alongside the timestamp so the admin UI can render the patient's
+  /// preferred local time even if the server timezone differs.
+  preferredAt   DateTime @map("preferred_at") @db.Timestamptz()
+  preferredTime String   @map("preferred_time")
+  notes         String?
+
+  /// Scoring output.
+  totalScore Int            @map("total_score")
+  scoreOutOf Int            @map("score_out_of")
+  band       AssessmentBand
+
+  /// Per-category subtotals, top risks, and suggested focus as returned
+  /// by `scoreQuiz()`. Kept as JSON so adding categories to the quiz
+  /// doesn't require a migration.
+  byCategory     Json @map("by_category")
+  topRisks       Json @map("top_risks")
+  suggestedFocus Json @map("suggested_focus")
+
+  /// Raw answer payload — the exact map of question id → answer value
+  /// the public site sent in. Enough to reconstruct the patient's full
+  /// quiz on the admin detail page.
+  answers Json
+
+  /// Human-readable booking reference (e.g. "BOOK-A1B2C3D4"). The
+  /// confirmation page shows this to the patient.
+  bookingRef String @unique @map("booking_ref")
+
+  status AssessmentSubmissionStatus @default(REQUESTED)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Admin list view orders by most recent first; the per-patient
+  // history view orders by createdAt descending too.
+  @@index([createdAt(sort: Desc)])
+  @@index([patientId, createdAt(sort: Desc)])
+  @@index([status])
+  @@map("assessment_submissions")
 }

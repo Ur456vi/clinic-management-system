@@ -223,7 +223,7 @@ export default function AboutPage() {
               Start your physician-led biological evaluation.
             </p>
             <div className="mt-6">
-              <CTAButton href="/contact" variant="burgundy" size="lg">
+              <CTAButton href="/assessment" variant="burgundy" size="lg">
                 Request A Consultation
               </CTAButton>
             </div>

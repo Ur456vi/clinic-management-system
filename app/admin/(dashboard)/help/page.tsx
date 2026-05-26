@@ -1,5 +1,5 @@
 import React from "react"
-import { HelpCircle, Mail, MessageCircle, FileText, ExternalLink } from "lucide-react"
+import { Mail, MessageCircle, FileText, ExternalLink } from "lucide-react"
 
 export default function HelpSupportPage() {
   return (
@@ -39,10 +39,13 @@ export default function HelpSupportPage() {
             <Mail className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-semibold text-[#101828] mb-1">Email Support</h3>
-          <p className="text-sm text-[#667085] mb-4">Send us an email and we'll get back to you within 24 hours.</p>
-          <span className="text-sm font-medium text-[#2E37A4]">
-            support@vyara.local
-          </span>
+          <p className="text-sm text-[#667085] mb-4">Send us an email and we&apos;ll get back to you within 24 hours.</p>
+          <a
+            href="mailto:care@precisionhealth.in"
+            className="text-sm font-medium text-[#2E37A4] hover:underline"
+          >
+            care@precisionhealth.in
+          </a>
         </div>
       </div>
 
@@ -54,11 +57,11 @@ export default function HelpSupportPage() {
         <div className="divide-y divide-[#EAECF0]">
           <div className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
             <h4 className="text-sm font-semibold text-[#101828] mb-1">How do I add a new patient?</h4>
-            <p className="text-sm text-[#667085]">Navigate to the Patients tab on the left sidebar, and click the "Add New Patient" button in the top right corner.</p>
+            <p className="text-sm text-[#667085]">Navigate to the Patients tab on the left sidebar, and click the &quot;Add New Patient&quot; button in the top right corner.</p>
           </div>
           <div className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
             <h4 className="text-sm font-semibold text-[#101828] mb-1">Can I reset my password?</h4>
-            <p className="text-sm text-[#667085]">Yes, you can reset your password from the login screen using the "Forgot Password" link, or by contacting your system administrator.</p>
+            <p className="text-sm text-[#667085]">Yes, you can reset your password from the login screen using the &quot;Forgot Password&quot; link, or by contacting your system administrator.</p>
           </div>
           <div className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
             <h4 className="text-sm font-semibold text-[#101828] mb-1">Where are the invoices stored?</h4>

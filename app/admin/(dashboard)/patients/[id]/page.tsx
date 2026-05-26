@@ -1,19 +1,19 @@
 "use client"
 
 /**
- * Patient detail / edit landing page.
+ * Patient detail / edit page — real fetch + PATCH against /api/patients/[id].
  *
- * Wired up for BUG-003: the per-row View / Edit buttons in the patients
- * list now route here. We expose a single component that renders either
- * the read-only detail view or the in-place edit form depending on
- * `?edit=1`. The data itself is still stubbed pending BE-04 (patient
- * read) wiring — this page intentionally avoids 404'ing for any
- * patient id so the action buttons feel correct end-to-end.
+ * Replaces the previous stub which rendered "—" everywhere and called
+ * notify.success() without actually saving. The page now:
+ *   - GETs the patient on mount
+ *   - Renders read-only details by default
+ *   - Switches to an in-place edit form when ?edit=1 is in the URL
+ *   - PATCHes the diff on submit and surfaces zod field errors inline
  */
 
-import React from "react"
 import Link from "next/link"
-import { useParams, useSearchParams, useRouter } from "next/navigation"
+import { useCallback, useEffect, useState, use } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   Mail,
@@ -21,20 +21,180 @@ import {
   Calendar,
   ShieldCheck,
   Pencil,
+  Loader2,
+  AlertCircle,
+  Save,
+  X,
 } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 
-export default function PatientDetailPage() {
-  const params = useParams()
+type Status = "ACTIVE" | "INACTIVE" | "ARCHIVED"
+
+interface PatientApi {
+  id: string
+  patientNumber: string
+  fullName: string
+  email: string | null
+  phone: string | null
+  dateOfBirth: string | null
+  sex: "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED" | null
+  occupation: string | null
+  placeOfResidence: string | null
+  address: string | null
+  status: Status
+  createdAt: string
+  updatedAt: string
+}
+
+type FormState = {
+  fullName: string
+  email: string
+  phone: string
+  dateOfBirth: string
+  sex: "" | "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED"
+  occupation: string
+  placeOfResidence: string
+  address: string
+  status: Status
+}
+
+function patientToForm(p: PatientApi): FormState {
+  return {
+    fullName: p.fullName ?? "",
+    email: p.email ?? "",
+    phone: p.phone ?? "",
+    dateOfBirth: p.dateOfBirth?.slice(0, 10) ?? "",
+    sex: p.sex ?? "",
+    occupation: p.occupation ?? "",
+    placeOfResidence: p.placeOfResidence ?? "",
+    address: p.address ?? "",
+    status: p.status,
+  }
+}
+
+function formToPatch(f: FormState) {
+  const optional = (v: string) => (v.trim() === "" ? undefined : v.trim())
+  return {
+    fullName: f.fullName.trim(),
+    email: optional(f.email),
+    phone: optional(f.phone),
+    dateOfBirth: optional(f.dateOfBirth),
+    sex: f.sex === "" ? undefined : f.sex,
+    occupation: optional(f.occupation),
+    placeOfResidence: optional(f.placeOfResidence),
+    address: optional(f.address),
+    status: f.status,
+  }
+}
+
+export default function PatientDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = use(params)
   const search = useSearchParams()
   const router = useRouter()
-  const id = (params?.id as string) ?? ""
   const editing = search?.get("edit") === "1"
+
+  const [patient, setPatient] = useState<PatientApi | null>(null)
+  const [form, setForm] = useState<FormState | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  const fetchOne = useCallback(async () => {
+    setError(null)
+    try {
+      const res = await fetch(`/api/patients/${id}`, { credentials: "include" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const data: PatientApi = json?.data ?? json
+      setPatient(data)
+      setForm(patientToForm(data))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load patient")
+    } finally {
+      setLoading(false)
+    }
+  }, [id])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    void fetchOne()
+  }, [fetchOne])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form || saving) return
+    setSaving(true)
+    setFieldErrors({})
+    try {
+      const res = await fetch(`/api/patients/${id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formToPatch(form)),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        const issues = json?.error?.issues
+        if (Array.isArray(issues)) {
+          const map: Record<string, string> = {}
+          for (const issue of issues) {
+            const path = Array.isArray(issue.path) ? issue.path.join(".") : ""
+            if (path) map[path] = issue.message
+          }
+          setFieldErrors(map)
+        }
+        throw new Error(json?.error?.message ?? "Save failed")
+      }
+      notify.success("Patient updated")
+      router.push(`/admin/patients/${id}`)
+      await fetchOne()
+    } catch (err) {
+      notify.error("Couldn't save patient", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 flex items-center gap-3 text-sm text-[#667085]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" /> Loading patient…
+      </div>
+    )
+  }
+
+  if (error || !patient) {
+    return (
+      <div className="p-8 max-w-xl">
+        <div className="bg-white border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
+          <AlertCircle className="h-5 w-5 text-[#F04438]" />
+          <p className="text-sm font-semibold text-[#B42318]">
+            {error ?? "Patient not found"}
+          </p>
+          <Link
+            href="/admin/patients"
+            className="text-sm text-[#2E37A4] hover:underline font-semibold"
+          >
+            ← Back to all patients
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Link
             href="/admin/patients"
@@ -45,9 +205,11 @@ export default function PatientDetailPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-[#101828]">
-              {editing ? "Edit patient" : "Patient details"}
+              {editing ? "Edit patient" : patient.fullName}
             </h1>
-            <p className="text-sm text-[#667085] mt-1">ID: {id}</p>
+            <p className="text-xs text-[#98A2B3] mt-1">
+              Patient #{patient.patientNumber} · <span className="font-mono">{patient.id}</span>
+            </p>
           </div>
         </div>
 
@@ -66,98 +228,192 @@ export default function PatientDetailPage() {
           <h2 className="text-base font-semibold text-[#101828] mb-4">
             Contact information
           </h2>
-          {editing ? (
+          {editing && form ? (
             <form
+              onSubmit={handleSave}
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              onSubmit={(e) => {
-                e.preventDefault()
-                notify.success("Patient updated", {
-                  description: `Saved changes for ${id}`,
-                })
-                router.push(`/admin/patients/${id}`)
-              }}
             >
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-[#344054] font-medium">Full name</span>
+              <Field label="Full name" required error={fieldErrors.fullName}>
                 <input
-                  defaultValue=""
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   placeholder="Patient name"
-                  className="h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm"
+                  className={inputCls}
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-[#344054] font-medium">Email</span>
+              </Field>
+              <Field label="Email" error={fieldErrors.email}>
                 <input
                   type="email"
-                  defaultValue=""
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="name@example.com"
-                  className="h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm"
+                  className={inputCls}
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-[#344054] font-medium">Phone</span>
+              </Field>
+              <Field label="Phone" error={fieldErrors.phone}>
                 <input
-                  defaultValue=""
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+91 …"
-                  className="h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm"
+                  className={inputCls}
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="text-[#344054] font-medium">Status</span>
+              </Field>
+              <Field label="Date of birth" error={fieldErrors.dateOfBirth}>
+                <input
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Sex" error={fieldErrors.sex}>
                 <select
-                  defaultValue="Active"
-                  className="h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm bg-white"
+                  value={form.sex}
+                  onChange={(e) =>
+                    setForm({ ...form, sex: e.target.value as FormState["sex"] })
+                  }
+                  className={inputCls}
                 >
-                  <option>Active</option>
-                  <option>Inactive</option>
-                  <option>Archived</option>
+                  <option value="">—</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                  <option value="UNDISCLOSED">Undisclosed</option>
                 </select>
-              </label>
+              </Field>
+              <Field label="Status">
+                <select
+                  value={form.status}
+                  onChange={(e) =>
+                    setForm({ ...form, status: e.target.value as Status })
+                  }
+                  className={inputCls}
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                  <option value="ARCHIVED">Archived</option>
+                </select>
+              </Field>
+              <Field label="Occupation" error={fieldErrors.occupation}>
+                <input
+                  value={form.occupation}
+                  onChange={(e) => setForm({ ...form, occupation: e.target.value })}
+                  placeholder="Occupation"
+                  className={inputCls}
+                />
+              </Field>
+              <Field
+                label="Place of residence"
+                error={fieldErrors.placeOfResidence}
+              >
+                <input
+                  value={form.placeOfResidence}
+                  onChange={(e) =>
+                    setForm({ ...form, placeOfResidence: e.target.value })
+                  }
+                  placeholder="City / region"
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Address" wide error={fieldErrors.address}>
+                <textarea
+                  rows={2}
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  placeholder="Street, locality, city, postal code"
+                  className="rounded-lg border border-[#D0D5DD] p-3 text-sm w-full bg-white"
+                />
+              </Field>
+
               <div className="md:col-span-2 flex items-center gap-3 mt-2">
                 <Button
                   type="submit"
-                  className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold"
+                  disabled={saving}
+                  className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2"
                 >
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   Save changes
                 </Button>
                 <Link
                   href={`/admin/patients/${id}`}
-                  className="text-sm font-semibold text-[#667085] hover:text-[#101828]"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#667085] hover:text-[#101828]"
                 >
-                  Cancel
+                  <X className="h-4 w-4" /> Cancel
                 </Link>
               </div>
             </form>
           ) : (
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-              <div className="flex items-start gap-3">
-                <Mail className="h-4 w-4 text-[#667085] mt-0.5" />
-                <div>
-                  <dt className="text-xs uppercase text-[#667085]">Email</dt>
-                  <dd className="text-[#101828] font-medium">—</dd>
+              <DetailRow
+                icon={<Mail className="h-4 w-4" />}
+                label="Email"
+                value={patient.email ?? "—"}
+              />
+              <DetailRow
+                icon={<Phone className="h-4 w-4" />}
+                label="Phone"
+                value={patient.phone ?? "—"}
+              />
+              <DetailRow
+                icon={<Calendar className="h-4 w-4" />}
+                label="Date of birth"
+                value={
+                  patient.dateOfBirth
+                    ? new Date(patient.dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "—"
+                }
+              />
+              <DetailRow
+                icon={<Calendar className="h-4 w-4" />}
+                label="Registered"
+                value={new Date(patient.createdAt).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              />
+              <DetailRow
+                icon={<ShieldCheck className="h-4 w-4" />}
+                label="Status"
+                value={patient.status}
+              />
+              <DetailRow
+                icon={<ShieldCheck className="h-4 w-4" />}
+                label="Sex"
+                value={patient.sex ?? "—"}
+              />
+              {patient.occupation ? (
+                <DetailRow
+                  icon={<ShieldCheck className="h-4 w-4" />}
+                  label="Occupation"
+                  value={patient.occupation}
+                />
+              ) : null}
+              {patient.placeOfResidence ? (
+                <DetailRow
+                  icon={<ShieldCheck className="h-4 w-4" />}
+                  label="Place of residence"
+                  value={patient.placeOfResidence}
+                />
+              ) : null}
+              {patient.address ? (
+                <div className="md:col-span-2 border-t border-[#F2F4F7] pt-4">
+                  <dt className="text-xs uppercase text-[#667085] font-semibold tracking-wider mb-1">
+                    Address
+                  </dt>
+                  <dd className="text-sm text-[#344054] whitespace-pre-wrap">
+                    {patient.address}
+                  </dd>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="h-4 w-4 text-[#667085] mt-0.5" />
-                <div>
-                  <dt className="text-xs uppercase text-[#667085]">Phone</dt>
-                  <dd className="text-[#101828] font-medium">—</dd>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="h-4 w-4 text-[#667085] mt-0.5" />
-                <div>
-                  <dt className="text-xs uppercase text-[#667085]">Registered</dt>
-                  <dd className="text-[#101828] font-medium">—</dd>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="h-4 w-4 text-[#667085] mt-0.5" />
-                <div>
-                  <dt className="text-xs uppercase text-[#667085]">Status</dt>
-                  <dd className="text-[#101828] font-medium">Active</dd>
-                </div>
-              </div>
+              ) : null}
             </dl>
           )}
         </div>
@@ -167,9 +423,60 @@ export default function PatientDetailPage() {
             Recent activity
           </h2>
           <p className="text-sm text-[#667085]">
-            No recent activity to show for this patient yet.
+            Appointments and notes for this patient will appear here once the
+            consultation flow is connected.
           </p>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── atoms ────────────────────────────────────────────────────────── */
+
+const inputCls =
+  "h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm w-full bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+
+function Field({
+  label,
+  required,
+  wide,
+  error,
+  children,
+}: {
+  label: string
+  required?: boolean
+  wide?: boolean
+  error?: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className={`flex flex-col gap-1.5 text-sm ${wide ? "md:col-span-2" : ""}`}>
+      <span className="text-[#344054] font-medium">
+        {label}
+        {required ? <span className="text-[#B42318]"> *</span> : null}
+      </span>
+      {children}
+      {error ? <span className="text-xs text-[#B42318]">{error}</span> : null}
+    </label>
+  )
+}
+
+function DetailRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="text-[#667085] mt-0.5">{icon}</div>
+      <div>
+        <dt className="text-xs uppercase text-[#667085]">{label}</dt>
+        <dd className="text-[#101828] font-medium">{value}</dd>
       </div>
     </div>
   )

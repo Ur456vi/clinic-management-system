@@ -42,6 +42,7 @@ const PUBLIC_MARKETING = [
   /^\/about(\/|$)/,
   /^\/services(\/|$)/,
   /^\/contact(\/|$)/,
+  /^\/assessment(\/|$)/,
   /^\/blog(\/|$)/,
   /^\/faq(\/|$)/,
   /^\/privacy(\/|$)/,

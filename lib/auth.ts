@@ -72,6 +72,14 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) return null
 
+        // NOTE: `patient.avatarUrl` is queried via a permissive cast below
+        // rather than included in this select. The column was added to the
+        // schema in migration 20260525000000_patient_avatar_url but if the
+        // generated Prisma client hasn't been regenerated locally yet
+        // (or the migration hasn't been applied) the include would throw
+        // "Unknown field avatarUrl" and break sign-in for everyone. Run
+        // `npm run prisma:generate && npm run prisma:migrate` to pick up
+        // the new field; until then we read it defensively further down.
         const user = await db.user.findUnique({
           where: { email },
           include: {
@@ -103,7 +111,6 @@ export const authOptions: NextAuthOptions = {
             }),
           ])
         } catch (err) {
-          // eslint-disable-next-line no-console
           console.error("[auth] failed to record login audit", err)
         }
 
@@ -112,7 +119,12 @@ export const authOptions: NextAuthOptions = {
           user.patient?.fullName ??
           user.email
 
-        const avatarUrl = user.staff?.avatarUrl ?? null
+        // Permissive read of patient.avatarUrl — see the NOTE above the
+        // findUnique call. Falls back to null on older clients/DBs that
+        // don't have the column yet.
+        const patientAvatarUrl =
+          (user.patient as { avatarUrl?: string | null } | null)?.avatarUrl ?? null
+        const avatarUrl = user.staff?.avatarUrl ?? patientAvatarUrl ?? null
 
         return {
           id: user.id,
