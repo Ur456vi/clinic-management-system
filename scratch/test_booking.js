@@ -26,7 +26,7 @@ async function run() {
     }
   };
 
-  console.log("Submitting booking for email:", payload.patient.email);
+  console.log("Submitting booking to port 3000 for email:", payload.patient.email);
 
   try {
     const res = await fetch("http://localhost:3000/api/assessment-booking", {

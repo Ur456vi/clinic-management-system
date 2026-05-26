@@ -130,6 +130,11 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   const bookingRef = `BOOK-${randomUUID().slice(0, 8).toUpperCase()}`;
   const emailNormalised = body.patient.email.trim().toLowerCase();
 
+  // Generate secure temporary password and hash it before starting the transaction
+  // to avoid holding locks or timing out the transaction on slow CPU hashing operations.
+  const generatedPassword = `Vyara@${randomBytes(4).toString("hex")}`;
+  const passwordHash = await hashPassword(generatedPassword);
+
   const { submission, patient, isNewPatient, tempPassword } = await db.$transaction(
     async (tx) => {
       // ── 1. Upsert the patient by email ────────────────────────────
@@ -140,15 +145,13 @@ export const POST = defineHandler(async ({ req, requestId }) => {
 
       let patientRow: { id: string; patientNumber: string };
       let isNew = false;
-      let generatedPassword = "";
+      let tempPasswordUsed = "";
 
       if (existing) {
         patientRow = existing;
       } else {
         isNew = true;
-        // Generate secure temporary password for the patient portal login
-        generatedPassword = `Vyara@${randomBytes(4).toString("hex")}`;
-        const passwordHash = await hashPassword(generatedPassword);
+        tempPasswordUsed = generatedPassword;
 
         // Create User record
         const user = await tx.user.create({
@@ -275,9 +278,12 @@ export const POST = defineHandler(async ({ req, requestId }) => {
         submission: inserted,
         patient: patientRow,
         isNewPatient: isNew,
-        tempPassword: generatedPassword,
+        tempPassword: tempPasswordUsed,
       };
     },
+    {
+      timeout: 15000,
+    }
   );
 
   logger.info(
