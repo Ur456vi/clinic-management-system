@@ -67,7 +67,7 @@ type PatientProfile = {
   patientEmail: string | null;
   phone: string | null;
   dateOfBirth: string | null;
-  sex: "MALE" | "FEMALE" | "OTHER" | "UNKNOWN" | null;
+  sex: "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED" | null;
   occupation: string | null;
   placeOfResidence: string | null;
   address: string | null;
@@ -97,7 +97,7 @@ type PatientForm = {
   patientEmail: string;
   phone: string;
   dateOfBirth: string;
-  sex: "" | "MALE" | "FEMALE" | "OTHER" | "UNKNOWN";
+  sex: "" | "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED";
   occupation: string;
   placeOfResidence: string;
   address: string;
@@ -538,7 +538,7 @@ function ProfileTab({
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
                   <option value="OTHER">Other</option>
-                  <option value="UNKNOWN">Unknown</option>
+                  <option value="UNDISCLOSED">Prefer not to say</option>
                 </select>
               </Field>
               <Field label="Occupation" error={fieldErrors.occupation}>

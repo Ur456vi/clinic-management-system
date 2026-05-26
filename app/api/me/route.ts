@@ -63,7 +63,10 @@ const patientPatchSchema = z
     email: optionalNullable(z.string().email("Invalid email").max(255)),
     phone: optionalNullable(trimmedString(32)),
     dateOfBirth: optionalNullable(z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"))),
-    sex: optionalNullable(z.enum(["MALE", "FEMALE", "OTHER", "UNKNOWN"])),
+    // Must match the Prisma `Sex` enum exactly. The DB uses "UNDISCLOSED"
+    // (not "UNKNOWN") — keep them in lockstep so Patient.update accepts
+    // the value.
+    sex: optionalNullable(z.enum(["MALE", "FEMALE", "OTHER", "UNDISCLOSED"])),
     occupation: optionalNullable(trimmedString(120)),
     placeOfResidence: optionalNullable(trimmedString(255)),
     address: optionalNullable(trimmedString(500)),
