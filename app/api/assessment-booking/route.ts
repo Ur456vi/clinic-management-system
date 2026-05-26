@@ -27,12 +27,19 @@ import {
   AssessmentBand,
   AssessmentSubmissionStatus,
   Prisma,
+  AuditAction,
+  Role,
+  AppointmentStatus,
+  Sex,
 } from "@prisma/client";
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomBytes } from "node:crypto";
 import { z } from "zod";
 
 import { defineHandler, logger, ok } from "@/lib/api";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
+import { hashPassword } from "@/lib/passwords";
+import { sendMail } from "@/lib/email";
 
 const patientSchema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(120),
@@ -123,21 +130,48 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   const bookingRef = `BOOK-${randomUUID().slice(0, 8).toUpperCase()}`;
   const emailNormalised = body.patient.email.trim().toLowerCase();
 
-  const { submission, patient, isNewPatient } = await db.$transaction(
+  const { submission, patient, isNewPatient, tempPassword } = await db.$transaction(
     async (tx) => {
       // ── 1. Upsert the patient by email ────────────────────────────
       const existing = await tx.patient.findFirst({
         where: { email: { equals: emailNormalised, mode: "insensitive" } },
-        select: { id: true, fullName: true, email: true, patientNumber: true },
+        select: { id: true, fullName: true, email: true, patientNumber: true, primaryDoctorId: true },
       });
 
       let patientRow: { id: string; patientNumber: string };
       let isNew = false;
+      let generatedPassword = "";
 
       if (existing) {
         patientRow = existing;
       } else {
         isNew = true;
+        // Generate secure temporary password for the patient portal login
+        generatedPassword = `Vyara@${randomBytes(4).toString("hex")}`;
+        const passwordHash = await hashPassword(generatedPassword);
+
+        // Create User record
+        const user = await tx.user.create({
+          data: {
+            email: emailNormalised,
+            passwordHash,
+            role: Role.PATIENT,
+            isActive: true,
+          },
+          select: { id: true },
+        });
+
+        // Audit user creation
+        await tx.auditLog.create({
+          data: {
+            actorUserId: null,
+            action: AuditAction.CREATE,
+            entityType: "User",
+            entityId: user.id,
+            detail: { role: Role.PATIENT, email: emailNormalised },
+          },
+        });
+
         const patientNumber = await nextPatientNumber(tx);
         const created = await tx.patient.create({
           data: {
@@ -147,13 +181,71 @@ export const POST = defineHandler(async ({ req, requestId }) => {
             phone: body.patient.phone,
             sex: mapSex(body.patient.sex),
             referralSource: "Public site — Health Assessment",
+            userId: user.id,
           },
           select: { id: true, patientNumber: true },
         });
         patientRow = created;
+
+        // Audit patient creation
+        await tx.auditLog.create({
+          data: {
+            actorUserId: null,
+            action: AuditAction.CREATE,
+            entityType: "Patient",
+            entityId: created.id,
+            detail: { patientNumber, fullName: body.patient.name },
+          },
+        });
       }
 
-      // ── 2. Insert the assessment submission ───────────────────────
+      // ── 2. Find a default doctor and create Appointment ────────────
+      const defaultDoctor = await tx.staff.findFirst({
+        where: { user: { role: Role.DOCTOR } },
+        select: { id: true },
+      });
+
+      if (!defaultDoctor) {
+        throw new Error("No active doctors found to assign the appointment.");
+      }
+
+      const selectedDoctorId = (existing && existing.primaryDoctorId)
+        ? existing.primaryDoctorId
+        : defaultDoctor.id;
+
+      const endsAt = new Date(preferredAt.getTime() + 45 * 60 * 1000);
+
+      const appointment = await tx.appointment.create({
+        data: {
+          patientId: patientRow.id,
+          staffId: selectedDoctorId,
+          startsAt: preferredAt,
+          endsAt,
+          status: AppointmentStatus.REQUESTED,
+          reason: "Comprehensive Hormone & Metabolic Assessment",
+          notes: body.slot.notes ?? null,
+        },
+        select: { id: true },
+      });
+
+      // Audit appointment creation
+      await tx.auditLog.create({
+        data: {
+          actorUserId: null,
+          action: AuditAction.CREATE,
+          entityType: "Appointment",
+          entityId: appointment.id,
+          detail: {
+            channel: "PUBLIC_WIZARD",
+            patientId: patientRow.id,
+            staffId: selectedDoctorId,
+            startsAt: preferredAt.toISOString(),
+            endsAt: endsAt.toISOString(),
+          },
+        },
+      });
+
+      // ── 3. Insert the assessment submission ───────────────────────
       const inserted = await tx.assessmentSubmission.create({
         data: {
           patientId: patientRow.id,
@@ -179,7 +271,12 @@ export const POST = defineHandler(async ({ req, requestId }) => {
         select: { id: true, createdAt: true, bookingRef: true },
       });
 
-      return { submission: inserted, patient: patientRow, isNewPatient: isNew };
+      return {
+        submission: inserted,
+        patient: patientRow,
+        isNewPatient: isNew,
+        tempPassword: generatedPassword,
+      };
     },
   );
 
@@ -197,6 +294,65 @@ export const POST = defineHandler(async ({ req, requestId }) => {
     },
     "assessment-booking: persisted",
   );
+
+  // ── 4. Send email via Brevo/Resend (best-effort async) ────────────────
+  const dateStr = preferredAt.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const timeStr = body.slot.time;
+
+  let emailSubject = "";
+  let emailText = "";
+
+  if (isNewPatient) {
+    emailSubject = "Your Appointment & Account Confirmation - Vyara";
+    emailText = `Hello ${body.patient.name},
+
+Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Vyara.
+
+Your appointment is requested for:
+Date: ${dateStr}
+Time: ${timeStr}
+
+We have also set up your Patient Portal account so you can view your upcoming appointments, medical reports, and treatment plans.
+
+Your login credentials:
+Login URL: ${env.APP_URL}/login
+Email: ${emailNormalised}
+Temporary Password: ${tempPassword}
+
+Please log in and change your password upon your first visit.
+
+Best regards,
+The Vyara Team`;
+  } else {
+    emailSubject = "Your Appointment Confirmation - Vyara";
+    emailText = `Hello ${body.patient.name},
+
+Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Vyara.
+
+Your appointment is requested for:
+Date: ${dateStr}
+Time: ${timeStr}
+
+You can view your appointment details and keep track of your health updates by logging into your Patient Portal at:
+${env.APP_URL}/login
+
+Best regards,
+The Vyara Team`;
+  }
+
+  await sendMail({
+    to: emailNormalised,
+    subject: emailSubject,
+    text: emailText,
+  }).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error(`[assessment-booking] Failed to send email to ${emailNormalised}`, err);
+  });
 
   return ok({
     bookingId: submission.bookingRef,
