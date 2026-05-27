@@ -30,7 +30,7 @@ async function run() {
 
   try {
     const result = await sendMail({
-      to: "sharmaurvi48@gmail.com",
+      to: "priya.patient@example.com",
       subject: "Test Diagnostic Email",
       text: "This is a diagnostic email from the test script."
     });
