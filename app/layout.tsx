@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Playfair_Display, Pinyon_Script } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Adamina, Pinyon_Script, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -22,18 +22,24 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-// Public-site brand fonts. Playfair Display = display serif used for headings.
+// Public-site brand fonts. Adamina = display serif used for headings.
 // Pinyon Script = the cursive logotype that reads "Dr. Yuvraaj Singh M.D."
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const adamina = Adamina({
+  variable: "--font-adamina",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400"],
 });
 
 const pinyon = Pinyon_Script({
   variable: "--font-pinyon",
   subsets: ["latin"],
   weight: ["400"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -50,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${playfair.variable} ${pinyon.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${adamina.variable} ${pinyon.variable} ${playfair.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

@@ -11,16 +11,16 @@ import { InstagramIcon, LinkedInIcon, TwitterIcon } from "./icons";
 import { SERVICES } from "./services-config";
 
 const COMPANY_LINKS = [
-  { href: "/about", label: "About Us" },
-  { href: "/services/female-hormonal", label: "Services" },
-  { href: "/faq", label: "FAQ's" },
-  { href: "/contact", label: "Contact Us" },
+  { href: "/about", label: "ABOUT US" },
+  { href: "/services/female-hormonal", label: "SERVICES" },
+  { href: "/faq", label: "FAQ'S" },
+  { href: "/contact", label: "CONTACT US" },
 ];
 
 const POLICY_LINKS = [
-  { href: "/privacy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms of Service" },
-  { href: "/consumer-health-privacy", label: "Consumer Health Data Privacy Policy" },
+  { href: "/privacy", label: "PRIVACY POLICY" },
+  { href: "/terms", label: "TERMS OF SERVICE" },
+  { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
 ];
 
 function ColumnHeading({ children }: { children: React.ReactNode }) {
@@ -37,23 +37,22 @@ function ColumnHeading({ children }: { children: React.ReactNode }) {
 export default function Footer() {
   return (
     <footer
-      className="w-full"
-      style={{ background: "var(--brand-cream)" }}
+      className="w-full py-16 md:py-24 px-4 sm:px-6 md:px-12 flex justify-center"
+      style={{ background: "#FEF9EF" }}
     >
       <div
-        className="mx-auto max-w-[1440px] px-6 pb-10 pt-16 md:px-12"
+        className="w-full max-w-[1556px] rounded-[54px] border border-[#A3B18A]/20 p-8 md:p-16 flex flex-col items-stretch transition-all duration-300 hover:shadow-lg"
+        style={{
+          background: "#EFE8DC",
+        }}
       >
-        {/* Monogram banner */}
-        <div
-          className="mb-12 flex items-center justify-center border-b pb-10"
-          style={{ borderColor: "var(--brand-rule)" }}
-        >
+        {/* Luxury Title Banner */}
+        <div className="mb-16 flex items-center justify-center">
           <span
-            className="text-3xl md:text-5xl"
+            className="text-2xl md:text-4xl uppercase tracking-[0.2em] font-medium text-center"
             style={{
-              fontFamily: "var(--font-script)",
-              color: "var(--brand-rule)",
-              letterSpacing: "0.05em",
+              fontFamily: "var(--font-display), Georgia, serif",
+              color: "var(--brand-burgundy)",
             }}
           >
             Dr. Yuvraaj Singh, M.D.
@@ -63,13 +62,13 @@ export default function Footer() {
         {/* 4-column grid */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
           <div>
-            <ColumnHeading>Company</ColumnHeading>
+            <ColumnHeading>COMPANY</ColumnHeading>
             <ul className="space-y-3">
               {COMPANY_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm transition-colors hover:underline"
+                    className="text-xs transition-colors hover:opacity-85 font-sans font-medium tracking-[0.05em]"
                     style={{ color: "var(--brand-ink)" }}
                   >
                     {l.label}
@@ -80,13 +79,13 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-1">
-            <ColumnHeading>Our Services</ColumnHeading>
+            <ColumnHeading>OUR SERVICES</ColumnHeading>
             <ul className="space-y-3">
               {SERVICES.map((s) => (
                 <li key={s.slug}>
                   <Link
                     href={`/services/${s.slug}`}
-                    className="text-sm uppercase tracking-wider transition-colors hover:underline"
+                    className="text-xs uppercase tracking-wider transition-colors hover:opacity-85 font-sans font-medium"
                     style={{
                       color: "var(--brand-ink)",
                       letterSpacing: "0.05em",
@@ -101,13 +100,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <ColumnHeading>Policies</ColumnHeading>
+            <ColumnHeading>POLICIES</ColumnHeading>
             <ul className="space-y-3">
               {POLICY_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-sm transition-colors hover:underline"
+                    className="text-xs transition-colors hover:opacity-85 font-sans font-medium tracking-[0.05em]"
                     style={{ color: "var(--brand-ink)" }}
                   >
                     {l.label}
@@ -118,7 +117,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <ColumnHeading>Final Positioning</ColumnHeading>
+            <ColumnHeading>FINAL POSITIONING</ColumnHeading>
             <p
               className="mb-5 text-sm leading-relaxed"
               style={{ color: "var(--brand-ink-soft)" }}
@@ -127,19 +126,19 @@ export default function Footer() {
             </p>
             <Link
               href="/contact"
-              className="inline-block rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-white shadow-sm transition-colors hover:opacity-95"
+              className="inline-block rounded-full px-6 py-3 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm transition-colors hover:opacity-95"
               style={{
                 background: "var(--brand-burgundy)",
-                letterSpacing: "0.12em",
+                letterSpacing: "0.15em",
               }}
             >
-              Book Appointment
+              BOOK APPOINTMENT
             </Link>
           </div>
         </div>
 
         {/* Social row */}
-        <div className="mt-12 flex items-center justify-center gap-5">
+        <div className="mt-16 flex items-center justify-center gap-6">
           {[
             { Icon: InstagramIcon, href: "#", label: "Instagram" },
             { Icon: LinkedInIcon, href: "#", label: "LinkedIn" },
@@ -149,23 +148,22 @@ export default function Footer() {
               key={label}
               href={href}
               aria-label={label}
-              className="transition-colors hover:opacity-70"
-              style={{ color: "var(--brand-ink-soft)" }}
+              className="text-[#1A1A1A] transition-opacity hover:opacity-75"
             >
-              <Icon size={18} />
+              <Icon size={24} />
             </a>
           ))}
         </div>
 
         {/* Divider + copyright */}
         <div
-          className="mt-8 border-t pt-6 text-center text-xs"
+          className="mt-10 border-t pt-6 text-center text-xs"
           style={{
-            borderColor: "var(--brand-rule)",
+            borderColor: "rgba(163, 177, 138, 0.2)",
             color: "var(--brand-mute)",
           }}
         >
-          Copyright {new Date().getFullYear()}, All Rights Reserved by Dr. Yuvraaj Singh MD
+          Copyright 2026, All Rights Reserved by Dr. Yuvraaj Singh MD
         </div>
       </div>
     </footer>
