@@ -51,6 +51,7 @@ const PUBLIC_MARKETING = [
 ]
 
 function isProtected(pathname: string) {
+  if (isPublicAuth(pathname)) return false
   return PROTECTED.some((re) => re.test(pathname))
 }
 
@@ -124,5 +125,5 @@ export async function proxy(req: NextRequest) {
 
 // Match everything except static + API. Proxy itself filters further.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }
