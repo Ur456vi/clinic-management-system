@@ -29,6 +29,7 @@ type EnvShape = {
 
   // Email
   RESEND_API_KEY: string | undefined
+  BREVO_API_KEY: string | undefined
   EMAIL_FROM: string
 
   // WhatsApp (all optional — feature can be off)
@@ -156,6 +157,7 @@ const env: EnvShape = {
   OTP_LENGTH: intOpt("OTP_LENGTH", 5),
 
   RESEND_API_KEY: optional("RESEND_API_KEY"),
+  BREVO_API_KEY: optional("BREVO_API_KEY"),
   EMAIL_FROM: optional("EMAIL_FROM", "Vyara <no-reply@vyara.local>")!,
 
   WHATSAPP_PHONE_NUMBER_ID: optional("WHATSAPP_PHONE_NUMBER_ID"),
