@@ -86,7 +86,7 @@ export default function Header() {
           <div className="flex items-center gap-3 md:gap-4">
             <Link
               href="/assessment"
-              className="rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95"
+              className="rounded px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95"
               style={{
                 background: "var(--brand-burgundy)",
                 letterSpacing: "0.08em",
@@ -96,7 +96,7 @@ export default function Header() {
             </Link>
             <a
               href={PHONE_HREF}
-              className="hidden items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors md:flex"
+              className="hidden items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors md:flex"
               style={{
                 borderColor: "var(--brand-rule)",
                 color: "var(--brand-ink-soft)",
