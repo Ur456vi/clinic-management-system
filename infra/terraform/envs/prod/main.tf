@@ -15,11 +15,25 @@ module "network" {
 }
 
 # -----------------------------------------------------------------------------
-# Placeholder for INF-05: web tier (ALB + EC2 + ASG) will own sg-public-web.
-# Until INF-05 lands, we accept the web SG id as a variable so an operator can
-# either (a) wait for INF-05 and remove this, or (b) hand-create a stub SG and
-# pass its id at apply time. This keeps INF-04 independently appliable.
+# Web tier — public ALB + EC2 ASG. INF-05.
+# Exposes `web_security_group_id` to the RDS module so sg-rds allows 5432 from
+# the web tier only.
 # -----------------------------------------------------------------------------
+module "web" {
+  source = "../../modules/web"
+
+  project     = var.project
+  environment = "prod"
+
+  vpc_id            = module.network.vpc_id
+  public_subnet_ids = module.network.public_subnet_id_list
+
+  # Phase-1 stop-gaps — see modules/web/README.md.
+  # iam_instance_profile_name lands with INF-07.
+  # acm_certificate_arn       lands with INF-08.
+  # admin_ssh_cidrs stays empty; use SSM Session Manager.
+}
+
 module "rds" {
   source = "../../modules/rds"
 
@@ -28,7 +42,7 @@ module "rds" {
 
   vpc_id                = module.network.vpc_id
   private_subnet_ids    = module.network.private_subnet_id_list
-  web_security_group_id = var.web_security_group_id
+  web_security_group_id = module.web.web_security_group_id
 
   # All other settings inherit the Phase-1 defaults documented in
   # modules/rds/README.md. Tune via -var or a tfvars file at apply time.
