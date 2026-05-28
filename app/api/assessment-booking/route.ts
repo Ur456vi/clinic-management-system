@@ -351,14 +351,23 @@ Best regards,
 The Vyara Team`;
   }
 
-  await sendMail({
+  const emailResult = await sendMail({
     to: emailNormalised,
     subject: emailSubject,
     text: emailText,
-  }).catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error(`[assessment-booking] Failed to send email to ${emailNormalised}`, err);
   });
+
+  if (!emailResult.ok) {
+    logger.error(
+      {
+        requestId,
+        emailNormalised,
+        provider: emailResult.provider,
+        error: emailResult.error,
+      },
+      "assessment-booking: failed to send confirmation email",
+    );
+  }
 
   return ok({
     bookingId: submission.bookingRef,
