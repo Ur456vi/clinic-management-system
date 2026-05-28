@@ -325,7 +325,7 @@ export default function AppointmentsPage() {
 
       {/* Footer */}
       <footer className="mt-auto py-6 text-center border-t border-[#EAECF0]">
-        <p className="m-0 text-xs text-[#6C7688] font-medium">Copyright © 2026 - Vyara.</p>
+        <p className="m-0 text-xs text-[#6C7688] font-medium">Copyright © 2026 — Dr. Yuvraaj Singh M.D.</p>
       </footer>
     </div>
   );

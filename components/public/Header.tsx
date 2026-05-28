@@ -85,7 +85,7 @@ export default function Header() {
           {/* Right side CTA + phone */}
           <div className="flex items-center gap-3 md:gap-4">
             <Link
-              href="/contact"
+              href="/assessment"
               className="rounded px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95"
               style={{
                 background: "var(--brand-burgundy)",

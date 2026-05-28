@@ -345,7 +345,7 @@ export default function HomeContent() {
           </div>
 
           <div className="mt-12 flex justify-center">
-            <CTAButton href="/contact" variant="burgundy" size="lg" showArrow={false}>
+            <CTAButton href="/assessment" variant="burgundy" size="lg" showArrow={false}>
               Book An Appointment
             </CTAButton>
           </div>
@@ -554,7 +554,7 @@ export default function HomeContent() {
             {/* Bottom-right cell (Row 2, Column 3) containing the CTA button */}
             <div className="flex items-center justify-start lg:pl-6">
               <Link
-                href="/contact"
+                href="/assessment"
                 className="inline-flex items-center justify-center gap-3 rounded-[4px] px-8 py-4 text-xs font-semibold uppercase tracking-widest text-white transition-all hover:opacity-95 shadow-none"
                 style={{
                   background: "#4A5E3A",
@@ -818,7 +818,7 @@ export default function HomeContent() {
             </p>
             <div className="mt-6">
               <Link
-                href="/contact"
+                href="/assessment"
                 className="inline-flex items-center gap-2 rounded px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
                 style={{
                   background: "var(--brand-burgundy)",

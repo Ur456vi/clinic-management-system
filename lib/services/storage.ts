@@ -360,6 +360,44 @@ export async function getDownloadUrl(
 }
 
 // ---------------------------------------------------------------------------
+// Public API — server-side upload (for small files like avatars)
+// ---------------------------------------------------------------------------
+
+/**
+ * Stream a Buffer / Uint8Array straight to S3 from the Node runtime.
+ *
+ * The presigned-URL flow is preferred for big files (lab PDFs, scans) so
+ * the bytes don't traverse our server. For small files like profile
+ * avatars (≤ a few hundred KB), it's simpler — and avoids a three-round-
+ * trip dance — to accept the multipart upload on the server and PUT it
+ * straight to S3 here.
+ */
+export async function putObject(input: {
+  bucket?: BucketName
+  key: string
+  body: Buffer | Uint8Array
+  contentType: string
+}): Promise<{ bucket: string; key: string; bucketLabel: BucketName }> {
+  assertAllowedContentType(input.contentType)
+  assertAllowedSize(input.body.byteLength)
+  if (!input.key || input.key.includes("..")) {
+    throw new ValidationError("Invalid object key")
+  }
+  const { bucket, bucketLabel } = resolveBucket(input.bucket)
+  const client = getClient()
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: input.key,
+      Body: input.body,
+      ContentType: input.contentType,
+      ContentLength: input.body.byteLength,
+    }),
+  )
+  return { bucket, key: input.key, bucketLabel }
+}
+
+// ---------------------------------------------------------------------------
 // Public API — server-side delete (admin only at the route layer)
 // ---------------------------------------------------------------------------
 

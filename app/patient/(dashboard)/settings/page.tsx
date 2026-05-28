@@ -21,7 +21,7 @@ export default function PatientSettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#141414]">Settings</h1>
         <p className="text-sm text-[#6C7688] mt-1">
-          Manage how Vyara contacts you and how your data is used.
+          Manage how the Institute contacts you and how your data is used.
         </p>
       </div>
 

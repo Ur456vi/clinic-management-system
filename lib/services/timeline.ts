@@ -18,10 +18,10 @@
  *     too but we still order by createdAt to keep drafts visible)
  *   - Appointment  (occurredAt = startsAt)
  *
- * TODO (open task branches — wire when these models land on main):
- *   - LabResult     (BE-16) — occurredAt = resultedAt ?? collectedAt
- *   - TreatmentPlan (BE-24) — occurredAt = createdAt
- *   - Invoice       (BE-37) — occurredAt = issuedAt
+ * Also wired:
+ *   - LabResult     (BE-16) — occurredAt = reportedAt ?? collectedAt
+ *   - TreatmentPlan (BE-24) — occurredAt = signedAt   ?? createdAt
+ *   - Invoice       (BE-37) — occurredAt = issuedAt   ?? createdAt
  *
  * Each source has a `fetch<Source>Events()` helper below. Adding a
  * new source is a one-liner per source:
@@ -191,23 +191,162 @@ async function fetchAppointmentEvents(args: {
 }
 
 // ---------------------------------------------------------------------------
-// TODO sources — wire when their models land on main
+// Source: LabResult
 // ---------------------------------------------------------------------------
 
-// TODO(BE-16): wire LabResult source.
-// async function fetchLabResultEvents(args: {
-//   patientId: string; before?: Date; limit: number
-// }): Promise<TimelineEvent[]> { ... }
+async function fetchLabResultEvents(args: {
+  patientId: string
+  before?: Date
+  limit: number
+}): Promise<TimelineEvent[]> {
+  const where: Prisma.LabResultWhereInput = { patientId: args.patientId }
+  // Lab rows order by `collectedAt` (the sample-draw time, indexed) so the
+  // cursor filter must match. We surface `reportedAt` when present in
+  // `occurredAt` for display, but ordering stays on the indexed column.
+  if (args.before) where.collectedAt = { lt: args.before }
 
-// TODO(BE-24): wire TreatmentPlan source.
-// async function fetchTreatmentPlanEvents(args: {
-//   patientId: string; before?: Date; limit: number
-// }): Promise<TimelineEvent[]> { ... }
+  const rows = await db.labResult.findMany({
+    where,
+    take: args.limit,
+    orderBy: [{ collectedAt: "desc" }, { id: "desc" }],
+    select: {
+      id: true,
+      panelName: true,
+      collectedAt: true,
+      reportedAt: true,
+      labName: true,
+      summary: true,
+      attachmentKey: true,
+    },
+  })
 
-// TODO(BE-37): wire Invoice source.
-// async function fetchInvoiceEvents(args: {
-//   patientId: string; before?: Date; limit: number
-// }): Promise<TimelineEvent[]> { ... }
+  return rows.map((r) => {
+    const occurred = r.reportedAt ?? r.collectedAt
+    const status = r.reportedAt ? "reported" : "pending"
+    const where = r.labName ? ` (${r.labName})` : ""
+    const summary = r.summary ?? `Lab: ${r.panelName}${where} — ${status}`
+    return {
+      id: `labResult:${r.id}`,
+      type: "labResult" as const,
+      occurredAt: occurred.toISOString(),
+      summary,
+      ref: {
+        id: r.id,
+        panelName: r.panelName,
+        status,
+        collectedAt: r.collectedAt.toISOString(),
+        reportedAt: r.reportedAt ? r.reportedAt.toISOString() : null,
+        labName: r.labName ?? null,
+        hasAttachment: r.attachmentKey != null,
+      },
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Source: TreatmentPlan
+// ---------------------------------------------------------------------------
+
+async function fetchTreatmentPlanEvents(args: {
+  patientId: string
+  before?: Date
+  limit: number
+}): Promise<TimelineEvent[]> {
+  const where: Prisma.TreatmentPlanWhereInput = { patientId: args.patientId }
+  // Plans use `createdAt` for the cursor (matches the indexed
+  // `[patientId, createdAt]`); for display we prefer `signedAt` when set.
+  if (args.before) where.createdAt = { lt: args.before }
+
+  const rows = await db.treatmentPlan.findMany({
+    where,
+    take: args.limit,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      version: true,
+      createdAt: true,
+      signedAt: true,
+      createdBy: {
+        select: {
+          email: true,
+          staff: { select: { fullName: true } },
+        },
+      },
+    },
+  })
+
+  return rows.map((r) => {
+    const occurred = r.signedAt ?? r.createdAt
+    const author = r.createdBy?.staff?.fullName ?? r.createdBy?.email ?? null
+    const summary = `Treatment plan v${r.version}: ${r.title} (${r.status})`
+    return {
+      id: `treatmentPlan:${r.id}`,
+      type: "treatmentPlan" as const,
+      occurredAt: occurred.toISOString(),
+      summary,
+      ref: {
+        id: r.id,
+        title: r.title,
+        status: r.status,
+        version: r.version,
+        signedAt: r.signedAt ? r.signedAt.toISOString() : null,
+        authorName: author,
+      },
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Source: Invoice
+// ---------------------------------------------------------------------------
+
+async function fetchInvoiceEvents(args: {
+  patientId: string
+  before?: Date
+  limit: number
+}): Promise<TimelineEvent[]> {
+  const where: Prisma.InvoiceWhereInput = { patientId: args.patientId }
+  // Invoices are indexed on `[patientId, createdAt desc]`; cursor against
+  // that column. Display prefers `issuedAt` when the invoice has left DRAFT.
+  if (args.before) where.createdAt = { lt: args.before }
+
+  const rows = await db.invoice.findMany({
+    where,
+    take: args.limit,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    select: {
+      id: true,
+      invoiceNumber: true,
+      status: true,
+      totalCents: true,
+      createdAt: true,
+      issuedAt: true,
+      dueAt: true,
+    },
+  })
+
+  return rows.map((r) => {
+    const occurred = r.issuedAt ?? r.createdAt
+    const rupees = (r.totalCents / 100).toFixed(2)
+    const summary = `Invoice ${r.invoiceNumber}: ₹${rupees} (${r.status})`
+    return {
+      id: `invoice:${r.id}`,
+      type: "invoice" as const,
+      occurredAt: occurred.toISOString(),
+      summary,
+      ref: {
+        id: r.id,
+        invoiceNumber: r.invoiceNumber,
+        status: r.status,
+        totalCents: r.totalCents,
+        issuedAt: r.issuedAt ? r.issuedAt.toISOString() : null,
+        dueAt: r.dueAt ? r.dueAt.toISOString() : null,
+      },
+    }
+  })
+}
 
 // ---------------------------------------------------------------------------
 // Aggregator
@@ -238,23 +377,42 @@ export async function buildTimeline(args: {
   const before = args.cursor
   const perSourceLimit = args.limit
 
-  const [consultations, appointments] = await Promise.all([
-    fetchConsultationEvents({
-      patientId: args.patientId,
-      before,
-      limit: perSourceLimit,
-    }),
-    fetchAppointmentEvents({
-      patientId: args.patientId,
-      before,
-      limit: perSourceLimit,
-    }),
-    // TODO(BE-16): fetchLabResultEvents({ patientId, before, limit: perSourceLimit }),
-    // TODO(BE-24): fetchTreatmentPlanEvents({ patientId, before, limit: perSourceLimit }),
-    // TODO(BE-37): fetchInvoiceEvents({ patientId, before, limit: perSourceLimit }),
-  ])
+  const [consultations, appointments, labResults, treatmentPlans, invoices] =
+    await Promise.all([
+      fetchConsultationEvents({
+        patientId: args.patientId,
+        before,
+        limit: perSourceLimit,
+      }),
+      fetchAppointmentEvents({
+        patientId: args.patientId,
+        before,
+        limit: perSourceLimit,
+      }),
+      fetchLabResultEvents({
+        patientId: args.patientId,
+        before,
+        limit: perSourceLimit,
+      }),
+      fetchTreatmentPlanEvents({
+        patientId: args.patientId,
+        before,
+        limit: perSourceLimit,
+      }),
+      fetchInvoiceEvents({
+        patientId: args.patientId,
+        before,
+        limit: perSourceLimit,
+      }),
+    ])
 
-  const merged: TimelineEvent[] = [...consultations, ...appointments]
+  const merged: TimelineEvent[] = [
+    ...consultations,
+    ...appointments,
+    ...labResults,
+    ...treatmentPlans,
+    ...invoices,
+  ]
 
   merged.sort((a, b) => {
     if (a.occurredAt === b.occurredAt) return a.id < b.id ? 1 : -1

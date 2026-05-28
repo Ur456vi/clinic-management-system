@@ -3,16 +3,30 @@
 /**
  * Patient-side lab management page.
  *
- * Was previously unrenderable — the JSX was littered with closing-tag
- * typos (`</div>div>`, `</button>button>` etc.) which kept the page from
- * compiling at all (BUG-015: "Lab Management sidebar link broken"). This
- * is a clean rewrite that keeps the original behaviour: fetch the
- * patient's own lab results from `/api/patient/me/lab-results`, render
- * a filterable / paginated table, and gracefully handle loading and
- * error states.
+ * Visual rewrite (2026-05) to match the dashboard's light theme — the
+ * previous version used `dark:` Tailwind variants but the patient
+ * dashboard layout itself has a hard-coded light background, so any time
+ * the user toggled the theme switch the cards turned dark while the
+ * shell stayed white. The result was an invisible heading and mismatched
+ * stat cards.
+ *
+ * This rewrite keeps the existing behaviour — fetch the patient's own
+ * lab results from `/api/patient/me/lab-results`, render a filterable
+ * paginated table, gracefully handle loading + error — and aligns the
+ * styling with the dashboard / appointments pages (colorful stat tiles,
+ * white cards, indigo accents, lucide icons).
  */
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  FlaskConical,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Search,
+  Loader2,
+  RotateCcw,
+} from "lucide-react";
 
 type Status = "completed" | "pending" | "inprogress" | "cancelled";
 type Priority = "urgent" | "routine" | "stat";
@@ -62,7 +76,6 @@ export default function LaboratoryManagementPage() {
     let cancelled = false;
     async function fetchLabResults() {
       try {
-        setLoading(true);
         setError(null);
         const res = await fetch("/api/patient/me/lab-results");
         if (!res.ok) {
@@ -77,8 +90,8 @@ export default function LaboratoryManagementPage() {
             name: String(patient.name ?? item.patientName ?? "—"),
             email: String(patient.email ?? item.patientEmail ?? ""),
             type: String(item.testType ?? item.type ?? "Unknown"),
-            status: (String(item.status ?? "pending").toLowerCase() as Status),
-            priority: (String(item.priority ?? "routine").toLowerCase() as Priority),
+            status: String(item.status ?? "pending").toLowerCase() as Status,
+            priority: String(item.priority ?? "routine").toLowerCase() as Priority,
             date: String(item.orderedAt ?? item.createdAt ?? ""),
           };
         });
@@ -124,178 +137,218 @@ export default function LaboratoryManagementPage() {
     (o) => o.priority === "urgent" || o.priority === "stat",
   ).length;
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-400">Loading lab results…</div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-500">
-        <p>Error: {error}</p>
-        <button
-          className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          onClick={() => window.location.reload()}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
+  // Stat tile config — mirrors the dashboard's colorful tile pattern.
+  const statCards = [
+    {
+      label: "TOTAL TESTS",
+      value: total,
+      sub: `${orders.length} ordered`,
+      bg: "#2E37A4",
+      icon: <FlaskConical className="w-6 h-6 text-white opacity-80" />,
+    },
+    {
+      label: "COMPLETED",
+      value: completedCount,
+      sub: total ? `${Math.round((completedCount / total) * 100)}% of total` : "—",
+      bg: "#12B76A",
+      icon: <CheckCircle2 className="w-6 h-6 text-white opacity-80" />,
+    },
+    {
+      label: "PENDING",
+      value: pendingCount,
+      sub: pendingCount ? "Awaiting results" : "All up to date",
+      bg: "#FDB022",
+      icon: <Clock className="w-6 h-6 text-[#141414] opacity-80" />,
+      textColor: "#141414",
+      subColor: "rgba(20, 20, 20, 0.65)",
+    },
+    {
+      label: "URGENT",
+      value: urgentCount,
+      sub: urgentCount ? "Needs attention" : "No urgent items",
+      bg: "#F04438",
+      icon: <AlertCircle className="w-6 h-6 text-white opacity-80" />,
+    },
+  ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 lg:p-8 space-y-6 max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-[#101828]">
             Laboratory Management
           </h1>
-          <p className="text-sm text-gray-500">
-            View your lab tests, results, and reports
+          <p className="text-sm text-[#667085] mt-1">
+            View your lab tests, results, and reports.
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "TOTAL TESTS", value: total, badge: "ACTIVE" },
-          { label: "COMPLETED", value: completedCount, badge: "ACTIVE" },
-          { label: "PENDING", value: pendingCount, badge: "ACTIVE" },
-          { label: "URGENT", value: urgentCount, badge: "ACTIVE" },
-        ].map((card) => (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((card) => (
           <div
             key={card.label}
-            className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+            className="rounded-xl p-5 shadow-sm flex flex-col justify-between min-h-[124px]"
+            style={{
+              background: card.bg,
+              color: card.textColor ?? "#FFFFFF",
+            }}
           >
-            <p className="text-xs text-gray-500 uppercase tracking-wide">
-              {card.label}
-            </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-              {card.value}
-            </p>
-            <span className="text-xs text-green-600 font-medium">
-              {card.badge}
-            </span>
+            <div className="flex items-start justify-between">
+              <p
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: card.subColor ?? "rgba(255,255,255,0.85)" }}
+              >
+                {card.label}
+              </p>
+              {card.icon}
+            </div>
+            <div>
+              <p
+                className="text-3xl font-bold leading-none"
+                style={{ color: card.textColor ?? "#FFFFFF" }}
+              >
+                {card.value}
+              </p>
+              <p
+                className="text-xs mt-1 font-medium"
+                style={{ color: card.subColor ?? "rgba(255,255,255,0.75)" }}
+              >
+                {card.sub}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <input
-          type="text"
-          placeholder="Search by test no, patient..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="flex-1 min-w-[220px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setPage(1);
-          }}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-        >
-          <option>All Statuses</option>
-          <option value="completed">Completed</option>
-          <option value="pending">Pending</option>
-          <option value="inprogress">In Progress</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          value={priorityFilter}
-          onChange={(e) => {
-            setPriorityFilter(e.target.value);
-            setPage(1);
-          }}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-        >
-          <option>All Priorities</option>
-          <option value="urgent">Urgent</option>
-          <option value="routine">Routine</option>
-          <option value="stat">Stat</option>
-        </select>
+      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4">
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="flex-1 min-w-[220px] relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by test no, patient, or test type…"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+          >
+            <option>All Statuses</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="inprogress">In Progress</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select
+            value={priorityFilter}
+            onChange={(e) => {
+              setPriorityFilter(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+          >
+            <option>All Priorities</option>
+            <option value="urgent">Urgent</option>
+            <option value="routine">Routine</option>
+            <option value="stat">Stat</option>
+          </select>
+        </div>
       </div>
 
-      {/* Table */}
-      {paginated.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          No lab results found.
+      {/* Body */}
+      {loading ? (
+        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+          Loading your lab results…
+        </div>
+      ) : error ? (
+        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="w-10 h-10 rounded-full bg-[#FEF3F2] flex items-center justify-center">
+            <AlertCircle className="h-5 w-5 text-[#F04438]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#B42318]">Something went wrong</p>
+            <p className="text-xs text-[#667085] mt-1">{error}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] text-white text-sm font-semibold transition-colors"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : paginated.length === 0 ? (
+        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-16 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
+            <FlaskConical className="h-5 w-5 text-[#2E37A4]" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#101828]">No lab results found</p>
+            <p className="text-xs text-[#667085] mt-1 max-w-sm">
+              When your physician orders lab work, your results will appear here. Adjust filters above if you&apos;re looking for something specific.
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-700 text-xs text-gray-500 uppercase tracking-wide">
+            <thead className="bg-[#F9FAFB] text-xs text-[#667085] uppercase tracking-wider">
               <tr>
-                <th className="px-4 py-3 text-left">Test No.</th>
-                <th className="px-4 py-3 text-left">Patient</th>
-                <th className="px-4 py-3 text-left">Test Type</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Priority</th>
-                <th className="px-4 py-3 text-left">Ordered Date</th>
+                <th className="px-4 py-3 text-left font-semibold">Test No.</th>
+                <th className="px-4 py-3 text-left font-semibold">Patient</th>
+                <th className="px-4 py-3 text-left font-semibold">Test Type</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+                <th className="px-4 py-3 text-left font-semibold">Priority</th>
+                <th className="px-4 py-3 text-left font-semibold">Ordered</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <tbody className="divide-y divide-[#EAECF0]">
               {paginated.map((order) => (
-                <tr
-                  key={order.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-750"
-                >
-                  <td className="px-4 py-3 font-medium text-indigo-600">
+                <tr key={order.id} className="hover:bg-[#F9FAFB] transition-colors">
+                  <td className="px-4 py-4 font-semibold text-[#2E37A4]">
                     {order.id}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#F4F5FF] flex items-center justify-center text-xs font-bold text-[#2E37A4] flex-shrink-0">
                         {getInitials(order.name)}
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                      <div className="min-w-0">
+                        <p className="font-medium text-[#101828] truncate">
                           {order.name}
                         </p>
-                        <p className="text-xs text-gray-500">{order.email}</p>
+                        {order.email ? (
+                          <p className="text-xs text-[#667085] truncate">
+                            {order.email}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
-                    {order.type}
+                  <td className="px-4 py-4 text-[#344054]">{order.type}</td>
+                  <td className="px-4 py-4">
+                    <StatusPill status={order.status} />
                   </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        order.status === "completed"
-                          ? "bg-green-100 text-green-700"
-                          : order.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : order.status === "inprogress"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {formatStatus(order.status)}
-                    </span>
+                  <td className="px-4 py-4">
+                    <PriorityPill priority={order.priority} />
                   </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                        order.priority === "urgent"
-                          ? "bg-red-100 text-red-700"
-                          : order.priority === "stat"
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {order.priority}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-4 text-[#667085]">
                     {order.date
                       ? new Date(order.date).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -312,32 +365,73 @@ export default function LaboratoryManagementPage() {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="px-3 py-1 rounded border text-sm disabled:opacity-40"
-          >
-            Prev
-          </button>
-          <span className="px-3 py-1 text-sm text-gray-600">
-            Page {page} of {totalPages}
+      {!loading && !error && totalPages > 1 ? (
+        <div className="flex justify-between items-center bg-white border border-[#EAECF0] rounded-xl shadow-sm px-4 py-3">
+          <span className="text-xs text-[#667085]">
+            Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
           </span>
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="px-3 py-1 rounded border text-sm disabled:opacity-40"
-          >
-            Next
-          </button>
+          <div className="flex gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] text-sm font-medium text-[#344054] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="px-3 py-1.5 text-sm text-[#344054] font-medium">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] text-sm font-medium text-[#344054] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
         </div>
-      )}
-
-      {/* Footer */}
-      <div className="text-center text-xs text-gray-400">
-        Copyright © 2026 - Vyara.
-      </div>
+      ) : null}
     </div>
+  );
+}
+
+// ─── pills ────────────────────────────────────────────────────────────
+
+function StatusPill({ status }: { status: Status }) {
+  const map: Record<Status, { bg: string; fg: string }> = {
+    completed: { bg: "#ECFDF3", fg: "#027A48" },
+    pending: { bg: "#FEF6E7", fg: "#B54708" },
+    inprogress: { bg: "#EFF8FF", fg: "#175CD3" },
+    cancelled: { bg: "#FEF3F2", fg: "#B42318" },
+  };
+  const colors = map[status] ?? map.pending;
+  return (
+    <span
+      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+      style={{ background: colors.bg, color: colors.fg }}
+    >
+      <span
+        className="w-1.5 h-1.5 rounded-full mr-1.5"
+        style={{ background: colors.fg }}
+      />
+      {formatStatus(status)}
+    </span>
+  );
+}
+
+function PriorityPill({ priority }: { priority: Priority }) {
+  const map: Record<Priority, { bg: string; fg: string }> = {
+    urgent: { bg: "#FEF3F2", fg: "#B42318" },
+    stat: { bg: "#FFF6ED", fg: "#B93815" },
+    routine: { bg: "#F2F4F7", fg: "#344054" },
+  };
+  const colors = map[priority] ?? map.routine;
+  return (
+    <span
+      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize"
+      style={{ background: colors.bg, color: colors.fg }}
+    >
+      {priority}
+    </span>
   );
 }

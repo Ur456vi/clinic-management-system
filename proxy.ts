@@ -1,5 +1,5 @@
 /**
- * Vyara unified-portal middleware.
+ * Vyara unified-portal proxy.
  *
  * Protects `/admin/**` (staff only) and `/patient/**` (patients only).
  *
@@ -42,6 +42,7 @@ const PUBLIC_MARKETING = [
   /^\/about(\/|$)/,
   /^\/services(\/|$)/,
   /^\/contact(\/|$)/,
+  /^\/assessment(\/|$)/,
   /^\/blog(\/|$)/,
   /^\/faq(\/|$)/,
   /^\/privacy(\/|$)/,
@@ -50,6 +51,7 @@ const PUBLIC_MARKETING = [
 ]
 
 function isProtected(pathname: string) {
+  if (isPublicAuth(pathname)) return false
   return PROTECTED.some((re) => re.test(pathname))
 }
 
@@ -66,7 +68,7 @@ function landingForRole(role: string): string {
   return "/admin/dashboard"
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Static assets, API, and Next.js internals: not our problem.
@@ -121,7 +123,7 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next()
 }
 
-// Match everything except static + API. Middleware itself filters further.
+// Match everything except static + API. Proxy itself filters further.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }

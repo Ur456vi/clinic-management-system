@@ -80,10 +80,7 @@ ALTER TABLE "invoices"
   FOREIGN KEY ("patient_id") REFERENCES "patients"("id")
   ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "invoices"
-  ADD CONSTRAINT "invoices_appointment_id_fkey"
-  FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+
 
 -- =========================================================================
 -- invoice_items
