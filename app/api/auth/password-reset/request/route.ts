@@ -74,6 +74,7 @@ export const POST = defineHandler(async ({ req }) => {
 
     if (recent < MAX_REQUESTS_PER_HOUR) {
       const otp = generateOtp()
+      console.log(`\n🔑 [TESTING] OTP generated for ${body.email}: ${otp}\n`)
       const otpHash = await bcrypt.hash(otp, OTP_BCRYPT_COST)
       const expiresAt = new Date(Date.now() + OTP_TTL_MS)
 
