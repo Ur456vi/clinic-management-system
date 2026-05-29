@@ -50,7 +50,7 @@ export default function AssessmentIntroPage() {
       style={{ background: "var(--brand-cream-2)" }}
     >
       <div className="mx-auto max-w-[1100px] px-6 pt-10 pb-16 md:px-12 md:pt-14 md:pb-20">
-        <QuizHeader />
+        {/* <QuizHeader /> */}
 
         <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-12">
           {/* Intro copy */}
