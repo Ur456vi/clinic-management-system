@@ -35,6 +35,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 
+/** Clinic working hours (local, 24h "HH:MM"). The availability service has
+ *  no per-staff schedule yet, so the booking UI bounds slot generation to
+ *  this window. Make this configurable per department/staff in a later pass. */
+const CLINIC_OPEN = "09:00"
+const CLINIC_CLOSE = "18:00"
+
 const STEPS = [
   { id: "patient", name: "Patient", Icon: User },
   { id: "slot", name: "Doctor & Slot", Icon: Calendar },
@@ -446,6 +452,11 @@ function SlotPicker({
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Open slots for the selected doctor + date + duration.
+  const [slots, setSlots] = useState<{ start: string; end: string }[]>([])
+  const [slotsLoading, setSlotsLoading] = useState(false)
+  const [slotsError, setSlotsError] = useState<string | null>(null)
+
   const fetchDoctors = useCallback(async () => {
     try {
       const url = new URL("/api/staff", window.location.origin)
@@ -478,7 +489,52 @@ function SlotPicker({
   useEffect(() => {
     void fetchDoctors()
   }, [fetchDoctors])
+
+  // Fetch open slots whenever doctor / date / duration changes.
+  const doctorId = form.doctor?.id
+  const { date, durationMin } = form
+  useEffect(() => {
+    if (!doctorId || !date) {
+      setSlots([])
+      return
+    }
+    let cancelled = false
+    setSlotsLoading(true)
+    setSlotsError(null)
+    void (async () => {
+      try {
+        // Clinic working hours (local) — the availability service has no
+        // working-hours overlay, so we bound the request to 09:00–18:00.
+        const from = new Date(`${date}T${CLINIC_OPEN}:00`)
+        const to = new Date(`${date}T${CLINIC_CLOSE}:00`)
+        const url = new URL("/api/appointments/availability", window.location.origin)
+        url.searchParams.set("staffId", doctorId)
+        url.searchParams.set("from", from.toISOString())
+        url.searchParams.set("to", to.toISOString())
+        url.searchParams.set("durationMins", String(durationMin))
+        const res = await fetch(url.toString(), { credentials: "include" })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const json = await res.json()
+        if (!cancelled) setSlots((json?.data ?? []) as { start: string; end: string }[])
+      } catch (err) {
+        if (!cancelled) {
+          setSlots([])
+          setSlotsError(err instanceof Error ? err.message : "Couldn't load slots")
+        }
+      } finally {
+        if (!cancelled) setSlotsLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [doctorId, date, durationMin])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const hhmm = (iso: string) => {
+    const d = new Date(iso)
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
+  }
 
   return (
     <div className="space-y-6">
@@ -497,10 +553,10 @@ function SlotPicker({
               value={form.doctor?.id ?? ""}
               onChange={(e) => {
                 const d = doctors.find((x) => x.id === e.target.value) ?? null
-                setForm({ ...form, doctor: d })
+                setForm({ ...form, doctor: d, time: "" })
               }}
               disabled={loading}
-              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
+              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
             >
               <option value="">
                 {loading
@@ -523,9 +579,9 @@ function SlotPicker({
           <select
             value={String(form.durationMin)}
             onChange={(e) =>
-              setForm({ ...form, durationMin: Number.parseInt(e.target.value, 10) })
+              setForm({ ...form, durationMin: Number.parseInt(e.target.value, 10), time: "" })
             }
-            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           >
             <option value="15">15 minutes</option>
             <option value="30">30 minutes</option>
@@ -540,22 +596,61 @@ function SlotPicker({
             type="date"
             value={form.date}
             min={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            onChange={(e) => setForm({ ...form, date: e.target.value, time: "" })}
+            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </Field>
 
-        <Field label="Time" required error={fieldErrors.endsAt}>
-          <div className="relative">
-            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
-            <input
-              type="time"
-              value={form.time}
-              onChange={(e) => setForm({ ...form, time: e.target.value })}
-              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
-            />
+      </div>
+
+      {/* Available open slots (driven by /api/appointments/availability) */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Clock className="h-4 w-4 text-[#667085]" />
+          <span className="text-sm font-medium text-[#344054]">
+            Available time slots{form.durationMin ? ` · ${form.durationMin} min` : ""}
+          </span>
+          {fieldErrors.endsAt ? (
+            <span className="text-xs text-[#B42318]">{fieldErrors.endsAt}</span>
+          ) : null}
+        </div>
+
+        {!form.doctor || !form.date ? (
+          <p className="text-sm text-[#98A2B3]">
+            Select a doctor and date to see {form.doctor?.fullName ?? "the doctor"}&apos;s open slots.
+          </p>
+        ) : slotsLoading ? (
+          <div className="flex items-center gap-2 text-sm text-[#667085]">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading open slots…
           </div>
-        </Field>
+        ) : slotsError ? (
+          <p className="text-sm text-[#B42318]">{slotsError}</p>
+        ) : slots.length === 0 ? (
+          <p className="text-sm text-[#98A2B3]">
+            No open slots for this day — try another date or a shorter duration.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+            {slots.map((s) => {
+              const t = hhmm(s.start)
+              const selected = form.time === t
+              return (
+                <button
+                  key={s.start}
+                  type="button"
+                  onClick={() => setForm({ ...form, time: t })}
+                  className={`h-10 rounded-lg border text-sm font-medium transition-colors ${
+                    selected
+                      ? "bg-[#2E37A4] border-[#2E37A4] text-white"
+                      : "border-[#D0D5DD] text-[#344054] hover:border-[#2E37A4] hover:bg-[#F4F5FF]"
+                  }`}
+                >
+                  {t}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -585,7 +680,7 @@ function DetailsStep({
           value={form.reason}
           onChange={(e) => setForm({ ...form, reason: e.target.value })}
           placeholder="Chief complaint, referral context, etc."
-          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
         />
       </Field>
       <Field label="Internal notes (optional)">
@@ -594,7 +689,7 @@ function DetailsStep({
           value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
           placeholder="Anything reception/doctor should know ahead of the visit"
-          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
         />
       </Field>
     </div>
