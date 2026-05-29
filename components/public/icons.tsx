@@ -116,6 +116,85 @@ export const StarIcon = (p: IconProps) =>
 export const ChevronDownIcon = (p: IconProps) =>
   svg({ ...p, children: <path d="m6 9 6 6 6-6" /> });
 
+export const MetabolicProgramIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        {/* Central leaf */}
+        <path d="M12 3c2 4 2 12 0 18c-2-6-2-14 0-18z" />
+
+        {/* Inner right */}
+        <path d="M12 19c2-3 6-6.5 6.5-11c-2 .5-5 4-6.5 8.5z" />
+
+        {/* Inner left */}
+        <path d="M12 19c-2-3-6-6.5-6.5-11c2 .5 5 4 6.5 8.5z" />
+
+        {/* Outer right */}
+        <path d="M12 20c4-2 9.5-5 10-7.5c-2.5.5-7 3.5-10 6z" />
+
+        {/* Outer left */}
+        <path d="M12 20c-4-2-9.5-5-10-7.5c2.5.5 7 3.5 10 6z" />
+      </>
+    ),
+  });
+
+export const MetabolicRestorationIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        <circle cx="12" cy="11.5" r="9.5" />
+        <path d="M 12 21 v 2" />
+        <path d="M 12 5.5 C 13.5 8.5, 13.5 13.5, 12 15.5 C 10.5 13.5, 10.5 8.5, 12 5.5 Z" />
+        <path d="M 12 15.5 C 10.5 14, 7.5 12, 7.5 9 C 9 9.5, 11 12, 12 15.5 Z" />
+        <path d="M 12 15.5 C 13.5 14, 16.5 12, 16.5 9 C 15 9.5, 13 12, 12 15.5 Z" />
+        <circle cx="12" cy="15.5" r="1.5" />
+      </>
+    ),
+  });
+
+export const HormonalBalanceIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        <path d="M 21.5 11.5 A 9.5 9.5 0 1 1 18.7 5.3" />
+        <path d="M 14 5 h 5 v 5" />
+        <path d="M 10 14 C 9 13, 8 11, 8.5 9 C 9 7.5, 11 7, 12.5 8.5 C 14 10, 14.5 12, 14 13.5 C 13.5 14.5, 12 15, 10 14 Z" />
+        <path d="M 10 14 L 7.5 16.5" />
+      </>
+    ),
+  });
+
+export const BodyCompositionIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        <circle cx="6" cy="18" r="1.5" />
+        <path d="M 7 17 L 16 8" />
+        <path d="M 16 8 C 18 7, 19 8, 19 10" />
+        <path d="M 14 10 C 16 11, 17 11, 19 10" />
+        <path d="M 19 7 C 20.5 8, 20.5 12, 19 13" />
+        <path d="M 9 13 A 5 5 0 0 1 13 17" />
+        <path d="M 10 14.5 L 9.5 14 M 11.5 15.5 L 11 15" />
+        <path d="M 12 12 L 13.5 13.5" />
+      </>
+    ),
+  });
+
+export const LongTermHealthIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        <path d="M 12 2.5 C 16 2.5, 20 4.5, 20 9.5 C 20 15.5, 12 21.5, 12 21.5 C 12 21.5, 4 15.5, 4 9.5 C 4 4.5, 8 2.5, 12 2.5 Z" />
+        <path d="M 12 15.5 C 12 15.5, 8.5 12.5, 8.5 10 C 8.5 8.5, 10 7.5, 12 9.5 C 14 7.5, 15.5 8.5, 15.5 10 C 15.5 12.5, 12 15.5, 12 15.5 Z" />
+        <path d="M 12 9.5 V 13 M 10.25 11.25 H 13.75" />
+      </>
+    ),
+  });
 export const RadarIcon = (p: IconProps) =>
   svg({ ...p, children: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" fill="currentColor" /></> });
 
