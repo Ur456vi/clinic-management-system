@@ -160,11 +160,11 @@ export function OptionTile({
       }}
     >
       <span className="text-sm md:text-base" style={{ color: "var(--brand-ink)" }}>
-        ({/* letter prefix wrapped by caller */}
+        {/* letter prefix wrapped by caller */}
         {label}
-        {typeof score === "number" ? (
+        {/* {typeof score === "number" ? (
           <span style={{ color: "var(--brand-ink-soft)" }}> ({score})</span>
-        ) : null}
+        ) : null} */}
       </span>
     </button>
   );
@@ -216,7 +216,7 @@ export function YesNoToggle({
             border: "1.5px solid var(--brand-burgundy)",
           }}
         >
-          Yes ({yesScore})
+          Yes 
         </button>
         <button
           type="button"
@@ -229,7 +229,7 @@ export function YesNoToggle({
             border: "1.5px solid var(--brand-ink-soft)",
           }}
         >
-          No ({noScore})
+          No 
         </button>
       </div>
     </div>
