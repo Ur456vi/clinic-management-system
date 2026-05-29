@@ -106,6 +106,33 @@ export default function StaffPage() {
     }
   }, [roleFilter])
 
+  const deactivate = useCallback(
+    async (id: string) => {
+      setOpenMenu(null)
+      const row = rows.find((r) => r.id === id)
+      if (
+        !window.confirm(
+          `Deactivate ${row?.fullName ?? "this staff member"}? They will lose access until reactivated.`,
+        )
+      )
+        return
+      try {
+        const res = await fetch(`/api/staff/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        })
+        if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`)
+        notify.success("Staff member deactivated")
+        void fetchStaff()
+      } catch (err) {
+        notify.error("Couldn't deactivate staff member", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        })
+      }
+    },
+    [rows, fetchStaff],
+  )
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchStaff()
@@ -242,12 +269,7 @@ export default function StaffPage() {
                     setOpenMenu={setOpenMenu}
                     onView={(id) => router.push(`/admin/staff/${id}`)}
                     onEdit={(id) => router.push(`/admin/staff/${id}?edit=1`)}
-                    onDeactivate={(id) => {
-                      setOpenMenu(null)
-                      notify.info("Deactivate flow is pending the backend transition endpoint.", {
-                        description: `Requested for ${id}`,
-                      })
-                    }}
+                    onDeactivate={(id) => void deactivate(id)}
                   />
                 ))
               )}
