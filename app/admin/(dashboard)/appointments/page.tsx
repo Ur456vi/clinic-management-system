@@ -13,16 +13,21 @@
  */
 
 import Link from "next/link"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Search,
   Plus,
-  ChevronDown,
+  MoreHorizontal,
   Clock,
   User,
   Loader2,
   AlertCircle,
   Calendar,
+  Eye,
+  CheckCircle2,
+  PlayCircle,
+  ClipboardList,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -227,7 +232,13 @@ export default function AppointmentsPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((row) => <AppointmentRow key={row.id} row={row} />)
+                filtered.map((row) => (
+                  <AppointmentRow
+                    key={row.id}
+                    row={row}
+                    onChanged={() => void fetchAppointments()}
+                  />
+                ))
               )}
             </tbody>
           </table>
@@ -239,7 +250,13 @@ export default function AppointmentsPage() {
 
 /* ── Row + pills ─────────────────────────────────────────────────── */
 
-function AppointmentRow({ row }: { row: AppointmentApi }) {
+function AppointmentRow({
+  row,
+  onChanged,
+}: {
+  row: AppointmentApi
+  onChanged: () => void
+}) {
   const starts = new Date(row.startsAt)
   const dateLabel = starts.toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -313,14 +330,143 @@ function AppointmentRow({ row }: { row: AppointmentApi }) {
 
       {/* Actions */}
       <td className="px-6 py-4">
-        <Link
-          href={`/admin/appointments/${row.id}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2E37A4] hover:underline"
-        >
-          View <ChevronDown className="h-3 w-3 -rotate-90" />
-        </Link>
+        <AppointmentActionMenu row={row} onChanged={onChanged} />
       </td>
     </tr>
+  )
+}
+
+/* ── Actions kebab menu ──────────────────────────────────────────── */
+
+function AppointmentActionMenu({
+  row,
+  onChanged,
+}: {
+  row: AppointmentApi
+  onChanged: () => void
+}) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
+
+  const MENU_W = 224 // w-56
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (open) {
+      setOpen(false)
+      return
+    }
+    const r = btnRef.current?.getBoundingClientRect()
+    if (r) {
+      // Anchor below the button, right-aligned, in viewport (fixed) coords so
+      // the menu escapes the table's overflow-hidden / overflow-x-auto clip.
+      setCoords({ top: r.bottom + 4, left: r.right - MENU_W })
+    }
+    setOpen(true)
+  }
+
+  // Close on any outside click, scroll, or resize.
+  useEffect(() => {
+    if (!open) return
+    const close = () => setOpen(false)
+    window.addEventListener("click", close)
+    window.addEventListener("scroll", close, true)
+    window.addEventListener("resize", close)
+    return () => {
+      window.removeEventListener("click", close)
+      window.removeEventListener("scroll", close, true)
+      window.removeEventListener("resize", close)
+    }
+  }, [open])
+
+  const accept = async () => {
+    setBusy(true)
+    try {
+      const res = await fetch(`/api/appointments/${row.id}/transition`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: "CONFIRMED" }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      notify.success("Appointment accepted")
+      onChanged()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Couldn't accept appointment"
+      notify.error("Accept failed", { description: message })
+    } finally {
+      setBusy(false)
+      setOpen(false)
+    }
+  }
+
+  const viewQuiz = () => {
+    setOpen(false)
+    router.push(`/admin/appointments/${row.id}/quiz`)
+  }
+
+  const item =
+    "w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors flex items-center gap-2 disabled:opacity-50"
+
+  return (
+    <div className="relative inline-block text-left">
+      <button
+        ref={btnRef}
+        onClick={toggle}
+        disabled={busy}
+        className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
+        aria-label="Appointment actions"
+      >
+        {busy ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
+        ) : (
+          <MoreHorizontal className="h-5 w-5" />
+        )}
+      </button>
+
+      {open && coords && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{ position: "fixed", top: coords.top, left: coords.left }}
+          className="w-56 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-50"
+        >
+          <div className="py-1">
+            <button
+              className={item}
+              onClick={() => {
+                setOpen(false)
+                router.push(`/admin/appointments/${row.id}`)
+              }}
+            >
+              <Eye className="h-4 w-4 text-[#667085]" /> View
+            </button>
+
+            {row.status === "REQUESTED" ? (
+              <button className={item} onClick={() => void accept()}>
+                <CheckCircle2 className="h-4 w-4 text-[#027A48]" /> Accept
+              </button>
+            ) : null}
+
+            <button
+              className={item}
+              onClick={() => {
+                setOpen(false)
+                router.push(`/admin/appointments/${row.id}/consultation`)
+              }}
+            >
+              <PlayCircle className="h-4 w-4 text-[#2E37A4]" /> Start appointment
+            </button>
+
+            <button className={item} onClick={() => void viewQuiz()}>
+              <ClipboardList className="h-4 w-4 text-[#667085]" /> View quiz Assessment
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 

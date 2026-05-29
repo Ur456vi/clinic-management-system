@@ -40,6 +40,10 @@ import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { hashPassword } from "@/lib/passwords";
 import { sendMail } from "@/lib/email";
+import {
+  patientBookingNewAccountEmail,
+  patientBookingReturningEmail,
+} from "@/lib/email-templates";
 
 const patientSchema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(120),
@@ -132,7 +136,7 @@ export const POST = defineHandler(async ({ req, requestId }) => {
 
   // Generate secure temporary password and hash it before starting the transaction
   // to avoid holding locks or timing out the transaction on slow CPU hashing operations.
-  const generatedPassword = `Vyara@${randomBytes(4).toString("hex")}`;
+  const generatedPassword = `DrYS@${randomBytes(4).toString("hex")}`;
   const passwordHash = await hashPassword(generatedPassword);
 
   const { submission, patient, isNewPatient, tempPassword } = await db.$transaction(
@@ -202,19 +206,19 @@ export const POST = defineHandler(async ({ req, requestId }) => {
         });
       }
 
-      // ── 2. Find a default doctor and create Appointment ────────────
-      const defaultDoctor = await tx.staff.findFirst({
-        where: { user: { role: Role.DOCTOR } },
+      // ── 2. Find a default RMO and create Appointment ───────────────
+      //     Assessment intake is triaged by an RMO, never assigned to a
+      //     doctor directly. The RMO reviews scores and routes onward.
+      const defaultRmo = await tx.staff.findFirst({
+        where: { user: { role: Role.RMO } },
         select: { id: true },
       });
 
-      if (!defaultDoctor) {
-        throw new Error("No active doctors found to assign the appointment.");
+      if (!defaultRmo) {
+        throw new Error("No active RMO found to assign the appointment.");
       }
 
-      const selectedDoctorId = (existing && existing.primaryDoctorId)
-        ? existing.primaryDoctorId
-        : defaultDoctor.id;
+      const selectedDoctorId = defaultRmo.id;
 
       const endsAt = new Date(preferredAt.getTime() + 45 * 60 * 1000);
 
@@ -310,51 +314,28 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   });
   const timeStr = body.slot.time;
 
-  let emailSubject = "";
-  let emailText = "";
-
-  if (isNewPatient) {
-    emailSubject = "Your Appointment & Account Confirmation - Vyara";
-    emailText = `Hello ${body.patient.name},
-
-Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Vyara.
-
-Your appointment is requested for:
-Date: ${dateStr}
-Time: ${timeStr}
-
-We have also set up your Patient Portal account so you can view your upcoming appointments, medical reports, and treatment plans.
-
-Your login credentials:
-Login URL: ${env.APP_URL}/login
-Email: ${emailNormalised}
-Temporary Password: ${tempPassword}
-
-Please log in and change your password upon your first visit.
-
-Best regards,
-The Vyara Team`;
-  } else {
-    emailSubject = "Your Appointment Confirmation - Vyara";
-    emailText = `Hello ${body.patient.name},
-
-Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Vyara.
-
-Your appointment is requested for:
-Date: ${dateStr}
-Time: ${timeStr}
-
-You can view your appointment details and keep track of your health updates by logging into your Patient Portal at:
-${env.APP_URL}/login
-
-Best regards,
-The Vyara Team`;
-  }
+  const loginUrl = `${env.APP_URL}/login`;
+  const mail = isNewPatient
+    ? patientBookingNewAccountEmail({
+        patientName: body.patient.name,
+        dateStr,
+        timeStr,
+        loginUrl,
+        email: emailNormalised,
+        tempPassword,
+      })
+    : patientBookingReturningEmail({
+        patientName: body.patient.name,
+        dateStr,
+        timeStr,
+        loginUrl,
+      });
 
   const emailResult = await sendMail({
     to: emailNormalised,
-    subject: emailSubject,
-    text: emailText,
+    subject: mail.subject,
+    text: mail.text,
+    html: mail.html,
   });
 
   if (!emailResult.ok) {

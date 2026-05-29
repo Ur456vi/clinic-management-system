@@ -1,8 +1,7 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { UserMenu, type UserMenuItem } from "@/components/ui/UserMenu"
@@ -24,6 +23,7 @@ import {
   User,
   CalendarCheck2,
   ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react"
 
 const adminSidebarItems = [
@@ -75,6 +75,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   const pathname = usePathname()
   const { data: session } = useSession()
   const rawRole = session?.user?.role
+  const [collapsed, setCollapsed] = useState(false)
 
   const isPatient = rawRole === "PATIENT"
   const sidebarItems = isPatient ? patientSidebarItems : adminSidebarItems
@@ -84,20 +85,44 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   return (
     <div className="flex h-screen bg-[#F9FAFB] font-sans">
       {/* Sidebar */}
-      <aside className="w-[280px] bg-white border-r border-[#EAECF0] flex flex-col">
+      <aside
+        className={`${
+          collapsed ? "w-[84px]" : "w-[280px]"
+        } bg-white border-r border-[#EAECF0] flex flex-col transition-[width] duration-200 ease-in-out`}
+      >
         {/* Logo Section */}
-        <div className="h-[90px] px-6 flex items-center justify-between border-b border-[#EAECF0]/50">
-          <div className="flex items-center -ml-2">
-            <Image
-              src="/images/logos/vyara.png"
-              alt="Vyara Logo"
-              width={140}
-              height={56}
-              className="h-14 w-auto object-contain"
-            />
-          </div>
-          <button className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] text-[#101828] hover:bg-gray-100 rounded-full transition-all shadow-sm">
-            <ChevronsLeft className="h-5 w-5" />
+        <div
+          className={`h-[90px] flex items-center border-b border-[#EAECF0]/50 gap-2 ${
+            collapsed ? "px-0 justify-center" : "px-4 justify-between"
+          }`}
+        >
+          {!collapsed && (
+            <Link href="/" className="flex items-center min-w-0" aria-label="Home">
+              <span
+                className="whitespace-nowrap"
+                style={{
+                  fontFamily: "var(--font-script)",
+                  color: "#C9A227",
+                  fontSize: "1.25rem",
+                  lineHeight: 1.1,
+                  letterSpacing: "0.01em",
+                }}
+              >
+                Dr. Yuvraaj Singh M.D.
+              </span>
+            </Link>
+          )}
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] text-[#101828] hover:bg-gray-100 rounded-full transition-all shadow-sm shrink-0"
+          >
+            {collapsed ? (
+              <ChevronsRight className="h-5 w-5" />
+            ) : (
+              <ChevronsLeft className="h-5 w-5" />
+            )}
           </button>
         </div>
 
@@ -109,17 +134,20 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
               <Link
                 key={item.name}
                 href={item.href}
+                title={collapsed ? item.name : undefined}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all group ${
-                  isActive 
-                    ? "bg-[#F4F5FF] text-[#2E37A4]" 
+                  collapsed ? "justify-center" : ""
+                } ${
+                  isActive
+                    ? "bg-[#F4F5FF] text-[#2E37A4]"
                     : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <item.icon className={`h-5 w-5 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
-                  <span className="font-medium text-sm">{item.name}</span>
+                <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
+                  {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
                 </div>
-                {isActive && <div className="w-1 h-5 bg-[#2E37A4] rounded-full" />}
+                {isActive && !collapsed && <div className="w-1 h-5 bg-[#2E37A4] rounded-full" />}
               </Link>
             )
           })}
@@ -133,14 +161,17 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
               <Link
                 key={item.name}
                 href={item.href}
+                title={collapsed ? item.name : undefined}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${
-                  isActive 
-                    ? "bg-[#F4F5FF] text-[#2E37A4]" 
+                  collapsed ? "justify-center" : ""
+                } ${
+                  isActive
+                    ? "bg-[#F4F5FF] text-[#2E37A4]"
                     : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
-                <item.icon className={`h-5 w-5 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
-                <span className="font-medium text-sm">{item.name}</span>
+                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
+                {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
               </Link>
             )
           })}

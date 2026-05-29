@@ -43,7 +43,10 @@ export async function requireSession(): Promise<Session> {
  */
 export async function requireRole(...allowed: Role[]): Promise<Session> {
   const session = await requireSession()
-  const role = (session as { user?: { role?: Role } }).user?.role
+  // `requireUser()` returns the role at the top level ({ userId, role, … }),
+  // not nested under `.user`. Read it from the right place or this rejects
+  // every caller.
+  const role = (session as { role?: Role }).role
   if (!role || !allowed.includes(role)) {
     throw new ForbiddenError(
       `Requires one of: ${allowed.join(", ")}`,

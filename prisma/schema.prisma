@@ -351,6 +351,11 @@ model Consultation {
   labResults LabResult[]
   infusions  InfusionLog[]
 
+  /// Back-relation for the appointment this consultation was started from
+  /// (see Appointment.consultationId). Optional — a consultation can also
+  /// be created standalone from the patient chart.
+  appointment Appointment? @relation("AppointmentConsultation")
+
   @@index([patientId, type, createdAt])
   @@index([status])
   @@index([createdById])
@@ -439,6 +444,13 @@ model Appointment {
   /// patient-timeline display alongside `cancelledReason`.
   cancelledAt     DateTime? @map("cancelled_at") @db.Timestamptz()
   cancelledReason String?   @map("cancelled_reason")
+
+  /// The clinical consultation started from this appointment via the admin
+  /// "Start appointment" action. 1:1 — re-starting reuses the same row so
+  /// a chart is never duplicated. SetNull keeps the booking if the
+  /// consultation is later removed.
+  consultationId String?       @unique @map("consultation_id") @db.Uuid
+  consultation   Consultation? @relation("AppointmentConsultation", fields: [consultationId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -1071,4 +1083,20 @@ model AssessmentSubmission {
   @@index([patientId, createdAt(sort: Desc)])
   @@index([status])
   @@map("assessment_submissions")
+}
+
+// ===========================================================================
+// App settings (key-value)
+// ===========================================================================
+
+/// Generic key-value settings store for admin-configurable app config (e.g.
+/// the "email" key holds SMTP credentials for the transactional mailer).
+/// Values are JSON; secrets inside them are encrypted at rest by the app
+/// layer (see lib/crypto.ts) — never store plaintext credentials here.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
 }

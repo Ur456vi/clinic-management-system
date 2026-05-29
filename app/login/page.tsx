@@ -11,7 +11,6 @@
  * lives under `/admin/auth/forgot-password`.
  */
 
-import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -97,16 +96,19 @@ export default function LoginPage() {
           boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)',
         }}
       >
-        {/* Logo */}
+        {/* Logo — matches the public site header logotype */}
         <div className="flex flex-col items-center">
-          <Image
-            src="/images/logos/vyara.png"
-            alt="Vyara Logo"
-            width={64}
-            height={65}
-            className="object-contain"
-            priority
-          />
+          <span
+            className="text-4xl md:text-5xl"
+            style={{
+              fontFamily: "var(--font-script)",
+              color: "#C9A227",
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Dr. Yuvraaj Singh M.D.
+          </span>
         </div>
 
         {/* Header */}

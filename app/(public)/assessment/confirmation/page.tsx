@@ -75,7 +75,7 @@ export default function ConfirmationPage() {
     return (
       <div className="w-full" style={{ background: "var(--brand-cream-2)" }}>
         <div className="mx-auto max-w-[700px] px-6 pt-20 pb-24 md:px-12 text-center space-y-5">
-          <QuizHeader />
+          {/* <QuizHeader /> */}
           <h1
             className="font-medium"
             style={{
@@ -120,7 +120,7 @@ export default function ConfirmationPage() {
   return (
     <div className="w-full" style={{ background: "var(--brand-cream-2)" }}>
       <div className="mx-auto max-w-[900px] px-6 pt-10 pb-16 md:px-12 md:pt-14 md:pb-20 space-y-6">
-        <QuizHeader />
+        {/* <QuizHeader /> */}
 
         {/* Success banner */}
         <div

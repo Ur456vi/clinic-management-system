@@ -17,7 +17,7 @@
 
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
   Calendar,
@@ -79,10 +79,52 @@ const empty: FormState = {
 
 export default function NewAppointmentPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormState>(empty)
   const [submitting, setSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  // Prefill hints from the RMO consultation hand-off
+  // (?patientId=…&doctor=Yuvraaj or ?role=RMO).
+  const prefillPatientId = searchParams.get("patientId")
+  const prefillDoctorName = searchParams.get("doctor")
+  const prefillRole = searchParams.get("role")
+
+  // Preselect the patient when arriving with ?patientId.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!prefillPatientId) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch(`/api/patients/${prefillPatientId}`, {
+          credentials: "include",
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        const p = json?.data ?? json
+        if (cancelled || !p?.id) return
+        setForm((f) => ({
+          ...f,
+          patient: {
+            id: p.id,
+            patientNumber: p.patientNumber ?? "",
+            fullName: p.fullName ?? "",
+            email: p.email ?? null,
+            phone: p.phone ?? null,
+          },
+        }))
+        setStep((s) => (s === 0 ? 1 : s))
+      } catch {
+        /* ignore — user can still pick manually */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [prefillPatientId])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const canAdvance = useMemo(() => {
     if (step === 0) return form.patient !== null
@@ -133,7 +175,20 @@ export default function NewAppointmentPage() {
         }
         throw new Error(json?.error?.message ?? "Booking failed")
       }
-      notify.success("Appointment booked")
+      // Fire the patient + doctor confirmation emails (best-effort; the
+      // booking already succeeded so we never block on this).
+      const createdId = json?.data?.id
+      if (createdId) {
+        try {
+          await fetch(`/api/appointments/${createdId}/send-confirmation`, {
+            method: "POST",
+            credentials: "include",
+          })
+        } catch {
+          /* email is best-effort */
+        }
+      }
+      notify.success("Appointment booked — confirmation emails sent")
       router.push("/admin/appointments")
     } catch (err) {
       notify.error("Couldn't create appointment", {
@@ -246,7 +301,13 @@ export default function NewAppointmentPage() {
             />
           ) : null}
           {step === 1 ? (
-            <SlotPicker form={form} setForm={setForm} fieldErrors={fieldErrors} />
+            <SlotPicker
+              form={form}
+              setForm={setForm}
+              fieldErrors={fieldErrors}
+              preselectDoctorName={prefillDoctorName}
+              preselectRole={prefillRole}
+            />
           ) : null}
           {step === 2 ? <DetailsStep form={form} setForm={setForm} /> : null}
           {step === 3 ? <ReviewStep form={form} /> : null}
@@ -373,10 +434,14 @@ function SlotPicker({
   form,
   setForm,
   fieldErrors,
+  preselectDoctorName,
+  preselectRole,
 }: {
   form: FormState
   setForm: (f: FormState) => void
   fieldErrors: Record<string, string>
+  preselectDoctorName?: string | null
+  preselectRole?: string | null
 }) {
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [loading, setLoading] = useState(true)
@@ -388,15 +453,26 @@ function SlotPicker({
       const res = await fetch(url.toString(), { credentials: "include" })
       const json = await res.json()
       const items = (json?.data ?? json?.items ?? []) as Doctor[]
-      setDoctors(
-        items.filter((d) => d.role === "DOCTOR" || d.role === "RMO"),
-      )
+      const filtered = items.filter((d) => d.role === "DOCTOR" || d.role === "RMO")
+      setDoctors(filtered)
+      // Preselect the hand-off target doctor if the page was opened with a hint.
+      if (!form.doctor && (preselectDoctorName || preselectRole)) {
+        const match =
+          (preselectDoctorName &&
+            filtered.find((d) =>
+              d.fullName.toLowerCase().includes(preselectDoctorName.toLowerCase()),
+            )) ||
+          (preselectRole && filtered.find((d) => d.role === preselectRole)) ||
+          null
+        if (match) setForm({ ...form, doctor: match })
+      }
     } catch {
       setDoctors([])
     } finally {
       setLoading(false)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectDoctorName, preselectRole])
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

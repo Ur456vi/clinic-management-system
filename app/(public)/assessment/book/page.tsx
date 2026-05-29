@@ -135,7 +135,7 @@ export default function BookAssessmentPage() {
   return (
     <div className="w-full" style={{ background: "var(--brand-cream-2)" }}>
       <div className="mx-auto max-w-[1100px] px-6 pt-10 pb-16 md:px-12 md:pt-14 md:pb-20 space-y-7">
-        <QuizHeader />
+        {/* <QuizHeader /> */}
 
         <div className="flex items-center justify-between gap-4">
           <Link

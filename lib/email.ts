@@ -8,7 +8,7 @@
  *   import { sendMail } from "@/lib/email"
  *   await sendMail({
  *     to: "asha@example.com",
- *     subject: "Your Vyara password reset code",
+ *     subject: "Your Dr. Yuvraaj Singh M.D. password reset code",
  *     text: "Your code is 123456. It expires in 15 minutes.",
  *   })
  *
@@ -22,21 +22,25 @@
  */
 
 import { env } from "@/lib/env"
+import { getEmailConfig } from "@/lib/settings"
 
 export type SendMailInput = {
   /** Single recipient email. */
   to: string
   /** Plain-text subject line. */
   subject: string
-  /** Plain-text body. (HTML support deferred to Sprint 2.) */
+  /** Plain-text body (always sent as a fallback for non-HTML clients). */
   text: string
+  /** Optional HTML body. When set, providers send a multipart HTML email. */
+  html?: string
 }
 
 export type SendMailResult =
+  | { ok: true; provider: "smtp"; id: string }
   | { ok: true; provider: "resend"; id: string }
   | { ok: true; provider: "brevo"; id: string }
   | { ok: true; provider: "console" }
-  | { ok: false; provider: "resend" | "brevo" | "console"; error: string }
+  | { ok: false; provider: "smtp" | "resend" | "brevo" | "console"; error: string }
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails"
 const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email"
@@ -50,7 +54,7 @@ function parseEmailFrom(from: string): { name: string; email: string } {
     }
   }
   return {
-    name: "Vyara",
+    name: "Dr. Yuvraaj Singh M.D.",
     email: from.trim(),
   }
 }
@@ -63,7 +67,42 @@ function parseEmailFrom(from: string): { name: string; email: string } {
  * to RESEND_API_KEY. If neither is configured, logs to console in dev mode.
  */
 export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
-  const { to, subject, text } = input
+  const { to, subject, text, html } = input
+
+  // 0. SMTP via nodemailer, configured in the admin Settings -> Email page
+  //    and stored (encrypted) in the DB. This is the primary path when set.
+  const smtp = await getEmailConfig().catch(() => null)
+  if (smtp) {
+    try {
+      const { createTransport } = await import("nodemailer")
+      const transport = createTransport({
+        host: smtp.host,
+        port: smtp.port,
+        secure: smtp.secure,
+        auth: { user: smtp.user, pass: smtp.password },
+      })
+      const from = smtp.fromEmail
+        ? `${smtp.fromName} <${smtp.fromEmail}>`
+        : env.EMAIL_FROM
+      const info = await transport.sendMail({
+        from,
+        to,
+        subject,
+        text,
+        ...(html ? { html } : {}),
+      })
+      return { ok: true, provider: "smtp", id: info.messageId ?? "" }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[email:smtp] threw", err)
+      return {
+        ok: false,
+        provider: "smtp",
+        error: err instanceof Error ? err.message : "unknown",
+      }
+    }
+  }
+
   const brevoApiKey = env.BREVO_API_KEY
   const resendApiKey = env.RESEND_API_KEY
 
@@ -83,6 +122,7 @@ export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
           to: [{ email: to }],
           subject,
           textContent: text,
+          ...(html ? { htmlContent: html } : {}),
         }),
       })
 
@@ -126,6 +166,7 @@ export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
           to,
           subject,
           text,
+          ...(html ? { html } : {}),
         }),
       })
 
