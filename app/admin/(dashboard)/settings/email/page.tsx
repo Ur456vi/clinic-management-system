@@ -267,26 +267,23 @@ export default function EmailSettingsPage() {
         <p className="text-xs text-[#667085] mb-4">
           Uses the saved settings. Save &amp; enable SMTP first for a true SMTP test.
         </p>
-        <div className="flex flex-wrap items-end gap-3">
-          <Field label="Recipient" className="flex-1 min-w-[240px]">
-            <input
-              type="email"
-              value={testTo}
-              onChange={(e) => setTestTo(e.target.value)}
-              placeholder="recipient@example.com"
-              className={inputCls}
-            />
-          </Field>
-          <Button
-            variant="outline"
-            onClick={() => void sendTest()}
-            disabled={testing}
-            className="flex items-center gap-2"
-          >
-            {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Send test
-          </Button>
-        </div>
+        <Field label="Recipient">
+          <input
+            type="email"
+            value={testTo}
+            onChange={(e) => setTestTo(e.target.value)}
+            placeholder="recipient@example.com"
+            className={inputCls}
+          />
+        </Field>
+        <Button
+          onClick={() => void sendTest()}
+          disabled={testing}
+          className="mt-4 bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2"
+        >
+          {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          Send test email
+        </Button>
       </div>
     </div>
   )
