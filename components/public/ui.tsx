@@ -15,6 +15,7 @@ type ButtonProps = {
   children: React.ReactNode;
   variant?: "olive" | "burgundy" | "burgundy-outline" | "olive-outline";
   size?: "md" | "lg";
+  showArrow?: boolean;
 };
 
 export function CTAButton({
@@ -22,6 +23,7 @@ export function CTAButton({
   children,
   variant = "burgundy",
   size = "md",
+  showArrow = true,
 }: ButtonProps) {
   const pad = size === "lg" ? "px-7 py-3.5 text-base" : "px-6 py-3 text-sm";
   const style: React.CSSProperties =
@@ -48,7 +50,7 @@ export function CTAButton({
       style={{ ...style }}
     >
       {children}
-      <ArrowRightIcon size={14} />
+      {showArrow && <ArrowRightIcon size={14} />}
     </Link>
   );
 }
@@ -329,19 +331,17 @@ export function StatTile({
   }
 
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className="flex items-center gap-3.5 text-left">
       <div
-        className="mb-2 flex h-10 w-10 items-center justify-center rounded-full"
+        className="flex h-10 w-10 shrink-0 items-center justify-center"
         style={{
-          background: "var(--brand-cream-2)",
           color: "var(--brand-burgundy)",
-          border: "1px solid var(--brand-rule)",
         }}
       >
         {icon}
       </div>
       <span
-        className="text-[11px] font-medium uppercase leading-tight tracking-wider"
+        className="text-[12px] font-semibold uppercase leading-snug tracking-wider"
         style={{ color: "var(--brand-ink-soft)" }}
       >
         {label}

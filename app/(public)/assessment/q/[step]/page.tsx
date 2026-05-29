@@ -79,7 +79,7 @@ export default function QuizStepPage({
   return (
     <div className="w-full" style={{ background: "var(--brand-cream-2)" }}>
       <div className="mx-auto max-w-[1200px] px-6 pt-8 pb-16 md:px-12 md:pt-10 md:pb-20">
-        <QuizHeader />
+        {/* <QuizHeader /> */}
 
         {/* Prev/Next + progress */}
         <div className="mt-8 space-y-3">

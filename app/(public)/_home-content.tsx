@@ -7,34 +7,35 @@
  * Positioning band. All copy is verbatim from the Figma.
  */
 import Link from "next/link";
-
+import Image from "next/image";
 import {
   CTAButton,
   EcgLine,
   HeroPattern,
   PortraitPlaceholder,
+  FigmaImage,
   QuoteCard,
   SectionEyebrow,
   SectionHeading,
   StatTile,
 } from "@/components/public/ui";
 import {
-  AwardIcon,
   CheckCircleIcon,
   HeartPulseIcon,
-  MicroscopeIcon,
   ScaleIcon,
   ShieldIcon,
   StarIcon,
   TargetIcon,
-  ChartIcon,
-  ClockIcon,
+  StethoscopeIcon,
+  TrustIcon,
+  RadarIcon,
 } from "@/components/public/icons";
 
+
 const HERO_TILES = [
-  { icon: <AwardIcon size={22} />, label: "30+ Years of Clinical Experience" },
-  { icon: <MicroscopeIcon size={22} />, label: "Precision Metabolic Medicine" },
-  { icon: <HeartPulseIcon size={22} />, label: "Hormonal & Longevity Care" },
+  { icon: "/images/landing/Radar.png", label: "20+ Years Of clinical Experience" },
+  { icon: "/images/landing/Neuron.png", label: "precision metabolic medicine" },
+  { icon: "/images/landing/Trust.png", label: "Hormonal & Longevity care" },
 ];
 
 const STANDARDS_LEFT = [
@@ -53,19 +54,19 @@ const TOLD = ['"Everything looks normal."', '"It\'s just stress."', '"It\'s part
 
 const DIFFERENT_CARE_FEATURES = [
   {
-    icon: <ShieldIcon size={22} />,
+    icon: "/images/landing/Treatment.png",
     title: "Structured Clinical Protocols",
   },
   {
-    icon: <MicroscopeIcon size={22} />,
+    icon: "/images/landing/Microscope.png",
     title: "Advanced Diagnostic Evaluation",
   },
   {
-    icon: <TargetIcon size={22} />,
+    icon: "/images/landing/Customer.png",
     title: "Individualized Therapeutic Strategies",
   },
   {
-    icon: <ChartIcon size={22} />,
+    icon: "/images/landing/Increase.png",
     title: "Continuous Monitoring & Refinement",
   },
 ];
@@ -73,23 +74,23 @@ const DIFFERENT_CARE_FEATURES = [
 const FRAMEWORK = [
   {
     no: "01",
-    icon: <ScaleIcon size={24} />,
+    icon: "/images/landing/Framework_Neuron.png",
     body: "Hormonal systems do not function independently or in isolation.",
   },
   {
     no: "02",
-    icon: <HeartPulseIcon size={24} />,
+    icon: "/images/landing/Framework_Cycle.png",
     body: "Metabolic health governs energy, weight, and inflammation.",
   },
   {
     no: "03",
-    icon: <ChartIcon size={24} />,
+    icon: "/images/landing/Framework_Heart.png",
     body: "Vascular integrity defines performance and longevity.",
   },
   {
     no: "04",
-    icon: <ClockIcon size={24} />,
-    body: "Inflammation begins years before it becomes clinically visible.",
+    icon: "/images/landing/Framework_Clock.png",
+    body: "Imbalance begins years before it becomes clinically visible.",
   },
 ];
 
@@ -119,46 +120,51 @@ const INSTITUTE_DEFINITION = [
 const FOCUS_AREAS = [
   {
     title: "Female Hormonal & Metabolic Medicine",
-    image: "/images/landing/home-focus-female.jpg",
+    image: "/images/landing/home-focus-female.png",
     bullets: [
-      "Perimenopause, Menopause and Post-Menopause Care",
-      "Hormonal optimization with structured precision",
-      "Mood & cognitive balance",
-      "Bone health and vitality",
-      "Long-term physician-led care, beyond the routine.",
+      "Perimenopausal, Menopausal and Post-Menopausal care",
+      "Hormonal recalibration and symptom-guided intervention",
+      "Sleep and cognitive restoration",
+      "Mood and emotional balance",
+      "Sexual health and vitality",
+      "Long-term protection of bone, metabolic, neurological and cardiovascular health",
     ],
-    label: "Bio-Identical Hormone Therapy — prescribed with clinical rigor, not trends.",
+    label: "Bio-identical Hormone Therapy—prescribed with clinical rigor, not trend.",
   },
   {
     title: "Male Hormonal, Metabolic & Performance Health",
-    image: "/images/landing/home-focus-male.jpg",
+    image: "/images/landing/home-focus-male.png",
     bullets: [
-      "Testosterone and hormone balance",
-      "Sexual health restoration",
-      "Body composition and muscle performance",
+      "Testosterone and hormonal balance",
+      "Sexual performance and vascular-hormonal evaluation",
+      "Recovery, cognition and physiological restoration",
+      "Sexual performance evaluation",
       "Energy, strength, and recovery",
     ],
     label: "The goal is not temporary enhancement. It is consistent, reliable function.",
   },
   {
     title: "Metabolic Health & Body Composition",
-    image: "/images/landing/home-focus-metabolic.jpg",
+    image: "/images/landing/home-focus-metabolic.png",
     bullets: [
+      "Weight changes are rarely a matter of discipline alone",
       "Structured metabolic evaluation",
-      "Targeted prevention of metabolic disease, including GLP-1 (where clinically indicated)",
-      "Long-term metabolic care",
+      "Targeted correction strategies",
+      "Evidence-based use of advanced therapies, including GLP-1 (when clinically indicated)",
+      "Long-term metabolic optimization",
     ],
-    label: "The focus is complete metabolic restoration, not weight loss.",
+    label: "The focus is complete metabolic restoration, not weight loss alone.",
   },
   {
     title: "Regenerative & Longevity Medicine",
-    image: "/images/landing/home-focus-regenerative.jpg",
+    image: "/images/landing/home-focus-regenerative.png",
     bullets: [
-      "Cellular resilience and decline prevention",
-      "Predictive and preventive interventions",
-      "Long-term integrative and longitudinal protocols",
+      "Health is not defined only by absence of disease. It is defined by:",
+      "Cellular resilience and recovery",
+      "Predictive and preventive inflammation assessment",
+      "Long-term cognitive and physiological preservation",
     ],
-    label: "Proactive, future-aligned medicine — designed for individuals who think in decades, not months.",
+    label: "Proactive, future-driven medicine — designed for individuals who think in decades, not months.",
   },
 ];
 
@@ -173,12 +179,12 @@ export default function HomeContent() {
     <>
       {/* ===================== HERO ============================== */}
       <section
-        className="relative w-full"
+        className="relative w-full overflow-hidden"
         style={{ background: "var(--brand-cream)" }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 pt-14 pb-20 md:grid-cols-2 md:gap-16 md:px-12 md:pt-20 md:pb-28">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-stretch md:grid-cols-2">
           {/* Left column */}
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-center px-6 pt-14 pb-20 md:px-12 md:pt-20 md:pb-28">
             <h1
               className="font-medium leading-[1.05]"
               style={{
@@ -202,33 +208,53 @@ export default function HomeContent() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <CTAButton href="#framework" variant="olive-outline">
-                Explore Our Clinical Framework
+              <CTAButton href="#framework" variant="olive">
+                Explore The Clinical Framework
               </CTAButton>
-              <CTAButton href="/about" variant="burgundy-outline">
-                Meet The Institute
+              <CTAButton href="/about" variant="burgundy-outline" showArrow={false}>
+                About The Institute
               </CTAButton>
             </div>
 
-            <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
+            <div className="mt-12 flex flex-wrap gap-x-8 gap-y-6 max-w-2xl">
               {HERO_TILES.map((t) => (
-                <StatTile key={t.label} icon={t.icon} label={t.label} />
+                <div key={t.label} className="flex items-center gap-4 text-left">
+                  <div className="relative w-10 h-10 shrink-0">
+                    <Image
+                      src={t.icon}
+                      alt={t.label}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span
+                    className="font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[16px] h-[63px] flex items-center"
+                    style={{
+                      color: "var(--brand-ink-soft)",
+                      width: t.icon.includes("Neuron") ? "195px" : "187px",
+                    }}
+                  >
+                    {t.label}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Right column — hero portrait */}
-          <div className="relative">
+          <div className="relative min-h-[450px] md:min-h-0 w-full md:aspect-[945/868]">
             <div
               className="absolute inset-0 -z-0"
               style={{ color: "var(--brand-burgundy)" }}
             >
               <HeroPattern className="h-full w-full" opacity={0.15} />
             </div>
-            <PortraitPlaceholder
-              label="Dr. Yuvraaj Singh — lab-coat hero portrait (sepia, against honeycomb backdrop)"
-              aspect="portrait"
-              className="relative z-10 mx-auto max-w-md"
+            <Image
+              src="/images/landing/Rectangle 95 (1).png"
+              alt="Dr. Yuvraaj Singh"
+              fill
+              priority
+              className="object-cover object-left-top"
             />
           </div>
         </div>
@@ -239,10 +265,10 @@ export default function HomeContent() {
         className="w-full"
         style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-24">
+        <div className="mx-auto max-w-[1440px] px-6 pt-20 pb-10 md:px-12 md:pt-24 md:pb-12">
           <SectionHeading>
             When Standard Metrics Fail To Explain{" "}
-            <span style={{ color: "var(--brand-burgundy)" }}>
+            <span style={{ color: "var(--brand-olive)", fontStyle: "italic" }}>
               What You Are Experiencing
             </span>
           </SectionHeading>
@@ -250,59 +276,76 @@ export default function HomeContent() {
           <div className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3">
             <div>
               <p
-                className="mb-5 font-medium"
+                className="mb-5 font-semibold text-lg"
                 style={{ color: "var(--brand-ink)" }}
               >
-                You are functioning. But not at your peak.
+                You are functioning. But not at your best.
               </p>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {STANDARDS_LEFT.map((s) => (
-                  <li key={s} className="flex gap-2 text-sm leading-relaxed">
-                    <span style={{ color: "var(--brand-burgundy)" }}>•</span>
-                    <span style={{ color: "var(--brand-ink-soft)" }}>{s}</span>
+                  <li key={s} className="flex items-start gap-2.5 text-[16px] leading-[26px] font-normal" style={{ color: "var(--brand-ink-soft)" }}>
+                    <span className="shrink-0 font-bold" style={{ color: "var(--brand-burgundy)" }}>•</span>
+                    <span>{s}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <ul className="space-y-3">
+              <ul className="space-y-4 mb-8">
                 {STANDARDS_MIDDLE.map((s) => (
-                  <li key={s} className="flex gap-2 text-sm leading-relaxed">
-                    <span style={{ color: "var(--brand-burgundy)" }}>•</span>
-                    <span style={{ color: "var(--brand-ink-soft)" }}>{s}</span>
+                  <li key={s} className="flex items-start gap-2.5 text-[16px] leading-[26px] font-normal" style={{ color: "var(--brand-ink-soft)" }}>
+                    <span className="shrink-0 font-bold" style={{ color: "var(--brand-burgundy)" }}>•</span>
+                    <span>{s}</span>
                   </li>
                 ))}
               </ul>
               <p
-                className="mt-6 mb-3 text-sm font-medium"
+                className="mb-4 text-sm font-medium"
                 style={{ color: "var(--brand-ink)" }}
               >
                 And yet, you&apos;ve been told:
               </p>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {TOLD.map((t) => (
                   <li
                     key={t}
-                    className="text-sm italic"
+                    className="font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[16px] flex items-start gap-2.5"
                     style={{ color: "var(--brand-burgundy)" }}
                   >
-                    {t}
+                    <span className="shrink-0 font-bold">•</span>
+                    <span>{t}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div>
-              <QuoteCard
-                text="The objective is not temporary symptomatic suppression. The objective is restoration of function."
-              />
-              <div className="mt-6">
-                <EcgLine />
+            <div
+              className="relative rounded-xl p-8 md:p-9 flex flex-col justify-between md:min-h-[460px] border border-[#A3B18A]/20"
+              style={{ background: "#A3B18A30" }}
+            >
+              <div>
+                <h3
+                  className="font-sans text-[20px] font-semibold leading-[28px] mb-6"
+                  style={{ color: "var(--brand-ink)" }}
+                >
+                  The objective is not temporary symptom suppression
+                </h3>
+                <div className="space-y-4 text-[15px] leading-[24px]" style={{ color: "var(--brand-ink-soft)" }}>
+                  <p>Biological decline often develops gradually, quietly and systemically</p>
+                  <p>And when they are ignored, they progress.</p>
+                  <p className="pt-2">Many high-functioning individuals experience measurable dysfunction despite &ldquo;normal&rdquo; reports</p>
+                  <p className="font-semibold pt-4 text-black border-t border-[#A3B18A]/20 mt-4">
+                    What can be measured can often be understood more precisely
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8">
+                <EcgLine color="#6D7956" />
               </div>
             </div>
           </div>
 
           <div className="mt-12 flex justify-center">
-            <CTAButton href="/assessment" variant="burgundy" size="lg">
+            <CTAButton href="/assessment" variant="burgundy" size="lg" showArrow={false}>
               Book An Appointment
             </CTAButton>
           </div>
@@ -313,27 +356,31 @@ export default function HomeContent() {
       <section
         id="different-care"
         className="w-full"
-        style={{ background: "var(--brand-cream)" }}
+        style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 py-20 md:grid-cols-2 md:gap-16 md:px-12 md:py-24">
-          <div className="relative">
-            <div
-              className="absolute inset-0 -z-0"
-              style={{ color: "var(--brand-olive)" }}
-            >
-              <HeroPattern className="h-full w-full" opacity={0.12} />
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 py-10 md:grid-cols-2 md:gap-16 md:px-12 md:py-12 items-center">
+          <div className="relative w-full">
+            <div className="relative w-full aspect-[631/830] max-w-[631px] mx-auto overflow-hidden rounded-[20px]">
+              <Image
+                src="/images/landing/about-hero-doctor.png"
+                alt="Dr. Yuvraaj Singh"
+                fill
+                priority
+                className="object-cover"
+              />
             </div>
-            <PortraitPlaceholder
-              label="Dr. Yuvraaj Singh — seated portrait against honeycomb backdrop"
-              aspect="portrait"
-              className="relative z-10 mx-auto max-w-md"
-            />
           </div>
           <div className="flex flex-col justify-center">
             <SectionHeading>A Different Standard of Care</SectionHeading>
             <p
-              className="mt-5 text-base leading-relaxed"
-              style={{ color: "var(--brand-ink-soft)" }}
+              className="mt-5 leading-relaxed"
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: 500,
+                fontSize: "19px",
+                lineHeight: "1.6",
+                color: "var(--brand-ink)",
+              }}
             >
               At this institute, care is not based on assumptions. It is based
               on systems, structure, and precision. We do not treat isolated
@@ -341,16 +388,26 @@ export default function HomeContent() {
               physiology interact as a whole.
             </p>
 
-            <div className="mt-8 grid grid-cols-2 gap-4">
+            <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
               {DIFFERENT_CARE_FEATURES.map((f) => (
                 <div
                   key={f.title}
-                  className="rounded-lg border bg-white p-4"
-                  style={{ borderColor: "var(--brand-rule)" }}
+                  className="rounded-xl border p-5 flex flex-col justify-between h-[135px]"
+                  style={{
+                    borderColor: "#A3B18A",
+                    background: "transparent",
+                  }}
                 >
-                  <div style={{ color: "var(--brand-burgundy)" }}>{f.icon}</div>
+                  <div className="relative w-8 h-8 shrink-0">
+                    <Image
+                      src={f.icon}
+                      alt={f.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                   <p
-                    className="mt-2 text-sm font-semibold leading-snug"
+                    className="text-xs font-semibold leading-snug"
                     style={{ color: "var(--brand-ink)" }}
                   >
                     {f.title}
@@ -359,19 +416,15 @@ export default function HomeContent() {
               ))}
             </div>
 
-            <div
-              className="mt-6 rounded-lg border-l-4 px-5 py-4"
-              style={{
-                borderColor: "var(--brand-burgundy)",
-                background: "var(--brand-burgundy-soft)",
-              }}
-            >
-              <p
-                className="text-sm font-medium"
-                style={{ color: "var(--brand-burgundy)" }}
-              >
-                No generic plans. No unnecessary interventions. Only
-                precision-based medicine.
+            <div className="mt-8 space-y-1">
+              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+                No generic plans.
+              </p>
+              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+                No unnecessary interventions.
+              </p>
+              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+                Only precision-based medicine.
               </p>
             </div>
           </div>
@@ -384,152 +437,219 @@ export default function HomeContent() {
         className="w-full"
         style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-24">
-          <SectionEyebrow>Our</SectionEyebrow>
-          <SectionHeading align="center">Clinical Framework</SectionHeading>
+        <div className="mx-auto max-w-[1440px] px-6 pt-10 pb-20 md:px-12 md:pt-12 md:pb-24">
+          <SectionHeading align="center">Our Clinical Framework</SectionHeading>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-4">
-            {FRAMEWORK.map((f) => (
-              <div
-                key={f.no}
-                className="rounded-xl border bg-white p-6"
-                style={{ borderColor: "var(--brand-rule)" }}
-              >
-                <span
-                  className="font-medium"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    color: "var(--brand-burgundy)",
-                    fontSize: "32px",
-                  }}
+          <div className="mt-12 flex flex-col lg:flex-row gap-8 items-center justify-between">
+            {/* The 4 steps */}
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 w-full relative">
+              {FRAMEWORK.map((f) => (
+                <div
+                  key={f.no}
+                  className="flex flex-col justify-start relative z-10 py-6"
                 >
-                  {f.no}
-                </span>
-                <div className="mt-3" style={{ color: "var(--brand-burgundy)" }}>
-                  {f.icon}
+                  <div className="flex items-center gap-4">
+                    <span
+                      className="shrink-0 flex items-center"
+                      style={{
+                        fontFamily: "var(--font-adamina), serif",
+                        fontSize: "36px",
+                        fontWeight: 400,
+                        color: "#7B1C1C",
+                        letterSpacing: "0.5px",
+                        lineHeight: "53.4px",
+                      }}
+                    >
+                      {f.no}
+                    </span>
+                    <div className="relative w-[90px] h-[90px] shrink-0">
+                      <Image
+                        src={f.icon}
+                        alt={f.body}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  </div>
+                  <p
+                    className="mt-6 text-xs leading-relaxed max-w-[220px]"
+                    style={{ color: "var(--brand-ink-soft)" }}
+                  >
+                    {f.body}
+                  </p>
                 </div>
-                <p
-                  className="mt-3 text-sm leading-relaxed"
-                  style={{ color: "var(--brand-ink-soft)" }}
-                >
-                  {f.body}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div
-            className="mt-10 rounded-lg p-6"
-            style={{ background: "var(--brand-olive-soft)" }}
-          >
-            <p
-              className="font-medium italic"
-              style={{ fontFamily: "var(--font-display)", color: "var(--brand-ink)" }}
+            {/* Quote callout on the right */}
+            <div
+              className="rounded-[10px] p-8 flex flex-col justify-center shrink-0 w-full lg:w-[468px]"
+              style={{
+                height: "225px",
+                backgroundColor: "rgba(163, 177, 138, 0.2)",
+              }}
             >
-              The objective is not temporary improvement. The objective is the
-              restoration of function.
-            </p>
+              <p
+                className="text-[16px] font-bold leading-normal text-[#1A1A1A]"
+              >
+                The objective is not temporary improvement.
+              </p>
+              <p
+                className="text-[16px] mt-4 leading-normal text-[#1A1A1A]"
+              >
+                The objective is{" "}
+                <span className="font-bold text-[#7B1C1C]">
+                  restoration of function.
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ================ WHAT DEFINES THIS INSTITUTE =============== */}
       <section
-        className="w-full"
-        style={{ background: "var(--brand-cream)" }}
+        className="w-full flex flex-col justify-center"
+        style={{
+          background: "#FEF9EF",
+        }}
       >
-        <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-24">
+        <div className="mx-auto max-w-[1440px] px-6 pt-20 pb-10 md:px-12 md:pt-24 md:pb-12">
           <SectionHeading align="center">
             What Defines This{" "}
-            <span style={{ color: "var(--brand-burgundy)" }}>Institute</span>
+            <span style={{ color: "#7B1C1C" }}>Institute</span>
           </SectionHeading>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {INSTITUTE_DEFINITION.map((d) => (
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+            {INSTITUTE_DEFINITION.map((d, i) => (
               <div
                 key={d.title}
-                className="rounded-xl border bg-white p-6"
-                style={{ borderColor: "var(--brand-rule)" }}
+                className={`flex flex-col justify-start px-8 py-10 ${
+                  i % 3 !== 2 ? "lg:border-r" : ""
+                } ${i < 3 ? "lg:border-b" : ""}`}
+                style={{ borderColor: "#E5E0D8" }}
               >
                 <h3
-                  className="font-medium"
                   style={{
-                    fontFamily: "var(--font-display)",
-                    color: "var(--brand-burgundy)",
-                    fontSize: "20px",
+                    fontFamily: "var(--font-display), Georgia, serif",
+                    fontWeight: 400,
+                    fontSize: "26px",
+                    lineHeight: "34px",
+                    color: "#1A1A1A",
                   }}
                 >
                   {d.title}
                 </h3>
                 <p
-                  className="mt-3 text-sm leading-relaxed"
+                  className="mt-4 text-[15px] leading-relaxed"
                   style={{ color: "var(--brand-ink-soft)" }}
                 >
                   {d.body}
                 </p>
               </div>
             ))}
-          </div>
 
-          <div className="mt-10 flex justify-center">
-            <CTAButton href="/assessment" variant="olive">
-              Book Your Appointment Now
-            </CTAButton>
+            {/* Bottom-right cell (Row 2, Column 3) containing the CTA button */}
+            <div className="flex items-center justify-center px-8 py-10">
+              <Link
+                href="/assessment"
+                className="inline-flex items-center justify-center gap-3 rounded-[4px] px-8 py-4 text-xs font-semibold uppercase tracking-widest text-white transition-all hover:opacity-95 shadow-none"
+                style={{
+                  background: "#4A5E3A",
+                  letterSpacing: "0.15em",
+                }}
+              >
+                Book Your Appointment Now &rarr;
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ================ OUR CORE FOCUS AREA ====================== */}
       <section
-        className="w-full"
-        style={{ background: "var(--brand-cream-2)" }}
+        className="w-full flex flex-col justify-center"
+        style={{
+          background: "#FEF9EF",
+          minHeight: "756px",
+        }}
       >
-        <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-24">
-          <SectionEyebrow>Our Core</SectionEyebrow>
-          <SectionHeading align="center">Focus Area</SectionHeading>
+        <div className="mx-auto max-w-[1920px] px-6 py-10 md:px-12 md:py-12 w-full">
+          <div className="flex items-center justify-center gap-6 mb-16">
+            <div className="hidden sm:block h-[1px] flex-1 max-w-[180px] border-t border-[#7B1C1C]/30 border-dashed"></div>
+            <h2
+              className="text-center font-sans font-semibold text-[32px] leading-tight text-[#1A1A1A] tracking-wide"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              Our Core <span className="text-[#7B1C1C]">Focus Area</span>
+            </h2>
+            <div className="hidden sm:block h-[1px] flex-1 max-w-[180px] border-t border-[#7B1C1C]/30 border-dashed"></div>
+          </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 justify-items-center justify-center items-stretch w-full py-4">
             {FOCUS_AREAS.map((area) => (
               <article
                 key={area.title}
-                className="overflow-hidden rounded-xl border bg-white"
-                style={{ borderColor: "var(--brand-rule)" }}
+                className="relative flex flex-col justify-start overflow-hidden bg-white rounded-[10px] border p-[36px] pt-[50px] pb-[27px] text-left transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group w-full"
+                style={{
+                  maxWidth: "435px",
+                  height: "417px",
+                  borderColor: "rgba(210, 180, 140, 0.4)",
+                  boxShadow: "none",
+                }}
               >
-                <PortraitPlaceholder
-                  label={`${area.title} — illustration`}
-                  aspect="landscape"
-                  className="rounded-none rounded-t-xl"
-                />
-                <div className="p-5">
-                  <h3
-                    className="font-medium leading-snug"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      color: "var(--brand-burgundy)",
-                      fontSize: "18px",
-                    }}
-                  >
-                    {area.title}
-                  </h3>
-                  <ul className="mt-3 space-y-2">
-                    {area.bullets.map((b) => (
-                      <li
-                        key={b}
-                        className="flex gap-2 text-xs leading-relaxed"
-                      >
-                        <CheckCircleIcon
-                          size={14}
-                          style={{ color: "var(--brand-burgundy)", flexShrink: 0, marginTop: 2 }}
-                        />
-                        <span style={{ color: "var(--brand-ink-soft)" }}>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {/* Absolute transparent silhouette watermark */}
+                <div 
+                  className="absolute inset-0 pointer-events-none select-none z-0"
+                  style={{ opacity: 1.0 }}
+                >
+                  <Image
+                    src={area.image}
+                    alt={area.title}
+                    fill
+                    className="object-cover rounded-[10px] transition-transform duration-500 group-hover:scale-102"
+                    sizes="435px"
+                  />
+                </div>
+
+                {/* Content Container */}
+                <div className="relative z-10 flex flex-col justify-between h-full flex-1 w-full">
+                  <div>
+                    {/* Title */}
+                    <h3
+                      className="font-sans font-semibold text-[18px] text-[#1A1A1A] leading-[32px] tracking-[0.5px]"
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        height: "64px",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      {area.title}
+                    </h3>
+
+                    {/* Bullet list */}
+                    <ul
+                      className="mt-[22px] font-sans font-normal text-[13px] text-[#2C2C2C] space-y-1.5"
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        lineHeight: "22px",
+                      }}
+                    >
+                      {area.bullets.map((b, bIdx) => (
+                        <li key={bIdx} className="flex gap-2.5 items-start">
+                          <span className="shrink-0">•</span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Bottom summary line */}
                   <p
-                    className="mt-4 border-t pt-3 text-xs italic"
+                    className="mt-auto font-sans italic font-normal text-[13px] text-[#4A4A4A]"
                     style={{
-                      color: "var(--brand-burgundy)",
-                      borderColor: "var(--brand-rule)",
+                      fontFamily: "Inter, sans-serif",
+                      lineHeight: "22px",
                     }}
                   >
                     {area.label}
@@ -543,85 +663,115 @@ export default function HomeContent() {
 
       {/* ================ A MEASURED, STRUCTURED PROCESS =========== */}
       <section
-        className="w-full"
-        style={{ background: "var(--brand-cream)" }}
+        className="w-full pt-10 pb-20 md:pt-12 md:pb-24 px-4 sm:px-6 md:px-12 flex justify-center"
+        style={{ background: "#FEF9EF" }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 py-20 md:grid-cols-2 md:px-12 md:py-24">
-          <div>
-            <SectionEyebrow>A Measured,</SectionEyebrow>
-            <SectionHeading>Structured Process</SectionHeading>
-            <ol className="mt-10 space-y-6">
-              {PROCESS_STEPS.map((s) => (
-                <li
-                  key={s.no}
-                  className="flex items-start gap-4 rounded-lg border bg-white p-5"
-                  style={{ borderColor: "var(--brand-rule)" }}
-                >
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white"
-                    style={{
-                      background: "var(--brand-burgundy)",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "18px",
-                    }}
-                  >
-                    {s.no}
-                  </div>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "var(--brand-ink-soft)" }}
-                  >
-                    {s.body}
-                  </p>
-                </li>
-              ))}
-            </ol>
-            <p
-              className="mt-6 text-xs italic"
-              style={{ color: "var(--brand-mute)" }}
-            >
-              This is not optimistic care. It is continuity-based clinical
-              process.
-            </p>
-          </div>
+        <div
+          className="w-full max-w-[1556px] rounded-[54px] border border-[#A3B18A]/20 p-8 md:p-16 flex items-center justify-center transition-all duration-300 hover:shadow-lg"
+          style={{
+            background: "#EFE8DC",
+            minHeight: "735px",
+          }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 w-full items-center">
+            {/* Left Column: A Measured, Structured Process */}
+            <div className="flex flex-col justify-center text-left py-6 h-full">
+              <h2
+                className="font-medium text-[#7B1C1C] mb-10 text-[28px] md:text-[38px] leading-tight"
+                style={{
+                  fontFamily: "var(--font-display), Georgia, serif",
+                }}
+              >
+                A Measured, Structured Process
+              </h2>
 
-          {/* Testimonial */}
-          <div
-            className="flex flex-col justify-center rounded-xl p-8"
-            style={{ background: "var(--brand-cream-2)", border: "1px solid var(--brand-rule)" }}
-          >
-            <div className="flex gap-1" style={{ color: "var(--brand-burgundy)" }}>
-              {[0, 1, 2, 3, 4].map((i) => (
-                <StarIcon key={i} size={20} />
-              ))}
+              <ol className="space-y-6">
+                {PROCESS_STEPS.map((s) => (
+                  <li
+                    key={s.no}
+                    className="flex items-start gap-5 text-left"
+                  >
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white"
+                      style={{
+                        background: "#7B1C1C",
+                        fontFamily: "var(--font-display), Georgia, serif",
+                        fontSize: "18px",
+                      }}
+                    >
+                      {s.no}
+                    </div>
+                    <p
+                      className="text-[16px] leading-[26px] font-normal"
+                      style={{ color: "var(--brand-ink-soft)" }}
+                    >
+                      {s.body}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-8 text-left">
+                <p
+                  className="text-xs italic leading-relaxed text-[#4A4A4A]"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  This is not episodic care.
+                </p>
+                <p
+                  className="text-xs font-semibold leading-relaxed mt-0.5"
+                  style={{
+                    color: "#1A1A1A",
+                    fontFamily: "Inter, sans-serif"
+                  }}
+                >
+                  It is a <span className="font-bold">continuity-based clinical process.</span>
+                </p>
+              </div>
             </div>
-            <p
-              className="mt-5 text-lg italic leading-relaxed"
-              style={{
-                fontFamily: "var(--font-display)",
-                color: "var(--brand-ink)",
-              }}
-            >
-              &ldquo;This is the most comprehensive lab testing I have ever had.
-              I&apos;m thrilled to know more about my health and how to improve
-              it.&rdquo;
-            </p>
-            <div
-              className="mt-6 flex gap-1.5"
-              aria-hidden
-            >
-              <span
-                className="h-1.5 w-6 rounded-full"
-                style={{ background: "var(--brand-burgundy)" }}
-              />
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: "var(--brand-rule)" }}
-              />
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: "var(--brand-rule)" }}
-              />
+
+            {/* Right Column: Testimonial & Rating */}
+            <div className="flex flex-col justify-center items-center text-center py-6 px-4 md:px-8 h-full border-t md:border-t-0 md:border-l border-[#A3B18A]/20">
+              {/* Stars rating */}
+              <div className="flex gap-1 mb-6" style={{ color: "#A3B18A" }}>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <StarIcon key={i} size={22} />
+                ))}
+              </div>
+
+              {/* Quote */}
+              <blockquote
+                className="text-[18px] md:text-[22px] italic leading-relaxed max-w-[480px] text-[#1A1A1A]"
+                style={{
+                  fontFamily: "var(--font-display), Georgia, serif",
+                }}
+              >
+                &ldquo;This is the most comprehensive lab testing I have ever had. I am thrilled to know more about my health and how to improve it.&rdquo;
+              </blockquote>
+
+              {/* Dot Pager */}
+              <div className="mt-8 flex gap-2 justify-center">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: "#7B1C1C" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: "#A3B18A" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: "#D9D9D9" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: "#D9D9D9" }}
+                />
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: "#D9D9D9" }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -667,7 +817,7 @@ export default function HomeContent() {
             <div className="mt-6">
               <Link
                 href="/assessment"
-                className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
+                className="inline-flex items-center gap-2 rounded px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
                 style={{
                   background: "var(--brand-burgundy)",
                   letterSpacing: "0.1em",

@@ -195,3 +195,20 @@ export const LongTermHealthIcon = (p: IconProps) =>
       </>
     ),
   });
+export const RadarIcon = (p: IconProps) =>
+  svg({ ...p, children: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" fill="currentColor" /></> });
+
+export const NeuronIcon = (p: IconProps) =>
+  svg({ ...p, children: <><circle cx="12" cy="12" r="3" fill="currentColor" /><path d="M12 12L6 7m6 5l6-5m-6 5v7m0-7L6 16m6-4l6 4" /><circle cx="6" cy="7" r="1.5" fill="currentColor" /><circle cx="18" cy="7" r="1.5" fill="currentColor" /><circle cx="12" cy="19" r="1.5" fill="currentColor" /><circle cx="6" cy="16" r="1.5" fill="currentColor" /><circle cx="18" cy="16" r="1.5" fill="currentColor" /></> });
+
+export const TrustIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M12 7c-1.5-1.5-4-1.5-5.5 0S5 11 6.5 12.5L12 18l5.5-5.5c1.5-1.5 1.5-4 0-5.5s-4-1.5-5.5 0z" fill="currentColor" /><path d="M3 13.5c1.5 2.5 4 4.5 8 4 3-.4 5.5-2 7.5-4.5" /></> });
+
+export const FileTextIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></> });
+
+export const CycleIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" /><path d="M2.5 22v-6h6M2.66 8.43a10 10 0 0 1 .57 8.38" /></> });
+
+export const AnatomicalHeartIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M12 14c0-2-1-3-3-4V4.5a1.5 1.5 0 0 1 3 0V7m0-2.5a1.5 1.5 0 0 1 3 0V10" /><path d="M16.5 10.5a3.5 3.5 0 0 0-4.5-3v14l4.5-4c2-2 2-5 0-7z" fill="currentColor" opacity={0.15} /><path d="M7.5 10.5c-2 2-2 5 0 7l4.5 4v-14a3.5 3.5 0 0 0-4.5 3z" /><path d="M12 7.5a3.5 3.5 0 0 1 4.5 3c2 2 2 5 0 7l-4.5 4" /></> });
