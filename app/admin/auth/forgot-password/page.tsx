@@ -3,17 +3,20 @@
 import React, { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Mail, Check, Lock, Eye, EyeOff } from "lucide-react"
+import { Mail, Check, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { notify } from "@/lib/notify"
 
 type Step = "form" | "success" | "otp" | "reset" | "reset-success"
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>("")
   const [step, setStep] = useState<Step>("form")
-  const [otp, setOtp] = useState<string[]>(new Array(5).fill(""))
+  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""))
   const [timeLeft, setTimeLeft] = useState<number>(30)
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const [ticket, setTicket] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [password, setPassword] = useState<string>("")
   const [confirmPassword, setConfirmPassword] = useState<string>("")
@@ -21,7 +24,7 @@ export default function ForgotPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
 
   const isFormValid = email.length > 0
-  const isResetValid = password.length > 0 && confirmPassword.length > 0 && password === confirmPassword
+  const isResetValid = password.length >= 8 && confirmPassword.length >= 8 && password === confirmPassword
 
   // Timer logic for OTP
   React.useEffect(() => {
@@ -37,9 +40,98 @@ export default function ForgotPassword() {
     return `00:${seconds.toString().padStart(2, "0")} sec`
   }
 
-  const handleSubmit = () => {
-    if (isFormValid) {
+  const handleSubmit = async () => {
+    if (!isFormValid || isLoading) return
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/password-reset/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error?.message || "Something went wrong")
+      }
       setStep("success")
+    } catch (err) {
+      notify.error("Failed to request password reset", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async () => {
+    const otpCode = otp.join("")
+    if (otpCode.length !== 6 || isLoading) return
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/password-reset/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: otpCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error?.message || "Invalid or expired code")
+      }
+      setTicket(data.data.ticket)
+      setStep("reset")
+    } catch (err) {
+      notify.error("OTP Verification Failed", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    if (timeLeft > 0 || isLoading) return
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/password-reset/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error?.message || "Something went wrong")
+      }
+      setTimeLeft(30)
+      notify.success("Verification code resent successfully")
+    } catch (err) {
+      notify.error("Failed to resend verification code", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleConfirmReset = async () => {
+    if (!isResetValid || !ticket || isLoading) return
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/password-reset/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticket, newPassword: password }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error?.message || "Failed to reset password")
+      }
+      setStep("reset-success")
+    } catch (err) {
+      notify.error("Failed to reset password", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -51,8 +143,27 @@ export default function ForgotPassword() {
     setOtp(newOtp)
 
     // Focus next input
-    if (element.nextSibling && element.value !== "") {
-      ; (element.nextSibling as HTMLInputElement).focus()
+    if (element.nextElementSibling && element.value !== "") {
+      ; (element.nextElementSibling as HTMLInputElement).focus()
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace") {
+      const newOtp = [...otp]
+      if (otp[index] === "") {
+        if (index > 0) {
+          newOtp[index - 1] = ""
+          setOtp(newOtp)
+          const prevSibling = e.currentTarget.previousElementSibling as HTMLInputElement | null
+          if (prevSibling) {
+            prevSibling.focus()
+          }
+        }
+      } else {
+        newOtp[index] = ""
+        setOtp(newOtp)
+      }
     }
   }
 
@@ -154,19 +265,26 @@ export default function ForgotPassword() {
                 className="w-full transition-all duration-300"
                 style={{
                   height: '48px',
-                  backgroundColor: isFormValid ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: isFormValid && !isLoading ? '#2E37A4' : '#B3B5E2',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
                   borderRadius: '8px',
                   boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
                   marginTop: '8px',
-                  cursor: isFormValid ? 'pointer' : 'default'
+                  cursor: isFormValid && !isLoading ? 'pointer' : 'default'
                 }}
-                disabled={!isFormValid}
+                disabled={!isFormValid || isLoading}
                 onClick={handleSubmit}
               >
-                Reset Password
+                {isLoading ? (
+                  <span className="flex items-center gap-2 justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending OTP...
+                  </span>
+                ) : (
+                  "Reset Password"
+                )}
               </Button>
 
               <div className="flex justify-center">
@@ -299,7 +417,7 @@ export default function ForgotPassword() {
             {/* OTP Input Grid */}
             <div
               className="flex gap-[24px] mt-2"
-              style={{ width: '376px' }} // 5x56px + 4x24px
+              style={{ width: '456px' }} // 6x56px + 5x24px
             >
               {otp.map((data, index) => (
                 <input
@@ -309,6 +427,7 @@ export default function ForgotPassword() {
                   placeholder={focusedIndex === index ? "" : "-"}
                   value={data}
                   onChange={(e) => handleOtpChange(e.target as HTMLInputElement, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
                   onFocus={(e) => {
                     setFocusedIndex(index)
                     e.target.select()
@@ -323,7 +442,7 @@ export default function ForgotPassword() {
             {/* Timer and Resend Link */}
             <div
               className="flex justify-between items-center"
-              style={{ width: '376px' }}
+              style={{ width: '456px' }}
             >
               <span
                 style={{
@@ -352,14 +471,11 @@ export default function ForgotPassword() {
                   className="hover:underline"
                   style={{
                     fontWeight: 600,
-                    color: timeLeft === 0 ? '#2E37A4' : '#667085'
+                    color: timeLeft === 0 && !isLoading ? '#2E37A4' : '#667085',
+                    cursor: timeLeft === 0 && !isLoading ? 'pointer' : 'default'
                   }}
-                  onClick={() => {
-                    if (timeLeft === 0) {
-                      setTimeLeft(30)
-                    }
-                  }}
-                  disabled={timeLeft > 0}
+                  onClick={handleResendOtp}
+                  disabled={timeLeft > 0 || isLoading}
                 >
                   Resend OTP
                 </button>
@@ -372,18 +488,25 @@ export default function ForgotPassword() {
                 className="w-full"
                 style={{
                   height: '56px',
-                  backgroundColor: otp.join("").length === 5 ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: otp.join("").length === 6 && !isLoading ? '#2E37A4' : '#B3B5E2',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
                   borderRadius: '8px',
                   boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
-                  cursor: otp.join("").length === 5 ? 'pointer' : 'default'
+                  cursor: otp.join("").length === 6 && !isLoading ? 'pointer' : 'default'
                 }}
-                disabled={otp.join("").length !== 5}
-                onClick={() => setStep("reset")}
+                disabled={otp.join("").length !== 6 || isLoading}
+                onClick={handleVerifyOtp}
               >
-                Verify
+                {isLoading ? (
+                  <span className="flex items-center gap-2 justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Verifying...
+                  </span>
+                ) : (
+                  "Verify"
+                )}
               </Button>
             </div>
 
@@ -515,18 +638,25 @@ export default function ForgotPassword() {
                 className="w-full mt-2"
                 style={{
                   height: '48px',
-                  backgroundColor: isResetValid ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: isResetValid && !isLoading ? '#2E37A4' : '#B3B5E2',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
                   borderRadius: '8px',
                   boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)',
-                  cursor: isResetValid ? 'pointer' : 'default'
+                  cursor: isResetValid && !isLoading ? 'pointer' : 'default'
                 }}
-                disabled={!isResetValid}
-                onClick={() => setStep("reset-success")}
+                disabled={!isResetValid || isLoading}
+                onClick={handleConfirmReset}
               >
-                Login
+                {isLoading ? (
+                  <span className="flex items-center gap-2 justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Resetting Password...
+                  </span>
+                ) : (
+                  "Reset Password"
+                )}
               </Button>
 
               <div className="flex justify-center">
