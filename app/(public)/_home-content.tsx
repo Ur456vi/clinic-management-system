@@ -520,24 +520,22 @@ export default function HomeContent() {
             <span style={{ color: "#7B1C1C" }}>Institute</span>
           </SectionHeading>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {INSTITUTE_DEFINITION.map((d) => (
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+            {INSTITUTE_DEFINITION.map((d, i) => (
               <div
                 key={d.title}
-                className="rounded-[12px] border bg-white p-8 flex flex-col justify-start"
-                style={{
-                  borderColor: "#EAE6E1",
-                  boxShadow: "none",
-                }}
+                className={`flex flex-col justify-start px-8 py-10 ${
+                  i % 3 !== 2 ? "lg:border-r" : ""
+                } ${i < 3 ? "lg:border-b" : ""}`}
+                style={{ borderColor: "#E5E0D8" }}
               >
                 <h3
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-display), Georgia, serif",
                     fontWeight: 400,
-                    fontSize: "24px",
+                    fontSize: "26px",
                     lineHeight: "34px",
-                    letterSpacing: "0.5px",
-                    color: "#7B1C1C",
+                    color: "#1A1A1A",
                   }}
                 >
                   {d.title}
@@ -552,7 +550,7 @@ export default function HomeContent() {
             ))}
 
             {/* Bottom-right cell (Row 2, Column 3) containing the CTA button */}
-            <div className="flex items-center justify-start lg:pl-6">
+            <div className="flex items-center justify-center px-8 py-10">
               <Link
                 href="/assessment"
                 className="inline-flex items-center justify-center gap-3 rounded-[4px] px-8 py-4 text-xs font-semibold uppercase tracking-widest text-white transition-all hover:opacity-95 shadow-none"
