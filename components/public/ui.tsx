@@ -23,7 +23,7 @@ export function CTAButton({
   variant = "burgundy",
   size = "md",
 }: ButtonProps) {
-  const pad = size === "lg" ? "px-7 py-3.5 text-sm" : "px-5 py-2.5 text-xs";
+  const pad = size === "lg" ? "px-7 py-3.5 text-base" : "px-6 py-3 text-sm";
   const style: React.CSSProperties =
     variant === "olive"
       ? { background: "var(--brand-olive)", color: "white" }
@@ -44,8 +44,8 @@ export function CTAButton({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-2 rounded-full font-semibold uppercase tracking-widest shadow-sm transition-all hover:opacity-95 ${pad}`}
-      style={{ ...style, letterSpacing: "0.1em" }}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold shadow-sm transition-all hover:opacity-95 min-w-[240px] ${pad}`}
+      style={{ ...style }}
     >
       {children}
       <ArrowRightIcon size={14} />
@@ -301,10 +301,33 @@ export function PortraitPlaceholder({
 export function StatTile({
   icon,
   label,
+  layout = "vertical",
 }: {
   icon: React.ReactNode;
   label: string;
+  layout?: "vertical" | "horizontal";
 }) {
+  if (layout === "horizontal") {
+    return (
+      <div className="flex items-center gap-2.5 text-left py-2 px-2 sm:px-3 sm:first:pl-0 sm:last:pr-0">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center"
+          style={{
+            color: "var(--brand-olive)",
+          }}
+        >
+          {icon}
+        </div>
+        <span
+          className="text-xs sm:text-[13px] font-bold leading-tight whitespace-pre-line"
+          style={{ color: "var(--brand-ink)" }}
+        >
+          {label}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center text-center">
       <div

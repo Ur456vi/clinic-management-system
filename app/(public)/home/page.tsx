@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 };
 
 const serviceCards = [
-        { title: "Perimenopause, Menopause & Post-Menopause Care", href: "/services/perimenopause-menopause-care", tag: "Women's Health" },
-        { title: "Men's Hormonal & Andropause Care", href: "/services/mens-hormonal-andropause-care", tag: "Men's Health" },
-        { title: "Metabolic Health & Body Composition", href: "/services/metabolic-health-body-composition", tag: "Metabolic" },
-        { title: "Brain & Mitochondrial Restorative Care", href: "/services/brain-mitochondrial-restorative-care", tag: "Neurology" },
-        { title: "Physical Restoration Programs", href: "/services/physical-restoration-programs", tag: "Rehabilitation" },
-        { title: "Aesthetic & External Restoration", href: "/services/aesthetic-external-restoration", tag: "Aesthetics" },
+        { title: "Perimenopause, Menopause & Post-Menopause Care", href: "/services/female-hormonal", tag: "Women's Health" },
+        { title: "Men's Hormonal & Andropause Care", href: "/services/mens-hormonal", tag: "Men's Health" },
+        { title: "Metabolic Health & Body Composition", href: "/services/metabolic-health", tag: "Metabolic" },
+        { title: "Brain & Mitochondrial Restorative Care", href: "/services/brain-mitochondrial", tag: "Neurology" },
+        { title: "Physical Restoration Programs", href: "/services/physical-restoration", tag: "Rehabilitation" },
+        { title: "Aesthetic & External Restoration", href: "/services/aesthetic-external", tag: "Aesthetics" },
 ];
 
 export default function HomePage() {

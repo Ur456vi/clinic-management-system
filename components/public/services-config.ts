@@ -22,7 +22,11 @@ export type IconKey =
   | "target"
   | "chart"
   | "clock"
-  | "award";
+  | "award"
+  | "metabolic-restoration"
+  | "hormonal-balance"
+  | "body-composition"
+  | "long-term-health";
 
 export type ServiceContent = {
   slug: string;
@@ -125,16 +129,16 @@ export const SERVICES: ServiceContent[] = [
     heroTitle: "Metabolic Health & Body Composition",
     heroTitleAccent: "(Non-GLP-1 and GLP-1 Based)",
     heroBody:
-      "Weight gain is rarely the beginning of the problem. It is usually the visible expression of a deeper metabolic dysfunction that has been developing silently for years.",
+      "Weight gain is rarely the beginning of the problem.\nIt is usually the visible expression of a deeper\nmetabolic dysfunction that has been developing\nsilently for years.",
     heroImage: "/images/landing/service-metabolic-health-hero.jpg",
     heroQuote: {
       text: "Metabolism is not a willpower problem. It is a physiological system.",
     },
     heroTiles: [
-      { icon: "leaf", label: "Metabolic Restoration" },
-      { icon: "scale", label: "Hormonal Balance" },
-      { icon: "heart", label: "Body Composition" },
-      { icon: "clock", label: "Long-Term Health" },
+      { icon: "metabolic-restoration", label: "Metabolic\nRestoration" },
+      { icon: "hormonal-balance", label: "Hormonal\nBalance" },
+      { icon: "body-composition", label: "Body\nComposition" },
+      { icon: "long-term-health", label: "Long-Term\nHealth" },
     ],
     symptomsSection: {
       eyebrow: "You are not lacking discipline. You are exhausted from:",

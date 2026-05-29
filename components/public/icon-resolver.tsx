@@ -16,6 +16,10 @@ import {
   ChartIcon,
   ClockIcon,
   AwardIcon,
+  MetabolicRestorationIcon,
+  HormonalBalanceIcon,
+  BodyCompositionIcon,
+  LongTermHealthIcon,
 } from "./icons";
 import type { IconKey } from "./services-config";
 
@@ -33,6 +37,10 @@ const MAP = {
   chart: ChartIcon,
   clock: ClockIcon,
   award: AwardIcon,
+  "metabolic-restoration": MetabolicRestorationIcon,
+  "hormonal-balance": HormonalBalanceIcon,
+  "body-composition": BodyCompositionIcon,
+  "long-term-health": LongTermHealthIcon,
 } as const;
 
 export function ResolvedIcon({

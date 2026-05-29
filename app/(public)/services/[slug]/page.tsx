@@ -22,7 +22,7 @@ import {
   StatTile,
 } from "@/components/public/ui";
 import { ResolvedIcon } from "@/components/public/icon-resolver";
-import { XCircleIcon, CheckCircleIcon } from "@/components/public/icons";
+import { XCircleIcon, CheckCircleIcon, MetabolicProgramIcon } from "@/components/public/icons";
 import {
   SERVICES,
   getServiceBySlug,
@@ -78,7 +78,16 @@ function ServiceHero({ svc }: { svc: ServiceContent }) {
     >
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 pt-12 pb-16 md:grid-cols-12 md:gap-10 md:px-12 md:pt-16 md:pb-20">
         <div className="md:col-span-6">
-          <SectionEyebrow>{svc.programTag}</SectionEyebrow>
+          {svc.slug === "metabolic-health" ? (
+            <div className="flex items-center gap-3 mb-3" style={{ color: "var(--brand-burgundy)" }}>
+              <MetabolicProgramIcon size={28} className="shrink-0" />
+              <span className="text-xs font-semibold uppercase tracking-[0.22em]" style={{ letterSpacing: "0.22em" }}>
+                {svc.programTag}
+              </span>
+            </div>
+          ) : (
+            <SectionEyebrow>{svc.programTag}</SectionEyebrow>
+          )}
           <h1
             className="font-medium leading-[1.05]"
             style={{
@@ -88,43 +97,59 @@ function ServiceHero({ svc }: { svc: ServiceContent }) {
             }}
           >
             {svc.heroTitle}{" "}
-            <span style={{ color: "var(--brand-burgundy)" }}>
+            <span className="block mt-2" style={{ color: "var(--brand-burgundy)", fontSize: "0.65em" }}>
               {svc.heroTitleAccent}
             </span>
           </h1>
           <p
-            className="mt-5 max-w-xl text-base leading-relaxed"
-            style={{ color: "var(--brand-ink-soft)" }}
+            className="mt-5 max-w-xl text-sm leading-relaxed"
+            style={{ color: "black" }}
           >
-            {svc.heroBody}
+            {svc.heroBody.split("\n").map((line, idx) => (
+              <span key={idx} className="block mb-2 last:mb-0">
+                {line}
+              </span>
+            ))}
           </p>
 
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-5">
             <CTAButton href="/assessment" variant="olive">
               Book Consultation
             </CTAButton>
             <CTAButton href="#approach" variant="burgundy-outline">
-              Explore Clinical Framework
+              Explore Our Approach
             </CTAButton>
           </div>
-
-          <div
-            className="mt-10 grid gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${Math.min(
-                svc.heroTiles.length,
-                5
-              )}, minmax(0, 1fr))`,
-            }}
-          >
-            {svc.heroTiles.map((t) => (
-              <StatTile
-                key={t.label}
-                icon={<ResolvedIcon name={t.icon} size={22} />}
-                label={t.label}
-              />
-            ))}
-          </div>
+          {svc.slug === "metabolic-health" ? (
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#E8DDD0] w-full border-y border-[#E8DDD0] py-4 sm:border-y-0 sm:py-0">
+              {svc.heroTiles.map((t) => (
+                <StatTile
+                  key={t.label}
+                  icon={<ResolvedIcon name={t.icon} size={40} />}
+                  label={t.label}
+                  layout="horizontal"
+                />
+              ))}
+            </div>
+          ) : (
+            <div
+              className="mt-10 grid gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${Math.min(
+                  svc.heroTiles.length,
+                  5
+                )}, minmax(0, 1fr))`,
+              }}
+            >
+              {svc.heroTiles.map((t) => (
+                <StatTile
+                  key={t.label}
+                  icon={<ResolvedIcon name={t.icon} size={22} />}
+                  label={t.label}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="relative md:col-span-4">
