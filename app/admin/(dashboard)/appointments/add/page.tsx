@@ -16,7 +16,7 @@
  */
 
 import Link from "next/link"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
@@ -84,6 +84,14 @@ const empty: FormState = {
 }
 
 export default function NewAppointmentPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewAppointmentPageInner />
+    </Suspense>
+  )
+}
+
+function NewAppointmentPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [step, setStep] = useState(0)
