@@ -56,7 +56,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.EC2_KEY }}          envs: DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL,NEXT_PUBLIC_APP_URL
           script: |
             set -e
                         echo "DATABASE_URL=$(grep DATABASE_URL .env)"
@@ -72,10 +72,10 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            npm run prisma:generate
-
-            npx prisma db push --accept-data-loss
-
+echo "DATABASE_URL=$DATABASE_URL" > .env
+            echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
+                        echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
+                                    echo "NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL" >> .env
             if [ ! -f /home/ec2-user/.vyara_seeded ]; then
               echo "Running seed..."
               npm run db:seed && touch /home/ec2-user/.vyara_seeded
