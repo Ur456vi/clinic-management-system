@@ -59,6 +59,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             set -e
+                        echo "DATABASE_URL=$(grep DATABASE_URL .env)"
             APP_DIR=/home/ec2-user/vyara
 
             mkdir -p $APP_DIR && cd $APP_DIR
