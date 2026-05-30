@@ -19,6 +19,7 @@ import {
 import { ServiceHero } from "./components/ServiceHero";
 import { ServicePillars } from "./components/ServicePillars";
 import { SymptomsSection } from "./components/SymptomsSection";
+import { FemaleHormonalSystemSection } from "./components/FemaleHormonalSystemSection";
 import { ProgramDesignedForSection } from "./components/ProgramDesignedForSection";
 import { LongitudinalTrackingSection } from "./components/LongitudinalTrackingSection";
 import { GoalAndPhilosophySection } from "./components/GoalAndPhilosophySection";
@@ -59,6 +60,7 @@ export default async function ServicePage({
       <ServiceHero svc={svc} />
       {svc.pillars ? <ServicePillars items={svc.pillars} /> : null}
       {svc.symptomsSection ? <SymptomsSection svc={svc} /> : null}
+      <FemaleHormonalSystemSection svc={svc} />
       <ProgramDesignedForSection svc={svc} />
       <LongitudinalTrackingSection svc={svc} />
       <GoalAndPhilosophySection svc={svc} />

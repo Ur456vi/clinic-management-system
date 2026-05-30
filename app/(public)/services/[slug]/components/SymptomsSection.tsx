@@ -615,6 +615,99 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
     );
   }
 
+  if (svc.slug === "female-hormonal") {
+    return (
+      <section className="w-full bg-[#FCFCFA]">
+        <div className="mx-auto flex max-w-[1440px] flex-col lg:flex-row items-stretch gap-6 lg:gap-8 px-6 py-10 md:px-12 md:py-16">
+          
+          {/* Left Column (Text) */}
+          <div className="lg:w-[25%] flex flex-col justify-center shrink-0 lg:pr-4">
+            <h2
+              className="text-[#722F27] font-medium leading-[1.15] mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(28px, 3.2vw, 36px)",
+              }}
+            >
+              “I Don't Feel Like<br />Myself Anymore”
+            </h2>
+            <p className="text-[#333333] font-medium text-[13px] md:text-[14px] leading-relaxed max-w-[280px]">
+              For many women, the years<br />
+              surrounding menopause<br />
+              become a slow and confusing<br />
+              transition marked by:
+            </p>
+          </div>
+
+          {/* Middle Column (Grid of 10 Tiles) */}
+          <div className="lg:w-[50%] flex-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              {[
+                { label: "Unexplained\nfatigue", icon: "clock" as const },
+                { label: "Disrupted\nsleep", icon: "leaf" as const },
+                { label: "Anxiety &\nirritability", icon: "target" as const },
+                { label: "Brain fog &\nmemory changes", icon: "brain" as const },
+                { label: "Weight gain\ndespite effort", icon: "scale" as const },
+                { label: "Loss of muscle\ntone & strength", icon: "dumbbell" as const },
+                { label: "Reduced libido &\nintimacy concerns", icon: "heart" as const },
+                { label: "Hot flashes &\nnight sweats", icon: "sparkle" as const },
+                { label: "Emotional\nvolatility", icon: "chart" as const },
+                { label: "A growing sense of\n\"I do not feel like\nmyself anymore\"", icon: "shield" as const },
+              ].map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center justify-start bg-[#FCFAF5] border border-[#F0EBE1] rounded-[4px] py-3 px-2 text-center shadow-sm h-full transition-shadow hover:shadow-md">
+                  <div className="flex items-center justify-center w-[36px] h-[36px] rounded-full bg-[#F3F0E6] mb-2 shrink-0">
+                     <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A]" />
+                  </div>
+                  <div className="text-[#1F1F1F] text-[11px] font-medium leading-snug">
+                    {item.label.split('\n').map((line, i) => (
+                      <span key={i} className="block whitespace-nowrap">{line}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column (Quote Card) */}
+          <div className="lg:w-[20%] shrink-0 flex flex-col items-stretch mt-8 lg:mt-0">
+            <div className="bg-[#F7F5EC] rounded-[8px] p-8 h-full flex flex-col justify-start relative overflow-hidden">
+               {/* Quote Icon */}
+               <div className="text-[#B5BBA2] text-[80px] font-serif leading-none mb-2 mt-[-10px]">
+                 “
+               </div>
+               
+               {/* Quote Text */}
+               <p className="text-[#1F1F1F] font-medium text-[15px] md:text-[16px] leading-[1.6] relative z-10">
+                 What has been<br />
+                 normalized is<br />
+                 often physiological<br />
+                 dysfunction.
+               </p>
+               
+               {/* Faint botanical outline */}
+               <div className="absolute bottom-0 right-0 opacity-60">
+                 <svg width="60" height="75" viewBox="0 0 60 75" fill="none">
+                    {/* Stem */}
+                    <path d="M55 75 Q45 55 35 35" stroke="#A9B198" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                    {/* Top Right Leaf */}
+                    <path d="M35 35 Q30 25 35 15 Q45 15 45 25 Q45 30 35 35 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M35 35 Q37 25 45 15" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                    {/* Bottom Right Leaf */}
+                    <path d="M43 50 Q48 35 55 30 Q60 40 55 50 Q50 55 43 50 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M43 50 Q50 40 55 30" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                    {/* Left Leaf */}
+                    <path d="M38 52 Q25 50 20 60 Q25 70 38 70 Q45 60 38 52 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M38 70 Q30 60 20 60" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                 </svg>
+               </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full" style={{ background: "var(--brand-cream-2)" }}>
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 py-20 md:grid-cols-12 md:px-12 md:py-24">
