@@ -212,3 +212,18 @@ export const CycleIcon = (p: IconProps) =>
 
 export const AnatomicalHeartIcon = (p: IconProps) =>
   svg({ ...p, children: <><path d="M12 14c0-2-1-3-3-4V4.5a1.5 1.5 0 0 1 3 0V7m0-2.5a1.5 1.5 0 0 1 3 0V10" /><path d="M16.5 10.5a3.5 3.5 0 0 0-4.5-3v14l4.5-4c2-2 2-5 0-7z" fill="currentColor" opacity={0.15} /><path d="M7.5 10.5c-2 2-2 5 0 7l4.5 4v-14a3.5 3.5 0 0 0-4.5 3z" /><path d="M12 7.5a3.5 3.5 0 0 1 4.5 3c2 2 2 5 0 7l-4.5 4" /></> });
+
+export const FailedSearchIcon = (p: IconProps) =>
+  svg({
+    ...p,
+    children: (
+      <>
+        {/* Outer lens outline */}
+        <circle cx="10" cy="10" r="7" stroke="var(--brand-burgundy)" strokeWidth={1.5} fill="none" />
+        {/* Bold Cross in the center */}
+        <path d="M7.5 7.5l5 5m0-5l-5 5" stroke="var(--brand-burgundy)" strokeWidth={2.5} strokeLinecap="round" />
+        {/* Magnifying glass handle */}
+        <path d="M15 15l4.5 4.5" stroke="var(--brand-burgundy)" strokeWidth={1.8} strokeLinecap="round" />
+      </>
+    ),
+  });
