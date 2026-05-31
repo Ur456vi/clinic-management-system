@@ -1,8 +1,8 @@
 /**
  * Public-site Footer. Mirrors the Figma footer:
- *   - Cursive monogram banner
+ *   - Stylized monogram banner
  *   - 4-column link grid (Company / Our Services / Policies / Final Positioning)
- *   - Social row
+ *   - Social row with circular backgrounds
  *   - Centered copyright divider
  */
 import Link from "next/link";
@@ -23,11 +23,10 @@ const POLICY_LINKS = [
   { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
 ];
 
-function ColumnHeading({ children }: { children: React.ReactNode }) {
+function ColumnHeading({ children, isSerif = false }: { children: React.ReactNode; isSerif?: boolean }) {
   return (
     <h3
-      className="mb-4 text-xs font-semibold uppercase tracking-[0.18em]"
-      style={{ color: "var(--brand-burgundy)" }}
+      className={`mb-6 text-[14px] ${isSerif ? 'font-serif text-[#1F1F1F] font-medium tracking-normal text-[18px]' : 'font-bold uppercase tracking-wider text-[#1F1F1F]'}`}
     >
       {children}
     </h3>
@@ -37,22 +36,18 @@ function ColumnHeading({ children }: { children: React.ReactNode }) {
 export default function Footer() {
   return (
     <footer
-      className="w-full py-16 md:py-24 px-4 sm:px-6 md:px-12 flex justify-center"
-      style={{ background: "#FEF9EF" }}
+      className="w-full py-12 md:py-20 px-4 sm:px-6 md:px-12 flex justify-center bg-[#EBE9E0]"
     >
       <div
-        className="w-full max-w-[1556px] rounded-[54px] border border-[#A3B18A]/20 p-8 md:p-16 flex flex-col items-stretch transition-all duration-300 hover:shadow-lg"
-        style={{
-          background: "#EFE8DC",
-        }}
+        className="w-full max-w-[1440px] rounded-[48px] p-10 md:p-16 flex flex-col items-stretch bg-[#FAF8F3] shadow-sm"
       >
         {/* Luxury Title Banner */}
-        <div className="mb-16 flex items-center justify-center">
+        <div className="mb-20 flex items-center justify-start md:justify-start">
+          {/* We use a thin, ultra-wide sans font styling to approximate the custom brand mark */}
           <span
-            className="text-2xl md:text-4xl uppercase tracking-[0.2em] font-medium text-center"
+            className="text-2xl md:text-[32px] uppercase font-light tracking-[0.3em] lg:tracking-[0.5em]"
             style={{
-              fontFamily: "var(--font-display), Georgia, serif",
-              color: "var(--brand-burgundy)",
+              color: "#C4B79A",
             }}
           >
             Dr. Yuvraaj Singh, M.D.
@@ -60,16 +55,17 @@ export default function Footer() {
         </div>
 
         {/* 4-column grid */}
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
-          <div>
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
+          
+          {/* COMPANY */}
+          <div className="md:col-span-2">
             <ColumnHeading>COMPANY</ColumnHeading>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {COMPANY_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-xs transition-colors hover:opacity-85 font-sans font-medium tracking-[0.05em]"
-                    style={{ color: "var(--brand-ink)" }}
+                    className="text-[13px] transition-colors hover:opacity-75 font-medium tracking-wide text-[#333333]"
                   >
                     {l.label}
                   </Link>
@@ -78,19 +74,16 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="md:col-span-1">
+          {/* OUR SERVICES */}
+          <div className="md:col-span-4 lg:col-span-4">
             <ColumnHeading>OUR SERVICES</ColumnHeading>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {SERVICES.map((s) => (
-                <li key={s.slug}>
+                <li key={s.slug} className="flex items-start gap-2">
+                  <span className="text-[#333333] mt-0.5">•</span>
                   <Link
                     href={`/services/${s.slug}`}
-                    className="text-xs uppercase tracking-wider transition-colors hover:opacity-85 font-sans font-medium"
-                    style={{
-                      color: "var(--brand-ink)",
-                      letterSpacing: "0.05em",
-                      fontSize: "11px",
-                    }}
+                    className="text-[12px] md:text-[13px] uppercase tracking-wide transition-colors hover:opacity-75 font-medium text-[#333333] leading-snug"
                   >
                     {`${s.heroTitle} ${s.heroTitleAccent}`.toUpperCase()}
                   </Link>
@@ -99,15 +92,15 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
+          {/* POLICIES */}
+          <div className="md:col-span-3">
             <ColumnHeading>POLICIES</ColumnHeading>
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {POLICY_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-xs transition-colors hover:opacity-85 font-sans font-medium tracking-[0.05em]"
-                    style={{ color: "var(--brand-ink)" }}
+                    className="text-[13px] transition-colors hover:opacity-75 font-medium tracking-wide text-[#333333] leading-snug block"
                   >
                     {l.label}
                   </Link>
@@ -116,21 +109,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <ColumnHeading>FINAL POSITIONING</ColumnHeading>
+          {/* FINAL POSITIONING */}
+          <div className="md:col-span-3">
+            <ColumnHeading isSerif>FINAL POSITIONING</ColumnHeading>
             <p
-              className="mb-5 text-sm leading-relaxed"
-              style={{ color: "var(--brand-ink-soft)" }}
+              className="mb-8 text-[13px] leading-relaxed font-medium text-[#333333]"
             >
               Precision medicine for individuals who expect clarity, structure, and measurable outcomes from their health.
             </p>
             <Link
               href="/assessment"
-              className="inline-block rounded-full px-6 py-3 text-[10px] font-semibold uppercase tracking-widest text-white shadow-sm transition-colors hover:opacity-95"
-              style={{
-                background: "var(--brand-burgundy)",
-                letterSpacing: "0.15em",
-              }}
+              className="inline-block rounded-full px-6 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#421A17] bg-[#722F27]"
             >
               BOOK APPOINTMENT
             </Link>
@@ -138,7 +127,7 @@ export default function Footer() {
         </div>
 
         {/* Social row */}
-        <div className="mt-16 flex items-center justify-center gap-6">
+        <div className="mt-20 flex items-center justify-center gap-4">
           {[
             { Icon: InstagramIcon, href: "#", label: "Instagram" },
             { Icon: LinkedInIcon, href: "#", label: "LinkedIn" },
@@ -148,22 +137,19 @@ export default function Footer() {
               key={label}
               href={href}
               aria-label={label}
-              className="text-[#1A1A1A] transition-opacity hover:opacity-75"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E5E2D9] text-[#1A1A1A] transition-opacity hover:opacity-75"
             >
-              <Icon size={24} />
+              <Icon size={16} />
             </a>
           ))}
         </div>
 
         {/* Divider + copyright */}
-        <div
-          className="mt-10 border-t pt-6 text-center text-xs"
-          style={{
-            borderColor: "rgba(163, 177, 138, 0.2)",
-            color: "var(--brand-mute)",
-          }}
-        >
-          Copyright 2026, All Rights Reserved by Dr. Yuvraaj Singh MD
+        <div className="mt-8 flex flex-col items-center">
+          <hr className="w-full max-w-[90%] border-t border-[#D9D5C8] mb-6" />
+          <p className="text-[11px] font-medium text-[#666666]">
+            Copyright 2026, All Right Reserved by Dr. Yuvraaj Singh MD
+          </p>
         </div>
       </div>
     </footer>

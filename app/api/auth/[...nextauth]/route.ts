@@ -18,4 +18,15 @@ import { authOptions } from "@/lib/auth"
 
 const handler = NextAuth(authOptions)
 
-export { handler as GET, handler as POST }
+// Next.js 15+ / 16+ Route Handlers require context.params to be a Promise.
+// But NextAuth v4 internally expects context.params to be synchronous.
+// We wrap the handler to await the params promise first and pass the resolved params.
+export async function GET(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
+  const params = await context.params
+  return handler(req, { params })
+}
+
+export async function POST(req: Request, context: { params: Promise<{ nextauth: string[] }> }) {
+  const params = await context.params
+  return handler(req, { params })
+}

@@ -147,9 +147,9 @@ export const SERVICES: ServiceContent[] = [
       items: [
         { icon: "clock", label: "Trying multiple diets" },
         { icon: "dumbbell", label: "Exercising without meaningful change" },
-        { icon: "leaf", label: "Experiencing repeated cycles of weight loss and regain" },
+        { icon: "leaf", label: "Experiencing repeated cycles of\nweight loss and regain" },
         { icon: "heart", label: "Living with constant fatigue and cravings" },
-        { icon: "brain", label: "Watching your body change despite doing everything right" },
+        { icon: "brain", label: 'Watching your body change despite\n"doing everything right"' },
         { icon: "chart", label: "Insulin signaling dysfunction" },
         { icon: "target", label: "Cortisol patterns" },
         { icon: "stethoscope", label: "Mitochondrial efficiency" },
@@ -162,7 +162,7 @@ export const SERVICES: ServiceContent[] = [
         { icon: "leaf", label: '"Eat less."' },
         { icon: "dumbbell", label: '"Exercise more."' },
         { icon: "clock", label: '"It\'s age."' },
-        { icon: "chart", label: '"Your reports are normal"' },
+        { icon: "chart", label: '"Your reports are normal."' },
       ],
       callout: {
         title: "It is scientific correction and restoration.",
