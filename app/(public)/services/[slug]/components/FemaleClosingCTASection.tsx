@@ -1,0 +1,125 @@
+import React from "react";
+import { type ServiceContent } from "@/components/public/services-config";
+
+export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
+  if (svc.slug !== "female-hormonal") return null;
+
+  return (
+    <section className="w-full" style={{ background: "#F5F2EA" }}>
+      <div className="mx-auto max-w-[1440px] px-6 py-10 md:px-12 md:py-14">
+        {/* Outer rounded card */}
+        <div
+          className="w-full rounded-2xl border grid grid-cols-1 md:grid-cols-2 overflow-hidden"
+          style={{ borderColor: "#E2DDD2", background: "#F5F2EA" }}
+        >
+          {/* ── LEFT: Final Positioning Quote Card ── */}
+          <div
+            className="relative flex flex-col justify-between p-8 md:p-10 border-b md:border-b-0 md:border-r"
+            style={{ borderColor: "#E2DDD2" }}
+          >
+            {/* Eyebrow */}
+            <div>
+              <p
+                className="mb-5 text-[11px] font-semibold tracking-[0.18em] uppercase"
+                style={{ color: "var(--brand-burgundy, #722F27)" }}
+              >
+                Final Positioning
+              </p>
+
+              {/* Quote */}
+              <p
+                className="text-[14px] md:text-[15px] leading-[1.75] font-medium"
+                style={{ color: "#2C2C2C" }}
+              >
+                &ldquo;The Institute operates with a serious clinical
+                framework at the intersection of Internal Medicine,
+                Pre-Critical Care, Endocrinology, Metabolic health
+                and Regenerative care through physician-led
+                precision frameworks designed for long-term
+                physiological restoration.&rdquo;
+              </p>
+            </div>
+
+            {/* ECG Heartbeat line */}
+            <div className="mt-8 w-full" aria-hidden="true">
+              <svg
+                viewBox="0 0 420 52"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <path
+                  d={`
+                    M0 26
+                    L60 26
+                    L72 26
+                    L80 10
+                    L88 42
+                    L96 4
+                    L104 48
+                    L112 26
+                    L124 26
+                    L132 18
+                    L138 34
+                    L144 22
+                    L150 30
+                    L156 26
+                    L168 26
+                    L176 14
+                    L182 38
+                    L188 8
+                    L196 44
+                    L204 26
+                    L216 26
+                    L222 20
+                    L228 32
+                    L234 24
+                    L240 28
+                    L246 26
+                    L420 26
+                  `}
+                  stroke="#8A9E76"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* ── RIGHT: CTA Area ── */}
+          <div className="flex flex-col items-center justify-center gap-5 p-8 md:p-12 text-center">
+            {/* Heading */}
+            <h2
+              className="leading-[1.2] font-medium whitespace-nowrap"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "#8A9E76",
+                fontSize: "clamp(16px, 2vw, 26px)",
+              }}
+            >
+              Begin With A Clinical Assessment
+            </h2>
+
+            {/* Subtitle */}
+            <p
+              className="text-[14px] md:text-[15px] font-medium"
+              style={{ color: "#6B6B6B" }}
+            >
+              Start your physician-led biological evaluation
+            </p>
+
+            {/* CTA Button */}
+            <button
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[12px] font-semibold tracking-[0.16em] uppercase text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: "#722F27" }}
+            >
+              Request a Consultation
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

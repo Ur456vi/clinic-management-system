@@ -55,13 +55,76 @@ export function FemaleHormonalSystemSection({ svc }: { svc: ServiceContent }) {
 
         {/* Right Column (Image & Text) */}
         <div className="lg:w-[35%] flex-1 relative min-h-[350px] flex items-center justify-end z-10">
-          {/* Mannequin Image (Fully visible, not cropped) */}
-          <div className="absolute inset-y-[-20px] left-[-220px] lg:left-[-260px] flex items-center justify-start pointer-events-none z-10">
+          {/* Translucent silhouette figure — no border, blends into background */}
+          <div className="absolute inset-y-0 left-[-220px] lg:left-[-240px] flex items-center justify-start pointer-events-none z-10">
             <img 
               src="/images/landing/home-focus-female.png" 
               alt="Female biological systems"
-              className="max-h-[110%] w-auto object-contain object-left"
+              className="max-h-[100%] w-auto object-contain object-left"
+              style={{
+                opacity: 0.25,
+                filter: "sepia(0.4) hue-rotate(40deg) saturate(0.6) brightness(1.1)",
+              }}
             />
+            {/* Anatomical network overlay — connected dots showing body systems */}
+            <svg
+              className="absolute inset-0 w-full h-full"
+              viewBox="0 0 300 500"
+              fill="none"
+              style={{ opacity: 0.55 }}
+            >
+              {/* Brain node */}
+              <circle cx="142" cy="52" r="4" fill="#889A6A" opacity="0.7" />
+              <circle cx="142" cy="52" r="12" stroke="#889A6A" strokeWidth="0.6" opacity="0.3" />
+
+              {/* Neck/thyroid */}
+              <circle cx="146" cy="95" r="3" fill="#889A6A" opacity="0.5" />
+              <line x1="142" y1="56" x2="146" y2="92" stroke="#889A6A" strokeWidth="0.6" opacity="0.4" />
+
+              {/* Heart node */}
+              <circle cx="156" cy="155" r="4.5" fill="#889A6A" opacity="0.65" />
+              <circle cx="156" cy="155" r="14" stroke="#889A6A" strokeWidth="0.5" opacity="0.25" />
+              <line x1="146" y1="98" x2="156" y2="151" stroke="#889A6A" strokeWidth="0.5" opacity="0.35" />
+
+              {/* Left lung cluster */}
+              <circle cx="130" cy="140" r="2.5" fill="#A8B89A" opacity="0.5" />
+              <circle cx="122" cy="155" r="2" fill="#A8B89A" opacity="0.4" />
+              <line x1="130" y1="140" x2="156" y2="155" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+              <line x1="122" y1="155" x2="130" y2="140" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+
+              {/* Right lung cluster */}
+              <circle cx="178" cy="138" r="2.5" fill="#A8B89A" opacity="0.5" />
+              <circle cx="185" cy="152" r="2" fill="#A8B89A" opacity="0.4" />
+              <line x1="178" y1="138" x2="156" y2="155" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+              <line x1="185" y1="152" x2="178" y2="138" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+
+              {/* Stomach / core */}
+              <circle cx="152" cy="200" r="3" fill="#889A6A" opacity="0.5" />
+              <line x1="156" y1="159" x2="152" y2="197" stroke="#889A6A" strokeWidth="0.5" opacity="0.35" />
+
+              {/* Spine line */}
+              <circle cx="150" cy="240" r="2.5" fill="#A8B89A" opacity="0.45" />
+              <circle cx="148" cy="280" r="2.5" fill="#A8B89A" opacity="0.4" />
+              <line x1="152" y1="203" x2="150" y2="237" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+              <line x1="150" y1="243" x2="148" y2="277" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+
+              {/* Pelvis / reproductive */}
+              <circle cx="148" cy="310" r="3.5" fill="#889A6A" opacity="0.5" />
+              <circle cx="148" cy="310" r="10" stroke="#889A6A" strokeWidth="0.5" opacity="0.2" />
+              <line x1="148" y1="283" x2="148" y2="306" stroke="#889A6A" strokeWidth="0.4" opacity="0.3" />
+
+              {/* Hip nodes */}
+              <circle cx="125" cy="320" r="2" fill="#A8B89A" opacity="0.35" />
+              <circle cx="172" cy="318" r="2" fill="#A8B89A" opacity="0.35" />
+              <line x1="125" y1="320" x2="148" y2="310" stroke="#889A6A" strokeWidth="0.3" opacity="0.25" />
+              <line x1="172" y1="318" x2="148" y2="310" stroke="#889A6A" strokeWidth="0.3" opacity="0.25" />
+
+              {/* Shoulder nodes */}
+              <circle cx="110" cy="115" r="2" fill="#A8B89A" opacity="0.4" />
+              <circle cx="190" cy="112" r="2" fill="#A8B89A" opacity="0.4" />
+              <line x1="110" y1="115" x2="146" y2="95" stroke="#889A6A" strokeWidth="0.3" opacity="0.25" />
+              <line x1="190" y1="112" x2="146" y2="95" stroke="#889A6A" strokeWidth="0.3" opacity="0.25" />
+            </svg>
           </div>
           
           {/* Right Text (Exact line wrapping) */}

@@ -25,6 +25,11 @@ import { LongitudinalTrackingSection } from "./components/LongitudinalTrackingSe
 import { GoalAndPhilosophySection } from "./components/GoalAndPhilosophySection";
 import { FinalPositioningSection } from "./components/FinalPositioningSection";
 import { ConventionalSection } from "./components/ConventionalSection";
+import { PathwaysSection } from "./components/PathwaysSection";
+import { FemaleProgramDesignedForSection } from "./components/FemaleProgramDesignedForSection";
+import { FemaleLongitudinalTrackingSection } from "./components/FemaleLongitudinalTrackingSection";
+import { FemaleFinalPositioningSection } from "./components/FemaleFinalPositioningSection";
+import { FemaleClosingCTASection } from "./components/FemaleClosingCTASection";
 import { ApproachSection } from "./components/ApproachSection";
 import { ClosingBand } from "./components/ClosingBand";
 
@@ -66,6 +71,11 @@ export default async function ServicePage({
       <GoalAndPhilosophySection svc={svc} />
       <FinalPositioningSection svc={svc} />
       {svc.conventionalSection ? <ConventionalSection svc={svc} /> : null}
+      <PathwaysSection svc={svc} />
+      <FemaleProgramDesignedForSection svc={svc} />
+      <FemaleLongitudinalTrackingSection svc={svc} />
+      <FemaleFinalPositioningSection svc={svc} />
+      <FemaleClosingCTASection svc={svc} />
       {/* {svc.approachSection ? <ApproachSection svc={svc} /> : null} */}
       {/* <ClosingBand /> */}
     </>
