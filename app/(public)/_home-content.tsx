@@ -33,9 +33,9 @@ import {
 
 
 const HERO_TILES = [
-  { icon: "/images/landing/Radar.png", label: "20+ Years Of clinical Experience" },
-  { icon: "/images/landing/Neuron.png", label: "precision metabolic medicine" },
-  { icon: "/images/landing/Trust.png", label: "Hormonal & Longevity care" },
+  { icon: "/images/landing/Radar.png", label: "Over two decades of experience across Internal Medicine, Critical Care and complex multidisciplinary medical environments, alongside advanced training in endocrinology, metabolic and regenerative medicine, informing a systems-based and precision-led clinical approach." },
+  // { icon: "/images/landing/Neuron.png", label: "precision metabolic medicine" },
+  // { icon: "/images/landing/Trust.png", label: "Hormonal & Longevity care" },
 ];
 
 const STANDARDS_LEFT = [
@@ -190,7 +190,7 @@ export default function HomeContent() {
               style={{
                 fontFamily: "var(--font-display)",
                 color: "var(--brand-ink)",
-                fontSize: "clamp(36px, 4.5vw, 60px)",
+                fontSize: "clamp(30px, 4.5vw, 46px)",
               }}
             >
               Physician-Led Precision Health for Individuals Who{" "}
@@ -212,7 +212,7 @@ export default function HomeContent() {
                 Explore The Clinical Framework
               </CTAButton>
               <CTAButton href="/about" variant="burgundy-outline" showArrow={false}>
-                About The Institute
+                The Institute
               </CTAButton>
             </div>
 
@@ -228,10 +228,10 @@ export default function HomeContent() {
                     />
                   </div>
                   <span
-                    className="font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[16px] h-[63px] flex items-center"
+                    className="font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[14px] h-[163px] flex items-center"
                     style={{
                       color: "var(--brand-ink-soft)",
-                      width: t.icon.includes("Neuron") ? "195px" : "187px",
+                      width: t.icon.includes("Neuron") ? "195px" : "550px",
                     }}
                   >
                     {t.label}
@@ -242,15 +242,15 @@ export default function HomeContent() {
           </div>
 
           {/* Right column — hero portrait */}
-          <div className="relative min-h-[450px] md:min-h-0 w-full md:aspect-[945/868]">
+          <div className="relative min-h-[450px] md:min-h-0 w-full md:aspect-[945/868] pl-[40px]">
             <div
               className="absolute inset-0 -z-0"
               style={{ color: "var(--brand-burgundy)" }}
             >
-              <HeroPattern className="h-full w-full" opacity={0.15} />
+              {/* <HeroPattern className="h-full w-full" opacity={0.15} /> */}
             </div>
             <Image
-              src="/images/landing/Rectangle 95 (1).png"
+              src="/images/landing/home-hero-doctor.png"
               alt="Dr. Yuvraaj Singh"
               fill
               priority
@@ -267,7 +267,7 @@ export default function HomeContent() {
       >
         <div className="mx-auto max-w-[1440px] px-6 pt-20 pb-10 md:px-12 md:pt-24 md:pb-12">
           <SectionHeading>
-            When Standard Metrics Fail To Explain{" "}
+            When Standard Metrics Fail To Explain{" "}<br />
             <span style={{ color: "var(--brand-olive)", fontStyle: "italic" }}>
               What You Are Experiencing
             </span>
@@ -329,7 +329,7 @@ export default function HomeContent() {
                 >
                   The objective is not temporary symptom suppression
                 </h3>
-                <div className="space-y-4 text-[15px] leading-[24px]" style={{ color: "var(--brand-ink-soft)" }}>
+                <div className="text-[15px] leading-[24px]" style={{ color: "var(--brand-ink-soft)" }}>
                   <p>Biological decline often develops gradually, quietly and systemically</p>
                   <p>And when they are ignored, they progress.</p>
                   <p className="pt-2">Many high-functioning individuals experience measurable dysfunction despite &ldquo;normal&rdquo; reports</p>
@@ -417,13 +417,13 @@ export default function HomeContent() {
             </div>
 
             <div className="mt-8 space-y-1">
-              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+              <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
                 No generic plans.
               </p>
-              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+              <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
                 No unnecessary interventions.
               </p>
-              <p className="text-[28px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+              <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
                 Only precision-based medicine.
               </p>
             </div>
@@ -590,7 +590,7 @@ export default function HomeContent() {
             {FOCUS_AREAS.map((area) => (
               <article
                 key={area.title}
-                className="relative flex flex-col justify-start overflow-hidden bg-white rounded-[10px] border p-[36px] pt-[50px] pb-[27px] text-left transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group w-full"
+                className="relative flex flex-col justify-start overflow-hidden bg-[#efe8dc] rounded-[10px] border p-[36px] pt-[50px] pb-[27px] text-left transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl group w-full"
                 style={{
                   maxWidth: "435px",
                   height: "417px",
@@ -663,14 +663,14 @@ export default function HomeContent() {
 
       {/* ================ A MEASURED, STRUCTURED PROCESS =========== */}
       <section
-        className="w-full pt-10 pb-20 md:pt-12 md:pb-24 px-4 sm:px-6 md:px-12 flex justify-center"
+        className="w-full pt-5 pb-10 md:pt-5 md:pb-12 px-4 sm:px-6 md:px-12 flex justify-center"
         style={{ background: "#FEF9EF" }}
       >
         <div
-          className="w-full max-w-[1556px] rounded-[54px] border border-[#A3B18A]/20 p-8 md:p-16 flex items-center justify-center transition-all duration-300 hover:shadow-lg"
+          className="w-full max-w-[1556px] rounded-[54px] border border-[#A3B18A]/20 p-8 md:p-16 flex items-center justify-center "
           style={{
             background: "#EFE8DC",
-            minHeight: "735px",
+            // minHeight: "735px",
           }}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 w-full items-center">
@@ -689,7 +689,7 @@ export default function HomeContent() {
                 {PROCESS_STEPS.map((s) => (
                   <li
                     key={s.no}
-                    className="flex items-start gap-5 text-left"
+                    className="flex items-center gap-5 text-left"
                   >
                     <div
                       className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white"
@@ -711,15 +711,15 @@ export default function HomeContent() {
                 ))}
               </ol>
 
-              <div className="mt-8 text-left">
+              <div className="mt-8 text-center">
                 <p
-                  className="text-xs italic leading-relaxed text-[#4A4A4A]"
+                  className="text-m italic leading-relaxed text-[#4A4A4A]"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   This is not episodic care.
                 </p>
                 <p
-                  className="text-xs font-semibold leading-relaxed mt-0.5"
+                  className="text-m font-semibold leading-relaxed mt-0.5"
                   style={{
                     color: "#1A1A1A",
                     fontFamily: "Inter, sans-serif"
@@ -806,27 +806,31 @@ export default function HomeContent() {
             </div>
           </div>
 
-          <div className="flex flex-col items-start justify-center">
-            <SectionHeading>Begin With A Clinical Assessment</SectionHeading>
-            <p
-              className="mt-4 text-base"
-              style={{ color: "var(--brand-ink-soft)" }}
-            >
-              Start your physician-led biological evaluation.
-            </p>
-            <div className="mt-6">
-              <Link
-                href="/assessment"
-                className="inline-flex items-center gap-2 rounded px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
-                style={{
-                  background: "var(--brand-burgundy)",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                Request A Consultation
-              </Link>
-            </div>
-          </div>
+          <div className="flex flex-col items-end justify-center text-right">
+  <SectionHeading>
+    Begin With A Clinical Assessment
+  </SectionHeading>
+
+  <p
+    className="mt-4 text-base"
+    style={{ color: "var(--brand-ink-soft)" }}
+  >
+    Start your physician-led biological evaluation.
+  </p>
+
+  <div className="mt-6">
+    <Link
+      href="/assessment"
+      className="inline-flex items-center gap-2 rounded px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
+      style={{
+        background: "var(--brand-burgundy)",
+        letterSpacing: "0.1em",
+      }}
+    >
+      Request A Consultation
+    </Link>
+  </div>
+</div>
         </div>
       </section>
     </>

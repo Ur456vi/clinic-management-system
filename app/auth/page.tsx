@@ -29,8 +29,8 @@ export default function SignInPage() {
         {/* Logo */}
         <div className="flex items-center justify-center">
           <img
-            src="/logo.png"
-            alt="Vyara Logo"
+            src="/dr-yuvraj-logo.png"
+            alt="IPHMH Logo"
             width={79}
             height={80}
             className="object-contain"

@@ -6,6 +6,8 @@
  * Each chapter alternates image-left / image-right.
  */
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 
 import {
   CTAButton,
@@ -43,7 +45,7 @@ const CHAPTERS = [
     title: "A Different Beginning",
     eyebrow: "Years in Internal Medicine and Critical Care",
     body: "Managing the most complex, life-threatening conditions across multiple disciplines: Neurosciences (NIMHANS, Bangalore), Cardiology (Kokilaben Institute), Oncology (Kidwai Memorial Institute), Advanced Clinical Care (with Oncology Faculty, Gurgaon).",
-    image: "Young Dr. Singh in the ICU — clinical scene",
+    image: "/images/landing/abt-1.png",
     alignment: "left" as const,
   },
   {
@@ -51,7 +53,7 @@ const CHAPTERS = [
     title: "What Critical Care Teaches You",
     eyebrow: "By the time most diseases present, the biology has already been altered for years.",
     body: "Most patients begin years earlier. Metabolic dysfunction starts unnoticed. Hormonal shifts dismissed as 'normal'. Chronic inflammation that silently progressed. \"It's normal.\" \"It's age.\" \"It's stress.\" It rarely is.",
-    image: "Anatomical heart illustration — cardiac decline reference",
+    image: "/images/landing/abt-2.png",
     alignment: "right" as const,
   },
   {
@@ -59,7 +61,7 @@ const CHAPTERS = [
     title: "The Question That Changed Everything",
     eyebrow: "What if these conditions could be identified and corrected before they reached the ICU?",
     body: "From Intervention to Predictive, Preventive and Precision Medicine. A shift from treating breakdowns to optimizing physiology — addressing the root causes of disease and aging.",
-    image: "Dr. Singh studying scans — analytical work",
+    image: "/images/landing/abt-3.png",
     alignment: "left" as const,
   },
   {
@@ -67,7 +69,7 @@ const CHAPTERS = [
     title: "A Defining Phase",
     eyebrow: "During the COVID-19 pandemic, extensive frontline work and setting up comprehensive home-based ICU care for patients with limited access to hospital resources.",
     body: "A formative period that crystallised the institute's commitment to physician-led, systems-based precision care.",
-    image: "Pandemic-era clinical work — protective gear",
+    image: "/images/landing/abt-4.png",
     alignment: "right" as const,
   },
   {
@@ -75,7 +77,7 @@ const CHAPTERS = [
     title: "The Founding of the Institute",
     eyebrow: "A precision-medicine institute, structured around the principles refined across three decades of clinical practice.",
     body: "The Institute of Precision Metabolic & Hormonal Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",
-    image: "Modern clinical institute — reception/lobby",
+    image: "/images/landing/abt-5.png",
     alignment: "left" as const,
   },
 ];
@@ -88,7 +90,7 @@ export default function AboutPage() {
         className="relative w-full"
         style={{ background: "var(--brand-cream)" }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 pt-12 pb-16 md:grid-cols-12 md:gap-10 md:px-12 md:pt-16 md:pb-20">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 pt-12 md:grid-cols-12 md:gap-10 md:px-12 md:pt-16">
           <div className="flex flex-col justify-center md:col-span-6">
             <SectionEyebrow>About the Institute</SectionEyebrow>
             <h1
@@ -126,13 +128,18 @@ export default function AboutPage() {
               className="absolute inset-0 -z-0"
               style={{ color: "var(--brand-burgundy)" }}
             >
-              <HeroPattern className="h-full w-full" opacity={0.15} />
+              {/* <HeroPattern className="h-full w-full" opacity={0.15} /> */}
             </div>
-            <PortraitPlaceholder
-              label="Dr. Yuvraaj Singh — arms-crossed portrait in clinical setting"
-              aspect="portrait"
-              className="relative z-10 mx-auto max-w-md"
-            />
+            <div className="relative z-10 mx-auto max-w-md">
+  <Image
+    src="/images/landing/dr-yuvraaj-singh.png"
+    alt="Dr. Yuvraaj Singh"
+    width={600}
+    height={800}
+    className="h-auto w-full object-cover"
+    priority
+  />
+</div>
           </div>
 
           <div className="md:col-span-2 md:flex md:items-center">
@@ -165,23 +172,33 @@ export default function AboutPage() {
                 {c.alignment === "left" ? (
                   <>
                     <div className="relative md:col-span-5">
-                      <PortraitPlaceholder
-                        label={c.image}
-                        aspect="landscape"
-                        className="mx-auto"
-                      />
-                    </div>
+  <div className="overflow-hidden rounded-2xl shadow-lg">
+    <Image
+      src={c.image}
+      alt={c.title}
+      width={800}
+      height={600}
+      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+    />
+  </div>
+</div>
                     <ChapterBody chapter={c} />
                   </>
                 ) : (
                   <>
                     <ChapterBody chapter={c} />
                     <div className="relative md:col-span-5">
-                      <PortraitPlaceholder
-                        label={c.image}
-                        aspect="landscape"
-                        className="mx-auto"
-                      />
+                      
+  <div className="overflow-hidden rounded-2xl shadow-lg">
+    <Image
+      src={c.image}
+      alt={c.title}
+      width={800}
+      height={600}
+      className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+    />
+  </div>
+
                     </div>
                   </>
                 )}
@@ -217,17 +234,31 @@ export default function AboutPage() {
               <EcgLine />
             </div>
           </div>
-          <div className="flex flex-col items-start justify-center">
-            <SectionHeading>Begin With A Clinical Assessment</SectionHeading>
-            <p className="mt-4 text-base" style={{ color: "var(--brand-ink-soft)" }}>
-              Start your physician-led biological evaluation.
-            </p>
-            <div className="mt-6">
-              <CTAButton href="/assessment" variant="burgundy" size="lg">
-                Request A Consultation
-              </CTAButton>
-            </div>
-          </div>
+          <div className="flex flex-col items-end justify-center text-right">
+  <SectionHeading>
+    Begin With A Clinical Assessment
+  </SectionHeading>
+
+  <p
+    className="mt-4 text-base"
+    style={{ color: "var(--brand-ink-soft)" }}
+  >
+    Start your physician-led biological evaluation.
+  </p>
+
+  <div className="mt-6">
+    <Link
+      href="/assessment"
+      className="inline-flex items-center gap-2 rounded px-7 py-3.5 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
+      style={{
+        background: "var(--brand-burgundy)",
+        letterSpacing: "0.1em",
+      }}
+    >
+      Request A Consultation
+    </Link>
+  </div>
+</div>
         </div>
       </section>
     </>

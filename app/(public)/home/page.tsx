@@ -52,7 +52,7 @@ export default function HomePage() {
 
                         {/* PROBLEM STATEMENT */}
                         <section className="bg-white py-20">
-                                <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                                <div className="max-w-5xl mx-auto px-6 lg:px-12">
                                         <h2 className="text-3xl lg:text-5xl font-serif font-medium text-[#2C1A0E] mb-3">
                                                 When Standard Metrics Fail To Explain{" "}
                                                 <span className="text-[#8B7355] italic">What You Are Experiencing</span>

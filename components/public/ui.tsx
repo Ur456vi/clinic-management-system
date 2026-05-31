@@ -186,16 +186,41 @@ export function EcgLine({
   return (
     <svg
       className={className}
-      viewBox="0 0 480 60"
+      viewBox="0 0 600 120"
       width="100%"
-      height="60"
+      height="120"
       aria-hidden="true"
     >
       <path
-        d="M0 30 L80 30 L100 30 L110 10 L130 50 L150 5 L165 30 L260 30 L275 18 L290 42 L305 30 L480 30"
+        d="
+          M0 60
+          L80 60
+
+          C90 60, 100 40, 115 40
+          C125 40, 135 60, 145 60
+
+          L190 60
+
+          L205 75
+          L215 90
+
+          L240 10
+          L265 95
+          L280 60
+
+          L340 60
+
+          C360 60, 380 20, 420 20
+          C450 20, 470 60, 495 60
+
+          C510 60, 525 50, 540 50
+          C555 50, 565 60, 575 60
+
+          L600 60
+        "
         fill="none"
         stroke={color}
-        strokeWidth="1.4"
+        strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -303,49 +328,28 @@ export function PortraitPlaceholder({
 export function StatTile({
   icon,
   label,
-  layout = "vertical",
 }: {
   icon: React.ReactNode;
   label: string;
-  layout?: "vertical" | "horizontal";
 }) {
-  if (layout === "horizontal") {
-    return (
-      <div className="flex items-center gap-2.5 text-left py-2 px-2 sm:px-3 sm:first:pl-0 sm:last:pr-0">
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center"
-          style={{
-            color: "var(--brand-olive)",
-          }}
-        >
-          {icon}
-        </div>
-        <span
-          className="text-xs sm:text-[13px] font-bold leading-tight whitespace-pre-line"
-          style={{ color: "var(--brand-ink)" }}
-        >
-          {label}
-        </span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center gap-3.5 text-left">
+    <div className="flex flex-col items-center text-center px-2">
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center"
+        className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
         style={{
+          background: "var(--brand-cream-2)",
           color: "var(--brand-burgundy)",
         }}
       >
         {icon}
       </div>
-      <span
-        className="text-[12px] font-semibold uppercase leading-snug tracking-wider"
+
+      <p
+        className="text-sm leading-snug font-medium"
         style={{ color: "var(--brand-ink-soft)" }}
       >
         {label}
-      </span>
+      </p>
     </div>
   );
 }

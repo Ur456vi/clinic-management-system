@@ -8,6 +8,7 @@
  * doesn't ship a mobile breakpoint so we just gracefully degrade).
  */
 import Link from "next/link";
+import Image from "next/image"
 
 import { FacebookIcon, InstagramIcon, TwitterIcon, PhoneIcon } from "./icons";
 
@@ -47,7 +48,7 @@ function SocialBubble({
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-40 w-full">
+    <header className="top-0 z-40 w-full">
       {/* Row 1 — utility bar */}
       <div
         className="w-full"
@@ -55,19 +56,17 @@ export default function Header() {
       >
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-3 md:px-12">
           {/* Cursive logotype */}
-          <Link href="/" className="flex items-center" aria-label="Home">
-            <span
-              className="text-2xl md:text-3xl"
-              style={{
-                fontFamily: "var(--font-script)",
-                color: "var(--brand-ink-soft)",
-                lineHeight: 1,
-                letterSpacing: "0.02em",
-              }}
-            >
-              Dr. Yuvraaj Singh M.D.
-            </span>
-          </Link>
+          <Link href="/" className="flex items-center gap-3" aria-label="Home">
+  <Image
+    src="/dr-yuvraj-logo.png"
+    alt="Dr. Yuvraaj Singh"
+    width={350}
+    height={60}
+    priority
+  />
+
+  
+</Link>
 
           {/* Center socials */}
           <div className="hidden items-center gap-3 md:flex">

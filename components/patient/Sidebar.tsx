@@ -86,7 +86,7 @@ export default function Sidebar() {
   return (
     <aside className="w-[313px] min-h-screen bg-white flex flex-col border-r border-[#C2C8CC] fixed top-0 left-0 z-[100]">
       <div className="p-5 border-b border-[#C2C8CC] flex justify-between items-center h-16">
-        <img src="/logo.png" alt="Vyara" width={48} height={48} className="object-contain cursor-pointer" onClick={() => router.push("/patient/dashboard")} />
+        <img src="/dr-yuvraj-logo.png" alt="IPHMH" width={48} height={48} className="object-contain cursor-pointer" onClick={() => router.push("/patient/dashboard")} />
         <div className="w-10 h-10 bg-[#F5F6F8] rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
           <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" stroke="#141414" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

@@ -6,6 +6,7 @@
  *   - Centered copyright divider
  */
 import Link from "next/link";
+import Image from "next/image"
 
 import { InstagramIcon, LinkedInIcon, TwitterIcon } from "./icons";
 import { SERVICES } from "./services-config";
@@ -44,14 +45,13 @@ export default function Footer() {
         {/* Luxury Title Banner */}
         <div className="mb-20 flex items-center justify-start md:justify-start">
           {/* We use a thin, ultra-wide sans font styling to approximate the custom brand mark */}
-          <span
-            className="text-2xl md:text-[32px] uppercase font-light tracking-[0.3em] lg:tracking-[0.5em]"
-            style={{
-              color: "#C4B79A",
-            }}
-          >
-            Dr. Yuvraaj Singh, M.D.
-          </span>
+          <Image
+              src="/dr-yuvraj-logo.png"
+              alt="Dr. Yuvraaj Singh"
+              width={550}
+              height={60}
+              priority
+            />
         </div>
 
         {/* 4-column grid */}
@@ -78,18 +78,19 @@ export default function Footer() {
           <div className="md:col-span-4 lg:col-span-4">
             <ColumnHeading>OUR SERVICES</ColumnHeading>
             <ul className="space-y-4">
-              {SERVICES.map((s) => (
-                <li key={s.slug} className="flex items-start gap-2">
-                  <span className="text-[#333333] mt-0.5">•</span>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    className="text-[12px] md:text-[13px] uppercase tracking-wide transition-colors hover:opacity-75 font-medium text-[#333333] leading-snug"
-                  >
-                    {`${s.heroTitle} ${s.heroTitleAccent}`.toUpperCase()}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+  {SERVICES.map((s) => (
+    <li key={s.slug} className="flex items-center gap-2">
+      <span className="text-[#333333]">•</span>
+
+      <Link
+        href={`/services/${s.slug}`}
+        className="text-[12px] md:text-[13px] uppercase tracking-wide transition-colors hover:opacity-75 font-medium text-[#333333] leading-snug"
+      >
+        {`${s.heroTitle} ${s.heroTitleAccent}`.toUpperCase()}
+      </Link>
+    </li>
+  ))}
+</ul>
           </div>
 
           {/* POLICIES */}

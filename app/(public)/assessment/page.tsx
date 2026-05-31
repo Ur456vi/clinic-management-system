@@ -69,7 +69,7 @@ export default function AssessmentIntroPage() {
                 fontSize: "clamp(34px, 4vw, 52px)",
               }}
             >
-              A 2-minute look beneath the surface of your{" "}
+              A 2-minute discovery of your{" "}
               <span style={{ color: "var(--brand-burgundy)" }}>health.</span>
             </h1>
             <p
@@ -104,7 +104,7 @@ export default function AssessmentIntroPage() {
                 className="text-sm font-semibold mb-1"
                 style={{ color: "var(--brand-ink)" }}
               >
-                Before we start
+                Begin Your Assesment
               </p>
               <p
                 className="text-xs mb-5"
@@ -124,7 +124,7 @@ export default function AssessmentIntroPage() {
                     letterSpacing: "0.1em",
                   }}
                 >
-                  I am Female — Start →
+                  Women — Begin Here →
                 </button>
                 <button
                   type="button"
@@ -135,7 +135,7 @@ export default function AssessmentIntroPage() {
                     letterSpacing: "0.1em",
                   }}
                 >
-                  I am Male — Start →
+                  Men — Begin Here →
                 </button>
                 <button
                   type="button"
@@ -148,7 +148,7 @@ export default function AssessmentIntroPage() {
                     letterSpacing: "0.1em",
                   }}
                 >
-                  Prefer not to say — Start →
+                  Prefer not to say — Begin Here →
                 </button>
               </div>
 
