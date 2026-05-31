@@ -227,3 +227,33 @@ export const FailedSearchIcon = (p: IconProps) =>
       </>
     ),
   });
+
+export const PillsIcon = (p: IconProps) =>
+  svg({ ...p, children: <><rect x="4" y="8" width="6" height="8" rx="3" /><rect x="14" y="8" width="6" height="8" rx="3" /><line x1="4" y1="12" x2="10" y2="12" /><line x1="14" y1="12" x2="20" y2="12" /></> });
+
+export const CapsulesIcon = (p: IconProps) =>
+  svg({ ...p, children: <><rect x="5" y="4" width="6" height="14" rx="3" transform="rotate(45 8 11)" /><rect x="12" y="5" width="6" height="14" rx="3" transform="rotate(-45 15 12)" /><line x1="6" y1="9" x2="10" y2="13" /><line x1="13" y1="14" x2="17" y2="10" /></> });
+
+export const BoneBottleIcon = (p: IconProps) =>
+  svg({ ...p, children: <><rect x="6" y="8" width="12" height="14" rx="2" /><rect x="8" y="4" width="8" height="4" rx="1" /><path d="M11 12v6M13 12v6M10 11h4M10 19h4" /></> });
+
+export const TorsoIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M6 4c0 6-2 10-2 16h16c0-6-2-10-2-16Z" /><path d="M13 8l-3 4h4l-2 4" /></> });
+
+export const CycleDropsIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" /><path d="M12 9c-1.5 2-1.5 3-1.5 4a1.5 1.5 0 0 0 3 0c0-1 0-2-1.5-4z" /></> });
+
+export const CycleFemaleIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" /><circle cx="12" cy="11" r="2" /><path d="M12 13v4M10 15h4" /></> });
+
+export const BrainComplexIcon = BrainIcon;
+
+export const HeartHandIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M12 13c-2-2-4-2-4 0 0 2 4 4 4 4s4-2 4-4c0-2-2-2-4 0z" /><path d="M4 16c2 4 4 4 8 4s6-2 8-6" /><path d="M4 16l3-2M20 14l-3-2" /></> });
+
+export const BoneIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M17 10c1.5-1.5 3-1 4 0s.5 2.5-1 4c1.5 1.5 1 3 0 4s-2.5.5-4-1c-1.5 1.5-3 1-4 0l-5-5c-1.5-1.5-1-3 0-4s2.5-.5 4 1c1.5-1.5 3-1 4 0l1 1" /></> });
+
+export const MoonIcon = (p: IconProps) =>
+  svg({ ...p, children: <><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /><path d="M5 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" /></> });
+

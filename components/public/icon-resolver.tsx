@@ -20,6 +20,16 @@ import {
   HormonalBalanceIcon,
   BodyCompositionIcon,
   LongTermHealthIcon,
+  PillsIcon,
+  CapsulesIcon,
+  BoneBottleIcon,
+  TorsoIcon,
+  CycleDropsIcon,
+  CycleFemaleIcon,
+  BrainComplexIcon,
+  HeartHandIcon,
+  BoneIcon,
+  MoonIcon,
 } from "./icons";
 import type { IconKey } from "./services-config";
 
@@ -41,6 +51,16 @@ const MAP = {
   "hormonal-balance": HormonalBalanceIcon,
   "body-composition": BodyCompositionIcon,
   "long-term-health": LongTermHealthIcon,
+  pills: PillsIcon,
+  capsules: CapsulesIcon,
+  "bone-bottle": BoneBottleIcon,
+  torso: TorsoIcon,
+  "cycle-drops": CycleDropsIcon,
+  "cycle-female": CycleFemaleIcon,
+  "brain-complex": BrainComplexIcon,
+  "heart-hand": HeartHandIcon,
+  bone: BoneIcon,
+  moon: MoonIcon,
 } as const;
 
 export function ResolvedIcon({
