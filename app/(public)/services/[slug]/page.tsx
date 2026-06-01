@@ -36,7 +36,7 @@ import { ClosingBand } from "./components/ClosingBand";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return SERVICES.map((s) => ({ slug: s.slug }));
+  return SERVICES.filter((s) => s.slug !== "brain-mitochondrial" && s.slug !== "physical-restoration").map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata(
