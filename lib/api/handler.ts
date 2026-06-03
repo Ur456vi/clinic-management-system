@@ -25,6 +25,7 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { childLogger } from "../logger"
+import { env } from "@/lib/env"
 import { applyCors, preflight } from "./cors"
 import { errorResponse, ForbiddenError } from "./errors"
 
@@ -156,7 +157,7 @@ export function defineHandler<P = Record<string, string | string[]>>(
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"])
 
-function hostOf(value: string | null): string | null {
+function hostOf(value: string | null | undefined): string | null {
   if (!value) return null
   try {
     return new URL(value).host
@@ -166,9 +167,61 @@ function hostOf(value: string | null): string | null {
 }
 
 /**
+ * Build the set of hosts we treat as "our own" for the same-origin check.
+ *
+ * In production the app runs behind a TLS-terminating ALB + nginx (see
+ * `infra/terraform/modules/web`). The request that reaches Next.js is plain
+ * HTTP and its `Host` header reflects the proxy's upstream, not the public
+ * domain the browser used — so `req.nextUrl.host` alone is NOT a reliable
+ * stand-in for the site's real origin. Relying on it rejected legitimate
+ * same-site POSTs (the public booking form).
+ *
+ * The trusted set therefore combines:
+ *   - the request host (`req.nextUrl.host`) — covers local dev / direct hits;
+ *   - `X-Forwarded-Host` — the public host the proxy received;
+ *   - operator-configured origins (`NEXT_PUBLIC_APP_URL`, `APP_URL`,
+ *     `CORS_ALLOWED_ORIGINS`) — the authoritative public origin(s).
+ *
+ * These are all values we control. A genuine cross-origin attacker's Origin
+ * matches none of them, so CSRF protection is preserved.
+ */
+/**
+ * Production domains that are always trusted, regardless of env/proxy config.
+ * Hardcoded as a belt-and-braces guard so the public site keeps working even
+ * if a deploy ships with a missing/wrong `NEXT_PUBLIC_APP_URL`.
+ */
+const HARDCODED_TRUSTED_HOSTS = ["vyara.algoborne.com", "dryuvraajsingh.com"]
+
+function trustedHosts(req: NextRequest): Set<string> {
+  const hosts = new Set<string>(HARDCODED_TRUSTED_HOSTS)
+
+  if (req.nextUrl?.host) hosts.add(req.nextUrl.host)
+
+  // X-Forwarded-Host may be a comma-separated list (proxy chain) — the first
+  // entry is the host the outermost proxy received from the client.
+  const forwarded = req.headers.get("x-forwarded-host")
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim()
+    if (first) hosts.add(first)
+  }
+
+  for (const origin of [
+    env.NEXT_PUBLIC_APP_URL,
+    env.APP_URL,
+    ...(env.CORS_ALLOWED_ORIGINS ?? []),
+  ]) {
+    const h = hostOf(origin)
+    if (h) hosts.add(h)
+  }
+
+  return hosts
+}
+
+/**
  * Reject cross-origin mutating requests by comparing the Origin (or Referer)
- * host with the request URL host. Webhooks under `/api/webhooks/` are
- * exempt — they are authenticated by signature, not by cookie.
+ * host with the set of hosts we trust as our own (see `trustedHosts`).
+ * Webhooks under `/api/webhooks/` are exempt — they are authenticated by
+ * signature, not by cookie.
  */
 function assertSameOriginIfMutating(req: NextRequest): void {
   const method = req.method.toUpperCase()
@@ -177,13 +230,10 @@ function assertSameOriginIfMutating(req: NextRequest): void {
   const pathname = req.nextUrl?.pathname ?? ""
   if (pathname.startsWith("/api/webhooks/")) return
 
-  const expected = req.nextUrl?.host
-  if (!expected) return
-
   const originHost =
     hostOf(req.headers.get("origin")) ?? hostOf(req.headers.get("referer"))
 
-  if (!originHost || originHost !== expected) {
+  if (!originHost || !trustedHosts(req).has(originHost)) {
     throw new ForbiddenError("CSRF: cross-origin mutating request rejected")
   }
 }

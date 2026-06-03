@@ -26,7 +26,17 @@ export type IconKey =
   | "metabolic-restoration"
   | "hormonal-balance"
   | "body-composition"
-  | "long-term-health";
+  | "long-term-health"
+  | "pills"
+  | "capsules"
+  | "bone-bottle"
+  | "torso"
+  | "cycle-drops"
+  | "cycle-female"
+  | "brain-complex"
+  | "heart-hand"
+  | "bone"
+  | "moon";
 
 export type ServiceContent = {
   slug: string;
@@ -53,7 +63,8 @@ export type ServiceContent = {
     title: string;
     body: string;
     failures: { icon: IconKey; label: string }[];
-    callout: { title: string; body: string };
+    footer?: string;
+    callout: { title: string; subtitle?: string; body: string; items?: { icon: IconKey }[] };
   };
   /* Closing structured-approach grid */
   approachSection?: {
@@ -99,26 +110,40 @@ export const SERVICES: ServiceContent[] = [
     },
     conventionalSection: {
       title: "Why Conventional Approaches Often Fail",
-      body: "Symptoms are treated in isolation. But the body does not function in disconnected parts.",
+      body: "Symptoms are treated in isolation.",
       failures: [
-        { icon: "leaf", label: "Sleep medications" },
-        { icon: "heart", label: "Antidepressants for mood symptoms" },
-        { icon: "stethoscope", label: "Calcium tablets for bone loss" },
-        { icon: "scale", label: "Diet plans for weight gain" },
+        { icon: "pills", label: "Sleep\nmedications" },
+        { icon: "capsules", label: "Antidepressants\nfor mood\nchanges" },
+        { icon: "bone-bottle", label: "Calcium\ntablets for\nbone loss" },
+        { icon: "torso", label: "Diet plans\nfor weight\ngain" },
       ],
+      footer: "But the body does not function in disconnected parts.",
       callout: {
-        title: "The Body Does Not Function In Disconnected Parts",
-        body: "When hormones shift, every major physiological system begins responding to that change.",
+        title: "The Body Does Not Function\nIn Disconnected Parts",
+        subtitle: "We address the root. We restore the system.",
+        body: "When hormones shift, every major physiological system\nbegins responding to that change.",
+        items: [
+          { icon: "cycle-drops" },
+          { icon: "cycle-female" },
+          { icon: "brain-complex" },
+          { icon: "heart-hand" },
+          { icon: "bone" },
+          { icon: "moon" },
+        ],
       },
     },
     approachSection: {
       title: "Our Clinical Approach",
       subtitle: "Structured, Comprehensive & Physiology-Driven",
       steps: [
-        { icon: "microscope", title: "Comprehensive biological assessment" },
-        { icon: "stethoscope", title: "Physician-led interpretation" },
-        { icon: "target", title: "Individualized therapeutic protocol" },
-        { icon: "chart", title: "Ongoing monitoring & refinement" },
+        { icon: "hormonal-balance", title: "Hormonal\nTransitions" },
+        { icon: "metabolic-restoration", title: "Metabolic\nChanges" },
+        { icon: "shield", title: "Inflammatory\nBurden" },
+        { icon: "body-composition", title: "Body\nComposition" },
+        { icon: "heart", title: "Cardiovascular\nRisk" },
+        { icon: "moon", title: "Sleep &\nRecovery" },
+        { icon: "brain-complex", title: "Cognitive &\nEmotional Health" },
+        { icon: "bone", title: "Long-Term\nBone Protection" },
       ],
     },
   },
