@@ -7,6 +7,111 @@ import { type ServiceContent } from "@/components/public/services-config";
 export function SymptomsSection({ svc }: { svc: ServiceContent }) {
   const s = svc.symptomsSection!;
 
+  if (svc.slug === "aesthetic-external") {
+    return (
+      <section className="w-full bg-[#FCFCFA]">
+        <div className="mx-auto max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-6 pt-6 pb-4 md:px-12 md:pt-8 md:pb-6 items-stretch">
+          
+          {/* Left Column (Text) */}
+          <div className="lg:col-span-3 flex flex-col justify-center lg:pr-6">
+            <h2
+              className="font-medium leading-[1.2] mb-6"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(28px, 3.2vw, 36px)",
+              }}
+            >
+              <span className="text-[#7A2329]">Appearance Is Not</span><br />
+              <span className="text-[#1F1F1F]">Just Skin Deep.</span>
+            </h2>
+            <p className="text-[#333333] font-medium text-[14px] md:text-[15px] leading-relaxed max-w-[360px]">
+              Changes in skin quality, facial volume, texture, elasticity, pigmentation, hair health, and overall appearance are frequently influenced by:
+            </p>
+          </div>
+
+          {/* Middle Column (Grid of 9 Tiles in exactly two rows) */}
+          <div className="lg:col-span-6 flex items-center justify-center">
+            <div className="flex flex-col gap-6 w-full items-center">
+              {/* Row 1: 5 items */}
+              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+                {s.items.slice(0, 5).map((item, idx) => (
+                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                    </div>
+                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                      {item.label.split(' ').map((word, i) => (
+                        <span key={i} className="block">{word}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Row 2: 4 items */}
+              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+                {s.items.slice(5).map((item, idx) => (
+                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                    </div>
+                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                      {item.label.split(' ').map((word, i) => (
+                        <span key={i} className="block">{word}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column (Quote Card) */}
+          <div className="lg:col-span-3 flex flex-col items-stretch mt-8 lg:mt-0">
+            <div className="bg-[#F7F5EC] rounded-[8px] p-5 lg:p-6 xl:p-8 h-full flex flex-col justify-start relative overflow-hidden shadow-sm">
+               {/* Quote Icon */}
+               <div className="text-[#5C6B46] text-[60px] lg:text-[70px] xl:text-[80px] font-serif leading-none mb-2 mt-[-10px] select-none opacity-80">
+                 “
+               </div>
+               
+               {/* Quote Text */}
+               <p className="text-black font-semibold text-[14px] lg:text-[12.5px] xl:text-[14.5px] leading-[1.55] relative z-10">
+                 Yet, aesthetic medicine<br />
+                 is often approached<br />
+                 in isolation—focused<br />
+                 only on cosmetic<br />
+                 correction without<br />
+                 understanding the<br />
+                 physiological environment<br />
+                 underneath it.
+               </p>
+               
+               {/* Faint botanical outline */}
+               <div className="absolute bottom-0 right-0 opacity-60 pointer-events-none">
+                 <svg width="60" height="75" viewBox="0 0 60 75" fill="none">
+                    {/* Stem */}
+                    <path d="M55 75 Q45 55 35 35" stroke="#A9B198" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+                    {/* Top Right Leaf */}
+                    <path d="M35 35 Q30 25 35 15 Q45 15 45 25 Q45 30 35 35 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M35 35 Q37 25 45 15" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                    {/* Bottom Right Leaf */}
+                    <path d="M43 50 Q48 35 55 30 Q60 40 55 50 Q50 55 43 50 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M43 50 Q50 40 55 30" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                    {/* Left Leaf */}
+                    <path d="M38 52 Q25 50 20 60 Q25 70 38 70 Q45 60 38 52 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
+                    <path d="M38 70 Q30 60 20 60" stroke="#A9B198" strokeWidth="0.5" fill="none" />
+                 </svg>
+               </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+    );
+  }
+
   if (svc.slug === "metabolic-health") {
     return (
       <section className="w-full bg-[#FAF8F3]">

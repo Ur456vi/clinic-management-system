@@ -65,12 +65,12 @@ export default async function ServicePage({
       <ServiceHero svc={svc} />
       {svc.pillars ? <ServicePillars items={svc.pillars} /> : null}
       {svc.symptomsSection ? <SymptomsSection svc={svc} /> : null}
+      {svc.conventionalSection ? <ConventionalSection svc={svc} /> : null}
       <FemaleHormonalSystemSection svc={svc} />
       <ProgramDesignedForSection svc={svc} />
       <LongitudinalTrackingSection svc={svc} />
       <GoalAndPhilosophySection svc={svc} />
       <FinalPositioningSection svc={svc} />
-      {svc.conventionalSection ? <ConventionalSection svc={svc} /> : null}
       <PathwaysSection svc={svc} />
       <FemaleProgramDesignedForSection svc={svc} />
       <FemaleLongitudinalTrackingSection svc={svc} />

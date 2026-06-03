@@ -346,7 +346,7 @@ export function StatTile({
 
       <p
         className="text-sm leading-snug font-medium"
-        style={{ color: "var(--brand-ink-soft)" }}
+        style={{ color: "var(--brand-ink)" }}
       >
         {label}
       </p>

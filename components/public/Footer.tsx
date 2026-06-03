@@ -46,9 +46,9 @@ export default function Footer() {
         <div className="mb-20 flex items-center justify-start md:justify-start">
           {/* We use a thin, ultra-wide sans font styling to approximate the custom brand mark */}
           <Image
-              src="/dr-yuvraj-logo.png"
+              src="/dr-yuvraaj-logo.png"
               alt="Dr. Yuvraaj Singh"
-              width={550}
+              width={539}
               height={60}
               priority
             />
