@@ -85,7 +85,7 @@ export default function HomePage() {
                                                 </div>
                                         </div>
                                         <Link href="/assessment" className="inline-block bg-[#7B1B2A] text-white font-semibold px-8 py-4 rounded hover:bg-[#9B2535] transition-colors">
-                                                Book An Appointment
+                                                Request Consultation
                                         </Link>
                                 </div>
                         </section>

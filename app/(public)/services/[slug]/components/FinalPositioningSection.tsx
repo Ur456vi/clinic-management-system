@@ -51,7 +51,7 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
               Start your physician-led biological evaluation
             </p>
             <button className="bg-[#56221E] hover:bg-[#421A17] text-white transition-colors duration-200 py-3.5 px-8 lg:px-10 rounded-full text-[12px] md:text-[13px] font-medium tracking-[0.1em] uppercase">
-              Request A Consultation
+              Request Consultation
             </button>
           </div>
 

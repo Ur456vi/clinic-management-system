@@ -91,7 +91,7 @@ export default function Header() {
                 letterSpacing: "0.08em",
               }}
             >
-              Book Appointment
+              Request Consultation
             </Link>
             <a
               href={PHONE_HREF}
