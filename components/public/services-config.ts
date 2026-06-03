@@ -222,11 +222,11 @@ export const SERVICES: ServiceContent[] = [
       text: "Decline is not inevitable. It is a signal. And every signal has a cause.",
     },
     heroTiles: [
-      { icon: "scale", label: "Hormonal Optimization" },
-      { icon: "leaf", label: "Metabolic Restoration" },
-      { icon: "shield", label: "Sexual Health Support" },
-      { icon: "dumbbell", label: "Performance & Recovery" },
-      { icon: "clock", label: "Long-Term Health" },
+      { icon: "scale", label: "Hormonal\nOptimization" },
+      { icon: "leaf", label: "Metabolic\nRestoration" },
+      { icon: "shield", label: "Sexual Health\nSupport" },
+      { icon: "dumbbell", label: "Performance\n& Recovery" },
+      { icon: "clock", label: "Long-Term\nHealth" },
     ],
     pillars: [
       {
