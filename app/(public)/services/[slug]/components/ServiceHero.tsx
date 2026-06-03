@@ -14,11 +14,12 @@ import { type ServiceContent } from "@/components/public/services-config";
 export function ServiceHero({ svc }: { svc: ServiceContent }) {
   const isFemale = svc.slug === "female-hormonal";
   const isMetabolic = svc.slug === "metabolic-health";
+  const isMensHormonal = svc.slug === "mens-hormonal";
 
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ background: "var(--brand-cream)", minHeight: "700px" }}
+      style={{ background: "var(--brand-cream)", minHeight: isMensHormonal ? "500px" : "700px" }}
     >
       {/* Background Decor & Right Side Assets */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] pointer-events-none z-0">
@@ -139,6 +140,24 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                </svg>
              </div>
            </>
+         ) : isMensHormonal ? (
+           <>
+             {/* Doctor Image for Men's Hormonal */}
+             <img
+               src="/images/landing/dr-yuvraaj-singh.png"
+               alt="Hero"
+               className="absolute bottom-0 right-0 h-[90%] lg:h-[100%] object-contain object-bottom hidden md:block lg:right-[15%] xl:right-[15%]"
+             />
+
+             {/* Floating Quote */}
+             <div className="absolute right-[8%] top-[25%] hidden xl:block z-10 w-[200px]">
+               <span className="text-[#5C6B46] text-[60px] font-serif leading-none absolute -top-8 -left-4">&ldquo;</span>
+               <p className="text-[#1F1F1F]/90 font-medium text-[17px] leading-[1.6] relative z-10">
+                 Decline is not<br />inevitable.<br />It is a signal.<br />And every signal<br />has a cause.
+               </p>
+               <div className="w-6 h-[2px] bg-[#722F27] mt-6 opacity-60" />
+             </div>
+           </>
          ) : (
            <>
              {/* Doctor/Hero Image */}
@@ -159,8 +178,8 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
          )}
       </div>
 
-      <div className="mx-auto max-w-[1440px] px-6 pt-12 pb-16 md:px-12 md:pt-16 md:pb-20 relative z-10">
-        <div className="w-full lg:w-[55%]">
+      <div className={`mx-auto max-w-[1440px] px-6 pt-12 md:px-12 md:pt-16 relative z-10 ${isMensHormonal ? 'pb-8 md:pb-12' : 'pb-16 md:pb-20'}`}>
+        <div className="w-full lg:w-[60%] xl:w-[55%]">
           
           {/* Eyebrow / Tag */}
           {isMetabolic ? (
@@ -245,6 +264,12 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                 {svc.programTag}
               </span>
             </div>
+          ) : isMensHormonal ? (
+            <div className="mb-4">
+              <span className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#722F27]">
+                {svc.programTag}
+              </span>
+            </div>
           ) : (
             <SectionEyebrow>{svc.programTag}</SectionEyebrow>
           )}
@@ -254,7 +279,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
             style={{
               fontFamily: "var(--font-display)",
               color: "var(--brand-ink)",
-              fontSize: isFemale ? "clamp(32px, 3.8vw, 52px)" : "clamp(36px, 4.5vw, 64px)",
+              fontSize: isFemale || isMensHormonal ? "clamp(36px, 4.5vw, 68px)" : "clamp(36px, 4.5vw, 64px)",
             }}
           >
             {isFemale ? (
@@ -264,6 +289,13 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                 <span className="block">
                   Post-Menopause{" "}
                   <span style={{ color: "var(--brand-burgundy)" }}>Care</span>
+                </span>
+              </>
+            ) : isMensHormonal ? (
+              <>
+                <span className="block">Men's Hormonal &</span>
+                <span className="block">
+                  Andropause <span style={{ color: "var(--brand-burgundy)" }}>Care</span>
                 </span>
               </>
             ) : (
@@ -277,13 +309,18 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
           </h1>
           
           <p
-            className={`mt-6 text-[15px] md:text-[16px] leading-relaxed font-medium ${isFemale ? 'max-w-[550px] text-[#333333]' : 'max-w-[500px] text-black'}`}
+            className={`mt-6 text-[15px] md:text-[17px] leading-relaxed font-medium ${isFemale || isMensHormonal ? 'max-w-[560px] text-[#333333]' : 'max-w-[500px] text-black'}`}
           >
             {isFemale ? (
               <>
                 <span className="block">Hormonal changes do not just affect the body.</span>
                 <span className="block">They alter energy, emotions, sleep, cognition, relationships,</span>
                 <span className="block">confidence, and quality of life.</span>
+              </>
+            ) : isMensHormonal ? (
+              <>
+                <span className="block">We go beyond symptom suppression to restore your hormones,</span>
+                <span className="block">energy, performance, and long-term vitality—at the root.</span>
               </>
             ) : svc.heroBody.split("\n").map((line, idx) => (
               <span key={idx} className="block mb-2 last:mb-0">
@@ -292,21 +329,42 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
             ))}
           </p>
 
-          <div className={`mt-10 flex flex-wrap ${isFemale ? 'gap-5' : 'gap-4'}`}>
-            <Link
-              href="/assessment"
-              className={`inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
-              style={{ background: "#889A6A" }}
-            >
-              Book Consultation <span>→</span>
-            </Link>
-            <Link
-              href="#approach"
-              className={`inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
-              style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
-            >
-              Explore Clinical Framework <span>→</span>
-            </Link>
+          <div className={`mt-10 flex flex-wrap gap-4`}>
+            {isMensHormonal ? (
+              <>
+                <Link
+                  href="/assessment"
+                  className={`inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-8 py-4 text-[14px]`}
+                  style={{ background: "#647153" }}
+                >
+                  Book Your Consultation <span>→</span>
+                </Link>
+                <Link
+                  href="#approach"
+                  className={`inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium px-8 py-4 text-[14px] bg-[#FAF8F5]`}
+                  style={{ borderColor: "#E5DCDA", color: "#722F27" }}
+                >
+                  Take the Hormone Assessment <span>↗</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/assessment"
+                  className={`inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
+                  style={{ background: "#889A6A" }}
+                >
+                  Book Consultation <span>→</span>
+                </Link>
+                <Link
+                  href="#approach"
+                  className={`inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
+                  style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
+                >
+                  Explore Clinical Framework <span>→</span>
+                </Link>
+              </>
+            )}
           </div>
           
           {/* Bottom Features Row */}
@@ -328,15 +386,15 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                 </div>
               ))}
             </div>
-          ) : isMetabolic ? (
-            <div className="mt-14 flex flex-wrap gap-x-8 gap-y-6">
+          ) : isMetabolic || isMensHormonal ? (
+            <div className={`mt-12 flex flex-wrap gap-y-6 ${isMensHormonal ? 'gap-x-4 xl:gap-x-6' : 'gap-x-8'}`}>
               {svc.heroTiles.map((t) => (
-                <div key={t.label} className="flex items-center gap-3">
+                <div key={t.label} className="flex items-center gap-2 xl:gap-3">
                   <div className="text-[#5C6B46] shrink-0">
-                    <ResolvedIcon name={t.icon} size={32} />
+                    <ResolvedIcon name={t.icon} size={30} />
                   </div>
-                  <span className="text-[#1F1F1F] text-[12px] md:text-[13px] font-bold leading-[1.1] max-w-[80px]">
-                    {t.label.split(" ").map((w, i) => <span key={i} className="block">{w}</span>)}
+                  <span className="text-[#1F1F1F] text-[11px] md:text-[12px] font-bold leading-[1.15] max-w-[100px]">
+                    {t.label.split("\n").map((w, i) => <span key={i} className="block">{w}</span>)}
                   </span>
                 </div>
               ))}
@@ -365,3 +423,4 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
     </section>
   );
 }
+
