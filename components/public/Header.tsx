@@ -54,22 +54,21 @@ export default function Header() {
         className="w-full"
         style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-3 md:px-12">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-3 md:px-12 relative">
           {/* Cursive logotype */}
-          <Link href="/" className="flex items-center gap-3" aria-label="Home">
-  <Image
-    src="/dr-yuvraaj-logo.png"
-    alt="Dr. Yuvraaj Singh"
-    width={449}
-    height={50}
-    priority
-  />
-
-  
-</Link>
+          <Link href="/" className="flex items-center gap-3 shrink-0" aria-label="Home">
+            <Image
+              src="/dr-yuvraaj-logo.png"
+              alt="Dr. Yuvraaj Singh"
+              width={449}
+              height={50}
+              priority
+              className="h-6 w-auto md:h-8 lg:h-10 xl:h-[50px] shrink-0"
+            />
+          </Link>
 
           {/* Center socials */}
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-3 md:flex md:absolute md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 z-10">
             <SocialBubble href="#" label="Facebook">
               <FacebookIcon size={16} />
             </SocialBubble>
