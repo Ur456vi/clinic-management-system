@@ -358,11 +358,18 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Relationship</label>
-                              <input name="informant__relationship"
-                                type="text"
-                                placeholder="Relative / Friend"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="informant__relationship" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select relationship</option>
+                                  <option value="relative">Relative</option>
+                                  <option value="friend">Friend</option>
+                                  <option value="spouse">Spouse</option>
+                                  <option value="parent">Parent</option>
+                                  <option value="sibling">Sibling</option>
+                                  <option value="other">Other</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -458,11 +465,17 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Referral Source</label>
-                              <input name="demographics__referral_source"
-                                type="text"
-                                placeholder="Doctor / Walk-in / Relative / Media"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="demographics__referral_source" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select referral source</option>
+                                  <option value="doctor">Doctor</option>
+                                  <option value="walk-in">Walk-in</option>
+                                  <option value="relative">Relative</option>
+                                  <option value="media">Media</option>
+                                  <option value="other">Other</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                               <p className="text-xs text-[#667085]">How did the patient find this practice</p>
                             </div>
                           </div>
@@ -534,11 +547,15 @@ export default function StartAppointmentConsultationPage() {
                             <div className="grid grid-cols-2 gap-6">
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Parents Status</label>
-                                <input name="medical_history__parents_status"
-                                  type="text"
-                                  placeholder="Living / Deceased"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                                />
+                                <div className="relative">
+                                  <select name="medical_history__parents_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select status</option>
+                                    <option value="living">Living</option>
+                                    <option value="deceased">Deceased</option>
+                                    <option value="unknown">Unknown</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                                </div>
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Parental Medical History</label>
@@ -570,19 +587,28 @@ export default function StartAppointmentConsultationPage() {
                             <div className="grid grid-cols-2 gap-6">
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Current Residence</label>
-                                <input name="medical_history__current_residence"
-                                  type="text"
-                                  placeholder="India / Abroad"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                                />
+                                <div className="relative">
+                                  <select name="medical_history__current_residence" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select residence</option>
+                                    <option value="india">India</option>
+                                    <option value="abroad">Abroad</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                                </div>
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Travel Frequency</label>
-                                <input name="medical_history__travel_frequency"
-                                  type="text"
-                                  placeholder="International / Domestic frequency"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                                />
+                                <div className="relative">
+                                  <select name="medical_history__travel_frequency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select frequency</option>
+                                    <option value="frequent international">Frequent International</option>
+                                    <option value="occasional international">Occasional International</option>
+                                    <option value="frequent domestic">Frequent Domestic</option>
+                                    <option value="occasional domestic">Occasional Domestic</option>
+                                    <option value="none">None</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                                </div>
                               </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -693,11 +719,14 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Consanguineous Marriage</label>
-                              <input name="social_history__consanguineous_marriage"
-                                type="text"
-                                placeholder="Yes / No"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="social_history__consanguineous_marriage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="yes">Yes</option>
+                                  <option value="no">No</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Ethnicity</label>
@@ -778,19 +807,36 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Duration</label>
-                              <input name="social_history__duration_2"
-                                type="text"
-                                placeholder="Years / Months"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="social_history__duration_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select duration</option>
+                                  <option value="< 1 year">&lt; 1 year</option>
+                                  <option value="1-5 years">1-5 years</option>
+                                  <option value="5-10 years">5-10 years</option>
+                                  <option value="> 10 years">&gt; 10 years</option>
+                                  <option value="occasional">Occasional</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054]">Type of Beverage</label>
-                              <input name="social_history__type_of_beverage"
-                                type="text"
-                                placeholder="Malts, Scotch, Whiskey, Beer, Wine, Vodka, Gin, Tequila, Ru"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="social_history__type_of_beverage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select type</option>
+                                  <option value="malts">Malts</option>
+                                  <option value="scotch">Scotch</option>
+                                  <option value="whiskey">Whiskey</option>
+                                  <option value="beer">Beer</option>
+                                  <option value="wine">Wine</option>
+                                  <option value="vodka">Vodka</option>
+                                  <option value="gin">Gin</option>
+                                  <option value="tequila">Tequila</option>
+                                  <option value="rum">Rum</option>
+                                  <option value="mixed">Mixed</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -942,11 +988,16 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Preferences</label>
-                              <input name="social_history__preferences"
-                                type="text"
-                                placeholder="Same sex / Opposite sex"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="social_history__preferences" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select preference</option>
+                                  <option value="same sex">Same sex</option>
+                                  <option value="opposite sex">Opposite sex</option>
+                                  <option value="both">Both</option>
+                                  <option value="prefer not to say">Prefer not to say</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -983,11 +1034,15 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Food Cravings</label>
-                              <input name="personal_history__food_cravings"
-                                type="text"
-                                placeholder="Sweet / Salty / None"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__food_cravings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select cravings</option>
+                                  <option value="sweet">Sweet</option>
+                                  <option value="salty">Salty</option>
+                                  <option value="none">None</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1055,19 +1110,31 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Blood in Stool</label>
-                              <textarea
-                                placeholder="Streaks / Frank blood / Volume / Frequency / Painful or painless"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__blood_in_stool" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="streaks (painless)">Streaks (Painless)</option>
+                                  <option value="streaks (painful)">Streaks (Painful)</option>
+                                  <option value="frank blood (painless)">Frank Blood (Painless)</option>
+                                  <option value="frank blood (painful)">Frank Blood (Painful)</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Other Symptoms</label>
-                              <textarea
-                                placeholder="Worms / Itching / Anal tags / Abscesses"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__bowel_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select symptom</option>
+                                  <option value="none">None</option>
+                                  <option value="worms">Worms</option>
+                                  <option value="itching">Itching</option>
+                                  <option value="anal tags">Anal tags</option>
+                                  <option value="abscesses">Abscesses</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1119,11 +1186,17 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Snoring</label>
-                              <textarea
-                                placeholder="Light / Deep / Apneic spells / Position-related"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="light">Light</option>
+                                  <option value="deep">Deep</option>
+                                  <option value="apneic spells">Apneic spells</option>
+                                  <option value="position-related">Position-related</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-3">
                               <label className="text-sm font-medium text-[#344054]">Parasomnias (select all that apply)</label>
@@ -1201,19 +1274,32 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Blood in Urine</label>
-                              <textarea
-                                placeholder="Mild / Moderate / Frank / Painful or painless / Frequency"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__blood_in_urine" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="mild">Mild</option>
+                                  <option value="moderate">Moderate</option>
+                                  <option value="frank">Frank</option>
+                                  <option value="painful">Painful</option>
+                                  <option value="painless">Painless</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Other Symptoms</label>
-                              <textarea
-                                placeholder="Burning / Pain / Itching / Nocturia frequency"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__bladder_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select symptom</option>
+                                  <option value="none">None</option>
+                                  <option value="burning">Burning</option>
+                                  <option value="pain">Pain</option>
+                                  <option value="itching">Itching</option>
+                                  <option value="nocturia">Nocturia</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1342,11 +1428,16 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Tendencies</label>
-                              <input name="personal_history__tendencies"
-                                type="text"
-                                placeholder="Aggression / Suicidal / Withdrawal"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__tendencies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select tendencies</option>
+                                  <option value="none">None</option>
+                                  <option value="aggression">Aggression</option>
+                                  <option value="suicidal">Suicidal</option>
+                                  <option value="withdrawal">Withdrawal</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Brain Fog</label>
@@ -1397,11 +1488,16 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Personal Habits</label>
-                              <input name="personal_history__personal_habits"
-                                type="text"
-                                placeholder="Cosmetics / Sunscreens / Other applicants"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__personal_habits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select habits</option>
+                                  <option value="none">None</option>
+                                  <option value="cosmetics">Cosmetics</option>
+                                  <option value="sunscreens">Sunscreens</option>
+                                  <option value="other applicants">Other applicants</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1416,28 +1512,38 @@ export default function StartAppointmentConsultationPage() {
                             <div className="grid grid-cols-2 gap-6">
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Perspiration</label>
-                                <input name="personal_history__perspiration"
-                                  type="text"
-                                  placeholder="Normal / Excessive / Minimal"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                                />
+                                <div className="relative">
+                                  <select name="personal_history__perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="excessive">Excessive</option>
+                                    <option value="minimal">Minimal</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                                </div>
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Body Odor</label>
-                                <input name="personal_history__body_odor"
-                                  type="text"
-                                  placeholder="Present / Not Present / Type"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                                />
+                                <div className="relative">
+                                  <select name="personal_history__body_odor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="present">Present</option>
+                                    <option value="not present">Not Present</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                                </div>
                               </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Halitosis (Bad Breath)</label>
-                              <input name="personal_history__halitosis_bad_breath"
-                                type="text"
-                                placeholder="Present / Not Present"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="personal_history__halitosis_bad_breath" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="present">Present</option>
+                                  <option value="not present">Not Present</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1465,19 +1571,26 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Attention Span</label>
-                              <input name="examination_summary__attention_span"
-                                type="text"
-                                placeholder="Normal / Distracted / Poor"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__attention_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="distracted">Distracted</option>
+                                  <option value="poor">Poor</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Short Term Memory</label>
-                              <input name="examination_summary__short_term_memory"
-                                type="text"
-                                placeholder="Intact / Impaired"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__short_term_memory" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="intact">Intact</option>
+                                  <option value="impaired">Impaired</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1587,19 +1700,28 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Lip Findings</label>
-                              <input name="examination_summary__lip_findings"
-                                type="text"
-                                placeholder="Pursed / Cheilitis / Cleft lip"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__lip_findings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select findings</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="pursed">Pursed</option>
+                                  <option value="cheilitis">Cheilitis</option>
+                                  <option value="cleft lip">Cleft lip</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Buccopharyngeal Examination</label>
-                              <input name="examination_summary__buccopharyngeal_examination"
-                                type="text"
-                                placeholder="Thrush / Ulcers / Normal"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__buccopharyngeal_examination" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="thrush">Thrush</option>
+                                  <option value="ulcers">Ulcers</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Tongue Pattern</label>
@@ -1733,11 +1855,16 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Character</label>
-                              <input name="examination_summary__character"
-                                type="text"
-                                placeholder="e.g., Normal, Collapsing"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__character" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select character</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="collapsing">Collapsing</option>
+                                  <option value="slow rising">Slow rising</option>
+                                  <option value="bounding">Bounding</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">All Peripheral Pulses & Adequately</label>
@@ -1749,11 +1876,14 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Bruits</label>
-                              <input name="examination_summary__bruits"
-                                type="text"
-                                placeholder="Present / Not Present / Location"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__bruits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="not present">Not Present</option>
+                                  <option value="present">Present</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1851,11 +1981,15 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Pattern</label>
-                              <input name="examination_summary__pattern"
-                                type="text"
-                                placeholder="Normal / Dyspneic / Tachypneic"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select pattern</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="dyspneic">Dyspneic</option>
+                                  <option value="tachypneic">Tachypneic</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">SpO2 (%)</label>
@@ -2018,11 +2152,17 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Anatomical Area</label>
-                              <input name="examination_summary__anatomical_area"
-                                type="text"
-                                placeholder="Cervical / Axillary / Inguinal"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__anatomical_area" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select area</option>
+                                  <option value="none">None</option>
+                                  <option value="cervical">Cervical</option>
+                                  <option value="axillary">Axillary</option>
+                                  <option value="inguinal">Inguinal</option>
+                                  <option value="multiple">Multiple</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Tenderness</label>
@@ -2119,11 +2259,16 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Nail Changes</label>
-                              <textarea
-                                placeholder="Ridges / Color changes / Pitting"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__nail_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="ridges">Ridges</option>
+                                  <option value="color changes">Color changes</option>
+                                  <option value="pitting">Pitting</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Skin Hyperpigmentation</label>
@@ -2135,11 +2280,15 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Hair Changes</label>
-                              <input name="examination_summary__hair_changes"
-                                type="text"
-                                placeholder="Alopecia / Thinning"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__hair_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="alopecia">Alopecia</option>
+                                  <option value="thinning">Thinning</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -2273,11 +2422,16 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Consciousness Level</label>
-                              <input name="examination_summary__consciousness_level"
-                                type="text"
-                                placeholder="Alert / Drowsy / Stuporous / Comatose"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
-                              />
+                              <div className="relative">
+                                <select name="examination_summary__consciousness_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select level</option>
+                                  <option value="alert">Alert</option>
+                                  <option value="drowsy">Drowsy</option>
+                                  <option value="stuporous">Stuporous</option>
+                                  <option value="comatose">Comatose</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Higher Mental Functions (MMSE)</label>
