@@ -36,28 +36,28 @@ export default function PatientBookAppointmentPage() {
       <div className="flex items-center gap-3">
         <Link
           href="/patient/appointments"
-          className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#EAECF0] text-[#344054] hover:bg-gray-50"
+          className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#EAECF0] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50"
           aria-label="Back to appointments"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[#141414]">Book an appointment</h1>
-          <p className="text-sm text-[#6C7688] mt-1">
+          <h1 className="text-2xl font-bold text-[#141414] dark:text-[#F9FAFB]">Book an appointment</h1>
+          <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">
             Pick a doctor, date, and time — we&apos;ll confirm by email.
           </p>
         </div>
       </div>
 
       {done ? (
-        <div className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-8 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm p-8 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-[#ECFDF3] flex items-center justify-center">
             <CalendarPlus className="h-6 w-6 text-[#027A48]" />
           </div>
-          <h2 className="text-lg font-bold text-[#141414] mt-3">
+          <h2 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB] mt-3">
             Appointment requested
           </h2>
-          <p className="text-sm text-[#6C7688] mt-1">
+          <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">
             Your request has been sent. You&apos;ll receive a confirmation email shortly.
           </p>
           <div className="flex items-center justify-center gap-3 mt-5">
@@ -69,7 +69,7 @@ export default function PatientBookAppointmentPage() {
             </button>
             <button
               onClick={() => setDone(false)}
-              className="rounded-lg px-4 py-2.5 text-sm font-semibold text-[#6C7688] hover:text-[#141414]"
+              className="rounded-lg px-4 py-2.5 text-sm font-semibold text-[#6C7688] dark:text-[#94A3B8] hover:text-[#141414]"
             >
               Book another
             </button>
@@ -77,7 +77,7 @@ export default function PatientBookAppointmentPage() {
         </div>
       ) : (
         <form
-          className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-6 flex flex-col gap-5"
+          className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm p-6 flex flex-col gap-5"
           onSubmit={(e) => {
             e.preventDefault()
             if (!canSubmit) return
@@ -91,11 +91,11 @@ export default function PatientBookAppointmentPage() {
           }}
         >
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-[#141414] font-semibold">Doctor</span>
+            <span className="text-[#141414] dark:text-[#F9FAFB] font-semibold">Doctor</span>
             <select
               value={doctorId}
               onChange={(e) => setDoctorId(e.target.value)}
-              className="h-11 rounded-lg border border-[#EAECF0] bg-white px-3 text-sm"
+              className="h-11 rounded-lg border border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937] px-3 text-sm"
             >
               {doctors.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -107,33 +107,33 @@ export default function PatientBookAppointmentPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="text-[#141414] font-semibold">Date</span>
+              <span className="text-[#141414] dark:text-[#F9FAFB] font-semibold">Date</span>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="h-11 rounded-lg border border-[#EAECF0] bg-white px-3 text-sm"
+                className="h-11 rounded-lg border border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937] px-3 text-sm"
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="text-[#141414] font-semibold">Time</span>
+              <span className="text-[#141414] dark:text-[#F9FAFB] font-semibold">Time</span>
               <input
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="h-11 rounded-lg border border-[#EAECF0] bg-white px-3 text-sm"
+                className="h-11 rounded-lg border border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937] px-3 text-sm"
               />
             </label>
           </div>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-[#141414] font-semibold">Reason (optional)</span>
+            <span className="text-[#141414] dark:text-[#F9FAFB] font-semibold">Reason (optional)</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               placeholder="Briefly describe what you'd like to discuss…"
-              className="rounded-lg border border-[#EAECF0] bg-white p-3 text-sm"
+              className="rounded-lg border border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937] p-3 text-sm"
             />
           </label>
 
@@ -147,7 +147,7 @@ export default function PatientBookAppointmentPage() {
             </button>
             <Link
               href="/patient/appointments"
-              className="text-sm font-semibold text-[#6C7688] hover:text-[#141414]"
+              className="text-sm font-semibold text-[#6C7688] dark:text-[#94A3B8] hover:text-[#141414]"
             >
               Cancel
             </Link>

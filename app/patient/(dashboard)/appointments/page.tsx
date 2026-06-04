@@ -89,17 +89,17 @@ export default function AppointmentsPage() {
     <div className="p-6 flex flex-col gap-5 max-w-[1600px] mx-auto animate-in fade-in duration-500">
       {/* Page Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-[#141414]">Appointments</h1>
+        <h1 className="text-xl font-bold text-[#141414] dark:text-[#F9FAFB]">Appointments</h1>
         <div className="flex gap-2.5 items-center">
           {/* Export */}
-          <button className="flex items-center gap-1.5 border border-[#D0D0D0] rounded-lg px-4 py-2.5 bg-white text-sm text-[#141414] font-semibold cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
+          <button className="flex items-center gap-1.5 border border-[#D0D0D0] rounded-lg px-4 py-2.5 bg-white dark:bg-[#1F2937] text-sm text-[#141414] dark:text-[#F9FAFB] font-semibold cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Export ▾
           </button>
           {/* Share */}
-          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white text-[#141414] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
+          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
               <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2" />
               <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
@@ -108,7 +108,7 @@ export default function AppointmentsPage() {
             </svg>
           </button>
           {/* Print */}
-          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white text-[#141414] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
+          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
               <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -124,12 +124,12 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-white rounded-xl border border-[#EAECF0] overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden shadow-sm">
         {/* Table Toolbar */}
-        <div className="p-4 lg:px-5 flex items-center justify-between border-b border-[#F2F4F7] flex-wrap gap-3">
+        <div className="p-4 lg:px-5 flex items-center justify-between border-b border-[#F2F4F7] dark:border-[#374151] flex-wrap gap-3">
           <div className="flex items-center gap-3 flex-wrap">
             {/* Search */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] min-w-[240px] focus-within:border-[#2E37A4] transition-colors">
+            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] min-w-[240px] focus-within:border-[#2E37A4] transition-colors">
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="7" stroke="#A1A1A1" strokeWidth="2" />
                 <path d="M21 21l-4.35-4.35" stroke="#A1A1A1" strokeWidth="2" strokeLinecap="round" />
@@ -139,12 +139,12 @@ export default function AppointmentsPage() {
                 placeholder="Search appointments..."
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                className="border-none outline-none text-sm text-[#141414] bg-transparent w-full"
+                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent w-full"
               />
             </div>
 
             {/* Date Range — native date pickers so the filter actually works */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB]">
+            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827]">
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="17" rx="2" stroke="#6C7688" strokeWidth="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
@@ -154,20 +154,20 @@ export default function AppointmentsPage() {
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
                 aria-label="From date"
-                className="border-none outline-none text-sm text-[#141414] bg-transparent"
+                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent"
               />
-              <span className="text-[#6C7688] font-bold">-</span>
+              <span className="text-[#6C7688] dark:text-[#94A3B8] font-bold">-</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
                 aria-label="To date"
-                className="border-none outline-none text-sm text-[#141414] bg-transparent"
+                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent"
               />
               {(dateFrom || dateTo) ? (
                 <button
                   onClick={() => { setDateFrom(""); setDateTo(""); }}
-                  className="text-xs font-semibold text-[#2E37A4] hover:underline ml-1"
+                  className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline ml-1"
                   type="button"
                 >
                   Clear
@@ -178,14 +178,14 @@ export default function AppointmentsPage() {
 
           <div className="flex gap-2 items-center flex-wrap">
             {/* Filter by Status */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] cursor-pointer hover:border-[#2E37A4] transition-colors">
+            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] cursor-pointer hover:border-[#2E37A4] transition-colors">
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <path d="M4 6h16M7 12h10M10 18h4" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <select
                 value={filterStatus}
                 onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-                className="border-none outline-none text-sm font-semibold text-[#141414] bg-transparent cursor-pointer"
+                className="border-none outline-none text-sm font-semibold text-[#141414] dark:text-[#F9FAFB] bg-transparent cursor-pointer"
               >
                 <option value="All">All Statuses</option>
                 <option value="Checked Out">Checked Out</option>
@@ -197,14 +197,14 @@ export default function AppointmentsPage() {
             </div>
 
             {/* Sort By */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] cursor-pointer hover:border-[#2E37A4] transition-colors">
+            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] cursor-pointer hover:border-[#2E37A4] transition-colors">
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                 <path d="M3 6h18M6 12h12M9 18h6" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="border-none outline-none text-sm font-semibold text-[#141414] bg-transparent cursor-pointer"
+                className="border-none outline-none text-sm font-semibold text-[#141414] dark:text-[#F9FAFB] bg-transparent cursor-pointer"
               >
                 <option value="Recent">Sort By: Recent</option>
                 <option value="Oldest">Sort By: Oldest</option>
@@ -218,41 +218,41 @@ export default function AppointmentsPage() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#F9FAFB]">
+              <tr className="bg-[#F9FAFB] dark:bg-[#111827]">
                 {["Date & Time", "Doctor Name", "Mode", "Status"].map((h) => (
-                  <th key={h} className="p-4 text-left text-[#6C7688] font-bold text-xs uppercase tracking-wider border-b border-[#F2F4F7]">{h}</th>
+                  <th key={h} className="p-4 text-left text-[#6C7688] dark:text-[#94A3B8] font-bold text-xs uppercase tracking-wider border-b border-[#F2F4F7] dark:border-[#374151]">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F2F4F7]">
+            <tbody className="divide-y divide-[#F2F4F7] dark:divide-[#374151]">
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-10 text-center text-[#6C7688] font-medium italic">No appointments found matching your criteria.</td>
+                  <td colSpan={4} className="p-10 text-center text-[#6C7688] dark:text-[#94A3B8] font-medium italic">No appointments found matching your criteria.</td>
                 </tr>
               ) : (
                 paginated.map((apt, i) => (
                   <tr key={i} className="hover:bg-gray-50 transition-colors">
                     {/* Date & Time */}
-                    <td className="p-4 text-[#141414]">
+                    <td className="p-4 text-[#141414] dark:text-[#F9FAFB]">
                       <span className="font-bold">{apt.date}</span>
-                      <span className="text-[#6C7688] font-medium ml-2">{apt.time}</span>
+                      <span className="text-[#6C7688] dark:text-[#94A3B8] font-medium ml-2">{apt.time}</span>
                     </td>
 
                     {/* Doctor */}
                     <td className="p-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-[#EEF0FF] flex items-center justify-center text-sm font-bold text-[#2E37A4] flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-[#EEF0FF] flex items-center justify-center text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] flex-shrink-0">
                           {apt.doctor.replace(/^Dr\.\s*/, "").charAt(0)}
                         </div>
                         <div>
-                          <p className="m-0 text-sm font-bold text-[#141414]">{apt.doctor}</p>
-                          <p className="m-0 text-xs text-[#6C7688] font-medium">{apt.spec}</p>
+                          <p className="m-0 text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">{apt.doctor}</p>
+                          <p className="m-0 text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">{apt.spec}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Mode */}
-                    <td className="p-4 text-[#141414] font-medium">{apt.mode}</td>
+                    <td className="p-4 text-[#141414] dark:text-[#F9FAFB] font-medium">{apt.mode}</td>
 
                     {/* Status */}
                     <td className="p-4">
@@ -264,7 +264,7 @@ export default function AppointmentsPage() {
                           {apt.status}
                         </span>
                         {apt.status === "Schedule" && apt.scheduleDate && (
-                          <span className="text-xs text-[#6C7688] font-semibold">{apt.scheduleDate}</span>
+                          <span className="text-xs text-[#6C7688] dark:text-[#94A3B8] font-semibold">{apt.scheduleDate}</span>
                         )}
                       </div>
                     </td>
@@ -276,14 +276,14 @@ export default function AppointmentsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="p-4 flex items-center justify-between border-t border-[#F2F4F7] flex-wrap gap-4">
+        <div className="p-4 flex items-center justify-between border-t border-[#F2F4F7] dark:border-[#374151] flex-wrap gap-4">
           {/* Rows per page */}
-          <div className="flex items-center gap-2 text-sm text-[#6C7688] font-medium">
+          <div className="flex items-center gap-2 text-sm text-[#6C7688] dark:text-[#94A3B8] font-medium">
             <span>Rows per page:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-              className="border border-[#D0D0D0] rounded px-1.5 py-0.5 text-sm text-[#141414] bg-white cursor-pointer"
+              className="border border-[#D0D0D0] rounded px-1.5 py-0.5 text-sm text-[#141414] dark:text-[#F9FAFB] bg-white dark:bg-[#1F2937] cursor-pointer"
             >
               {ROWS_PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
@@ -295,7 +295,7 @@ export default function AppointmentsPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white flex items-center justify-center transition-opacity ${currentPage === 1 ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
+              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] flex items-center justify-center transition-opacity ${currentPage === 1 ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
             >
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
@@ -305,7 +305,7 @@ export default function AppointmentsPage() {
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`w-9 h-9 border rounded-lg text-sm font-bold cursor-pointer transition-colors ${
-                  currentPage === page ? "border-[#2E37A4] bg-[#2E37A4] text-white" : "border-[#D0D0D0] bg-white text-[#141414] hover:bg-gray-50"
+                  currentPage === page ? "border-[#2E37A4] bg-[#2E37A4] text-white" : "border-[#D0D0D0] bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] hover:bg-gray-50"
                 }`}
               >
                 {page}
@@ -315,7 +315,7 @@ export default function AppointmentsPage() {
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white flex items-center justify-center transition-opacity ${currentPage === totalPages ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
+              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] flex items-center justify-center transition-opacity ${currentPage === totalPages ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
             >
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
@@ -324,8 +324,8 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-auto py-6 text-center border-t border-[#EAECF0]">
-        <p className="m-0 text-xs text-[#6C7688] font-medium">Copyright © 2026 — Dr. Yuvraaj Singh M.D.</p>
+      <footer className="mt-auto py-6 text-center border-t border-[#EAECF0] dark:border-[#374151]">
+        <p className="m-0 text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">Copyright © 2026 — Dr. Yuvraaj Singh M.D.</p>
       </footer>
     </div>
   );

@@ -147,8 +147,8 @@ export default function AdminAssessmentDetailPage({
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center gap-3 text-sm text-[#667085]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+      <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
         Loading submission…
       </div>
     )
@@ -157,14 +157,14 @@ export default function AdminAssessmentDetailPage({
   if (error || !submission) {
     return (
       <div className="p-8 max-w-xl">
-        <div className="bg-white border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <p className="text-sm font-semibold text-[#B42318]">
             {error ?? "Submission not found"}
           </p>
           <Link
             href="/admin/assessments"
-            className="text-sm text-[#2E37A4] hover:underline font-semibold"
+            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all submissions
           </Link>
@@ -184,31 +184,31 @@ export default function AdminAssessmentDetailPage({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <Link
           href="/admin/assessments"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2E37A4] hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> All submissions
         </Link>
-        <span className="text-xs text-[#98A2B3] font-mono">{submission.bookingRef}</span>
+        <span className="text-xs text-[#98A2B3] dark:text-[#94A3B8] font-mono">{submission.bookingRef}</span>
       </div>
 
       {/* Header — patient + status */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6 md:p-7 flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6 md:p-7 flex flex-col md:flex-row md:items-start md:justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-[#F4F5FF] text-[#2E37A4] flex items-center justify-center font-bold">
+          <div className="h-12 w-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] flex items-center justify-center font-bold">
             {initials(submission.contactName)}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#101828]">{submission.contactName}</h1>
-            <p className="text-sm text-[#667085] mt-0.5">
+            <h1 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">{submission.contactName}</h1>
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-0.5">
               {submission.contactEmail} · {submission.contactPhone}
             </p>
             {submission.patient ? (
-              <p className="text-xs text-[#98A2B3] mt-1">
+              <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1">
                 Patient #{submission.patient.patientNumber}
                 {" · "}
                 <Link
                   href={`/admin/patients/${submission.patient.id}`}
-                  className="text-[#2E37A4] font-semibold hover:underline"
+                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   Open chart →
                 </Link>
@@ -300,10 +300,10 @@ export default function AdminAssessmentDetailPage({
         <DetailCard title="Score">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-[#101828]">
+              <span className="text-3xl font-bold text-[#101828] dark:text-[#F9FAFB]">
                 {submission.totalScore}
               </span>
-              <span className="text-sm text-[#667085]">/ {submission.scoreOutOf}</span>
+              <span className="text-sm text-[#667085] dark:text-[#94A3B8]">/ {submission.scoreOutOf}</span>
               {delta !== null ? (
                 <span
                   className="inline-flex items-center gap-1 text-xs font-bold ml-auto px-2 py-0.5 rounded-full"
@@ -326,7 +326,7 @@ export default function AdminAssessmentDetailPage({
               ) : null}
             </div>
             <BandPill band={submission.band} />
-            <p className="text-xs text-[#667085] mt-3">
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-3">
               Submitted{" "}
               {new Date(submission.createdAt).toLocaleString("en-GB", {
                 day: "2-digit",
@@ -342,7 +342,7 @@ export default function AdminAssessmentDetailPage({
 
       {/* Top risks + suggested focus + category subtotals */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Top 3 Risk Areas
           </p>
@@ -363,7 +363,7 @@ export default function AdminAssessmentDetailPage({
             {submission.suggestedFocus.map((f) => (
               <span
                 key={f.key}
-                className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] text-[#3538CD]"
+                className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] dark:bg-[#312E81] text-[#3538CD]"
               >
                 {f.label}
               </span>
@@ -371,15 +371,15 @@ export default function AdminAssessmentDetailPage({
           </div>
         </div>
 
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Per-category subtotals
           </p>
           <div className="space-y-2">
             {CATEGORIES.map((c) => (
               <div key={c.key} className="flex items-center justify-between text-sm">
-                <span className="text-[#344054]">{c.label}</span>
-                <span className="font-semibold text-[#101828]">
+                <span className="text-[#344054] dark:text-[#CBD5E1]">{c.label}</span>
+                <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
                   {submission.byCategory[c.key as CategoryKey] ?? 0}
                 </span>
               </div>
@@ -389,7 +389,7 @@ export default function AdminAssessmentDetailPage({
       </div>
 
       {/* Patient's individual answers */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-4">
           Patient&apos;s answers
         </p>
@@ -400,13 +400,13 @@ export default function AdminAssessmentDetailPage({
               className="border-l-2 pl-4"
               style={{ borderColor: "#EAECF0" }}
             >
-              <p className="text-xs uppercase tracking-wider text-[#98A2B3] font-semibold">
+              <p className="text-xs uppercase tracking-wider text-[#98A2B3] dark:text-[#94A3B8] font-semibold">
                 Q{i + 1} · {labelFor(q.category as CategoryKey)}
               </p>
-              <p className="text-sm font-medium text-[#101828] mt-0.5">
+              <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] mt-0.5">
                 {promptFor(q, submission.contactSex)}
               </p>
-              <p className="text-sm text-[#2E37A4] font-semibold mt-1">
+              <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] font-semibold mt-1">
                 {renderAnswer(q, submission.answers[q.id])}
               </p>
             </li>
@@ -416,12 +416,12 @@ export default function AdminAssessmentDetailPage({
 
       {/* Score history */}
       {history.length > 1 ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Score history ({history.length} attempts)
           </p>
           <table className="w-full text-sm">
-            <thead className="text-xs text-[#667085] uppercase tracking-wider">
+            <thead className="text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
               <tr>
                 <th className="text-left py-2 font-semibold">When</th>
                 <th className="text-left py-2 font-semibold">Score</th>
@@ -430,18 +430,18 @@ export default function AdminAssessmentDetailPage({
                 <th className="text-left py-2 font-semibold" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAECF0]">
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {history.map((h) => (
-                <tr key={h.id} className={h.id === submission.id ? "bg-[#F9FAFB]" : ""}>
-                  <td className="py-2.5 text-[#344054]">
+                <tr key={h.id} className={h.id === submission.id ? "bg-[#F9FAFB] dark:bg-[#111827]" : ""}>
+                  <td className="py-2.5 text-[#344054] dark:text-[#CBD5E1]">
                     {new Date(h.createdAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="py-2.5 font-semibold text-[#101828]">
-                    {h.totalScore} <span className="text-[#667085] font-normal">/ {h.scoreOutOf}</span>
+                  <td className="py-2.5 font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                    {h.totalScore} <span className="text-[#667085] dark:text-[#94A3B8] font-normal">/ {h.scoreOutOf}</span>
                   </td>
                   <td className="py-2.5">
                     <BandPill band={h.band} />
@@ -453,12 +453,12 @@ export default function AdminAssessmentDetailPage({
                     {h.id !== submission.id ? (
                       <Link
                         href={`/admin/assessments/${h.id}`}
-                        className="text-xs font-semibold text-[#2E37A4] hover:underline"
+                        className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
                       >
                         Open
                       </Link>
                     ) : (
-                      <span className="text-xs text-[#98A2B3]">Current</span>
+                      <span className="text-xs text-[#98A2B3] dark:text-[#94A3B8]">Current</span>
                     )}
                   </td>
                 </tr>
@@ -543,7 +543,7 @@ function DetailCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6 space-y-3">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6 space-y-3">
       <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329]">{title}</p>
       {children}
     </div>
@@ -561,14 +561,14 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-full bg-[#F4F5FF] text-[#2E37A4] flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] flex items-center justify-center flex-shrink-0">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#98A2B3]">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#98A2B3] dark:text-[#94A3B8]">
           {label}
         </p>
-        <p className="text-sm font-medium text-[#101828] break-words">{value}</p>
+        <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] break-words">{value}</p>
       </div>
     </div>
   )
@@ -627,12 +627,12 @@ function RiskBar({
   return (
     <div>
       <div className="flex items-center justify-between text-xs mb-1">
-        <span className="text-[#344054]">{label}</span>
+        <span className="text-[#344054] dark:text-[#CBD5E1]">{label}</span>
         <span className="font-semibold" style={{ color: sevColor }}>
           {severity}
         </span>
       </div>
-      <div className="h-2 rounded-full overflow-hidden bg-[#F2F4F7]">
+      <div className="h-2 rounded-full overflow-hidden bg-[#F2F4F7] dark:bg-[#111827]">
         <div
           className="h-full rounded-full"
           style={{ width: `${pct}%`, background: sevColor }}

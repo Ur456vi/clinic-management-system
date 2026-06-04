@@ -119,29 +119,29 @@ export default function AdminAssessmentsPage() {
     <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Health Assessments</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Health Assessments</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Public-site quiz submissions. Each row is one attempt — retakes appear separately.
           </p>
         </div>
       </div>
 
       {/* Filter row */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
         <div className="flex-1 min-w-[220px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] dark:text-[#94A3B8] pointer-events-none" />
           <input
             type="text"
             placeholder="Search by name, email, phone, booking ref, patient #…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
-          className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -153,34 +153,34 @@ export default function AdminAssessmentsPage() {
 
       {/* Body */}
       {loading ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
           Loading submissions…
         </div>
       ) : error ? (
-        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-10 flex flex-col items-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl shadow-sm p-10 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <div>
             <p className="text-sm font-semibold text-[#B42318]">Couldn&apos;t load submissions</p>
-            <p className="text-xs text-[#667085] mt-1">{error}</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1">{error}</p>
           </div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
-            <FileText className="h-5 w-5 text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+            <FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#101828]">No submissions found</p>
-            <p className="text-xs text-[#667085] mt-1 max-w-sm">
+            <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No submissions found</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1 max-w-sm">
               Public-site assessment bookings will show up here as they come in.
             </p>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F9FAFB] text-xs text-[#667085] uppercase tracking-wider">
+            <thead className="bg-[#F9FAFB] dark:bg-[#111827] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">Patient</th>
                 <th className="px-4 py-3 text-left font-semibold">Score</th>
@@ -191,47 +191,47 @@ export default function AdminAssessmentsPage() {
                 <th className="px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAECF0]">
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {filtered.map((r) => (
                 <tr key={r.id} className="hover:bg-[#F9FAFB] transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex flex-col">
                       <Link
                         href={`/admin/assessments/${r.id}`}
-                        className="font-semibold text-[#2E37A4] hover:underline"
+                        className="font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
                       >
                         {r.contactName}
                       </Link>
-                      <span className="text-xs text-[#667085]">
+                      <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
                         {r.contactEmail} · {r.contactPhone}
                       </span>
                       {r.patient ? (
-                        <span className="text-[10px] text-[#98A2B3] mt-0.5">
+                        <span className="text-[10px] text-[#98A2B3] dark:text-[#94A3B8] mt-0.5">
                           #{r.patient.patientNumber} · {r.bookingRef}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-[#98A2B3] mt-0.5">{r.bookingRef}</span>
+                        <span className="text-[10px] text-[#98A2B3] dark:text-[#94A3B8] mt-0.5">{r.bookingRef}</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="text-base font-bold text-[#101828]">
+                    <span className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">
                       {r.totalScore}
                     </span>
-                    <span className="text-xs text-[#667085]"> / {r.scoreOutOf}</span>
+                    <span className="text-xs text-[#667085] dark:text-[#94A3B8]"> / {r.scoreOutOf}</span>
                   </td>
                   <td className="px-4 py-4">
                     <BandPill band={r.band} />
                   </td>
-                  <td className="px-4 py-4 text-[#344054]">
+                  <td className="px-4 py-4 text-[#344054] dark:text-[#CBD5E1]">
                     {new Date(r.preferredAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}{" "}
-                    <span className="text-[#667085]">· {r.preferredTime}</span>
+                    <span className="text-[#667085] dark:text-[#94A3B8]">· {r.preferredTime}</span>
                   </td>
-                  <td className="px-4 py-4 text-[#667085]">
+                  <td className="px-4 py-4 text-[#667085] dark:text-[#94A3B8]">
                     {new Date(r.createdAt).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
@@ -245,7 +245,7 @@ export default function AdminAssessmentsPage() {
                     <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/admin/assessments/${r.id}`}
-                        className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#2E37A4] hover:bg-[#F4F5FF] transition-colors"
+                        className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:bg-[#F4F5FF] transition-colors"
                       >
                         View
                       </Link>

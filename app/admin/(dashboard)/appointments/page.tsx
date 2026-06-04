@@ -128,8 +128,8 @@ export default function AppointmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Appointments</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Appointments</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Live booking list — slots created by reception, the patient portal,
             and the public-site assessment flow all show up here.
           </p>
@@ -143,21 +143,21 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Filter row */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
         <div className="flex-1 min-w-[260px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] dark:text-[#94A3B8] pointer-events-none" />
           <input
             type="text"
             placeholder="Search by patient, doctor, department, or reason…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
-          className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
         >
           {STATUS_FILTERS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -166,18 +166,18 @@ export default function AppointmentsPage() {
           ))}
         </select>
         {!loading && !error ? (
-          <span className="text-sm text-[#667085]">
+          <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
             {filtered.length} appointment{filtered.length === 1 ? "" : "s"}
           </span>
         ) : null}
       </div>
 
       {/* Body */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0] text-xs text-[#667085] uppercase tracking-wider">
+              <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                 <th className="px-6 py-3 font-semibold">Patient</th>
                 <th className="px-6 py-3 font-semibold">Doctor</th>
                 <th className="px-6 py-3 font-semibold">Date / Time</th>
@@ -186,12 +186,12 @@ export default function AppointmentsPage() {
                 <th className="px-6 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAECF0]">
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-[#667085]">
-                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+                    <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
+                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
                       <p className="text-sm font-medium">Loading appointments…</p>
                     </div>
                   </td>
@@ -204,7 +204,7 @@ export default function AppointmentsPage() {
                       <p className="text-sm font-semibold text-[#B42318]">
                         Couldn&apos;t load appointments
                       </p>
-                      <p className="text-xs text-[#667085] max-w-md">{error}</p>
+                      <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-md">{error}</p>
                       <Button
                         variant="outline"
                         onClick={() => void fetchAppointments()}
@@ -217,11 +217,11 @@ export default function AppointmentsPage() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center text-[#667085] gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-[#2E37A4]" />
+                    <div className="flex flex-col items-center text-[#667085] dark:text-[#94A3B8] gap-3">
+                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
                       </div>
-                      <p className="text-sm font-semibold text-[#101828]">
+                      <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
                         No appointments found
                       </p>
                       <p className="text-xs max-w-sm">
@@ -274,21 +274,21 @@ function AppointmentRow({
       <td className="px-6 py-4">
         {row.patient ? (
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#F4F5FF] flex items-center justify-center text-xs font-bold text-[#2E37A4]">
+            <div className="h-10 w-10 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center text-xs font-bold text-[#2E37A4] dark:text-[#A5B4FC]">
               {initials(row.patient.fullName)}
             </div>
             <div>
               <Link
                 href={`/admin/patients/${row.patient.id}`}
-                className="text-sm font-semibold text-[#101828] hover:text-[#2E37A4]"
+                className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
               >
                 {row.patient.fullName}
               </Link>
-              <p className="text-xs text-[#667085]">#{row.patient.patientNumber}</p>
+              <p className="text-xs text-[#667085] dark:text-[#94A3B8]">#{row.patient.patientNumber}</p>
             </div>
           </div>
         ) : (
-          <span className="text-sm text-[#98A2B3] inline-flex items-center gap-2">
+          <span className="text-sm text-[#98A2B3] dark:text-[#94A3B8] inline-flex items-center gap-2">
             <User className="h-4 w-4" /> Unknown patient
           </span>
         )}
@@ -298,29 +298,29 @@ function AppointmentRow({
       <td className="px-6 py-4">
         {row.staff ? (
           <div>
-            <p className="text-sm font-medium text-[#101828]">{row.staff.fullName}</p>
+            <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">{row.staff.fullName}</p>
             {row.staff.specialization ? (
-              <p className="text-xs text-[#2E37A4]">{row.staff.specialization}</p>
+              <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC]">{row.staff.specialization}</p>
             ) : row.department ? (
-              <p className="text-xs text-[#667085]">{row.department.name}</p>
+              <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{row.department.name}</p>
             ) : null}
           </div>
         ) : (
-          <span className="text-sm text-[#98A2B3]">—</span>
+          <span className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">—</span>
         )}
       </td>
 
       {/* Date / Time */}
       <td className="px-6 py-4">
-        <p className="text-sm font-medium text-[#101828]">{dateLabel}</p>
-        <p className="text-xs text-[#667085] inline-flex items-center gap-1 mt-0.5">
+        <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">{dateLabel}</p>
+        <p className="text-xs text-[#667085] dark:text-[#94A3B8] inline-flex items-center gap-1 mt-0.5">
           <Clock className="h-3 w-3" /> {timeLabel}
         </p>
       </td>
 
       {/* Reason */}
-      <td className="px-6 py-4 text-sm text-[#344054] max-w-[280px] truncate">
-        {row.reason ?? <span className="text-[#98A2B3]">—</span>}
+      <td className="px-6 py-4 text-sm text-[#344054] dark:text-[#CBD5E1] max-w-[280px] truncate">
+        {row.reason ?? <span className="text-[#98A2B3] dark:text-[#94A3B8]">—</span>}
       </td>
 
       {/* Status */}
@@ -409,7 +409,7 @@ function AppointmentActionMenu({
   }
 
   const item =
-    "w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors flex items-center gap-2 disabled:opacity-50"
+    "w-full text-left px-4 py-2 text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50 hover:text-[#101828] transition-colors flex items-center gap-2 disabled:opacity-50"
 
   return (
     <div className="relative inline-block text-left">
@@ -417,7 +417,7 @@ function AppointmentActionMenu({
         ref={btnRef}
         onClick={toggle}
         disabled={busy}
-        className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
+        className="p-1.5 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
         aria-label="Appointment actions"
       >
         {busy ? (
@@ -431,7 +431,7 @@ function AppointmentActionMenu({
         <div
           onClick={(e) => e.stopPropagation()}
           style={{ position: "fixed", top: coords.top, left: coords.left }}
-          className="w-56 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-50"
+          className="w-56 rounded-md shadow-lg bg-white dark:bg-[#1F2937] ring-1 ring-[#EAECF0] dark:ring-[#374151] z-50"
         >
           <div className="py-1">
             <button
@@ -441,7 +441,7 @@ function AppointmentActionMenu({
                 router.push(`/admin/appointments/${row.id}`)
               }}
             >
-              <Eye className="h-4 w-4 text-[#667085]" /> View
+              <Eye className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View
             </button>
 
             {row.status === "REQUESTED" ? (
@@ -457,11 +457,11 @@ function AppointmentActionMenu({
                 router.push(`/admin/appointments/${row.id}/consultation`)
               }}
             >
-              <PlayCircle className="h-4 w-4 text-[#2E37A4]" /> Start appointment
+              <PlayCircle className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" /> Start appointment
             </button>
 
             <button className={item} onClick={() => void viewQuiz()}>
-              <ClipboardList className="h-4 w-4 text-[#667085]" /> View quiz Assessment
+              <ClipboardList className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View quiz Assessment
             </button>
           </div>
         </div>

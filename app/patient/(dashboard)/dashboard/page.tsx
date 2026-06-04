@@ -40,7 +40,7 @@ const statsCards = [
     bg: "#FDB022",
     textColor: "#141414",
     subColor: "rgba(20, 20, 20, 0.6)",
-    icon: <Activity className="w-6 h-6 text-[#141414] opacity-80" />
+    icon: <Activity className="w-6 h-6 text-[#141414] dark:text-[#F9FAFB] opacity-80" />
   },
   { 
     label: "Blood Pressure", 
@@ -162,11 +162,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="p-8 flex flex-col gap-8 bg-[#F9FAFB] min-h-full">
+    <div className="p-8 flex flex-col gap-8 bg-[#F9FAFB] dark:bg-[#111827] min-h-full">
       {/* Header Section */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#141414]">Patient Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[#141414] dark:text-[#F9FAFB]">Patient Dashboard</h1>
         </div>
         <button 
           onClick={handleNewAppointment}
@@ -205,21 +205,21 @@ export default function DashboardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Doctors Column */}
-        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+        <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#141414]">My Doctors</h3>
-            <ChevronRight className="w-5 h-5 text-[#6C7688] cursor-pointer" />
+            <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">My Doctors</h3>
+            <ChevronRight className="w-5 h-5 text-[#6C7688] dark:text-[#94A3B8] cursor-pointer" />
           </div>
           <div className="flex flex-col gap-5">
             {myDoctors.map((doc, i) => (
               <div key={i} className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#F2F4F7] overflow-hidden relative">
+                  <div className="w-10 h-10 rounded-full bg-[#F2F4F7] dark:bg-[#111827] overflow-hidden relative">
                     <Image src={doc.image} alt={doc.name} fill className="object-cover" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#141414] leading-tight">{doc.name}</p>
-                    <p className="text-xs text-[#6C7688] font-medium">{doc.spec}</p>
+                    <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB] leading-tight">{doc.name}</p>
+                    <p className="text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">{doc.spec}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                    >
                     {doc.status}
                   </span>
-                  <button className="text-[10px] font-bold text-[#2E37A4] bg-[#EEF0FF] px-3 py-1 rounded-full border-none cursor-pointer hover:bg-[#DEDFFF] transition-colors">
+                  <button className="text-[10px] font-bold text-[#2E37A4] dark:text-[#A5B4FC] bg-[#EEF0FF] px-3 py-1 rounded-full border-none cursor-pointer hover:bg-[#DEDFFF] transition-colors">
                     Appointment
                   </button>
                 </div>
@@ -239,27 +239,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Prescriptions Column */}
-        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+        <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#141414]">Prescriptions</h3>
-            <ChevronRight className="w-5 h-5 text-[#6C7688] cursor-pointer" />
+            <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Prescriptions</h3>
+            <ChevronRight className="w-5 h-5 text-[#6C7688] dark:text-[#94A3B8] cursor-pointer" />
           </div>
           <div className="flex flex-col">
             {prescriptions.map((rx, i) => (
-              <div key={i} className="flex justify-between items-center py-3.5 border-b border-[#F2F4F7] last:border-0 group hover:bg-[#F9FAFB] px-2 -mx-2 rounded-lg transition-colors">
+              <div key={i} className="flex justify-between items-center py-3.5 border-b border-[#F2F4F7] dark:border-[#374151] last:border-0 group hover:bg-[#F9FAFB] px-2 -mx-2 rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#F9FAFB] flex items-center justify-center group-hover:bg-white transition-colors">
-                    <Calendar size={16} className="text-[#2E37A4]" />
+                  <div className="w-8 h-8 rounded-lg bg-[#F9FAFB] dark:bg-[#111827] flex items-center justify-center group-hover:bg-white transition-colors">
+                    <Calendar size={16} className="text-[#2E37A4] dark:text-[#A5B4FC]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#141414] leading-tight">{rx.name}</p>
-                    <p className="text-[11px] text-[#6C7688] font-medium mt-0.5">{rx.date}</p>
+                    <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB] leading-tight">{rx.name}</p>
+                    <p className="text-[11px] text-[#6C7688] dark:text-[#94A3B8] font-medium mt-0.5">{rx.date}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-[#6C7688]">{rx.file}</span>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#F9FAFB] cursor-pointer hover:bg-gray-200 transition-colors">
-                    <Info className="w-4 h-4 text-[#6C7688]" />
+                  <span className="text-[10px] font-bold text-[#6C7688] dark:text-[#94A3B8]">{rx.file}</span>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#F9FAFB] dark:bg-[#111827] cursor-pointer hover:bg-gray-200 transition-colors">
+                    <Info className="w-4 h-4 text-[#6C7688] dark:text-[#94A3B8]" />
                   </div>
                 </div>
               </div>
@@ -268,18 +268,18 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity Column */}
-        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+        <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#141414]">Recent Activity</h3>
-            <ChevronRight className="w-5 h-5 text-[#6C7688] cursor-pointer" />
+            <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Recent Activity</h3>
+            <ChevronRight className="w-5 h-5 text-[#6C7688] dark:text-[#94A3B8] cursor-pointer" />
           </div>
           <div className="relative pl-6 flex flex-col gap-6">
-            <div className="absolute left-1.5 top-1 bottom-1 w-0.5 bg-[#F2F4F7]" />
+            <div className="absolute left-1.5 top-1 bottom-1 w-0.5 bg-[#F2F4F7] dark:bg-[#111827]" />
             {recentActivity.map((act, i) => (
               <div key={i} className="relative">
                 <div className="absolute -left-[23.5px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: act.dotColor }} />
-                <p className="text-sm font-bold text-[#141414] leading-snug">{act.text}</p>
-                <p className="text-[11px] text-[#6C7688] font-medium mt-1 flex items-center gap-1">
+                <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB] leading-snug">{act.text}</p>
+                <p className="text-[11px] text-[#6C7688] dark:text-[#94A3B8] font-medium mt-1 flex items-center gap-1">
                   <Clock size={10} />
                   {act.date}
                 </p>
@@ -290,10 +290,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Vitals Section */}
-      <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+      <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
         <div className="flex justify-between items-center mb-8">
-          <h3 className="text-lg font-bold text-[#141414]">Vitals</h3>
-          <div className="flex items-center gap-1 text-sm font-bold text-[#2E37A4] cursor-pointer">
+          <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Vitals</h3>
+          <div className="flex items-center gap-1 text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] cursor-pointer">
             Monthly ▾
           </div>
         </div>
@@ -310,10 +310,10 @@ export default function DashboardPage() {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-0.5">
-                  <span className="text-2xl font-bold text-[#141414]">{vital.value}</span>
-                  <span className="text-xs font-bold text-[#6C7688]">{vital.unit}</span>
+                  <span className="text-2xl font-bold text-[#141414] dark:text-[#F9FAFB]">{vital.value}</span>
+                  <span className="text-xs font-bold text-[#6C7688] dark:text-[#94A3B8]">{vital.unit}</span>
                 </div>
-                <p className="text-xs text-[#6C7688] font-bold mt-1 uppercase tracking-wider">{vital.label}</p>
+                <p className="text-xs text-[#6C7688] dark:text-[#94A3B8] font-bold mt-1 uppercase tracking-wider">{vital.label}</p>
               </div>
             </div>
           ))}
@@ -323,29 +323,29 @@ export default function DashboardPage() {
       {/* Charts & Transactions Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Consultation By Department */}
-        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+        <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
           <div className="flex justify-between items-center mb-10">
-            <h3 className="text-lg font-bold text-[#141414]">Consultation By Department</h3>
-            <div className="text-sm font-bold text-[#2E37A4] cursor-pointer">Monthly ▾</div>
+            <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Consultation By Department</h3>
+            <div className="text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] cursor-pointer">Monthly ▾</div>
           </div>
           <div className="space-y-6 relative pb-2">
             {/* Grid lines */}
             <div className="absolute inset-0 flex flex-col justify-between py-1 pointer-events-none opacity-50">
               {[0, 20, 40, 60, 80, 100].map((val) => (
-                <div key={val} className="w-full border-t border-[#F2F4F7]" />
+                <div key={val} className="w-full border-t border-[#F2F4F7] dark:border-[#374151]" />
               ))}
             </div>
             {/* Scale numbers */}
             <div className="absolute -top-6 left-[104px] right-0 flex justify-between px-1 pointer-events-none">
               {[0, 20, 40, 60, 80, 100].map((val) => (
-                <span key={val} className="text-[10px] font-bold text-[#98A2B3]">{val}</span>
+                <span key={val} className="text-[10px] font-bold text-[#98A2B3] dark:text-[#94A3B8]">{val}</span>
               ))}
             </div>
 
             {consultationByDept.map((item, i) => (
               <div key={i} className="flex items-center gap-4 relative z-10">
-                <span className="w-24 text-xs font-bold text-[#6C7688] truncate">{item.dept}</span>
-                <div className="flex-1 h-5 bg-[#F9FAFB] rounded-sm overflow-hidden">
+                <span className="w-24 text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] truncate">{item.dept}</span>
+                <div className="flex-1 h-5 bg-[#F9FAFB] dark:bg-[#111827] rounded-sm overflow-hidden">
                   <div 
                     className="h-full rounded-sm transition-all duration-1000 shadow-sm" 
                     style={{ width: `${item.value}%`, backgroundColor: item.color }} 
@@ -357,27 +357,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="bg-white rounded-2xl p-6 border border-[#EAECF0] shadow-sm">
+        <div className="bg-white dark:bg-[#1F2937] rounded-2xl p-6 border border-[#EAECF0] dark:border-[#374151] shadow-sm">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#141414]">Recent Transactions</h3>
-            <div className="text-sm font-bold text-[#2E37A4] cursor-pointer">Weekly ▾</div>
+            <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Recent Transactions</h3>
+            <div className="text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] cursor-pointer">Weekly ▾</div>
           </div>
           <div className="flex flex-col gap-4">
             {recentTransactions.map((txn, i) => (
               <div key={i} className="flex justify-between items-center p-3.5 rounded-xl hover:bg-[#F9FAFB] transition-colors border border-transparent hover:border-[#F2F4F7] group">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full overflow-hidden relative bg-[#F2F4F7] border-2 border-white shadow-sm">
+                  <div className="w-11 h-11 rounded-full overflow-hidden relative bg-[#F2F4F7] dark:bg-[#111827] border-2 border-white shadow-sm">
                     <Image src={txn.image} alt={txn.name} fill className="object-cover" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#141414] leading-tight">{txn.name}</p>
-                    <p className="text-[11px] text-[#6C7688] font-medium mt-0.5">{txn.spec}</p>
+                    <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB] leading-tight">{txn.name}</p>
+                    <p className="text-[11px] text-[#6C7688] dark:text-[#94A3B8] font-medium mt-0.5">{txn.spec}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-8">
                   <div className="text-right">
-                    <p className="text-xs font-bold text-[#141414]">{txn.label}</p>
-                    <p className="text-sm font-bold text-[#141414]">{txn.amount}</p>
+                    <p className="text-xs font-bold text-[#141414] dark:text-[#F9FAFB]">{txn.label}</p>
+                    <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">{txn.amount}</p>
                   </div>
                   <span 
                     className="text-[10px] font-bold px-3 py-1.5 rounded-full w-20 text-center shadow-sm" 
@@ -396,44 +396,44 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Appointments Table */}
-      <div className="bg-white rounded-2xl border border-[#EAECF0] shadow-sm overflow-hidden mb-8">
-        <div className="p-6 flex justify-between items-center border-b border-[#F2F4F7]">
-          <h3 className="text-lg font-bold text-[#141414]">Recent Appointments</h3>
-          <div className="text-sm font-bold text-[#2E37A4] cursor-pointer">Weekly ▾</div>
+      <div className="bg-white dark:bg-[#1F2937] rounded-2xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden mb-8">
+        <div className="p-6 flex justify-between items-center border-b border-[#F2F4F7] dark:border-[#374151]">
+          <h3 className="text-lg font-bold text-[#141414] dark:text-[#F9FAFB]">Recent Appointments</h3>
+          <div className="text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] cursor-pointer">Weekly ▾</div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#F9FAFB]">
-                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] uppercase tracking-widest">Name & Designation</th>
-                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] uppercase tracking-widest">Date & Time</th>
-                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] uppercase tracking-widest">Consultation Fees</th>
-                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] uppercase tracking-widest">Mode</th>
-                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] uppercase tracking-widest">Status</th>
-                <th className="px-6 py-5 text-center text-xs font-bold text-[#6C7688] uppercase tracking-widest">Action</th>
+              <tr className="bg-[#F9FAFB] dark:bg-[#111827]">
+                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Name & Designation</th>
+                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Date & Time</th>
+                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Consultation Fees</th>
+                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Mode</th>
+                <th className="px-6 py-5 text-left text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Status</th>
+                <th className="px-6 py-5 text-center text-xs font-bold text-[#6C7688] dark:text-[#94A3B8] uppercase tracking-widest">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F2F4F7]">
+            <tbody className="divide-y divide-[#F2F4F7] dark:divide-[#374151]">
               {recentAppointments.map((apt, i) => (
                 <tr key={i} className="hover:bg-[#F9FAFB] transition-colors group">
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden relative bg-[#F2F4F7] border border-[#EAECF0]">
+                      <div className="w-10 h-10 rounded-full overflow-hidden relative bg-[#F2F4F7] dark:bg-[#111827] border border-[#EAECF0] dark:border-[#374151]">
                         <Image src={apt.image} alt={apt.name} fill className="object-cover" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-[#141414]">{apt.name}</p>
-                        <p className="text-xs text-[#6C7688] font-medium">{apt.spec}</p>
+                        <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">{apt.name}</p>
+                        <p className="text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">{apt.spec}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-[#141414]">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-[#141414] dark:text-[#F9FAFB]">
                     {apt.date}
                   </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm font-bold text-[#141414]">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">
                     {apt.fee}
                   </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-[#141414]">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-[#141414] dark:text-[#F9FAFB]">
                     <div className="flex items-center gap-1.5">
                       <div className={`w-2 h-2 rounded-full ${apt.mode === "Online" ? "bg-blue-500" : "bg-orange-500"}`} />
                       {apt.mode}
@@ -450,10 +450,10 @@ export default function DashboardPage() {
                   <td className="px-6 py-5 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all">
-                        <Eye className="w-4 h-4 text-[#6C7688] cursor-pointer hover:text-[#2E37A4]" />
+                        <Eye className="w-4 h-4 text-[#6C7688] dark:text-[#94A3B8] cursor-pointer hover:text-[#2E37A4]" />
                       </button>
                       <button className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all">
-                        <Edit3 className="w-4 h-4 text-[#6C7688] cursor-pointer hover:text-[#2E37A4]" />
+                        <Edit3 className="w-4 h-4 text-[#6C7688] dark:text-[#94A3B8] cursor-pointer hover:text-[#2E37A4]" />
                       </button>
                       <button className="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all">
                         <Trash2 className="w-4 h-4 text-[#F04438] cursor-pointer hover:text-red-700" />

@@ -164,6 +164,12 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
+  /// Per-user notification toggles (which email alerts to send). JSONB map
+  /// of `channel -> boolean`, e.g. `{ "appointments": true, "labResults":
+  /// false, "prescriptions": true }`. Null = all-on defaults (see
+  /// `lib/validation/notification-preferences.ts`).
+  notificationPrefs Json? @map("notification_prefs") @db.JsonB
+
   staff   Staff?
   /// 1:1 back-relation for unified-portal logins where role=PATIENT.
   patient Patient?

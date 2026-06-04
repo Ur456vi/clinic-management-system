@@ -83,16 +83,16 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   const menuItems = isPatient ? patientMenuItems : adminMenuItems
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] font-sans">
+    <div className="flex h-screen bg-[#F9FAFB] dark:bg-[#111827] font-sans">
       {/* Sidebar */}
       <aside
         className={`${
           collapsed ? "w-[84px]" : "w-[280px]"
-        } bg-white border-r border-[#EAECF0] flex flex-col transition-[width] duration-200 ease-in-out`}
+        } bg-white dark:bg-[#1F2937] border-r border-[#EAECF0] dark:border-[#374151] flex flex-col transition-[width] duration-200 ease-in-out`}
       >
         {/* Logo Section */}
         <div
-          className={`h-[90px] flex items-center border-b border-[#EAECF0]/50 gap-2 ${
+          className={`h-[90px] flex items-center border-b border-[#EAECF0]/50 dark:border-[#374151]/50 gap-2 ${
             collapsed ? "px-0 justify-center" : "px-4 justify-between"
           }`}
         >
@@ -116,7 +116,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
             onClick={() => setCollapsed((v) => !v)}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] text-[#101828] hover:bg-gray-100 rounded-full transition-all shadow-sm shrink-0"
+            className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] dark:bg-[#111827] text-[#101828] dark:text-[#F9FAFB] hover:bg-gray-100 rounded-full transition-all shadow-sm shrink-0"
           >
             {collapsed ? (
               <ChevronsRight className="h-5 w-5" />
@@ -139,12 +139,12 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
                   collapsed ? "justify-center" : ""
                 } ${
                   isActive
-                    ? "bg-[#F4F5FF] text-[#2E37A4]"
-                    : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
+                    ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
                 <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
+                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
                   {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
                 </div>
                 {isActive && !collapsed && <div className="w-1 h-5 bg-[#2E37A4] rounded-full" />}
@@ -154,7 +154,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
         </nav>
 
         {/* Bottom Items */}
-        <div className="px-4 py-6 border-t border-[#EAECF0] space-y-1">
+        <div className="px-4 py-6 border-t border-[#EAECF0] dark:border-[#374151] space-y-1">
           {bottomItems.map((item) => {
             const isActive = pathname.startsWith(item.href)
             return (
@@ -166,11 +166,11 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
                   collapsed ? "justify-center" : ""
                 } ${
                   isActive
-                    ? "bg-[#F4F5FF] text-[#2E37A4]"
-                    : "text-[#667085] hover:bg-gray-50 hover:text-[#101828]"
+                    ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
-                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4]" : "text-[#667085] group-hover:text-[#101828]"}`} />
+                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
                 {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
               </Link>
             )
@@ -185,12 +185,12 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
             slot is intentionally empty. The Moon and Bell buttons used
             to be decorative; they're now backed by ThemeToggle and
             NotificationBell, which have real handlers + a real feed. */}
-        <header className="h-[72px] bg-white border-b border-[#EAECF0] px-8 flex items-center justify-end flex-shrink-0">
+        <header className="h-[72px] bg-white dark:bg-[#1F2937] border-b border-[#EAECF0] dark:border-[#374151] px-8 flex items-center justify-end flex-shrink-0">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 border-r border-[#EAECF0] pr-4 mr-2">
-              <ThemeToggle className="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors" />
+            <div className="flex items-center gap-1 border-r border-[#EAECF0] dark:border-[#374151] pr-4 mr-2">
+              <ThemeToggle className="p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 rounded-lg transition-colors" />
               <NotificationBell
-                buttonClassName="p-2 text-[#667085] hover:bg-gray-50 rounded-lg transition-colors relative"
+                buttonClassName="p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 rounded-lg transition-colors relative"
                 iconClassName="h-5 w-5"
               />
             </div>

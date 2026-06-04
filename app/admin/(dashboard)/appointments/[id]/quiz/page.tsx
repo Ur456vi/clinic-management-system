@@ -102,8 +102,8 @@ export default function AppointmentQuizPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-[#667085]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+      <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading quiz assessment…</p>
       </div>
     )
@@ -122,7 +122,7 @@ export default function AppointmentQuizPage() {
   if (empty || !quiz) {
     return (
       <CenteredState
-        icon={<ClipboardList className="h-7 w-7 text-[#2E37A4]" />}
+        icon={<ClipboardList className="h-7 w-7 text-[#2E37A4] dark:text-[#A5B4FC]" />}
         title="No quiz assessment on file"
         body="This patient hasn't completed the Health Assessment quiz yet."
       />
@@ -136,18 +136,18 @@ export default function AppointmentQuizPage() {
         <div>
           <Link
             href="/admin/appointments"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] hover:text-[#2E37A4] mb-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4] mb-2"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Appointments
           </Link>
-          <h1 className="text-2xl font-bold text-[#101828]">Quiz Assessment</h1>
-          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-sm text-[#667085]">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Quiz Assessment</h1>
+          <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-sm text-[#667085] dark:text-[#94A3B8]">
             <span className="inline-flex items-center gap-1.5">
               <User className="h-4 w-4" />
               {quiz.patient ? (
                 <Link
                   href={`/admin/patients/${quiz.patient.id}`}
-                  className="font-medium text-[#101828] hover:text-[#2E37A4]"
+                  className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
                 >
                   {quiz.patient.fullName}
                 </Link>
@@ -155,16 +155,16 @@ export default function AppointmentQuizPage() {
                 "Unknown patient"
               )}
               {quiz.patient ? (
-                <span className="text-[#98A2B3]">#{quiz.patient.patientNumber}</span>
+                <span className="text-[#98A2B3] dark:text-[#94A3B8]">#{quiz.patient.patientNumber}</span>
               ) : null}
             </span>
-            <span className="text-[#98A2B3]">·</span>
+            <span className="text-[#98A2B3] dark:text-[#94A3B8]">·</span>
             <span className="font-mono text-xs">{quiz.bookingRef}</span>
           </div>
         </div>
         <Link
           href={`/admin/assessments/${quiz.id}`}
-          className="text-xs font-semibold text-[#2E37A4] hover:underline mt-1"
+          className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline mt-1"
         >
           Open full submission →
         </Link>
@@ -173,24 +173,24 @@ export default function AppointmentQuizPage() {
       {/* Score + report */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Score */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Score
           </p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#101828]">{quiz.totalScore}</span>
-            <span className="text-sm text-[#667085]">/ {quiz.scoreOutOf}</span>
+            <span className="text-3xl font-bold text-[#101828] dark:text-[#F9FAFB]">{quiz.totalScore}</span>
+            <span className="text-sm text-[#667085] dark:text-[#94A3B8]">/ {quiz.scoreOutOf}</span>
           </div>
           <div className="mt-2">
             <BandPill band={quiz.band} />
           </div>
-          <p className="text-xs text-[#667085] mt-3 inline-flex items-center gap-1.5">
+          <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-3 inline-flex items-center gap-1.5">
             <CalendarClock className="h-3.5 w-3.5" /> {submittedLabel}
           </p>
         </div>
 
         {/* Top risks + focus */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Top Risk Areas
           </p>
@@ -205,7 +205,7 @@ export default function AppointmentQuizPage() {
                 />
               ))
             ) : (
-              <p className="text-sm text-[#667085]">No elevated risk areas.</p>
+              <p className="text-sm text-[#667085] dark:text-[#94A3B8]">No elevated risk areas.</p>
             )}
           </div>
           {quiz.suggestedFocus.length ? (
@@ -217,7 +217,7 @@ export default function AppointmentQuizPage() {
                 {quiz.suggestedFocus.map((f) => (
                   <span
                     key={f.key}
-                    className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] text-[#3538CD]"
+                    className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] dark:bg-[#312E81] text-[#3538CD]"
                   >
                     {f.label}
                   </span>
@@ -228,15 +228,15 @@ export default function AppointmentQuizPage() {
         </div>
 
         {/* Per-category subtotals */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-3">
             Per-category subtotals
           </p>
           <div className="space-y-2">
             {CATEGORIES.map((c) => (
               <div key={c.key} className="flex items-center justify-between text-sm">
-                <span className="text-[#344054]">{c.label}</span>
-                <span className="font-semibold text-[#101828]">
+                <span className="text-[#344054] dark:text-[#CBD5E1]">{c.label}</span>
+                <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
                   {quiz.byCategory[c.key] ?? 0}
                 </span>
               </div>
@@ -246,20 +246,20 @@ export default function AppointmentQuizPage() {
       </div>
 
       {/* Answers */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-4">
           Patient&apos;s answers
         </p>
         <ol className="space-y-4">
           {QUESTIONS.map((q, i) => (
             <li key={q.id} className="border-l-2 pl-4" style={{ borderColor: "#EAECF0" }}>
-              <p className="text-xs uppercase tracking-wider text-[#98A2B3] font-semibold">
+              <p className="text-xs uppercase tracking-wider text-[#98A2B3] dark:text-[#94A3B8] font-semibold">
                 Q{i + 1} · {labelFor(q.category as CategoryKey)}
               </p>
-              <p className="text-sm font-medium text-[#101828] mt-0.5">
+              <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] mt-0.5">
                 {promptFor(q, quiz.contactSex)}
               </p>
-              <p className="text-sm text-[#2E37A4] font-semibold mt-1">
+              <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] font-semibold mt-1">
                 {renderAnswer(q, quiz.answers[q.id])}
               </p>
             </li>
@@ -268,11 +268,11 @@ export default function AppointmentQuizPage() {
       </div>
 
       {quiz.notes ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#7A2329] mb-2">
             Patient notes
           </p>
-          <p className="text-sm text-[#344054] whitespace-pre-wrap">{quiz.notes}</p>
+          <p className="text-sm text-[#344054] dark:text-[#CBD5E1] whitespace-pre-wrap">{quiz.notes}</p>
         </div>
       ) : null}
     </div>
@@ -293,8 +293,8 @@ function CenteredState({
   return (
     <div className="flex flex-col items-center gap-3 py-24 text-center">
       {icon}
-      <p className="text-sm font-semibold text-[#101828]">{title}</p>
-      <p className="text-xs text-[#667085] max-w-md">{body}</p>
+      <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{title}</p>
+      <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-md">{body}</p>
       <Link href="/admin/appointments">
         <Button variant="outline">Back to appointments</Button>
       </Link>
@@ -376,12 +376,12 @@ function RiskBar({
   return (
     <div>
       <div className="flex items-center justify-between text-sm mb-1">
-        <span className="text-[#344054] font-medium">{label}</span>
+        <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">{label}</span>
         <span className="text-xs font-semibold" style={{ color }}>
           {severity} · {value}
         </span>
       </div>
-      <div className="h-1.5 rounded-full bg-[#F2F4F7] overflow-hidden">
+      <div className="h-1.5 rounded-full bg-[#F2F4F7] dark:bg-[#111827] overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>

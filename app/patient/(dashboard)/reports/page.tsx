@@ -81,7 +81,7 @@ function MiniDonut({ percentage, color, size = 60 }: MiniDonutProps) {
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = Math.min((value / max) * 100, 100);
   return (
-    <div className="w-full h-2 bg-[#F2F4F7] rounded-full overflow-hidden flex-shrink-0">
+    <div className="w-full h-2 bg-[#F2F4F7] dark:bg-[#111827] rounded-full overflow-hidden flex-shrink-0">
       <div
         className="h-full rounded-full transition-[width] duration-700 ease-out"
         style={{ width: `${pct}%`, background: color }}
@@ -248,8 +248,8 @@ export default function PatientReportsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Health Reports</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Health Reports</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             An overview of your appointments, prescriptions, and clinical trends.
           </p>
         </div>
@@ -264,8 +264,8 @@ export default function PatientReportsPage() {
 
         <CountCard
           rows={[
-            { icon: <FlaskConical className="h-5 w-5 text-[#2E37A4]" />, label: "Lab Tests", value: "05" },
-            { icon: <FileText className="h-5 w-5 text-[#2E37A4]" />, label: "Prescriptions", value: "15" },
+            { icon: <FlaskConical className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />, label: "Lab Tests", value: "05" },
+            { icon: <FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />, label: "Prescriptions", value: "15" },
           ]}
         />
 
@@ -278,15 +278,15 @@ export default function PatientReportsPage() {
       {/* ── Charts row ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Disease Timeline */}
-        <div className="lg:col-span-2 bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
-          <div className="flex items-center justify-between border-b border-[#EAECF0] px-6 py-4">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151] px-6 py-4">
             <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-[#2E37A4]" />
-              <h3 className="text-base font-bold text-[#101828]">Disease Timeline</h3>
+              <Activity className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+              <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Disease Timeline</h3>
             </div>
             <select
               defaultValue="Last 6 Months"
-              className="px-3 py-1.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+              className="px-3 py-1.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#344054] dark:text-[#CBD5E1] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
             >
               <option>Last 6 Months</option>
               <option>Last Year</option>
@@ -307,7 +307,7 @@ export default function PatientReportsPage() {
                     className="w-2.5 h-2.5 rounded-sm"
                     style={{ background: l.color }}
                   />
-                  <span className="text-sm text-[#667085] font-medium">{l.label}</span>
+                  <span className="text-sm text-[#667085] dark:text-[#94A3B8] font-medium">{l.label}</span>
                 </div>
               ))}
             </div>
@@ -315,15 +315,15 @@ export default function PatientReportsPage() {
         </div>
 
         {/* Medication Stats */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
-          <div className="flex items-center justify-between border-b border-[#EAECF0] px-6 py-4">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151] px-6 py-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#2E37A4]" />
-              <h3 className="text-base font-bold text-[#101828]">Medication Stats</h3>
+              <TrendingUp className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+              <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Medication Stats</h3>
             </div>
             <select
               defaultValue="2026"
-              className="px-3 py-1.5 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+              className="px-3 py-1.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#344054] dark:text-[#CBD5E1] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
             >
               <option>2026</option>
               <option>2025</option>
@@ -333,8 +333,8 @@ export default function PatientReportsPage() {
             <div className="relative h-[200px] flex items-center justify-center">
               <MedicationDonutChart />
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-2xl font-bold text-[#101828]">70%</span>
-                <span className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">
+                <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">70%</span>
+                <span className="text-[10px] font-bold text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Diabetes
                 </span>
               </div>
@@ -351,9 +351,9 @@ export default function PatientReportsPage() {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ background: l.color }}
                     />
-                    <span className="text-sm font-medium text-[#344054]">{l.label}</span>
+                    <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{l.label}</span>
                   </div>
-                  <span className="text-sm font-bold text-[#101828]">{l.pct}</span>
+                  <span className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{l.pct}</span>
                 </div>
               ))}
             </div>
@@ -375,9 +375,9 @@ export default function PatientReportsPage() {
           ].map((a) => (
             <div
               key={a.name}
-              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] last:border-0"
+              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] dark:border-[#374151] last:border-0"
             >
-              <span className="text-sm font-semibold text-[#101828]">{a.name}</span>
+              <span className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{a.name}</span>
               <span
                 className="text-xs font-semibold px-2.5 py-1 rounded-full"
                 style={{ background: a.bg, color: a.fg }}
@@ -403,8 +403,8 @@ export default function PatientReportsPage() {
                 style={{ background: a.dot }}
               />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#101828]">{a.text}</p>
-                <p className="text-xs text-[#667085] mt-0.5">{a.time}</p>
+                <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{a.text}</p>
+                <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5">{a.time}</p>
               </div>
             </div>
           ))}
@@ -421,9 +421,9 @@ export default function PatientReportsPage() {
           ].map((p) => (
             <div
               key={p.label}
-              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] last:border-0"
+              className="flex items-center justify-between py-3 border-b border-[#F2F4F7] dark:border-[#374151] last:border-0"
             >
-              <span className="text-sm font-medium text-[#667085]">{p.label}</span>
+              <span className="text-sm font-medium text-[#667085] dark:text-[#94A3B8]">{p.label}</span>
               <span className="inline-flex items-center gap-1 text-sm font-bold text-[#027A48]">
                 {p.trend === "up" ? (
                   <ArrowUpRight className="h-3.5 w-3.5" />
@@ -450,7 +450,7 @@ function SplitDonutCard({
   right: { label: string; value: string; color: string; percent: number };
 }) {
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex items-center gap-5">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5 flex items-center gap-5">
       <SplitDonutColumn {...left} />
       <div className="h-16 w-px bg-[#EAECF0]" />
       <SplitDonutColumn {...right} />
@@ -472,10 +472,10 @@ function SplitDonutColumn({
   return (
     <div className="flex-1 flex items-center justify-between gap-3">
       <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-xs text-[#667085] font-semibold uppercase tracking-wider leading-tight">
+        <span className="text-xs text-[#667085] dark:text-[#94A3B8] font-semibold uppercase tracking-wider leading-tight">
           {label}
         </span>
-        <span className="text-2xl font-bold text-[#101828]">{value}</span>
+        <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">{value}</span>
       </div>
       <MiniDonut percentage={percent} color={color} size={64} />
     </div>
@@ -488,17 +488,17 @@ function CountCard({
   rows: { icon: React.ReactNode; label: string; value: string }[];
 }) {
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col justify-center gap-3">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5 flex flex-col justify-center gap-3">
       {rows.map((r, i) => (
         <div key={r.label}>
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#F4F5FF] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
                 {r.icon}
               </div>
-              <span className="text-sm font-medium text-[#344054]">{r.label}</span>
+              <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{r.label}</span>
             </div>
-            <span className="text-2xl font-bold text-[#101828]">{r.value}</span>
+            <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">{r.value}</span>
           </div>
           {i < rows.length - 1 ? <div className="h-px bg-[#EAECF0]" /> : null}
         </div>
@@ -515,7 +515,7 @@ function ProgressCard({
   right: { label: string; value: string; color: string; pct: number };
 }) {
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col gap-4">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5 flex flex-col gap-4">
       <ProgressRow {...left} />
       <div className="h-px bg-[#EAECF0]" />
       <ProgressRow {...right} />
@@ -537,8 +537,8 @@ function ProgressRow({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center gap-2">
-        <span className="text-sm text-[#667085] font-medium leading-tight">{label}</span>
-        <span className="text-2xl font-bold text-[#101828]">{value}</span>
+        <span className="text-sm text-[#667085] dark:text-[#94A3B8] font-medium leading-tight">{label}</span>
+        <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">{value}</span>
       </div>
       <ProgressBar value={pct} max={100} color={color} />
     </div>
@@ -557,16 +557,16 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5 flex flex-col gap-3">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <h3 className="text-sm font-bold text-[#101828]">{title}</h3>
+          <h3 className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{title}</h3>
         </div>
         {action ? (
           <a
             href={action.href}
-            className="text-xs font-bold text-[#2E37A4] hover:underline"
+            className="text-xs font-bold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
           >
             {action.label}
           </a>

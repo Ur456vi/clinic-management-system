@@ -164,8 +164,8 @@ export default function DepartmentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-[#667085]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+      <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading department…</p>
       </div>
     )
@@ -175,8 +175,8 @@ export default function DepartmentDetailPage() {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
         <AlertCircle className="h-7 w-7 text-[#D92D20]" />
-        <p className="text-sm font-semibold text-[#101828]">Couldn&apos;t load department</p>
-        <p className="text-xs text-[#667085] max-w-md">{error}</p>
+        <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Couldn&apos;t load department</p>
+        <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-md">{error}</p>
         <Link href="/admin/departments">
           <Button variant="outline">Back to Departments</Button>
         </Link>
@@ -190,16 +190,16 @@ export default function DepartmentDetailPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/departments"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] text-[#344054] hover:bg-gray-50"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50"
             aria-label="Back to departments"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-[#101828]">
+            <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
               {editing ? "Edit department" : dept.name}
             </h1>
-            <p className="text-sm text-[#667085] mt-0.5 flex items-center gap-2">
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-0.5 flex items-center gap-2">
               <span className="font-mono">{dept.slug}</span>
               <StatusPill active={dept.isActive} />
             </p>
@@ -227,7 +227,7 @@ export default function DepartmentDetailPage() {
 
       {editing ? (
         <form className="flex flex-col gap-8" onSubmit={save}>
-          <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6 space-y-5">
+          <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="Name" required error={fieldErrors.name}>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
@@ -248,18 +248,18 @@ export default function DepartmentDetailPage() {
                 className={`${inputCls} h-auto py-2.5 resize-y`}
               />
             </Field>
-            <label className="flex items-center gap-2 text-sm text-[#344054]">
+            <label className="flex items-center gap-2 text-sm text-[#344054] dark:text-[#CBD5E1]">
               <input
                 type="checkbox"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-[#D0D5DD] text-[#2E37A4]"
+                className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC]"
               />
               Active
             </label>
           </div>
 
-          <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6">
+          <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6">
             <PricingEditor prices={prices} setPrices={setPrices} />
           </div>
 
@@ -272,15 +272,15 @@ export default function DepartmentDetailPage() {
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save changes
             </Button>
-            <Link href={`/admin/departments/${id}`} className="text-sm font-semibold text-[#667085] hover:text-[#101828]">
+            <Link href={`/admin/departments/${id}`} className="text-sm font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]">
               Cancel
             </Link>
           </div>
         </form>
       ) : (
         <div className="flex flex-col gap-5">
-          <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6">
-            <h2 className="text-base font-semibold text-[#101828] mb-5">Overview</h2>
+          <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6">
+            <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-5">Overview</h2>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 text-sm">
               <DetailItem icon={<Building2 className="h-4 w-4" />} label="Name" value={dept.name} />
               <DetailItem icon={<Users className="h-4 w-4" />} label="Staff" value={String(dept.staffCount)} />
@@ -295,27 +295,27 @@ export default function DepartmentDetailPage() {
               />
               <DetailItem icon={<Power className="h-4 w-4" />} label="Status" value={dept.isActive ? "Active" : "Inactive"} />
             </dl>
-            <div className="mt-5 pt-5 border-t border-[#EAECF0]">
-              <p className="text-xs uppercase tracking-wide text-[#667085] mb-1">Description</p>
-              <p className="text-sm text-[#344054]">{dept.description ?? "No description provided."}</p>
+            <div className="mt-5 pt-5 border-t border-[#EAECF0] dark:border-[#374151]">
+              <p className="text-xs uppercase tracking-wide text-[#667085] dark:text-[#94A3B8] mb-1">Description</p>
+              <p className="text-sm text-[#344054] dark:text-[#CBD5E1]">{dept.description ?? "No description provided."}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6">
-            <h2 className="text-base font-semibold text-[#101828] mb-4">Default pricing</h2>
+          <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6">
+            <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Default pricing</h2>
             {dept.defaultPricing && Object.keys(dept.defaultPricing).length ? (
-              <dl className="divide-y divide-[#EAECF0]">
+              <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
                 {Object.entries(dept.defaultPricing).map(([code, paise]) => (
                   <div key={code} className="flex items-center justify-between py-2.5">
-                    <dt className="text-sm text-[#344054] font-mono">{code}</dt>
-                    <dd className="text-sm font-semibold text-[#101828]">
+                    <dt className="text-sm text-[#344054] dark:text-[#CBD5E1] font-mono">{code}</dt>
+                    <dd className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
                       ₹{((paise as number) / 100).toLocaleString("en-IN")}
                     </dd>
                   </div>
                 ))}
               </dl>
             ) : (
-              <p className="text-sm text-[#98A2B3]">No pricing configured.</p>
+              <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">No pricing configured.</p>
             )}
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function DepartmentDetailPage() {
 }
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
 
 function StatusPill({ active }: { active: boolean }) {
   return (
@@ -341,10 +341,10 @@ function StatusPill({ active }: { active: boolean }) {
 function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-[#667085] mt-0.5">{icon}</span>
+      <span className="text-[#667085] dark:text-[#94A3B8] mt-0.5">{icon}</span>
       <div>
-        <dt className="text-xs uppercase tracking-wide text-[#667085]">{label}</dt>
-        <dd className="text-[#101828] font-medium">{value}</dd>
+        <dt className="text-xs uppercase tracking-wide text-[#667085] dark:text-[#94A3B8]">{label}</dt>
+        <dd className="text-[#101828] dark:text-[#F9FAFB] font-medium">{value}</dd>
       </div>
     </div>
   )
@@ -365,12 +365,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
       {children}
-      {hint ? <p className="text-xs text-[#667085]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{hint}</p> : null}
       {error ? <p className="text-xs text-[#B42318]">{error}</p> : null}
     </label>
   )
