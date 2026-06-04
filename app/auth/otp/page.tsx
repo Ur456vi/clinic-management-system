@@ -84,8 +84,8 @@ export default function OTPPage() {
         {/* Logo */}
         <div style={styles.logoWrap}>
           <img
-            src="/dr-yuvraj-logo.png"
-            alt="Dr. Yuvraaj Logo Logo"
+            src="/dr-yuvraaj-logo.png"
+            alt="Dr. Yuvraaj Logo"
             width={79}
             height={80}
             style={{ objectFit: "contain" }}

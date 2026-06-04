@@ -58,10 +58,10 @@ export default function Header() {
           {/* Cursive logotype */}
           <Link href="/" className="flex items-center gap-3" aria-label="Home">
   <Image
-    src="/dr-yuvraj-logo.png"
+    src="/dr-yuvraaj-logo.png"
     alt="Dr. Yuvraaj Singh"
-    width={350}
-    height={60}
+    width={449}
+    height={50}
     priority
   />
 

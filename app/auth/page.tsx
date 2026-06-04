@@ -29,7 +29,7 @@ export default function SignInPage() {
         {/* Logo */}
         <div className="flex items-center justify-center">
           <img
-            src="/dr-yuvraj-logo.png"
+            src="/dr-yuvraaj-logo.png"
             alt="IPHMH Logo"
             width={79}
             height={80}

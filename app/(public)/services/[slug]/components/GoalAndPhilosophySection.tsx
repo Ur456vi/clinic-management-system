@@ -2,7 +2,56 @@ import Image from "next/image";
 import { type ServiceContent } from "@/components/public/services-config";
 
 export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
-  if (svc.slug !== "metabolic-health") return null;
+  if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
+
+  if (svc.slug === "aesthetic-external") {
+    return (
+      <section className="w-full py-4 md:py-6 bg-[var(--brand-cream)] font-sans">
+        <div className="mx-auto max-w-[1680px] px-6 md:px-12">
+          
+          {/* Single Unified Container */}
+          <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-[24px] py-8 px-8 md:py-10 md:px-12 shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 items-stretch">
+              
+              {/* Left Column */}
+              <div className="flex flex-row items-start gap-6 md:gap-8 border-b border-[#EAE6DF] lg:border-b-0 lg:border-r lg:border-[#EAE6DF] pb-8 lg:pb-0 lg:pr-16">
+                {/* Space for Left Image */}
+                <div className="w-[60px] md:w-[70px] shrink-0" />
+                
+                {/* Left Text */}
+                <div className="flex-1">
+                  <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-neutral-950 font-normal">
+                    Because external appearance cannot be separated from internal physiology.
+                  </h3>
+                  <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium">
+                    When the body functions better internally, the effects are often visible externally—through skin quality, vitality, recovery, facial integrity, and the way an individual carries themselves over time.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="flex flex-row items-start gap-6 md:gap-8 pt-8 lg:pt-0 lg:pl-16">
+                {/* Space for Right Image */}
+                <div className="w-[60px] md:w-[70px] shrink-0" />
+                
+                {/* Right Text */}
+                <div className="flex-1">
+                  <p className="font-serif text-[18px] md:text-[20px] lg:text-[21px] xl:text-[23px] leading-snug text-[var(--brand-burgundy)] font-normal">
+                    True aesthetic medicine should not create a different face.
+                  </p>
+                  <p className="mt-4 font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-neutral-950 font-normal">
+                    It should help preserve the health, integrity, and vitality of the one already there.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full flex flex-col">
