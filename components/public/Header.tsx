@@ -63,7 +63,8 @@ export default function Header() {
               width={449}
               height={50}
               priority
-              className="h-6 w-auto md:h-8 lg:h-10 xl:h-[50px] shrink-0"
+              style={{ width: "auto" }}
+              className="h-6 md:h-8 lg:h-10 xl:h-[50px] shrink-0"
             />
           </Link>
 
@@ -81,10 +82,10 @@ export default function Header() {
           </div>
 
           {/* Right side CTA + phone */}
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4 z-20">
             <Link
               href="/assessment"
-              className="rounded px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95"
+              className="rounded px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95 shrink-0"
               style={{
                 background: "var(--brand-burgundy)",
                 letterSpacing: "0.08em",
@@ -94,7 +95,7 @@ export default function Header() {
             </Link>
             <a
               href={PHONE_HREF}
-              className="hidden items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors md:flex"
+              className="hidden items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors lg:flex shrink-0"
               style={{
                 borderColor: "var(--brand-rule)",
                 color: "var(--brand-ink-soft)",
