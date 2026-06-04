@@ -29,18 +29,18 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
             </p>
           </div>
 
-          {/* Middle Column (Grid of 9 Tiles in exactly two rows) */}
-          <div className="lg:col-span-6 flex items-center justify-center">
-            <div className="flex flex-col gap-6 w-full items-center">
+          {/* Middle Column (Grid of 9 Tiles) */}
+          <div className="lg:col-span-6 flex items-center justify-center mt-6 lg:mt-0">
+            {/* Desktop Layout (exact 2 rows of 5 and 4 items) */}
+            <div className="hidden lg:flex flex-col gap-6 w-full items-center">
               {/* Row 1: 5 items */}
-              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+              <div className="flex justify-center gap-x-6 w-full">
                 {s.items.slice(0, 5).map((item, idx) => (
-                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
-                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
-                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
-                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                  <div key={idx} className="w-[18%] min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[48px] h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A]" />
                     </div>
-                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                    <div className="text-[#1F1F1F] text-[12px] font-semibold leading-snug">
                       {item.label.split(' ').map((word, i) => (
                         <span key={i} className="block">{word}</span>
                       ))}
@@ -50,14 +50,13 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
               </div>
 
               {/* Row 2: 4 items */}
-              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+              <div className="flex justify-center gap-x-6 w-full">
                 {s.items.slice(5).map((item, idx) => (
-                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
-                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
-                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
-                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                  <div key={idx} className="w-[18%] min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[48px] h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A]" />
                     </div>
-                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                    <div className="text-[#1F1F1F] text-[12px] font-semibold leading-snug">
                       {item.label.split(' ').map((word, i) => (
                         <span key={i} className="block">{word}</span>
                       ))}
@@ -65,6 +64,22 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Mobile/Tablet Layout (Responsive Grid) */}
+            <div className="grid lg:hidden grid-cols-3 sm:grid-cols-5 gap-y-6 gap-x-4 justify-items-center w-full">
+              {s.items.map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center text-center w-full max-w-[100px]">
+                  <div className="flex items-center justify-center w-[40px] h-[40px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                     <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A]" />
+                  </div>
+                  <div className="text-[#1F1F1F] text-[11px] font-semibold leading-snug">
+                    {item.label.split(' ').map((word, i) => (
+                      <span key={i} className="block">{word}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

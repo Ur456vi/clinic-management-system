@@ -124,7 +124,7 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
           {/* Right Column */}
           <div className="w-full md:w-[55%] bg-[#FAF8F3] p-10 md:p-12 lg:p-16 flex flex-col justify-center items-center md:items-end text-center md:text-right">
             <h2 
-              className="text-[#889A6A] text-[22px] md:text-[28px] lg:text-[32px] xl:text-[36px] leading-[1.2] mb-2 lg:mb-3 lg:whitespace-nowrap"
+              className="text-[#889A6A] text-[22px] md:text-[28px] lg:text-[32px] xl:text-[36px] leading-[1.2] mb-2 lg:mb-3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Begin With A Clinical Assessment

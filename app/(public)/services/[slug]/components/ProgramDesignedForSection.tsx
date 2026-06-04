@@ -262,7 +262,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
               </p>
             </div>
             
-            <div className="flex flex-nowrap justify-between items-start gap-x-1 lg:gap-x-2 mt-4 w-full">
+            <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-between items-start gap-y-6 gap-x-2 md:gap-x-1 lg:gap-x-2 mt-4 w-full">
               {/* Cognition */}
               <div className="flex flex-col items-center flex-1 min-w-0 max-w-[85px]">
                 <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center mb-3">
