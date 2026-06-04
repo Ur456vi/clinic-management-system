@@ -346,7 +346,7 @@ export default function HomeContent() {
 
           <div className="mt-12 flex justify-center">
             <CTAButton href="/assessment" variant="burgundy" size="lg" showArrow={false}>
-              Book An Appointment
+              Request Consultation
             </CTAButton>
           </div>
         </div>
@@ -559,7 +559,7 @@ export default function HomeContent() {
                   letterSpacing: "0.15em",
                 }}
               >
-                Book Your Appointment Now &rarr;
+                Request Consultation &rarr;
               </Link>
             </div>
           </div>
@@ -827,7 +827,7 @@ export default function HomeContent() {
         letterSpacing: "0.1em",
       }}
     >
-      Request A Consultation
+      Request Consultation
     </Link>
   </div>
 </div>

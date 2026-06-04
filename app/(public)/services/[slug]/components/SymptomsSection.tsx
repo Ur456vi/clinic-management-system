@@ -813,6 +813,75 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
     );
   }
 
+  if (svc.slug === "mens-hormonal") {
+    return (
+      <section className="w-full bg-[#FCFCFA] py-16 md:py-24 border-t border-[#F0EBE1]">
+        <div className="mx-auto max-w-[1440px] px-6 text-center">
+          
+          {/* Title */}
+          <h2
+            className="text-[#1F1F1F] font-medium leading-[1.2] mx-auto"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(28px, 3.5vw, 42px)",
+            }}
+          >
+            {s.title.split('. ').map((part, i) => (
+              <span key={i} className="block">
+                {part}{i === 0 ? '.' : ''}
+              </span>
+            ))}
+          </h2>
+          
+          {/* Subtitle */}
+          <p className="mt-5 text-[#1F1F1F] text-[13px] md:text-[14px] font-medium tracking-wide">
+            {s.body}
+          </p>
+
+          {/* Icons Row */}
+          <div className="mt-14 w-full relative">
+            <div className="flex flex-nowrap overflow-x-auto lg:overflow-visible scrollbar-hide w-full max-w-[1440px] mx-auto items-stretch">
+              {s.items.map((it, i) => {
+                // Determine line break formatting to match image closely
+                let formattedLabel = it.label;
+                if (it.label === "Low Energy & Stamina") formattedLabel = "Low Energy\n& Stamina";
+                if (it.label === "Reduced Libido") formattedLabel = "Reduced\nLibido";
+                if (it.label === "Erectile Difficulties") formattedLabel = "Erectile\nDifficulties";
+                if (it.label === "Loss of Strength & Muscle") formattedLabel = "Loss of Strength\n& Muscle";
+                if (it.label === "Fatigue & Poor Recovery") formattedLabel = "Fatigue & Poor\nRecovery";
+                if (it.label === "Brain Fog & Poor Focus") formattedLabel = "Brain Fog & Poor\nFocus";
+                if (it.label === "Poor Sleep & Restlessness") formattedLabel = "Poor Sleep &\nRestlessness";
+                if (it.label === "Increased Abdominal Fat") formattedLabel = "Increased\nAbdominal Fat";
+                if (it.label === "Loss of Drive & Motivation") formattedLabel = "Loss of Drive &\nMotivation";
+
+                return (
+                  <div key={it.label} className="relative flex flex-col items-center flex-1 min-w-[130px] lg:min-w-0 px-4 md:px-5 xl:px-6 group cursor-default">
+                    
+                    {/* Icon */}
+                    <div className="text-[#647153] mb-5 xl:mb-6 shrink-0 transition-transform duration-300 group-hover:scale-110">
+                      <ResolvedIcon name={it.icon} size={34} />
+                    </div>
+                    
+                    {/* Label */}
+                    <p className="text-[#1F1F1F] font-bold text-[10px] xl:text-[11px] leading-snug whitespace-pre-line text-center">
+                      {formattedLabel}
+                    </p>
+                    
+                    {/* Vertical Divider */}
+                    {i < s.items.length - 1 && (
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[50px] w-px bg-[#E8DDD0]" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full" style={{ background: "var(--brand-cream-2)" }}>
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 py-20 md:grid-cols-12 md:px-12 md:py-24">

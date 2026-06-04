@@ -12,8 +12,8 @@ import Image from "next/image"
 
 import { FacebookIcon, InstagramIcon, TwitterIcon, PhoneIcon } from "./icons";
 
-const PHONE_DISPLAY = "(844) 567-1212";
-const PHONE_HREF = "tel:+18445671212";
+const PHONE_DISPLAY = "+91 9266843439";
+const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
@@ -91,7 +91,7 @@ export default function Header() {
                 letterSpacing: "0.08em",
               }}
             >
-              Book Appointment
+              Request Consultation
             </Link>
             <a
               href={PHONE_HREF}

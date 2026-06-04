@@ -20,6 +20,12 @@ import { ServiceHero } from "./components/ServiceHero";
 import { ServicePillars } from "./components/ServicePillars";
 import { SymptomsSection } from "./components/SymptomsSection";
 import { FemaleHormonalSystemSection } from "./components/FemaleHormonalSystemSection";
+import { MensComprehensiveApproachSection } from "./components/MensComprehensiveApproachSection";
+import { MensPersonalisedProgramSection } from "./components/MensPersonalisedProgramSection";
+import { MensProgramForAndResultsSection } from "./components/MensProgramForAndResultsSection";
+import { MensVitalityCTASection } from "./components/MensVitalityCTASection";
+import { MensFeaturesBand } from "./components/MensFeaturesBand";
+import { MensFinalPositioningSection } from "./components/MensFinalPositioningSection";
 import { ProgramDesignedForSection } from "./components/ProgramDesignedForSection";
 import { LongitudinalTrackingSection } from "./components/LongitudinalTrackingSection";
 import { GoalAndPhilosophySection } from "./components/GoalAndPhilosophySection";
@@ -67,6 +73,12 @@ export default async function ServicePage({
       {svc.symptomsSection ? <SymptomsSection svc={svc} /> : null}
       {svc.conventionalSection ? <ConventionalSection svc={svc} /> : null}
       <FemaleHormonalSystemSection svc={svc} />
+      <MensComprehensiveApproachSection svc={svc} />
+      <MensPersonalisedProgramSection svc={svc} />
+      <MensProgramForAndResultsSection svc={svc} />
+      <MensVitalityCTASection svc={svc} />
+      <MensFeaturesBand svc={svc} />
+      <MensFinalPositioningSection svc={svc} />
       <ProgramDesignedForSection svc={svc} />
       <LongitudinalTrackingSection svc={svc} />
       <GoalAndPhilosophySection svc={svc} />

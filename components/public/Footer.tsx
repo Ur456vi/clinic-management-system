@@ -13,7 +13,7 @@ import { SERVICES } from "./services-config";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "ABOUT US" },
-  { href: "/services/female-hormonal", label: "SERVICES" },
+  // { href: "/services/female-hormonal", label: "SERVICES" },
   { href: "/faq", label: "FAQ'S" },
   { href: "/contact", label: "CONTACT US" },
 ];
@@ -122,7 +122,7 @@ export default function Footer() {
               href="/assessment"
               className="inline-block rounded-full px-6 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#421A17] bg-[#722F27]"
             >
-              BOOK APPOINTMENT
+              Request Consultation
             </Link>
           </div>
         </div>
