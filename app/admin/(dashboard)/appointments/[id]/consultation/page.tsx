@@ -20,6 +20,7 @@ import { ArrowLeft, Loader2, AlertCircle, ChevronDown, User, CalendarPlus, Steth
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { RMO_FIELDS, SECTION_KEY, SECTION_LABEL, SECTION_ORDER } from "@/lib/rmo-fields"
+import DoctorConsultation from "./DoctorConsultation"
 
 const mainTabs = ["RMO Consultation", "Summary"] as const
 const formSections = [
@@ -42,6 +43,12 @@ interface Consultation {
   status: string
   sections?: Record<string, Record<string, unknown>> | null
   patient: { id: string; fullName: string; patientNumber: string } | null
+  rmoSummary?: {
+    id: string
+    status: string
+    createdAt: string
+    sections?: Record<string, Record<string, unknown>> | null
+  } | null
 }
 
 export default function StartAppointmentConsultationPage() {
@@ -231,6 +238,12 @@ export default function StartAppointmentConsultationPage() {
     )
   }
 
+  // Dr. Yuvraaj's (MAIN) consultation is a distinct flow — Patient Detail,
+  // RMO Summary, Infusion/Rehab/Aesthetic, Test, Final Prescription.
+  if (consult.type === "MAIN") {
+    return <DoctorConsultation appointmentId={appointmentId} consult={consult} quiz={quiz} />
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-[1200px] pb-28">
       {/* Header */}
@@ -303,7 +316,7 @@ export default function StartAppointmentConsultationPage() {
           <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-8">
             <div className="max-w-[800px]">
               {activeMainStep === "RMO Consultation" ? (
-                <form ref={formRef} onChange={onFormChange}>
+                <form key={activeSection} ref={formRef} onChange={onFormChange}>
                   {activeSection === "Informant" ? (
                     <>
                       {/* Form Section Header */}
@@ -350,7 +363,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Attendee Names</label>
-                              <textarea
+                              <textarea name="informant__attendee_names"
                                 placeholder="Names of relatives or friends present"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -433,7 +446,7 @@ export default function StartAppointmentConsultationPage() {
                             {/* Place of Residence */}
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Place of Residence</label>
-                              <textarea
+                              <textarea name="demographics__place_of_residence"
                                 placeholder="Full address"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -500,7 +513,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="p-6 space-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Medical Conditions</label>
-                              <textarea
+                              <textarea name="medical_history__medical_conditions"
                                 placeholder="e.g., Type 2 DM, HTN with CAD - Post PTCA status, Hypothyroidism"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -509,7 +522,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">ICU Admissions</label>
-                              <textarea
+                              <textarea name="medical_history__icu_admissions"
                                 placeholder="Indication, duration, ventilator or inotropes used"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -527,7 +540,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="p-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Surgical Procedures</label>
-                              <textarea
+                              <textarea name="medical_history__surgical_procedures"
                                 placeholder="e.g., Post Cholecystectomy status - 2017, indication, outcome"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -559,7 +572,7 @@ export default function StartAppointmentConsultationPage() {
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054]">Parental Medical History</label>
-                                <textarea
+                                <textarea name="medical_history__parental_medical_history"
                                   placeholder="Significant conditions or causes of death"
                                   rows={2}
                                   className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -568,7 +581,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Grandparents Medical History</label>
-                              <textarea
+                              <textarea name="medical_history__grandparents_medical_history"
                                 placeholder="If patient can recall"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -631,7 +644,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="p-6 space-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Current Medications</label>
-                              <textarea
+                              <textarea name="medical_history__current_medications"
                                 placeholder="Names, compositions, dosages, duration since initiation"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -639,7 +652,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Previous Medications (Discontinued)</label>
-                              <textarea
+                              <textarea name="medical_history__previous_medications"
                                 placeholder="Include reason for discontinuing"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -647,7 +660,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Supplements</label>
-                              <textarea
+                              <textarea name="medical_history__supplements"
                                 placeholder="Names, compositions, duration"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -655,7 +668,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Illicit Drug Use</label>
-                              <textarea
+                              <textarea name="medical_history__illicit_drug_use"
                                 placeholder="Any use of illicit drugs"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -673,7 +686,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="p-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Known Allergies</label>
-                              <textarea
+                              <textarea name="medical_history__known_allergies"
                                 placeholder="Drug / Food / Cosmetic / Plant allergies with reactions"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -900,7 +913,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Inherited Diseases</label>
-                              <textarea
+                              <textarea name="social_history__inherited_diseases"
                                 placeholder="What, how, and when detected"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -939,7 +952,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054]">Delivery Details</label>
-                              <textarea
+                              <textarea name="social_history__delivery_details"
                                 placeholder="NVD / LSCS / Complications"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -1420,7 +1433,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Depression & Anxiety</label>
-                              <textarea
+                              <textarea name="personal_history__depression_anxiety"
                                 placeholder="Any depression, anxiety, or panic attacks"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -1464,7 +1477,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="p-6 space-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Dietary Considerations</label>
-                              <textarea
+                              <textarea name="personal_history__dietary_considerations"
                                 placeholder="Dietary patterns, restrictions, preferences"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -1472,7 +1485,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Exercise Regimen</label>
-                              <textarea
+                              <textarea name="personal_history__exercise_regimen"
                                 placeholder="Type, frequency, duration of exercise"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -1480,7 +1493,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Personal Hygiene</label>
-                              <textarea
+                              <textarea name="personal_history__personal_hygiene"
                                 placeholder="Bathing / Brushing / Change of underclothes / Nail care"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -1564,7 +1577,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054]">Appearance / Attitude</label>
-                              <textarea
+                              <textarea name="examination_summary__appearance_attitude"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
                               />
@@ -1674,7 +1687,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054]">Scars / Bruises / Naevi</label>
-                              <textarea
+                              <textarea name="examination_summary__scars_bruises_naevi"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
                               />
@@ -1803,7 +1816,7 @@ export default function StartAppointmentConsultationPage() {
                           <h3 className="text-base font-semibold text-[#101828] mb-4">ENT Examination</h3>
                           <div className="flex flex-col gap-1.5">
                             <label className="text-sm font-medium text-[#344054]">ENT Findings</label>
-                            <textarea
+                            <textarea name="examination_summary__ent_findings"
                               placeholder="Ears, nose, throat examination findings"
                               rows={3}
                               className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2014,7 +2027,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054]">Respiratory Failure Signs</label>
-                              <textarea
+                              <textarea name="examination_summary__respiratory_failure_signs"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
                               />
@@ -2272,7 +2285,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Skin Hyperpigmentation</label>
-                              <textarea
+                              <textarea name="examination_summary__skin_hyperpigmentation"
                                 placeholder="Location / Extent / Margins"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2305,7 +2318,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Inspection</label>
-                              <textarea
+                              <textarea name="examination_summary__cvs_inspection"
                                 placeholder="Visible pulsations, chest deformities, scars"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2313,7 +2326,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Palpation</label>
-                              <textarea
+                              <textarea name="examination_summary__cvs_palpation"
                                 placeholder="Apical beat, thrills, heaves, parasternal impulse"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2321,7 +2334,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Percussion</label>
-                              <textarea
+                              <textarea name="examination_summary__cvs_percussion"
                                 placeholder="Cardiac dullness boundaries"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2329,7 +2342,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Auscultation</label>
-                              <textarea
+                              <textarea name="examination_summary__cvs_auscultation"
                                 placeholder="Heart sounds (S1, S2), murmurs, additional sounds"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2344,7 +2357,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Inspection</label>
-                              <textarea
+                              <textarea name="examination_summary__rs_inspection"
                                 placeholder="Chest shape, respiratory rate, use of accessory muscles"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2352,7 +2365,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Palpation</label>
-                              <textarea
+                              <textarea name="examination_summary__rs_palpation"
                                 placeholder="Chest expansion, tactile fremitus, tracheal position"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2360,7 +2373,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Percussion</label>
-                              <textarea
+                              <textarea name="examination_summary__rs_percussion"
                                 placeholder="Resonance, dullness, hyperresonance"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2368,7 +2381,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Auscultation</label>
-                              <textarea
+                              <textarea name="examination_summary__rs_auscultation"
                                 placeholder="Breath sounds, crackles, wheezes, vocal resonance"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2383,7 +2396,7 @@ export default function StartAppointmentConsultationPage() {
                           <div className="grid grid-cols-2 gap-x-6 gap-y-6">
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Inspection</label>
-                              <textarea
+                              <textarea name="examination_summary__pa_inspection"
                                 placeholder="Shape, distension, scars, visible peristalsis, veins"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2391,7 +2404,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Palpation</label>
-                              <textarea
+                              <textarea name="examination_summary__pa_palpation"
                                 placeholder="Tenderness, guarding, rigidity, organomegaly, masses"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2399,7 +2412,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Percussion</label>
-                              <textarea
+                              <textarea name="examination_summary__pa_percussion"
                                 placeholder="Liver span, shifting dullness, free fluid"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2407,7 +2420,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Auscultation</label>
-                              <textarea
+                              <textarea name="examination_summary__pa_auscultation"
                                 placeholder="Bowel sounds, bruits, friction rubs"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2435,7 +2448,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Higher Mental Functions (MMSE)</label>
-                              <textarea
+                              <textarea name="examination_summary__higher_mental_functions_mmse"
                                 placeholder="Orientation (time, place, person), memory, speech"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2443,7 +2456,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Cranial Nerves (I-XII)</label>
-                              <textarea
+                              <textarea name="examination_summary__cranial_nerves"
                                 placeholder="CN I to XII examination findings"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2451,7 +2464,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Motor System</label>
-                              <textarea
+                              <textarea name="examination_summary__motor_system"
                                 placeholder="Tone, power (grade 0-5), reflexes, coordination"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
@@ -2459,7 +2472,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054]">Sensory System</label>
-                              <textarea
+                              <textarea name="examination_summary__sensory_system"
                                 placeholder="Touch, pain, temperature, vibration, proprioception"
                                 rows={3}
                                 className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
