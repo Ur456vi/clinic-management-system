@@ -164,6 +164,12 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
+  /// Set when the account is created with a system-generated temporary
+  /// password (e.g. self-enrol via the public assessment flow). While
+  /// true, the proxy forces the user to /reset-password before they can
+  /// use the portal; cleared on the first successful password change.
+  mustResetPassword Boolean @default(false) @map("must_reset_password")
+
   /// Per-user notification toggles (which email alerts to send). JSONB map
   /// of `channel -> boolean`, e.g. `{ "appointments": true, "labResults":
   /// false, "prescriptions": true }`. Null = all-on defaults (see
@@ -185,6 +191,9 @@ model User {
 
   /// In-app notification feed (BE-45). One row per delivered event.
   notifications Notification[]
+
+  /// Vitals readings this user (staff/RMO) recorded for patients.
+  vitalsRecorded Vital[] @relation("VitalRecorder")
 
   @@index([role])
   @@map("users")
@@ -304,6 +313,7 @@ model Patient {
   treatmentPlans TreatmentPlan[]
   invoices       Invoice[]
   infusionLogs   InfusionLog[]
+  vitals         Vital[]
   /// Every completed public-site Health Assessment quiz is captured here.
   /// One row per attempt — retakes are stored as fresh rows so the doctor
   /// can compare scores over time.
@@ -313,6 +323,40 @@ model Patient {
   @@index([primaryDoctorId])
   @@index([fullName])
   @@map("patients")
+}
+
+// ===========================================================================
+// Vitals
+// ===========================================================================
+//
+// A point-in-time vitals reading for a patient, recorded by staff/RMO
+// (e.g. during a consultation) or surfaced on the patient dashboard. All
+// measurement fields are nullable so a partial reading (just BP, say) is
+// valid. The latest row by `recordedAt` is what the dashboard shows.
+model Vital {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Staff/RMO who recorded the reading. Null if recorded by an automated
+  /// import or if the recorder's account was later removed.
+  recordedById String? @map("recorded_by_id") @db.Uuid
+  recordedBy   User?   @relation("VitalRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  systolic     Int? // mmHg
+  diastolic    Int? // mmHg
+  heartRate    Int?   @map("heart_rate") // bpm
+  weightKg     Float? @map("weight_kg")
+  heightCm     Float? @map("height_cm")
+  temperatureF Float? @map("temperature_f")
+  spo2         Int? // %
+  notes        String?
+
+  recordedAt DateTime @default(now()) @map("recorded_at") @db.Timestamptz()
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([patientId, recordedAt(sort: Desc)])
+  @@map("vitals")
 }
 
 // ===========================================================================

@@ -23,3 +23,17 @@ export const changePasswordSchema = z
   })
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+
+/**
+ * Forced first-login reset (`POST /api/me/password/initial`). The user is
+ * already authenticated with their temp password, so no `currentPassword`
+ * is required — only the new one.
+ */
+export const initialPasswordSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .max(128, { message: "Password must be at most 128 characters" }),
+})
+
+export type InitialPasswordInput = z.infer<typeof initialPasswordSchema>

@@ -72,6 +72,39 @@ const APPT_STATUS_STYLE: Record<ApptStatus, { label: string; cls: string }> = {
   NO_SHOW: { label: "No show", cls: "bg-[#F2F4F7] dark:bg-[#111827] text-[#475467] dark:text-[#CBD5E1]" },
 }
 
+interface VitalReading {
+  id: string
+  systolic: number | null
+  diastolic: number | null
+  heartRate: number | null
+  weightKg: number | null
+  temperatureF: number | null
+  spo2: number | null
+  notes: string | null
+  recordedAt: string
+  recordedBy: { id: string; fullName: string } | null
+}
+
+type VitalFormState = {
+  systolic: string
+  diastolic: string
+  heartRate: string
+  weightKg: string
+  temperatureF: string
+  spo2: string
+  notes: string
+}
+
+const EMPTY_VITAL_FORM: VitalFormState = {
+  systolic: "",
+  diastolic: "",
+  heartRate: "",
+  weightKg: "",
+  temperatureF: "",
+  spo2: "",
+  notes: "",
+}
+
 type FormState = {
   fullName: string
   email: string
@@ -130,6 +163,76 @@ export default function PatientDetailPage({
   const [saving, setSaving] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
+  const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
+  const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
+  const [vitalOpen, setVitalOpen] = useState(false)
+  const [vitalSaving, setVitalSaving] = useState(false)
+
+  const fetchVitals = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/patients/${id}/vitals?limit=1`, {
+        credentials: "include",
+      })
+      if (!res.ok) {
+        setLatestVital(null)
+        return
+      }
+      const json = await res.json()
+      const rows: VitalReading[] = Array.isArray(json?.data) ? json.data : []
+      setLatestVital(rows[0] ?? null)
+    } catch {
+      setLatestVital(null)
+    }
+  }, [id])
+
+  const recordVital = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (vitalSaving) return
+      const num = (v: string) => (v.trim() === "" ? undefined : Number(v))
+      const payload = {
+        systolic: num(vitalForm.systolic),
+        diastolic: num(vitalForm.diastolic),
+        heartRate: num(vitalForm.heartRate),
+        weightKg: num(vitalForm.weightKg),
+        temperatureF: num(vitalForm.temperatureF),
+        spo2: num(vitalForm.spo2),
+        notes: vitalForm.notes.trim() === "" ? undefined : vitalForm.notes.trim(),
+      }
+      if (
+        ![payload.systolic, payload.diastolic, payload.heartRate, payload.weightKg, payload.temperatureF, payload.spo2].some(
+          (x) => x !== undefined,
+        )
+      ) {
+        notify.error("Enter at least one measurement")
+        return
+      }
+      setVitalSaving(true)
+      try {
+        const res = await fetch(`/api/patients/${id}/vitals`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const j = await res.json().catch(() => null)
+          throw new Error(j?.error?.message ?? "Couldn't save vitals")
+        }
+        notify.success("Vitals recorded")
+        setVitalForm(EMPTY_VITAL_FORM)
+        setVitalOpen(false)
+        await fetchVitals()
+      } catch (err) {
+        notify.error("Couldn't save vitals", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        })
+      } finally {
+        setVitalSaving(false)
+      }
+    },
+    [id, vitalForm, vitalSaving, fetchVitals],
+  )
 
   const fetchOne = useCallback(async () => {
     setError(null)
@@ -173,7 +276,8 @@ export default function PatientDetailPage({
   useEffect(() => {
     void fetchOne()
     void fetchActivity()
-  }, [fetchOne, fetchActivity])
+    void fetchVitals()
+  }, [fetchOne, fetchActivity, fetchVitals])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -529,8 +633,94 @@ export default function PatientDetailPage({
             </ol>
           )}
         </div>
+
+        {/* Vitals */}
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 lg:col-span-3">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB]">
+              Vitals
+            </h2>
+            <button
+              type="button"
+              onClick={() => setVitalOpen((v) => !v)}
+              className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+            >
+              {vitalOpen ? "Cancel" : "Record reading"}
+            </button>
+          </div>
+
+          {latestVital === undefined ? (
+            <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
+              <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+              Loading…
+            </div>
+          ) : latestVital === null ? (
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
+              No vitals recorded yet.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <VitalStat label="Blood pressure" value={latestVital.systolic && latestVital.diastolic ? `${latestVital.systolic}/${latestVital.diastolic}` : "—"} unit="mmHg" />
+              <VitalStat label="Heart rate" value={latestVital.heartRate ?? "—"} unit="bpm" />
+              <VitalStat label="Weight" value={latestVital.weightKg ?? "—"} unit="kg" />
+              <VitalStat label="Temp" value={latestVital.temperatureF ?? "—"} unit="°F" />
+              <VitalStat label="SpO₂" value={latestVital.spo2 ?? "—"} unit="%" />
+              <VitalStat label="Recorded" value={new Date(latestVital.recordedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })} unit={latestVital.recordedBy?.fullName ?? ""} />
+            </div>
+          )}
+
+          {vitalOpen ? (
+            <form onSubmit={recordVital} className="mt-5 pt-5 border-t border-[#EAECF0] dark:border-[#374151] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <VitalInput label="Systolic" value={vitalForm.systolic} onChange={(v) => setVitalForm({ ...vitalForm, systolic: v })} />
+              <VitalInput label="Diastolic" value={vitalForm.diastolic} onChange={(v) => setVitalForm({ ...vitalForm, diastolic: v })} />
+              <VitalInput label="Heart rate" value={vitalForm.heartRate} onChange={(v) => setVitalForm({ ...vitalForm, heartRate: v })} />
+              <VitalInput label="Weight (kg)" value={vitalForm.weightKg} onChange={(v) => setVitalForm({ ...vitalForm, weightKg: v })} />
+              <VitalInput label="Temp (°F)" value={vitalForm.temperatureF} onChange={(v) => setVitalForm({ ...vitalForm, temperatureF: v })} />
+              <VitalInput label="SpO₂ (%)" value={vitalForm.spo2} onChange={(v) => setVitalForm({ ...vitalForm, spo2: v })} />
+              <div className="col-span-2 sm:col-span-3 lg:col-span-5">
+                <label className="flex flex-col gap-1.5 text-sm">
+                  <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">Notes</span>
+                  <input value={vitalForm.notes} onChange={(e) => setVitalForm({ ...vitalForm, notes: e.target.value })} className={inputCls} placeholder="Optional" />
+                </label>
+              </div>
+              <div className="flex items-end">
+                <Button type="submit" disabled={vitalSaving} className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white h-10 px-4 rounded-lg text-sm font-semibold inline-flex items-center gap-2 w-full justify-center">
+                  {vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save
+                </Button>
+              </div>
+            </form>
+          ) : null}
+        </div>
       </div>
     </div>
+  )
+}
+
+function VitalStat({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-[#667085] dark:text-[#94A3B8]">{label}</span>
+      <span className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">
+        {value}
+        {unit ? <span className="text-xs font-normal text-[#98A2B3] dark:text-[#94A3B8] ml-1">{unit}</span> : null}
+      </span>
+    </div>
+  )
+}
+
+function VitalInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">{label}</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+      />
+    </label>
   )
 }
 

@@ -1,332 +1,155 @@
 "use client";
+
+/**
+ * Patient appointments — real list from GET /api/patient/me/appointments.
+ * Search + status filter are client-side over the fetched page.
+ */
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { CalendarPlus, Loader2, Search } from "lucide-react";
 
-// Mode capitalization is normalised to "In-Person" / "Online"
-// (BUG-031: the seed list mixed "in-person" / "In-Person" / "In-person").
-type AppointmentRow = {
-  date: string;            // display: "30 Apr 2025"
-  isoDate: string;         // for filtering: "2025-04-30"
-  time: string;
-  doctor: string;
-  spec: string;
-  mode: "Online" | "In-Person";
-  status: "Checked Out" | "Checked In" | "Cancelled" | "Schedule" | "Confirmed";
-  scheduleDate?: string;
+type Appt = {
+  id: string;
+  startsAt: string;
+  endsAt: string;
+  status: "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
+  reason: string | null;
+  staff: { id: string; fullName: string; specialization: string | null } | null;
+  department: { id: string; name: string } | null;
 };
 
-const allAppointments: AppointmentRow[] = [
-  { date: "30 Apr 2025", isoDate: "2025-04-30", time: "09:30 AM", doctor: "Dr. Sumit Mittal",    spec: "Cardiologist",         mode: "In-Person", status: "Checked Out" },
-  { date: "15 Apr 2025", isoDate: "2025-04-15", time: "11:20 AM", doctor: "Dr. Akangsha Jain",   spec: "Orthopedic Surgeon",   mode: "Online",    status: "Checked In" },
-  { date: "02 Apr 2025", isoDate: "2025-04-02", time: "08:15 AM", doctor: "Dr. Sonal Mittal",    spec: "Pediatrician",         mode: "In-Person", status: "Cancelled" },
-  { date: "27 Mar 2025", isoDate: "2025-03-27", time: "02:00 PM", doctor: "Dr. Tarun Gupta",     spec: "Gynecologist",         mode: "Online",    status: "Schedule", scheduleDate: "30 Apr 2025" },
-  { date: "12 Mar 2025", isoDate: "2025-03-12", time: "05:40 PM", doctor: "Dr. Raika Jain",      spec: "Psychiatrist",         mode: "Online",    status: "Confirmed" },
-  { date: "24 Feb 2025", isoDate: "2025-02-24", time: "09:20 AM", doctor: "Dr. Nilesh Arora",    spec: "Neurosurgeon",         mode: "In-Person", status: "Cancelled" },
-  { date: "18 Feb 2025", isoDate: "2025-02-18", time: "11:40 AM", doctor: "Dr. Kaushik Gupta",   spec: "Oncologist",           mode: "Online",    status: "Confirmed" },
-  { date: "01 Feb 2025", isoDate: "2025-02-01", time: "04:00 PM", doctor: "Dr. Anki Singh",      spec: "Pulmonologist",        mode: "Online",    status: "Checked Out" },
-  { date: "25 Jan 2025", isoDate: "2025-01-25", time: "03:10 PM", doctor: "Dr. Ganesh Gupta",    spec: "Urologist",            mode: "Online",    status: "Schedule", scheduleDate: "28 Jan 2025" },
-  { date: "12 Jan 2025", isoDate: "2025-01-12", time: "02:10 PM", doctor: "Dr. Saurabh Jain",    spec: "Cardiologist",         mode: "In-Person", status: "Cancelled" },
-  { date: "05 Jan 2025", isoDate: "2025-01-05", time: "10:00 AM", doctor: "Dr. Priya Sharma",    spec: "Dermatologist",        mode: "Online",    status: "Confirmed" },
-  { date: "28 Dec 2024", isoDate: "2024-12-28", time: "03:30 PM", doctor: "Dr. Rahul Verma",     spec: "Orthopedic",           mode: "In-Person", status: "Checked Out" },
-];
-
-const statusConfig: Record<string, { color: string; bg: string }> = {
-  "Checked Out": { color: "#2E37A4", bg: "#EEF0FF" },
-  "Checked In":  { color: "#12B76A", bg: "#ECFDF3" },
-  "Cancelled":   { color: "#F04438", bg: "#FEF3F2" },
-  "Schedule":    { color: "#EB9200", bg: "#FFF4B7" },
-  "Confirmed":   { color: "#0BA5EC", bg: "#E0F2FE" },
+const STATUS_STYLE: Record<string, string> = {
+  REQUESTED: "bg-[#FFFAEB] text-[#B54708]",
+  CONFIRMED: "bg-[#EFF8FF] text-[#175CD3]",
+  COMPLETED: "bg-[#ECFDF3] text-[#027A48]",
+  CANCELLED: "bg-[#FEF3F2] text-[#B42318]",
+  NO_SHOW: "bg-[#F2F4F7] text-[#475467]",
 };
+const STATUSES = ["All", "REQUESTED", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"];
 
-const ROWS_PER_PAGE_OPTIONS = [10, 20, 50];
-
-export default function AppointmentsPage() {
+export default function PatientAppointmentsPage() {
   const router = useRouter();
+  const [rows, setRows] = useState<Appt[] | null>(null);
   const [search, setSearch] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<"Recent" | "Oldest" | "Name">("Recent");
-  const [filterStatus, setFilterStatus] = useState("All");
-  // ISO yyyy-mm-dd format so the native date inputs round-trip cleanly
-  // and the filter can do real string compares (BUG-029: the previous
-  // mm/dd/yyyy text inputs never actually filtered anything).
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [status, setStatus] = useState("All");
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/patient/me/appointments?limit=100", { credentials: "include" });
+      if (!res.ok) {
+        setRows([]);
+        return;
+      }
+      const json = await res.json();
+      const list: Appt[] = Array.isArray(json?.data) ? json.data : [];
+      list.sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime());
+      setRows(list);
+    } catch {
+      setRows([]);
+    }
+  }, []);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    void load();
+  }, [load]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    let rows = allAppointments.filter((apt) => {
-      const matchSearch =
-        !q ||
-        apt.doctor.toLowerCase().includes(q) ||
-        apt.spec.toLowerCase().includes(q) ||
-        apt.status.toLowerCase().includes(q);
-      const matchStatus = filterStatus === "All" || apt.status === filterStatus;
-      const matchFrom = !dateFrom || apt.isoDate >= dateFrom;
-      const matchTo = !dateTo || apt.isoDate <= dateTo;
-      return matchSearch && matchStatus && matchFrom && matchTo;
+    if (!rows) return [];
+    const q = search.trim().toLowerCase();
+    return rows.filter((a) => {
+      if (status !== "All" && a.status !== status) return false;
+      if (!q) return true;
+      return (
+        (a.staff?.fullName ?? "").toLowerCase().includes(q) ||
+        (a.department?.name ?? "").toLowerCase().includes(q) ||
+        (a.reason ?? "").toLowerCase().includes(q)
+      );
     });
-
-    if (sortBy === "Recent") {
-      rows = [...rows].sort((a, b) => b.isoDate.localeCompare(a.isoDate));
-    } else if (sortBy === "Oldest") {
-      rows = [...rows].sort((a, b) => a.isoDate.localeCompare(b.isoDate));
-    } else if (sortBy === "Name") {
-      rows = [...rows].sort((a, b) => a.doctor.localeCompare(b.doctor));
-    }
-
-    return rows;
-  }, [search, filterStatus, dateFrom, dateTo, sortBy]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
-  const paginated = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-
-  const handleNewAppointment = () => {
-    router.push("/patient/appointments/new");
-  };
+  }, [rows, search, status]);
 
   return (
-    <div className="p-6 flex flex-col gap-5 max-w-[1600px] mx-auto animate-in fade-in duration-500">
-      {/* Page Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-[#141414] dark:text-[#F9FAFB]">Appointments</h1>
-        <div className="flex gap-2.5 items-center">
-          {/* Export */}
-          <button className="flex items-center gap-1.5 border border-[#D0D0D0] rounded-lg px-4 py-2.5 bg-white dark:bg-[#1F2937] text-sm text-[#141414] dark:text-[#F9FAFB] font-semibold cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Export ▾
-          </button>
-          {/* Share */}
-          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-              <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2" />
-              <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-              <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2" />
-              <path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-          {/* Print */}
-          <button className="flex items-center justify-center w-10 h-10 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] cursor-pointer hover:bg-gray-50 transition-colors shadow-sm">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-              <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          {/* New Appointment */}
-          <button
-            onClick={handleNewAppointment}
-            className="bg-[#2E37A4] hover:bg-[#1e2570] text-white border-none rounded-lg px-5 py-2.5 text-sm font-bold cursor-pointer transition-colors shadow-sm ml-1"
-          >
-            + New Appointment
-          </button>
+    <div className="p-6 lg:p-8 flex flex-col gap-6">
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Appointments</h1>
+          <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">Your bookings across the clinic.</p>
         </div>
+        <button
+          onClick={() => router.push("/patient/appointments/new")}
+          className="bg-[#2E37A4] hover:bg-[#1d246b] text-white rounded-lg px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
+        >
+          <CalendarPlus className="h-4 w-4" /> New Appointment
+        </button>
       </div>
 
-      {/* Table Card */}
-      <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden shadow-sm">
-        {/* Table Toolbar */}
-        <div className="p-4 lg:px-5 flex items-center justify-between border-b border-[#F2F4F7] dark:border-[#374151] flex-wrap gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Search */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] min-w-[240px] focus-within:border-[#2E37A4] transition-colors">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="7" stroke="#A1A1A1" strokeWidth="2" />
-                <path d="M21 21l-4.35-4.35" stroke="#A1A1A1" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search appointments..."
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent w-full"
-              />
-            </div>
-
-            {/* Date Range — native date pickers so the filter actually works */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827]">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="17" rx="2" stroke="#6C7688" strokeWidth="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
-                aria-label="From date"
-                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent"
-              />
-              <span className="text-[#6C7688] dark:text-[#94A3B8] font-bold">-</span>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
-                aria-label="To date"
-                className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] bg-transparent"
-              />
-              {(dateFrom || dateTo) ? (
-                <button
-                  onClick={() => { setDateFrom(""); setDateTo(""); }}
-                  className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline ml-1"
-                  type="button"
-                >
-                  Clear
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex gap-2 items-center flex-wrap">
-            {/* Filter by Status */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] cursor-pointer hover:border-[#2E37A4] transition-colors">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <path d="M4 6h16M7 12h10M10 18h4" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <select
-                value={filterStatus}
-                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-                className="border-none outline-none text-sm font-semibold text-[#141414] dark:text-[#F9FAFB] bg-transparent cursor-pointer"
-              >
-                <option value="All">All Statuses</option>
-                <option value="Checked Out">Checked Out</option>
-                <option value="Checked In">Checked In</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="Schedule">Schedule</option>
-                <option value="Confirmed">Confirmed</option>
-              </select>
-            </div>
-
-            {/* Sort By */}
-            <div className="flex items-center gap-2 h-10 border border-[#D0D0D0] rounded-lg px-3 bg-[#F9FAFB] dark:bg-[#111827] cursor-pointer hover:border-[#2E37A4] transition-colors">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <path d="M3 6h18M6 12h12M9 18h6" stroke="#6C7688" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="border-none outline-none text-sm font-semibold text-[#141414] dark:text-[#F9FAFB] bg-transparent cursor-pointer"
-              >
-                <option value="Recent">Sort By: Recent</option>
-                <option value="Oldest">Sort By: Oldest</option>
-                <option value="Name">Sort By: Name</option>
-              </select>
-            </div>
-          </div>
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-3 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#98A2B3]" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by doctor, department, or reason…"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15"
+          />
         </div>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="h-10 px-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB]"
+        >
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>{s === "All" ? "All statuses" : s}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+        {rows === null ? (
+          <div className="p-8 flex items-center justify-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-10 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
+            No appointments found.
+          </div>
+        ) : (
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#F9FAFB] dark:bg-[#111827]">
-                {["Date & Time", "Doctor Name", "Mode", "Status"].map((h) => (
-                  <th key={h} className="p-4 text-left text-[#6C7688] dark:text-[#94A3B8] font-bold text-xs uppercase tracking-wider border-b border-[#F2F4F7] dark:border-[#374151]">{h}</th>
-                ))}
+              <tr className="text-left text-xs uppercase text-[#667085] dark:text-[#94A3B8] border-b border-[#EAECF0] dark:border-[#374151]">
+                <th className="px-5 py-3 font-semibold">Date / Time</th>
+                <th className="px-5 py-3 font-semibold">Doctor</th>
+                <th className="px-5 py-3 font-semibold">Reason</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F2F4F7] dark:divide-[#374151]">
-              {paginated.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-10 text-center text-[#6C7688] dark:text-[#94A3B8] font-medium italic">No appointments found matching your criteria.</td>
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
+              {filtered.map((a) => (
+                <tr key={a.id}>
+                  <td className="px-5 py-4 text-[#101828] dark:text-[#F9FAFB] font-medium whitespace-nowrap">
+                    {new Date(a.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                    <span className="text-[#98A2B3] dark:text-[#94A3B8] font-normal">
+                      {" · "}{new Date(a.startsAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="text-[#101828] dark:text-[#F9FAFB] font-medium">{a.staff?.fullName ?? "—"}</div>
+                    {a.department ? <div className="text-xs text-[#667085] dark:text-[#94A3B8]">{a.department.name}</div> : null}
+                  </td>
+                  <td className="px-5 py-4 text-[#475467] dark:text-[#CBD5E1] max-w-[260px] truncate">{a.reason ?? "—"}</td>
+                  <td className="px-5 py-4">
+                    <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLE[a.status] ?? STATUS_STYLE.REQUESTED}`}>
+                      {a.status}
+                    </span>
+                  </td>
                 </tr>
-              ) : (
-                paginated.map((apt, i) => (
-                  <tr key={i} className="hover:bg-gray-50 transition-colors">
-                    {/* Date & Time */}
-                    <td className="p-4 text-[#141414] dark:text-[#F9FAFB]">
-                      <span className="font-bold">{apt.date}</span>
-                      <span className="text-[#6C7688] dark:text-[#94A3B8] font-medium ml-2">{apt.time}</span>
-                    </td>
-
-                    {/* Doctor */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-[#EEF0FF] flex items-center justify-center text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC] flex-shrink-0">
-                          {apt.doctor.replace(/^Dr\.\s*/, "").charAt(0)}
-                        </div>
-                        <div>
-                          <p className="m-0 text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">{apt.doctor}</p>
-                          <p className="m-0 text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">{apt.spec}</p>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Mode */}
-                    <td className="p-4 text-[#141414] dark:text-[#F9FAFB] font-medium">{apt.mode}</td>
-
-                    {/* Status */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap"
-                          style={{ color: statusConfig[apt.status]?.color ?? "#141414", backgroundColor: statusConfig[apt.status]?.bg ?? "#F2F4F7" }}
-                        >
-                          {apt.status}
-                        </span>
-                        {apt.status === "Schedule" && apt.scheduleDate && (
-                          <span className="text-xs text-[#6C7688] dark:text-[#94A3B8] font-semibold">{apt.scheduleDate}</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="p-4 flex items-center justify-between border-t border-[#F2F4F7] dark:border-[#374151] flex-wrap gap-4">
-          {/* Rows per page */}
-          <div className="flex items-center gap-2 text-sm text-[#6C7688] dark:text-[#94A3B8] font-medium">
-            <span>Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-              className="border border-[#D0D0D0] rounded px-1.5 py-0.5 text-sm text-[#141414] dark:text-[#F9FAFB] bg-white dark:bg-[#1F2937] cursor-pointer"
-            >
-              {ROWS_PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-            <span className="ml-1">Entries</span>
-          </div>
-
-          {/* Pages */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] flex items-center justify-center transition-opacity ${currentPage === 1 ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
-            >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-9 h-9 border rounded-lg text-sm font-bold cursor-pointer transition-colors ${
-                  currentPage === page ? "border-[#2E37A4] bg-[#2E37A4] text-white" : "border-[#D0D0D0] bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] hover:bg-gray-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className={`w-9 h-9 border border-[#D0D0D0] rounded-lg bg-white dark:bg-[#1F2937] flex items-center justify-center transition-opacity ${currentPage === totalPages ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
-            >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </button>
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Footer */}
-      <footer className="mt-auto py-6 text-center border-t border-[#EAECF0] dark:border-[#374151]">
-        <p className="m-0 text-xs text-[#6C7688] dark:text-[#94A3B8] font-medium">Copyright © 2026 — Dr. Yuvraaj Singh M.D.</p>
-      </footer>
     </div>
   );
 }

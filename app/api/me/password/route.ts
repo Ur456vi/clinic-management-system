@@ -41,7 +41,7 @@ export const POST = defineHandler(async ({ req }) => {
   await db.$transaction([
     db.user.update({
       where: { id: user.id },
-      data: { passwordHash },
+      data: { passwordHash, mustResetPassword: false },
     }),
     // Invalidate any outstanding reset OTPs — a deliberate rotation should
     // close any half-finished reset the user may have started.
