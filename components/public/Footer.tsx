@@ -19,7 +19,7 @@ const COMPANY_LINKS = [
 ];
 
 const POLICY_LINKS = [
-  // { href: "/privacy", label: "PRIVACY POLICY" },
+  { href: "/privacy", label: "PRIVACY POLICY" },
   // { href: "/terms", label: "TERMS OF SERVICE" },
   // { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
 ];
