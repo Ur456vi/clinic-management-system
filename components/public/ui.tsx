@@ -83,7 +83,7 @@ export function SectionHeading({
       style={{
         fontFamily: "var(--font-display)",
         color: "var(--brand-ink)",
-        fontSize: "clamp(28px, 3.4vw, 36px)",
+        fontSize: "clamp(28px, 3.4vw, 44px)",
       }}
     >
       {children}

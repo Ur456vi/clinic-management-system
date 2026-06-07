@@ -55,19 +55,19 @@ const TOLD = ['"Everything looks normal."', '"It\'s just stress."', '"It\'s part
 const DIFFERENT_CARE_FEATURES = [
   {
     icon: "/images/landing/Treatment.png",
-    title: "Structured physician-led diagnostic and clinical frameworks",
+    title: "Structured Clinical Protocols",
   },
   {
     icon: "/images/landing/Microscope.png",
-    title: "Multi-layered metabolic and hormonal and organ systems assessment",
+    title: "Advanced Diagnostic Evaluation",
   },
   {
     icon: "/images/landing/Customer.png",
-    title: "Precision-calibrated therapeutic interventions",
+    title: "Individualized Therapeutic Strategies",
   },
   {
     icon: "/images/landing/Increase.png",
-    title: "Longitudinal monitoring and adaptive clinical oversight",
+    title: "Continuous Monitoring & Refinement",
   },
 ];
 
@@ -135,7 +135,7 @@ const FOCUS_AREAS = [
     title: "Male Hormonal, Metabolic & Performance Health",
     image: "/images/landing/home-focus-male.png",
     bullets: [
-      "Androgen health and endocrine optimization",
+      "Testosterone and hormonal balance",
       "Sexual performance and vascular-hormonal evaluation",
       "Recovery, cognition and physiological restoration",
       "Sexual performance evaluation",
@@ -169,9 +169,9 @@ const FOCUS_AREAS = [
 ];
 
 const PROCESS_STEPS = [
-  { no: "01", body: "Comprehensive physiological and diagnostic mapping." },
-  { no: "02", body: "Thorough Physician-led systems interpretation and clinical synthesis." },
-  { no: "03", body: "Precision intervention with longitudinal recalibration." },
+  { no: "01", body: "Comprehensive biological and clinical assessment." },
+  { no: "02", body: "Detailed physician-led evaluation and interpretation." },
+  { no: "03", body: "Structured therapeutic program with ongoing monitoring." },
 ];
 
 export default function HomeContent() {
@@ -371,7 +371,7 @@ export default function HomeContent() {
             </div>
           </div>
           <div className="flex flex-col justify-center">
-            <SectionHeading>A Clinical Model Built Around Biological Precision</SectionHeading>
+            <SectionHeading>A Different Standard of Care</SectionHeading>
             <p
               className="mt-5 leading-relaxed"
               style={{
@@ -382,7 +382,9 @@ export default function HomeContent() {
                 color: "var(--brand-ink)",
               }}
             >
-              Care begins with protocol-driven deep clinical evaluation rather than generalization. It is based on systems, structure, and precision. Symptoms are interpreted within larger Endocrine, Metabolic and Physiological systems. We evaluate how your hormones, metabolism, and
+              At this institute, care is not based on assumptions. It is based
+              on systems, structure, and precision. We do not treat isolated
+              symptoms. We evaluate how your hormones, metabolism, and
               physiology interact as a whole.
             </p>
 
@@ -390,7 +392,7 @@ export default function HomeContent() {
               {DIFFERENT_CARE_FEATURES.map((f) => (
                 <div
                   key={f.title}
-                  className="rounded-xl border p-5 flex flex-col justify-between h-[165px]"
+                  className="rounded-xl border p-5 flex flex-col justify-between h-[135px]"
                   style={{
                     borderColor: "#A3B18A",
                     background: "transparent",
@@ -416,14 +418,14 @@ export default function HomeContent() {
 
             <div className="mt-8 space-y-1">
               <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
-                No recycled protocols. No algorithmic medicine. No one-size-fits-all intervention pathways. Only Precision-based medicine .
+                No generic plans.
               </p>
-              {/* <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
+              <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
                 No unnecessary interventions.
               </p>
               <p className="text-[24px] font-bold tracking-tight" style={{ color: "#6E1F1F", lineHeight: "1.2" }}>
                 Only precision-based medicine.
-              </p> */}
+              </p>
             </div>
           </div>
         </div>
@@ -436,7 +438,7 @@ export default function HomeContent() {
         style={{ background: "var(--brand-cream-2)" }}
       >
         <div className="mx-auto max-w-[1440px] px-6 pt-10 pb-20 md:px-12 md:pt-12 md:pb-24">
-          <SectionHeading align="center">The Institute Methodology</SectionHeading>
+          <SectionHeading align="center">Our Clinical Framework</SectionHeading>
 
           <div className="mt-12 flex flex-col lg:flex-row gap-8 items-center justify-between">
             {/* The 4 steps */}

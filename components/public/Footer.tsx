@@ -14,14 +14,19 @@ import { SERVICES } from "./services-config";
 const COMPANY_LINKS = [
   { href: "/about", label: "ABOUT US" },
   // { href: "/services/female-hormonal", label: "SERVICES" },
-  // { href: "/faq", label: "FAQ'S" },
+  { href: "/faq", label: "FAQ'S" },
   { href: "/contact", label: "CONTACT US" },
 ];
 
 const POLICY_LINKS = [
   { href: "/privacy", label: "PRIVACY POLICY" },
+<<<<<<< HEAD
   // { href: "/terms", label: "TERMS OF SERVICE" },
   // { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
+=======
+  { href: "/terms", label: "TERMS OF SERVICE" },
+  { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
+>>>>>>> parent of c6d796f (Ui changes)
 ];
 
 function ColumnHeading({ children, isSerif = false }: { children: React.ReactNode; isSerif?: boolean }) {
@@ -116,7 +121,7 @@ export default function Footer() {
             <p
               className="mb-8 text-[13px] leading-relaxed font-medium text-[#333333]"
             >
-              “The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration.”
+              Precision medicine for individuals who expect clarity, structure, and measurable outcomes from their health.
             </p>
             <Link
               href="/assessment"
