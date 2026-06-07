@@ -298,15 +298,15 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
               className={`inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
               style={{ background: "#889A6A" }}
             >
-              Book Consultation <span>→</span>
+              Request Consultation <span>→</span>
             </Link>
-            <Link
+            {/* <Link
               href="#approach"
               className={`inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium ${isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'}`}
               style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
             >
               Explore Clinical Framework <span>→</span>
-            </Link>
+            </Link> */}
           </div>
           
           {/* Bottom Features Row */}
