@@ -71,7 +71,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 {/* Horizontal Separator Line (Figma Style) */}
                 <div className="w-12 h-[1.5px] bg-[#D2B48C] mt-5 mb-5" />
                 
-                <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium max-w-[320px]">
+                <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium max-w-[320px]">
                   Which is why aesthetic care in this Institute is integrated into a broader framework of internal restoration and long-term health optimization.
                 </p>
               </div>

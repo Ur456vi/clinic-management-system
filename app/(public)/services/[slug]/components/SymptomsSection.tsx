@@ -13,7 +13,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
         <div className="mx-auto max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-6 pt-6 pb-4 md:px-12 md:pt-8 md:pb-6 items-stretch">
           
           {/* Left Column (Text) */}
-          <div className="lg:col-span-3 flex flex-col justify-center lg:pr-6">
+          <div className="lg:col-span-4 xl:col-span-3 flex flex-col justify-center lg:pr-6">
             <h2
               className="font-medium leading-[1.2] mb-6"
               style={{
@@ -30,7 +30,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
           </div>
 
           {/* Middle Column (Grid of 9 Tiles) */}
-          <div className="lg:col-span-6 flex items-center justify-center mt-6 lg:mt-0">
+          <div className="lg:col-span-8 xl:col-span-6 flex items-center justify-center mt-6 lg:mt-0">
             {/* Desktop Layout (exact 2 rows of 5 and 4 items) */}
             <div className="hidden lg:flex flex-col gap-6 w-full items-center">
               {/* Row 1: 5 items */}
@@ -84,7 +84,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
           </div>
 
           {/* Right Column (Quote Card) */}
-          <div className="lg:col-span-3 flex flex-col items-stretch mt-8 lg:mt-0">
+          <div className="lg:col-span-12 xl:col-span-3 flex flex-col items-stretch mt-8 lg:mt-0 w-full max-w-[600px] xl:max-w-none mx-auto">
             <div className="bg-[#F7F5EC] rounded-[8px] p-5 lg:p-6 xl:p-8 h-full flex flex-col justify-start relative overflow-hidden shadow-sm">
                {/* Quote Icon */}
                <div className="text-[#5C6B46] text-[60px] lg:text-[70px] xl:text-[80px] font-serif leading-none mb-2 mt-[-10px] select-none opacity-80">
@@ -92,15 +92,12 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                </div>
                
                {/* Quote Text */}
-               <p className="text-black font-semibold text-[14px] lg:text-[12.5px] xl:text-[14.5px] leading-[1.55] relative z-10">
-                 Yet, aesthetic medicine<br />
-                 is often approached<br />
-                 in isolation—focused<br />
-                 only on cosmetic<br />
-                 correction without<br />
-                 understanding the<br />
-                 physiological environment<br />
-                 underneath it.
+               <p className="text-black font-semibold text-[14px] xl:text-[14.5px] leading-[1.55] relative z-10 text-balance">
+                 Yet, aesthetic medicine{" "}
+                 <br className="hidden md:inline" />
+                 is often approached in isolation—focused only on cosmetic correction{" "}
+                 <br className="hidden md:inline" />
+                 without understanding the physiological environment underneath it.
                </p>
                
                {/* Faint botanical outline */}
@@ -798,9 +795,12 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                
                {/* Quote Text */}
                <p className="text-[#1F1F1F] font-medium text-[15px] md:text-[16px] leading-[1.6] relative z-10">
-                 What has been<br />
-                 normalized is<br />
-                 often physiological<br />
+                 What has been{" "}
+                 <br className="hidden lg:inline" />
+                 normalized is{" "}
+                 <br className="hidden lg:inline" />
+                 often physiological{" "}
+                 <br className="hidden lg:inline" />
                  dysfunction.
                </p>
                

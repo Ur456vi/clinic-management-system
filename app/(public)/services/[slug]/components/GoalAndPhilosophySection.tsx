@@ -20,10 +20,10 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
                 
                 {/* Left Text */}
                 <div className="flex-1">
-                  <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-neutral-950 font-normal">
+                  <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-[var(--brand-burgundy)] font-normal">
                     Because external appearance cannot be separated from internal physiology.
                   </h3>
-                  <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium">
+                  <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium">
                     When the body functions better internally, the effects are often visible externally—through skin quality, vitality, recovery, facial integrity, and the way an individual carries themselves over time.
                   </p>
                 </div>

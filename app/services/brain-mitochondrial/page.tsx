@@ -628,64 +628,64 @@ export default function BrainMitochondrialPage() {
             </h2>
           </div>
 
-          {/* Right Block (70%) — Single Horizontal Row of 8 circles */}
-          <div className="lg:col-span-8 flex flex-row items-center w-full overflow-x-auto no-scrollbar py-2">
-            <div className="flex flex-nowrap lg:flex-wrap items-center justify-between w-full gap-4 sm:gap-6 min-w-[640px] lg:min-w-0">
+          {/* Right Block (70%) — Row/Grid of 8 circles */}
+          <div className="lg:col-span-8 w-full py-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-y-6 gap-x-2 sm:gap-x-4 justify-items-center items-start w-full">
               
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <FatigueIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Fatigue</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Fatigue</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <BrainFogIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Brain Fog</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Brain Fog</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <ConcentrationIcon className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Poor Concentration</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Poor Concentration</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <ProductivityIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Reduced Productivity</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Reduced Productivity</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <EmotionalIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Emotional Volatility</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Emotional Volatility</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <RecoveryIcon className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Poor Recovery</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Poor Recovery</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <SleepIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Sleep Disruption</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Sleep Disruption</span>
               </div>
 
-              <div className="flex flex-col items-center text-center gap-3 flex-1 min-w-[70px]">
+              <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
                   <ResilienceIcon />
                 </div>
-                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight">Reduced Resilience</span>
+                <span className="text-[11px] font-semibold text-[var(--color-text-body)] tracking-tight leading-snug">Reduced Resilience</span>
               </div>
 
             </div>
