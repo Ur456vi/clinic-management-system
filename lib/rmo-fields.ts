@@ -27,7 +27,74 @@ export const SECTION_LABEL: Record<string, string> = {
 export const SECTION_ORDER = ["informant","demographics","medical_history","social_history","personal_history","examination_summary"]
 
 export type RmoField = { n: string; s: string; l: string }
-export const RMO_FIELDS: { n: string; s: string; l: string }[] = [
+
+/**
+ * Fields below the "General Physical Examination (GPE)" header in the
+ * Examination Summary tab — GPE vitals, Clinical Signs, and Systemic
+ * Examination — are NOT part of the RMO intake. They are excluded from the
+ * exported registry below so the form never collects, saves, summarises, or
+ * emails them. The matching controls are hidden in the form behind the
+ * RMO_SHOW_FULL_GPE flag. Clear this set (and flip that flag) to re-enable.
+ */
+const NON_RMO_FIELDS: ReadonlySet<string> = new Set([
+  "examination_summary__rate_bpm",
+  "examination_summary__rhythm",
+  "examination_summary__volume",
+  "examination_summary__character",
+  "examination_summary__all_peripheral_pulses_adequately",
+  "examination_summary__bruits",
+  "examination_summary__systolic_mmhg",
+  "examination_summary__diastolic_mmhg",
+  "examination_summary__pulse_pressure",
+  "examination_summary__map",
+  "examination_summary__auscultation_gap",
+  "examination_summary__body_temperature_f",
+  "examination_summary__hydration_status",
+  "examination_summary__rate_per_min",
+  "examination_summary__pattern",
+  "examination_summary__spo2",
+  "examination_summary__signs_of_copd",
+  "examination_summary__pallor",
+  "examination_summary__degree_if_present",
+  "examination_summary__icterus",
+  "examination_summary__degree_if_present_2",
+  "examination_summary__duration",
+  "examination_summary__cyanosis",
+  "examination_summary__type_if_present",
+  "examination_summary__degree",
+  "examination_summary__anatomical_area",
+  "examination_summary__tenderness",
+  "examination_summary__size_number",
+  "examination_summary__duration_2",
+  "examination_summary__location",
+  "examination_summary__type",
+  "examination_summary__degree_2",
+  "examination_summary__duration_3",
+  "examination_summary__digital_clubbing",
+  "examination_summary__nail_changes",
+  "examination_summary__hair_changes",
+  "examination_summary__consciousness_level",
+  "examination_summary__respiratory_failure_signs",
+  "examination_summary__skin_hyperpigmentation",
+  "examination_summary__cvs_inspection",
+  "examination_summary__cvs_palpation",
+  "examination_summary__cvs_percussion",
+  "examination_summary__cvs_auscultation",
+  "examination_summary__rs_inspection",
+  "examination_summary__rs_palpation",
+  "examination_summary__rs_percussion",
+  "examination_summary__rs_auscultation",
+  "examination_summary__pa_inspection",
+  "examination_summary__pa_palpation",
+  "examination_summary__pa_percussion",
+  "examination_summary__pa_auscultation",
+  "examination_summary__higher_mental_functions_mmse",
+  "examination_summary__cranial_nerves",
+  "examination_summary__motor_system",
+  "examination_summary__sensory_system",
+])
+
+const ALL_RMO_FIELDS: RmoField[] = [
   { n: "informant__relationship_to_patient", s: "informant", l: "Relationship to Patient" },
   { n: "informant__informant_name", s: "informant", l: "Informant Name" },
   { n: "informant__relationship", s: "informant", l: "Relationship" },
@@ -190,3 +257,12 @@ export const RMO_FIELDS: { n: string; s: string; l: string }[] = [
   { n: "examination_summary__motor_system", s: "examination_summary", l: "Motor System" },
   { n: "examination_summary__sensory_system", s: "examination_summary", l: "Sensory System" },
 ]
+
+/**
+ * The RMO field registry actually used by the form, summary, and hand-off
+ * email — `ALL_RMO_FIELDS` minus the non-RMO GPE / Clinical Signs / Systemic
+ * Examination fields. See `NON_RMO_FIELDS` above.
+ */
+export const RMO_FIELDS: RmoField[] = ALL_RMO_FIELDS.filter(
+  (f) => !NON_RMO_FIELDS.has(f.n),
+)

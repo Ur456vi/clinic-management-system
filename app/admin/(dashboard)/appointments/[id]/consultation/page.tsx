@@ -14,7 +14,7 @@
 
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { ArrowLeft, Loader2, AlertCircle, ChevronDown, User, CalendarPlus, Stethoscope, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -51,6 +51,16 @@ interface Consultation {
   } | null
 }
 
+/**
+ * GPE (General Physical Examination), Clinical Signs, and Systemic Examination
+ * live below the GPE header in the Examination Summary tab but are NOT part of
+ * the RMO intake. They are hidden behind this flag and their fields are also
+ * excluded from the RMO field registry (lib/rmo-fields.ts) so nothing below the
+ * GPE header is collected, saved, or shown. Flip to `true` (and clear the
+ * exclusion set in lib/rmo-fields.ts) to bring them back.
+ */
+const RMO_SHOW_FULL_GPE = false
+
 export default function StartAppointmentConsultationPage() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
@@ -77,9 +87,7 @@ export default function StartAppointmentConsultationPage() {
   // Captured form values, keyed by control name (e.g. "informant__informant_name").
   const [form, setForm] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
-  const [hydrated, setHydrated] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
-  // Mirror of `form` so the DOM-populate effect can read latest values without
+  // Mirror of `form` so the populate callback can read latest values without
   // re-running on every keystroke (which would fight the cursor).
   const formStateRef = useRef(form)
   formStateRef.current = form
@@ -106,7 +114,6 @@ export default function StartAppointmentConsultationPage() {
           if (v != null) flat[f.n] = String(v)
         }
         setForm(flat)
-        setHydrated(true)
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to start consultation"
         if (!cancelled) setError(message)
@@ -141,11 +148,14 @@ export default function StartAppointmentConsultationPage() {
     }
   }, [appointmentId])
 
-  // Populate the currently-mounted section's controls from state. Runs on
-  // section switch and after initial hydration (only one section is in the
-  // DOM at a time, so values must be re-applied each time it mounts).
-  useEffect(() => {
-    const root = formRef.current
+  // Populate the form's uncontrolled controls from state whenever the <form>
+  // node mounts. A stable callback ref (not an effect) fires on EVERY mount of
+  // the form element: initial load, section switch (forced by
+  // `key={activeSection}`), AND returning to the form after viewing another
+  // main tab such as Summary. The old effect keyed on [activeSection, hydrated]
+  // missed that last case — the form remounted with neither dep changing, so it
+  // never re-ran and the saved data showed up blank on revisit.
+  const populateForm = useCallback((root: HTMLFormElement | null) => {
     if (!root) return
     const values = formStateRef.current
     for (const el of Array.from(root.elements)) {
@@ -154,22 +164,53 @@ export default function StartAppointmentConsultationPage() {
       const v = values[ctrl.name]
       if (ctrl instanceof HTMLInputElement && ctrl.type === "radio") {
         ctrl.checked = v != null && ctrl.value === v
+      } else if (ctrl instanceof HTMLInputElement && ctrl.type === "checkbox") {
+        // Checkbox groups store a comma-joined set; tick each member present.
+        const selected = (v ?? "").split(",").map((s) => s.trim())
+        ctrl.checked = selected.includes(ctrl.value)
+      } else if (ctrl instanceof HTMLSelectElement) {
+        // The DB holds a mix of casings: older rows stored the option's label
+        // ("Parent"), newer rows store its value ("parent"). A plain
+        // `select.value = v` silently no-ops when the casing differs, leaving
+        // the dropdown blank. Resolve tolerantly — exact value, then
+        // case-insensitive value, then visible label — so both round-trip.
+        if (v != null && v !== "") {
+          const lc = v.toLowerCase()
+          const opts = Array.from(ctrl.options)
+          const match =
+            opts.find((o) => o.value === v) ??
+            opts.find((o) => o.value.toLowerCase() === lc) ??
+            opts.find((o) => o.text.trim().toLowerCase() === lc)
+          ctrl.value = match ? match.value : ""
+        } else {
+          ctrl.value = ""
+        }
       } else if (v != null) {
         ctrl.value = v
       }
     }
-  }, [activeSection, hydrated])
+  }, [])
 
   // Single delegated change handler for every control inside the RMO form.
   const onFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
     const t = e.target as unknown as HTMLInputElement
     if (!t.name) return
+    // Checkbox groups share one name; keep a comma-joined set of checked values
+    // so a multi-select ("select all that apply") round-trips instead of
+    // collapsing to a single "on".
+    if (t.type === "checkbox") {
+      setForm((prev) => {
+        const set = new Set(
+          (prev[t.name] ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+        )
+        if (t.checked) set.add(t.value)
+        else set.delete(t.value)
+        return { ...prev, [t.name]: Array.from(set).join(", ") }
+      })
+      return
+    }
     const value =
-      t.type === "radio" || t.type === "checkbox"
-        ? t.checked
-          ? t.value
-          : (form[t.name] ?? "")
-        : t.value
+      t.type === "radio" ? (t.checked ? t.value : (form[t.name] ?? "")) : t.value
     setForm((prev) => ({ ...prev, [t.name]: value }))
   }
 
@@ -316,7 +357,7 @@ export default function StartAppointmentConsultationPage() {
           <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-8">
             <div className="max-w-[800px]">
               {activeMainStep === "RMO Consultation" ? (
-                <form key={activeSection} ref={formRef} onChange={onFormChange}>
+                <form key={activeSection} ref={populateForm} onChange={onFormChange}>
                   {activeSection === "Informant" ? (
                     <>
                       {/* Form Section Header */}
@@ -1219,7 +1260,7 @@ export default function StartAppointmentConsultationPage() {
                                   "Talking in Sleep", "Daytime Somnolence", "Night Sweats", "Grinding of Teeth"
                                 ].map((item) => (
                                   <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
-                                    <input name="personal_history__parasomnias_select_all_that_apply" type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input name="personal_history__parasomnias_select_all_that_apply" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
                                   </label>
                                 ))}
@@ -1824,6 +1865,12 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                         </div>
 
+                        {/* ── Not part of the RMO intake ────────────────────────────────
+                            GPE, Clinical Signs, and Systemic Examination are disabled via
+                            RMO_SHOW_FULL_GPE (see top of file); their fields are also dropped
+                            from the RMO field registry so nothing here is collected or saved. */}
+                        {RMO_SHOW_FULL_GPE && (
+                          <>
                         {/* General Physical Examination (GPE) Header */}
                         <div className="pt-8 border-t border-[#EAECF0] dark:border-[#374151]">
                           <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">General Physical Examination (GPE)</h2>
@@ -2480,6 +2527,8 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                           </div>
                         </div>
+                          </>
+                        )}
                       </div>
                     </>
                 ) : null}

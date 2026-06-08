@@ -24,6 +24,7 @@ import {
   CalendarCheck2,
   ChevronsLeft,
   ChevronsRight,
+  Stethoscope,
 } from "lucide-react"
 
 const adminSidebarItems = [
@@ -35,6 +36,11 @@ const adminSidebarItems = [
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
   { name: "Reports", icon: BarChart3, href: "/admin/reports" },
+]
+
+// Admin-only extra: a scoped view of Dr. Yuvraaj Singh's appointments.
+const adminOnlySidebarItems = [
+  { name: "Dr Yuvraaj Appointment", icon: Stethoscope, href: "/admin/yuvraaj-appointments" },
 ]
 
 const adminBottomItems = [
@@ -78,7 +84,17 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   const [collapsed, setCollapsed] = useState(false)
 
   const isPatient = rawRole === "PATIENT"
-  const sidebarItems = isPatient ? patientSidebarItems : adminSidebarItems
+  const isAdmin = rawRole === "ADMIN"
+  // Admins get the "Dr Yuvraaj Appointment" entry slotted in right after
+  // "Appointments"; everyone else sees the base list unchanged.
+  const adminItems = isAdmin
+    ? adminSidebarItems.flatMap((item) =>
+        item.href === "/admin/appointments"
+          ? [item, ...adminOnlySidebarItems]
+          : [item],
+      )
+    : adminSidebarItems
+  const sidebarItems = isPatient ? patientSidebarItems : adminItems
   const bottomItems = isPatient ? patientBottomItems : adminBottomItems
   const menuItems = isPatient ? patientMenuItems : adminMenuItems
 
