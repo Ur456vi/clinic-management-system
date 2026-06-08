@@ -20,13 +20,8 @@ const COMPANY_LINKS = [
 
 const POLICY_LINKS = [
   { href: "/privacy", label: "PRIVACY POLICY" },
-<<<<<<< HEAD
-  // { href: "/terms", label: "TERMS OF SERVICE" },
-  // { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
-=======
   { href: "/terms", label: "TERMS OF SERVICE" },
   { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
->>>>>>> parent of c6d796f (Ui changes)
 ];
 
 function ColumnHeading({ children, isSerif = false }: { children: React.ReactNode; isSerif?: boolean }) {
