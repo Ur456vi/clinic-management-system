@@ -1252,24 +1252,11 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snoring</label>
-                              <div className="relative">
-                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="none">None</option>
-                                  <option value="light">Light</option>
-                                  <option value="deep">Deep</option>
-                                  <option value="apneic spells">Apneic spells</option>
-                                  <option value="position-related">Position-related</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
+                            
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Preferred or default Decubitus</label>
                               <div className="relative">
-                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__decubitus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">Supine</option>
                                   <option value="light">Prone</option>
@@ -1282,7 +1269,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Height and No. of Pillows</label>
                               <div className="relative">
-                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__pillow" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">No Pillows</option>
                                   <option value="light">less than 3 Inches</option>
@@ -1294,7 +1281,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Mattress Quality</label>
                               <div className="relative">
-                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__mattress" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">Floor or wood hard</option>
                                   <option value="light">Soft</option>

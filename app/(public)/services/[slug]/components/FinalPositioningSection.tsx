@@ -34,7 +34,7 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 href="/assessment" 
                 className="bg-[#FAF8F5] hover:bg-[#FAF8F5]/90 text-[#4E5C46] border border-[#FAF8F5] transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
               >
-                Book Consultation &rarr;
+                Request Consultation &rarr;
               </a>
               <a 
                 href="/services" 
