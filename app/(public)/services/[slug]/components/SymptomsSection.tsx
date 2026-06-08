@@ -373,7 +373,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
               </p>
 
               {/* All 11 items in a 6-column grid — row 1 fills 6, row 2 fills 5 */}
-              <div className="grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-6 sm:gap-x-4">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-6 sm:gap-x-4">
                 {[
                   { icon: "microscope" as const,        label: "Advanced\nmetabolic\nevaluation" },
                   { icon: "body-composition" as const,  label: "Body\ncomposition\nanalysis" },
@@ -512,25 +512,25 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
               </h3>
 
               {/* Infographic Container */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 my-auto pt-12 pb-4">
+              <div className="flex flex-row items-center justify-between gap-2 sm:gap-6 my-auto pt-12 pb-4">
                 {/* Left List (Right-aligned on wide screens) */}
-                <div className="flex-1 flex flex-col gap-10 sm:text-right text-center w-full sm:w-auto justify-center">
+                <div className="flex-1 flex flex-col gap-6 sm:gap-10 text-right w-auto justify-center">
                   <div>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Metabolic</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">resilience</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Metabolic</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">resilience</span>
                   </div>
                   <div>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Muscle</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">preservation</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Muscle</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">preservation</span>
                   </div>
-                  <div className="mt-8">
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Hormonal</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">balance</span>
+                  <div className="mt-4 sm:mt-8">
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Hormonal</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">balance</span>
                   </div>
                 </div>
 
                 {/* Circle Infographic (Center) */}
-                <div className="relative shrink-0 w-[260px] h-[260px] lg:w-[280px] lg:h-[280px]">
+                <div className="relative shrink-0 w-[120px] h-[120px] sm:w-[260px] sm:h-[260px] lg:w-[280px] lg:h-[280px]">
                   <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Outer Segmented Ring */}
                     <circle cx="100" cy="100" r="75" stroke="#B8C0B4" strokeWidth="30" fill="none" />
@@ -593,18 +593,18 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                 </div>
 
                 {/* Right List (Left-aligned on wide screens) */}
-                <div className="flex-1 flex flex-col gap-10 sm:text-left text-center w-full sm:w-auto justify-center">
+                <div className="flex-1 flex flex-col gap-6 sm:gap-10 text-left w-auto justify-center">
                   <div>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Sustainable body</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">composition change</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Sustainable body</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">composition change</span>
                   </div>
                   <div>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Improved energy</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">and cognition</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Improved energy</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">and cognition</span>
                   </div>
-                  <div className="mt-8">
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Long-term cardiovascular</span>
-                    <span className="text-[13px] font-semibold block leading-tight text-[#1F1F1F]">protection</span>
+                  <div className="mt-4 sm:mt-8">
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">Long-term cardiovascular</span>
+                    <span className="text-[10px] sm:text-[13px] font-semibold block leading-tight text-[#1F1F1F]">protection</span>
                   </div>
                 </div>
               </div>

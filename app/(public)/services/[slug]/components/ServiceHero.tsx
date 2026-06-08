@@ -26,7 +26,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
 
          {/* Hex Pattern — only for non-female */}
          {!isFemale && (
-           <div className="absolute inset-0 opacity-[0.25]" style={{ color: "var(--brand-burgundy)" }}>
+           <div className="hidden md:block absolute inset-0 opacity-[0.25]" style={{ color: "var(--brand-burgundy)" }}>
              <HeroPattern className="h-full w-full" opacity={1} />
            </div>
          )}

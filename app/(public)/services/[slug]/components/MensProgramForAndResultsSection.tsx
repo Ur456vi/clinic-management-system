@@ -99,27 +99,26 @@ export function MensProgramForAndResultsSection({ svc }: { svc: ServiceContent }
               </p>
               
               {/* Stats Row */}
-              <div className="flex flex-row items-center justify-between w-full">
+              <div className="flex flex-row items-center md:justify-between w-full overflow-x-auto pb-4 md:pb-0 gap-4 md:gap-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {stats.map((stat, idx) => (
-                  <div key={idx} className="contents">
-                    <div className="flex flex-col items-center text-center flex-1">
+                  <div key={idx} className="flex items-center shrink-0 snap-center md:contents gap-4 md:gap-0">
+                    <div className="flex flex-col items-center text-center md:flex-1 min-w-[120px] md:min-w-0">
                       <div 
-                        className="text-[#657153] font-medium leading-none mb-3"
+                        className="text-[#657153] font-medium leading-none mb-3 text-[32px] md:text-[clamp(32px,3.5vw,42px)]"
                         style={{
                           fontFamily: "var(--font-display)",
-                          fontSize: "clamp(32px, 3.5vw, 42px)",
                         }}
                       >
                         {stat.value}
                       </div>
-                      <div className="text-[#1F1F1F] font-bold text-[10px] xl:text-[11px] leading-snug whitespace-pre-line">
+                      <div className="text-[#1F1F1F] font-bold text-[11px] leading-snug whitespace-pre-line">
                         {stat.label}
                       </div>
                     </div>
                     
                     {/* Divider */}
                     {idx < stats.length - 1 && (
-                      <div className="w-[1px] h-[50px] bg-[#D6D3C9] shrink-0" />
+                      <div className="w-[1px] h-[40px] md:h-[50px] bg-[#D6D3C9] shrink-0" />
                     )}
                   </div>
                 ))}
