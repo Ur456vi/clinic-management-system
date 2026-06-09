@@ -83,7 +83,7 @@ export function SectionHeading({
       style={{
         fontFamily: "var(--font-display)",
         color: "var(--brand-ink)",
-        fontSize: "clamp(28px, 3.4vw, 44px)",
+        fontSize: "clamp(28px, 3.4vw, 36px)",
       }}
     >
       {children}
@@ -346,7 +346,7 @@ export function StatTile({
 
       <p
         className="text-sm leading-snug font-medium"
-        style={{ color: "var(--brand-ink-soft)" }}
+        style={{ color: "var(--brand-ink)" }}
       >
         {label}
       </p>

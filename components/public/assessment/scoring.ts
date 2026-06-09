@@ -17,12 +17,14 @@
  */
 
 import { QUESTIONS } from "./questions";
+import { isQuestionVisible } from "./questions";
 import {
   CATEGORIES,
   type AnswerValue,
   type CategoryKey,
   type QuizResult,
   type SeverityBand,
+  type Sex,
 } from "./types";
 
 const MAX_SCORE = 50;
@@ -48,7 +50,7 @@ function severityForSubtotal(
 
 /** Highest possible subtotal a single category could yield. Used to label
  *  the per-category severity (High/Moderate/Low) on the results page. */
-function computeMaxByCategory(): Record<CategoryKey, number> {
+function computeMaxByCategory(sex: Sex | null): Record<CategoryKey, number> {
   const max: Record<CategoryKey, number> = {
     energy: 0,
     metabolic: 0,
@@ -58,8 +60,10 @@ function computeMaxByCategory(): Record<CategoryKey, number> {
     lifestyle: 0,
   };
   for (const q of QUESTIONS) {
+    if (!isQuestionVisible(q, sex)) continue;
     switch (q.kind) {
       case "single":
+      case "femaleOnly":
         max[q.category] += Math.max(...q.options.map((o) => o.score));
         break;
       case "splitGender":
@@ -84,6 +88,7 @@ function computeMaxByCategory(): Record<CategoryKey, number> {
 
 export function scoreQuiz(
   answers: Record<string, AnswerValue>,
+  sex: Sex | null = null,
 ): QuizResult {
   const byCategory: Record<CategoryKey, number> = {
     energy: 0,
@@ -95,13 +100,17 @@ export function scoreQuiz(
   };
 
   for (const q of QUESTIONS) {
+    if (!isQuestionVisible(q, sex)) continue;
     const a = answers[q.id];
     if (!a) continue;
 
     let inc = 0;
-    if (a.kind === "single" && q.kind === "single") {
-      inc = q.options[a.choice]?.score ?? 0;
-    } else if (a.kind === "splitGender" && q.kind === "splitGender") {
+    if (
+  a.kind === "single" &&
+  (q.kind === "single" || q.kind === "femaleOnly")
+) {
+  inc = q.options[a.choice]?.score ?? 0;
+} else if (a.kind === "splitGender" && q.kind === "splitGender") {
       const variant = a.variant === "male" ? q.male : q.female;
       inc = variant.options[a.choice]?.score ?? 0;
     } else if (a.kind === "multiToggle" && q.kind === "multiToggle") {
@@ -120,7 +129,7 @@ export function scoreQuiz(
   const total = Math.min(totalUncapped, MAX_SCORE);
 
   // Per-category severity using the question-set's possible max.
-  const maxByCategory = computeMaxByCategory();
+  const maxByCategory = computeMaxByCategory(sex);
 
   const ranked = (Object.keys(byCategory) as CategoryKey[])
     .map((k) => ({

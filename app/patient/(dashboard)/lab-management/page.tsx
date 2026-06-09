@@ -158,7 +158,7 @@ export default function LaboratoryManagementPage() {
       value: pendingCount,
       sub: pendingCount ? "Awaiting results" : "All up to date",
       bg: "#FDB022",
-      icon: <Clock className="w-6 h-6 text-[#141414] opacity-80" />,
+      icon: <Clock className="w-6 h-6 text-[#141414] dark:text-[#F9FAFB] opacity-80" />,
       textColor: "#141414",
       subColor: "rgba(20, 20, 20, 0.65)",
     },
@@ -176,10 +176,10 @@ export default function LaboratoryManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
             Laboratory Management
           </h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             View your lab tests, results, and reports.
           </p>
         </div>
@@ -224,10 +224,10 @@ export default function LaboratoryManagementPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[220px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] dark:text-[#94A3B8] pointer-events-none" />
             <input
               type="text"
               placeholder="Search by test no, patient, or test type…"
@@ -236,7 +236,7 @@ export default function LaboratoryManagementPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+              className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
             />
           </div>
           <select
@@ -245,7 +245,7 @@ export default function LaboratoryManagementPage() {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+            className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
           >
             <option>All Statuses</option>
             <option value="completed">Completed</option>
@@ -259,7 +259,7 @@ export default function LaboratoryManagementPage() {
               setPriorityFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
+            className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] transition-all"
           >
             <option>All Priorities</option>
             <option value="urgent">Urgent</option>
@@ -271,18 +271,18 @@ export default function LaboratoryManagementPage() {
 
       {/* Body */}
       {loading ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
           Loading your lab results…
         </div>
       ) : error ? (
-        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-center">
           <div className="w-10 h-10 rounded-full bg-[#FEF3F2] flex items-center justify-center">
             <AlertCircle className="h-5 w-5 text-[#F04438]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-[#B42318]">Something went wrong</p>
-            <p className="text-xs text-[#667085] mt-1">{error}</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1">{error}</p>
           </div>
           <button
             type="button"
@@ -294,21 +294,21 @@ export default function LaboratoryManagementPage() {
           </button>
         </div>
       ) : paginated.length === 0 ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-16 flex flex-col items-center justify-center gap-3 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
-            <FlaskConical className="h-5 w-5 text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+            <FlaskConical className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#101828]">No lab results found</p>
-            <p className="text-xs text-[#667085] mt-1 max-w-sm">
+            <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No lab results found</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1 max-w-sm">
               When your physician orders lab work, your results will appear here. Adjust filters above if you&apos;re looking for something specific.
             </p>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F9FAFB] text-xs text-[#667085] uppercase tracking-wider">
+            <thead className="bg-[#F9FAFB] dark:bg-[#111827] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">Test No.</th>
                 <th className="px-4 py-3 text-left font-semibold">Patient</th>
@@ -318,37 +318,37 @@ export default function LaboratoryManagementPage() {
                 <th className="px-4 py-3 text-left font-semibold">Ordered</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EAECF0]">
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {paginated.map((order) => (
                 <tr key={order.id} className="hover:bg-[#F9FAFB] transition-colors">
-                  <td className="px-4 py-4 font-semibold text-[#2E37A4]">
+                  <td className="px-4 py-4 font-semibold text-[#2E37A4] dark:text-[#A5B4FC]">
                     {order.id}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#F4F5FF] flex items-center justify-center text-xs font-bold text-[#2E37A4] flex-shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center text-xs font-bold text-[#2E37A4] dark:text-[#A5B4FC] flex-shrink-0">
                         {getInitials(order.name)}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-[#101828] truncate">
+                        <p className="font-medium text-[#101828] dark:text-[#F9FAFB] truncate">
                           {order.name}
                         </p>
                         {order.email ? (
-                          <p className="text-xs text-[#667085] truncate">
+                          <p className="text-xs text-[#667085] dark:text-[#94A3B8] truncate">
                             {order.email}
                           </p>
                         ) : null}
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-[#344054]">{order.type}</td>
+                  <td className="px-4 py-4 text-[#344054] dark:text-[#CBD5E1]">{order.type}</td>
                   <td className="px-4 py-4">
                     <StatusPill status={order.status} />
                   </td>
                   <td className="px-4 py-4">
                     <PriorityPill priority={order.priority} />
                   </td>
-                  <td className="px-4 py-4 text-[#667085]">
+                  <td className="px-4 py-4 text-[#667085] dark:text-[#94A3B8]">
                     {order.date
                       ? new Date(order.date).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -366,25 +366,25 @@ export default function LaboratoryManagementPage() {
 
       {/* Pagination */}
       {!loading && !error && totalPages > 1 ? (
-        <div className="flex justify-between items-center bg-white border border-[#EAECF0] rounded-xl shadow-sm px-4 py-3">
-          <span className="text-xs text-[#667085]">
+        <div className="flex justify-between items-center bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm px-4 py-3">
+          <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
             Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
           </span>
           <div className="flex gap-2">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] text-sm font-medium text-[#344054] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] dark:border-[#374151] text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Previous
             </button>
-            <span className="px-3 py-1.5 text-sm text-[#344054] font-medium">
+            <span className="px-3 py-1.5 text-sm text-[#344054] dark:text-[#CBD5E1] font-medium">
               Page {page} of {totalPages}
             </span>
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] text-sm font-medium text-[#344054] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-md border border-[#D0D5DD] dark:border-[#374151] text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Next
             </button>

@@ -1,9 +1,184 @@
+import React from "react";
 import Image from "next/image";
 import { CheckCircleIcon } from "@/components/public/icons";
 import { type ServiceContent } from "@/components/public/services-config";
 
 export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
-  if (svc.slug !== "metabolic-health") return null;
+  if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
+
+  if (svc.slug === "aesthetic-external") {
+    const flatSymptoms = [
+      "Accelerated facial aging",
+      "Skin dullness & loss of elasticity",
+      "Collagen loss",
+      "Pigmenting changes",
+      "Stress-related skin deterioration",
+      "Hair thinning & scalp concerns",
+      "Volume loss & tissue laxity",
+      "Post-menopausal skin changes",
+      "Inflammatory or metabolically driven skin decline"
+    ];
+
+    const gridRows = [
+      [
+        "Accelerated facial aging",
+        "Hair thinning & scalp concerns",
+        "Inflammatory or metabolically driven skin decline"
+      ],
+      [
+        "Skin dullness & loss of elasticity",
+        "Volume loss & tissue laxity",
+        null
+      ],
+      [
+        "Collagen loss",
+        "Post-menopausal skin changes",
+        null
+      ],
+      [
+        "Pigmenting changes",
+        null,
+        null
+      ],
+      [
+        "Stress-related skin deterioration",
+        null,
+        null
+      ]
+    ];
+
+    return (
+      <section className="w-full pt-4 pb-4 md:pt-6 md:pb-6 bg-[var(--brand-cream)] font-sans">
+        <div className="mx-auto max-w-[1440px] px-6 md:px-10 lg:px-12">
+          
+          {/* Unified Rounded Light-Beige Container */}
+          <div className="w-full bg-[#FAF8F5] border border-[#E4DFD5] rounded-[24px] p-8 md:p-12 lg:p-14 flex flex-col lg:flex-row gap-10 lg:gap-0 items-stretch shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+            
+            {/* Left Block: Heading, Paragraph, and Centered Circular Diagram (52% width) */}
+            <div className="w-full lg:w-[52%] flex flex-col md:flex-row gap-6 md:gap-8 items-center justify-between lg:border-r lg:border-[#E4DFD5] lg:pr-10">
+              
+              {/* Text Area */}
+              <div className="w-full md:w-[56%] flex flex-col justify-center">
+                <h2 className="font-serif text-[18px] md:text-[22px] lg:text-[20px] xl:text-[25px] leading-[1.3] text-neutral-950 font-normal">
+                  The Goal Is Not To Change<br />
+                  How Someone Looks.<br />
+                  <span className="text-[#A3B18A]">
+                    It Is To Restore How Well<br />
+                    The Tissue Ages.
+                  </span>
+                </h2>
+                
+                {/* Horizontal Separator Line (Figma Style) */}
+                <div className="w-12 h-[1.5px] bg-[#D2B48C] mt-5 mb-5" />
+                
+                <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium max-w-[320px]">
+                  Which is why aesthetic care in this Institute is integrated into a broader framework of internal restoration and long-term health optimization.
+                </p>
+              </div>
+
+              {/* Centered Circular Diagram (SVG Built-In Labels for No Overflow/Clipping) */}
+              <div className="w-full md:w-[44%] flex justify-center items-center shrink-0">
+                <svg viewBox="0 0 420 280" className="w-full max-w-[320px] h-auto overflow-visible select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Concentric Circles */}
+                  <circle cx="210" cy="140" r="80" stroke="#D8D3C9" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="210" cy="140" r="54" stroke="#D8D3C9" strokeWidth="1" />
+                  <circle cx="210" cy="140" r="30" stroke="#D8D3C9" strokeWidth="1.5" />
+                  <circle cx="210" cy="140" r="15" stroke="#889A6A" strokeWidth="1" opacity="0.3" fill="#FAF8F5" />
+                  
+                  {/* Spokes */}
+                  {/* Vertical spoke (12 o'clock / 6 o'clock) */}
+                  <line x1="210" y1="60" x2="210" y2="220" stroke="#D8D3C9" strokeWidth="1" />
+                  {/* Diagonal spoke 1 (2 o'clock / 8 o'clock) */}
+                  <line x1="141" y1="100" x2="279" y2="180" stroke="#D8D3C9" strokeWidth="1" />
+                  {/* Diagonal spoke 2 (4 o'clock / 10 o'clock) */}
+                  <line x1="141" y1="180" x2="279" y2="100" stroke="#D8D3C9" strokeWidth="1" />
+
+                  {/* Central Leaves Outline Graphic */}
+                  <g transform="translate(210, 140) scale(0.9) translate(-12, -12)">
+                    <path d="M12 22A7 7 0 0 1 5 15c0-4 3-7 9-9 .6 5-1 9-3 11" fill="none" stroke="#687C59" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M3 23c3-3 6-4 9-4" fill="none" stroke="#687C59" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </g>
+
+                  {/* Evenly Distributed Labels (Bold & Clear Charcoal Color) */}
+                  {/* Collagen Dynamics (Top-Left) */}
+                  <text x="155" y="45" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="middle" fontFamily="var(--font-sans), sans-serif">COLLAGEN DYNAMICS</text>
+                  
+                  {/* Vascular Supply (Top-Right) */}
+                  <text x="265" y="45" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="middle" fontFamily="var(--font-sans), sans-serif">VASCULAR SUPPLY</text>
+                  
+                  {/* Hormonal Environment (Bottom-Right) */}
+                  <text x="285" y="190" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="start" fontFamily="var(--font-sans), sans-serif">HORMONAL ENVIRONMENT</text>
+                  
+                  {/* Metabolic Health (Bottom) */}
+                  <text x="210" y="250" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="middle" fontFamily="var(--font-sans), sans-serif">METABOLIC HEALTH</text>
+                  
+                  {/* Oxidative Stress (Bottom-Left) */}
+                  <text x="135" y="190" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="end" fontFamily="var(--font-sans), sans-serif">OXIDATIVE STRESS</text>
+                  
+                  {/* Inflammation (Middle-Left) */}
+                  <text x="120" y="143" fill="#222222" fontSize="9.5" fontWeight="700" letterSpacing="0.12em" textAnchor="end" fontFamily="var(--font-sans), sans-serif">INFLAMMATION</text>
+                </svg>
+              </div>
+
+            </div>
+
+            {/* Right Block: Heading and Multi-Column Checklist (48% width, Clean/Open spacing) */}
+            <div className="w-full lg:w-[48%] flex flex-col justify-center pl-0 lg:pl-10 mt-8 lg:mt-0">
+              <div>
+                <h2 className="font-serif text-[18px] md:text-[20px] lg:text-[18px] xl:text-[22px] leading-[1.3] text-neutral-950 font-normal mb-2">
+                  Who Are These Programs Designed For ?
+                </h2>
+                <p className="text-neutral-500 text-[13px] md:text-[14px] font-medium mb-6">
+                  Individuals experiencing:
+                </p>
+                
+                {/* Desktop 3-Column Structured Checklist (Exact Row Alignment) */}
+                <div className="hidden lg:grid grid-cols-3 gap-x-6 gap-y-5">
+                  {gridRows.map((row, rowIndex) => (
+                    <React.Fragment key={rowIndex}>
+                      {row.map((item, colIndex) => {
+                        if (!item) {
+                          return <div key={colIndex} className="hidden lg:block" />;
+                        }
+                        return (
+                          <div key={item} className="flex items-start gap-2.5">
+                            <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46] mt-0.5">
+                              <CheckCircleIcon size={12} className="text-[#687C59]" />
+                            </div>
+                            <span className="text-neutral-800 text-[11px] xl:text-[11.5px] font-medium leading-tight">
+                              {item}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                {/* Mobile / Tablet Responsive 2-Column/1-Column Checklist */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-x-6 gap-y-4">
+                  {flatSymptoms.map(text => (
+                    <div key={text} className="flex items-start gap-2.5">
+                      <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46] mt-0.5">
+                        <CheckCircleIcon size={12} className="text-[#687C59]" />
+                      </div>
+                      <span className="text-neutral-800 text-[12px] font-medium leading-tight">
+                        {text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+          
+        </div>
+      </section>
+    );
+  }
+
 
   return (
     <section className="w-full py-16 md:py-20" style={{ background: "var(--brand-cream)" }}>

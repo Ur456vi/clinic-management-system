@@ -25,6 +25,8 @@ declare module "next-auth" {
       fullName: string
       /** Optional profile image URL from Staff.avatarUrl. */
       avatarUrl: string | null
+      /** True while a temp-password account must reset before using the portal. */
+      mustResetPassword: boolean
     } & DefaultSession["user"]
   }
 
@@ -35,6 +37,7 @@ declare module "next-auth" {
     role: Role
     fullName: string
     avatarUrl: string | null
+    mustResetPassword: boolean
   }
 }
 
@@ -50,5 +53,7 @@ declare module "next-auth/jwt" {
     fullName: string
     /** Profile image URL (nullable). */
     avatarUrl: string | null
+    /** True while a temp-password account must reset before using the portal. */
+    mustResetPassword: boolean
   }
 }

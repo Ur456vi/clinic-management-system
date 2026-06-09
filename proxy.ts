@@ -94,6 +94,24 @@ export async function proxy(req: NextRequest) {
   })
 
   const role = typeof token?.role === "string" ? token.role : null
+  const mustReset = Boolean(token?.mustResetPassword)
+  const onReset = pathname === "/reset-password"
+
+  // 0. Forced first-login password reset. A temp-password account is pinned
+  //    to /reset-password until it sets a real password (public marketing
+  //    pages already returned above, so the gate only covers the portal +
+  //    auth pages).
+  if (!token && onReset) {
+    const url = new URL("/login", req.url)
+    url.searchParams.set("next", "/reset-password")
+    return NextResponse.redirect(url)
+  }
+  if (token && mustReset && !onReset) {
+    return NextResponse.redirect(new URL("/reset-password", req.url))
+  }
+  if (token && !mustReset && onReset) {
+    return NextResponse.redirect(new URL(landingForRole(role ?? "DOCTOR"), req.url))
+  }
 
   // 1. Authenticated user on a public auth page (login) → bounce to dashboard.
   if (token && isPublicAuth(pathname)) {

@@ -18,7 +18,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
 import { useQuiz } from "@/components/public/assessment/QuizContext";
-import { TOTAL_STEPS } from "@/components/public/assessment/questions";
+import {
+  isAssessmentComplete,
+  nextUnansweredStep,
+  totalStepsForSex,
+} from "@/components/public/assessment/questions";
 import { scoreQuiz } from "@/components/public/assessment/scoring";
 import { QuizHeader } from "@/components/public/assessment/QuizPrimitives";
 import {
@@ -62,12 +66,14 @@ export default function AssessmentResultPage() {
   }, [hydrated, state.answers, router]);
 
   const result = useMemo<QuizResult>(
-    () => scoreQuiz(state.answers),
-    [state.answers],
+    () => scoreQuiz(state.answers, state.sex),
+    [state.answers, state.sex],
   );
 
+  const totalSteps = totalStepsForSex(state.sex);
   const answeredCount = Object.keys(state.answers).length;
-  const isComplete = answeredCount === TOTAL_STEPS;
+  const isComplete = isAssessmentComplete(state.sex, state.answers);
+  const resumeStep = nextUnansweredStep(state.sex, state.answers);
 
   return (
     <div className="w-full" style={{ background: "var(--brand-cream-2)" }}>
@@ -83,10 +89,10 @@ export default function AssessmentResultPage() {
               color: "var(--brand-ink-soft)",
             }}
           >
-            You answered <strong>{answeredCount}</strong> of <strong>{TOTAL_STEPS}</strong>{" "}
+            You answered <strong>{answeredCount}</strong> of <strong>{totalSteps}</strong>{" "}
             questions. This report is based on what you&apos;ve completed so far.{" "}
             <Link
-              href={`/assessment/q/${Math.max(1, answeredCount + 1)}`}
+              href={`/assessment/q/${resumeStep}`}
               className="font-semibold hover:underline"
               style={{ color: "var(--brand-burgundy)" }}
             >

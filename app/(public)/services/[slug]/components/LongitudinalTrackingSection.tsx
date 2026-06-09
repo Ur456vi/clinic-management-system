@@ -1,7 +1,123 @@
 import { type ServiceContent } from "@/components/public/services-config";
+import { ResolvedIcon } from "@/components/public/icon-resolver";
 
 export function LongitudinalTrackingSection({ svc }: { svc: ServiceContent }) {
-  if (svc.slug !== "metabolic-health") return null;
+  if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
+
+  if (svc.slug === "aesthetic-external") {
+    const philosophyItems = [
+      { icon: "leaf", title: "Natural Outcomes" },
+      { icon: "heart", title: "Tissue Quality" },
+      { icon: "target", title: "Structural Harmony" },
+      { icon: "sparkle", title: "Regenerative Support" },
+      { icon: "clock", title: "Graceful Aging" }
+    ];
+
+    const individualizationItems = [
+      { icon: "stethoscope", title: "Skin Quality" },
+      { icon: "scale", title: "Hormonal & Metabolic Status" },
+      { icon: "shield", title: "Inflammatory Burden" },
+      { icon: "chart", title: "Age-Related Structural Changes" },
+      { icon: "clock", title: "Lifestyle & Recovery Patterns" }
+    ];
+
+    return (
+      <section className="w-full py-4 md:py-6 bg-[var(--brand-cream)] font-sans">
+        <div className="mx-auto max-w-[1680px] px-6 md:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            
+            {/* Burgundy Card: Philosophy */}
+            <div className="bg-[#722F27] rounded-[24px] p-8 md:p-10 flex flex-col justify-between text-white relative overflow-hidden shadow-lg border border-[#8B3A31]">
+              {/* Gold botanical line-art on the right */}
+              <div className="absolute right-[-2%] bottom-[2%] z-0 pointer-events-none opacity-15" aria-hidden="true">
+                <svg width="150" height="250" viewBox="0 0 70 180" fill="none">
+                  <path
+                    d="M50 180 Q48 150 44 125 Q38 95 28 70 Q20 48 14 20"
+                    stroke="#D4AF37"
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M44 128 Q60 118 66 100 Q52 96 44 110 Q43 120 44 128 Z"
+                    fill="#D4AF37"
+                    stroke="#C5A028"
+                    strokeWidth="0.8"
+                    fillOpacity="0.3"
+                  />
+                  <path d="M44 128 Q54 112 66 100" stroke="#C5A028" strokeWidth="0.4" fill="none" />
+                  <path
+                    d="M32 88 Q14 80 8 62 Q22 58 32 72 Q33 80 32 88 Z"
+                    fill="#D4AF37"
+                    stroke="#C5A028"
+                    strokeWidth="0.8"
+                    fillOpacity="0.3"
+                  />
+                  <path d="M32 88 Q20 74 8 62" stroke="#C5A028" strokeWidth="0.4" fill="none" />
+                </svg>
+              </div>
+ 
+              <div className="relative z-10">
+                <h3 className="font-serif text-2xl md:text-[28px] leading-snug font-normal">
+                  The Philosophy Is Conservative, Regenerative, And Long-Term.
+                </h3>
+                <p className="mt-4 text-xs font-semibold text-white/70">
+                  The emphasis is on:
+                </p>
+ 
+                {/* 5 Horizontal items */}
+                <div className="mt-8 flex flex-wrap sm:flex-nowrap items-stretch justify-between w-full">
+                  {philosophyItems.map((item) => (
+                    <div 
+                      key={item.title} 
+                      className="flex flex-col items-center text-center flex-1 px-2 py-1 min-w-[80px] sm:min-w-0 max-w-none border-r border-transparent sm:border-white/30 sm:last:border-transparent"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3 text-white border border-white/5 shadow-inner shrink-0">
+                        <ResolvedIcon name={item.icon as any} size={20} />
+                      </div>
+                      <span className="text-[11px] font-medium leading-tight text-white/90">{item.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+ 
+              <p className="relative z-10 mt-10 text-[12px] text-white/60 font-medium">
+                Not excessive correction or trend-based aesthetic modification.
+              </p>
+            </div>
+ 
+            {/* Cream Card: Individualization */}
+            <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-[24px] p-8 md:p-10 flex flex-col justify-between text-neutral-950 relative overflow-hidden shadow-sm">
+              <div className="relative z-10">
+                <h3 className="font-serif text-2xl md:text-[28px] leading-snug font-normal text-neutral-950">
+                  Every Program Is Individualized.
+                </h3>
+                <p className="mt-4 text-xs font-semibold text-neutral-600">
+                  Interventions are selected only after understanding:
+                </p>
+ 
+                {/* 5 Horizontal items */}
+                <div className="mt-8 flex flex-wrap sm:flex-nowrap items-stretch justify-between w-full">
+                  {individualizationItems.map((item) => (
+                    <div 
+                      key={item.title} 
+                      className="flex flex-col items-center text-center flex-1 px-2 py-1 min-w-[80px] sm:min-w-0 max-w-none border-r border-transparent sm:border-[#C4B299] sm:last:border-transparent"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 text-[var(--brand-olive)] border border-[#EAE6DF] shadow-sm shrink-0">
+                        <ResolvedIcon name={item.icon as any} size={20} />
+                      </div>
+                      <span className="text-[11px] font-semibold leading-tight text-neutral-900">{item.title}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+ 
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full py-8 md:py-10 bg-[#FAF8F3]">

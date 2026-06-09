@@ -95,8 +95,8 @@ export default function DepartmentsPage() {
     <div className="flex flex-col gap-6 max-w-[1400px]">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Departments</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Departments</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Care lanes inside the clinic — used to route staff and slot patient
             appointments.
           </p>
@@ -108,47 +108,47 @@ export default function DepartmentsPage() {
         </Link>
       </div>
 
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-center">
         <div className="flex-1 min-w-[260px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#98A2B3] dark:text-[#94A3B8] pointer-events-none" />
           <input
             type="text"
             placeholder="Search by name or description…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </div>
         {!loading && !error ? (
-          <span className="text-sm text-[#667085]">
+          <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
             {filtered.length} department{filtered.length === 1 ? "" : "s"}
           </span>
         ) : null}
       </div>
 
       {loading ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
           Loading departments…
         </div>
       ) : error ? (
-        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-10 flex flex-col items-center text-center gap-3">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl shadow-sm p-10 flex flex-col items-center text-center gap-3">
           <AlertCircle className="h-7 w-7 text-[#D92D20]" />
           <p className="text-sm font-semibold text-[#B42318]">
             Couldn&apos;t load departments
           </p>
-          <p className="text-xs text-[#667085] max-w-md">{error}</p>
+          <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-md">{error}</p>
           <Button variant="outline" onClick={() => void fetchDepartments()}>
             Retry
           </Button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+            <Building2 className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
           </div>
-          <p className="text-sm font-semibold text-[#101828]">No departments yet</p>
-          <p className="text-xs text-[#667085] max-w-sm">
+          <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No departments yet</p>
+          <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-sm">
             Add the first care lane (e.g. Reception, RMO, Aesthetics) to start routing staff and appointments.
           </p>
         </div>
@@ -168,7 +168,7 @@ function DepartmentCard({ dept }: { dept: Department }) {
   return (
     <Link
       href={`/admin/departments/${dept.id}`}
-      className="bg-white rounded-xl border border-[#EAECF0] shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+      className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
     >
       <div className={`p-5 ${palette.lightThemeColor} flex items-center justify-between`}>
         <div className="flex items-center gap-3">
@@ -176,18 +176,18 @@ function DepartmentCard({ dept }: { dept: Department }) {
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[#101828]">{dept.name}</h3>
-            <p className="text-xs text-[#667085] font-mono">{dept.slug}</p>
+            <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">{dept.name}</h3>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] font-mono">{dept.slug}</p>
           </div>
         </div>
         {!dept.isActive ? (
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#B42318] bg-white px-2 py-1 rounded-full">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#B42318] bg-white dark:bg-[#1F2937] px-2 py-1 rounded-full">
             Inactive
           </span>
         ) : null}
       </div>
       <div className="p-5 flex-1 flex flex-col gap-4">
-        <p className="text-sm text-[#667085] line-clamp-3 min-h-[60px]">
+        <p className="text-sm text-[#667085] dark:text-[#94A3B8] line-clamp-3 min-h-[60px]">
           {dept.description ?? "No description provided."}
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -202,8 +202,8 @@ function DepartmentCard({ dept }: { dept: Department }) {
             value={dept.isActive ? "Active" : "Inactive"}
           />
         </div>
-        <div className="flex items-center justify-between pt-3 border-t border-[#EAECF0]">
-          <span className="text-xs text-[#667085]">
+        <div className="flex items-center justify-between pt-3 border-t border-[#EAECF0] dark:border-[#374151]">
+          <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
             Created{" "}
             {new Date(dept.createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -211,7 +211,7 @@ function DepartmentCard({ dept }: { dept: Department }) {
               year: "numeric",
             })}
           </span>
-          <span className="text-sm font-semibold text-[#2E37A4] inline-flex items-center gap-1">
+          <span className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] inline-flex items-center gap-1">
             Open <ChevronRight className="h-4 w-4" />
           </span>
         </div>
@@ -230,12 +230,12 @@ function Metric({
   value: string
 }) {
   return (
-    <div className="rounded-lg border border-[#EAECF0] p-3 bg-[#F9FAFB]">
-      <div className="flex items-center gap-2 mb-1 text-[#2E37A4]">{icon}</div>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#667085]">
+    <div className="rounded-lg border border-[#EAECF0] dark:border-[#374151] p-3 bg-[#F9FAFB] dark:bg-[#111827]">
+      <div className="flex items-center gap-2 mb-1 text-[#2E37A4] dark:text-[#A5B4FC]">{icon}</div>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
         {label}
       </p>
-      <p className="text-sm font-bold text-[#101828]">{value}</p>
+      <p className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{value}</p>
     </div>
   )
 }

@@ -188,8 +188,8 @@ export default function StaffDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-[#667085]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+      <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading staff member…</p>
       </div>
     )
@@ -199,8 +199,8 @@ export default function StaffDetailPage() {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
         <AlertCircle className="h-7 w-7 text-[#D92D20]" />
-        <p className="text-sm font-semibold text-[#101828]">Couldn&apos;t load staff member</p>
-        <p className="text-xs text-[#667085] max-w-md">{error}</p>
+        <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Couldn&apos;t load staff member</p>
+        <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-md">{error}</p>
         <Link href="/admin/staff">
           <Button variant="outline">Back to Staff</Button>
         </Link>
@@ -214,16 +214,16 @@ export default function StaffDetailPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/staff"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] text-[#344054] hover:bg-gray-50"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50"
             aria-label="Back to staff"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-[#101828]">
+            <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
               {editing ? "Edit staff member" : staff.fullName}
             </h1>
-            <p className="text-sm text-[#667085] mt-0.5 flex items-center gap-2">
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-0.5 flex items-center gap-2">
               {ROLE_LABEL[staff.role] ?? staff.role}
               <StatusPill active={staff.isActive} />
             </p>
@@ -239,8 +239,8 @@ export default function StaffDetailPage() {
         ) : null}
       </div>
 
-      <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6">
-        <h2 className="text-base font-semibold text-[#101828] mb-5">Profile</h2>
+      <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6">
+        <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-5">Profile</h2>
 
         {editing ? (
           <form className="grid grid-cols-1 md:grid-cols-2 gap-5" onSubmit={save}>
@@ -259,7 +259,7 @@ export default function StaffDetailPage() {
               />
             </FormField>
             <FormField label="Email" hint="Email cannot be changed here">
-              <input value={staff.email} disabled className={`${inputCls} bg-[#F9FAFB] text-[#667085]`} />
+              <input value={staff.email} disabled className={`${inputCls} bg-[#F9FAFB] dark:bg-[#111827] text-[#667085] dark:text-[#94A3B8]`} />
             </FormField>
             <FormField label="Phone" error={fieldErrors.phone}>
               <input
@@ -273,7 +273,7 @@ export default function StaffDetailPage() {
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
-                className={`${inputCls} bg-white`}
+                className={`${inputCls} bg-white dark:bg-[#1F2937]`}
               >
                 {ROLE_OPTIONS.map((r) => (
                   <option key={r} value={r}>
@@ -286,7 +286,7 @@ export default function StaffDetailPage() {
               <select
                 value={form.departmentId}
                 onChange={(e) => setForm({ ...form, departmentId: e.target.value })}
-                className={`${inputCls} bg-white`}
+                className={`${inputCls} bg-white dark:bg-[#1F2937]`}
               >
                 <option value="">No department</option>
                 {departments.map((d) => (
@@ -308,7 +308,7 @@ export default function StaffDetailPage() {
               </Button>
               <Link
                 href={`/admin/staff/${id}`}
-                className="text-sm font-semibold text-[#667085] hover:text-[#101828]"
+                className="text-sm font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]"
               >
                 Cancel
               </Link>
@@ -352,7 +352,7 @@ export default function StaffDetailPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-[#D0D5DD] px-3 text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "h-10 w-full rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
 
 function StatusPill({ active }: { active: boolean }) {
   return (
@@ -380,10 +380,10 @@ function DetailItem({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-[#667085] mt-0.5">{icon}</span>
+      <span className="text-[#667085] dark:text-[#94A3B8] mt-0.5">{icon}</span>
       <div>
-        <dt className="text-xs uppercase tracking-wide text-[#667085]">{label}</dt>
-        <dd className="text-[#101828] font-medium">{value}</dd>
+        <dt className="text-xs uppercase tracking-wide text-[#667085] dark:text-[#94A3B8]">{label}</dt>
+        <dd className="text-[#101828] dark:text-[#F9FAFB] font-medium">{value}</dd>
       </div>
     </div>
   )
@@ -404,12 +404,12 @@ function FormField({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
       {children}
-      {hint ? <p className="text-xs text-[#667085]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{hint}</p> : null}
       {error ? <p className="text-xs text-[#B42318]">{error}</p> : null}
     </label>
   )

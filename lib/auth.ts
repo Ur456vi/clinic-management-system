@@ -36,6 +36,7 @@ export type AuthorizedUser = {
   role: Role
   fullName: string
   avatarUrl: string | null
+  mustResetPassword: boolean
 }
 
 /** Shape of `session.user` after our session callback runs. */
@@ -45,6 +46,7 @@ export type SessionUser = {
   role: Role
   fullName: string
   avatarUrl: string | null
+  mustResetPassword: boolean
 }
 
 export const authOptions: NextAuthOptions = {
@@ -132,12 +134,13 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           fullName,
           avatarUrl,
+          mustResetPassword: user.mustResetPassword,
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // `user` is only defined on the initial sign-in. Subsequent calls only
       // receive the existing token — leave it untouched.
       if (user) {
@@ -147,6 +150,19 @@ export const authOptions: NextAuthOptions = {
         token.role = u.role
         token.fullName = u.fullName
         token.avatarUrl = u.avatarUrl
+        token.mustResetPassword = u.mustResetPassword
+      } else if (trigger === "update" && token.userId) {
+        // Called via the client `update()` after a forced password reset —
+        // re-read the flag so the proxy stops gating the user mid-session.
+        try {
+          const fresh = await db.user.findUnique({
+            where: { id: token.userId as string },
+            select: { mustResetPassword: true },
+          })
+          if (fresh) token.mustResetPassword = fresh.mustResetPassword
+        } catch {
+          /* keep stale token on transient DB error */
+        }
       }
       return token
     },
@@ -159,6 +175,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as Role
         session.user.fullName = (token.fullName as string) ?? token.email
         session.user.avatarUrl = (token.avatarUrl as string | null) ?? null
+        session.user.mustResetPassword = Boolean(token.mustResetPassword)
       }
       return session
     },
@@ -192,5 +209,6 @@ export async function requireUser(): Promise<SessionUser> {
     role: u.role,
     fullName: u.fullName,
     avatarUrl: u.avatarUrl,
+    mustResetPassword: u.mustResetPassword ?? false,
   }
 }

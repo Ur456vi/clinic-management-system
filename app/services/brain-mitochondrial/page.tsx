@@ -482,7 +482,7 @@ export default function BrainMitochondrialPage() {
                 href="/assessment"
                 className="inline-flex items-center justify-center rounded border-[1.5px] px-6 py-3.5 text-[13px] font-semibold bg-transparent transition-colors hover:bg-[var(--color-accent-red)]/5 border-[var(--color-accent-red)] text-[var(--color-accent-red)]"
               >
-                Book Consultation
+                Request Consultation
               </Link>
             </div>
 
@@ -1233,7 +1233,7 @@ export default function BrainMitochondrialPage() {
                 href="/assessment"
                 className="inline-flex items-center justify-center rounded px-5 py-2.5 text-[12.5px] font-semibold text-white transition-opacity hover:opacity-90 bg-[var(--color-accent-green)] text-center shadow-sm"
               >
-                Book Consultation &rarr;
+                Request Consultation &rarr;
               </Link>
               <Link
                 href="#program"

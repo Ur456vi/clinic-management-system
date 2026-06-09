@@ -39,7 +39,7 @@ import { SERVICES } from "@/components/public/services-config";
 export const metadata: Metadata = {
   title: "Contact — Dr. Yuvraaj Singh M.D.",
   description:
-    "Send us a message or book a consultation at the Institute of Precision Metabolic & Hormonal Health. Located in Sector 45, Gurugram, Haryana.",
+    "Send us a message or request consultation at the Institute of Precision Metabolic & Hormonal Health. Located in Sector 45, Gurugram, Haryana.",
 };
 
 /* Muted gold accent — used for quote marks and hairline rules. Not in the
@@ -57,22 +57,22 @@ const CONTACT_INFO = [
   {
     icon: <MapPinIcon size={18} />,
     title: "Location",
-    body: "Institute of Precision Metabolic & Hormonal Health, 123 Wellness Avenue, Sector 45, Gurugram, Haryana 122003, India",
+    body: "811, Harnoor House, 1st Floor, Sector-42, Gurugram, Haryana 122002, India",
   },
   {
     icon: <PhoneIcon size={18} />,
     title: "Phone",
-    body: "+91 99765 40310",
+    body: "+91 9266843439",
   },
   {
     icon: <MailIcon size={18} />,
     title: "Email",
-    body: "care@precisionhealth.in",
+    body: "dryuvraaj@iphmh.com",
   },
   {
     icon: <ClockIcon size={18} />,
     title: "Hours",
-    body: "Monday – Saturday: 9:00 AM – 7:00 PM. Sunday: By Appointment Only.",
+    body: "Monday – Saturday: 10:00 AM – 6:00 PM.",
   },
 ];
 
@@ -330,7 +330,7 @@ export default function ContactPage() {
                       letterSpacing: "0.1em",
                     }}
                   >
-                    Request for Consultation
+                    Request Consultation
                     <ArrowRightIcon size={16} />
                   </button>
                 </form>
@@ -544,7 +544,7 @@ export default function ContactPage() {
                   letterSpacing: "0.1em",
                 }}
               >
-                Request A Consultation
+                Request Consultation
               </Link>
             </div>
           </div>

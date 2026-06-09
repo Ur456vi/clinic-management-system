@@ -12,16 +12,16 @@ import Image from "next/image"
 
 import { FacebookIcon, InstagramIcon, TwitterIcon, PhoneIcon } from "./icons";
 
-const PHONE_DISPLAY = "(844) 567-1212";
-const PHONE_HREF = "tel:+18445671212";
+const PHONE_DISPLAY = "+91 9266843439";
+const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
-  { href: "/services/mens-hormonal", label: "Men's Hormonal" },
-  { href: "/services/female-hormonal", label: "Female Restorative" },
+  { href: "/services/mens-hormonal", label: "Men's Health" },
+  { href: "/services/female-hormonal", label: "Female Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },
-  { href: "/blog", label: "Blog" },
+  // { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
 
@@ -58,10 +58,10 @@ export default function Header() {
           {/* Cursive logotype */}
           <Link href="/" className="flex items-center gap-3" aria-label="Home">
   <Image
-    src="/dr-yuvraj-logo.png"
+    src="/dr-yuvraaj-logo.png"
     alt="Dr. Yuvraaj Singh"
-    width={350}
-    height={60}
+    width={449}
+    height={50}
     priority
   />
 
@@ -91,7 +91,7 @@ export default function Header() {
                 letterSpacing: "0.08em",
               }}
             >
-              Book Appointment
+              Request Consultation
             </Link>
             <a
               href={PHONE_HREF}

@@ -255,7 +255,7 @@ export default function AboutPage() {
         letterSpacing: "0.1em",
       }}
     >
-      Request A Consultation
+      Request Consultation
     </Link>
   </div>
 </div>

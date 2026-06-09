@@ -13,15 +13,15 @@ import { SERVICES } from "./services-config";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "ABOUT US" },
-  { href: "/services/female-hormonal", label: "SERVICES" },
+  // { href: "/services/female-hormonal", label: "SERVICES" },
   { href: "/faq", label: "FAQ'S" },
   { href: "/contact", label: "CONTACT US" },
 ];
 
 const POLICY_LINKS = [
   { href: "/privacy", label: "PRIVACY POLICY" },
-  { href: "/terms", label: "TERMS OF SERVICE" },
-  { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
+  // { href: "/terms", label: "TERMS OF SERVICE" },
+  // { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
 ];
 
 function ColumnHeading({ children, isSerif = false }: { children: React.ReactNode; isSerif?: boolean }) {
@@ -46,9 +46,9 @@ export default function Footer() {
         <div className="mb-20 flex items-center justify-start md:justify-start">
           {/* We use a thin, ultra-wide sans font styling to approximate the custom brand mark */}
           <Image
-              src="/dr-yuvraj-logo.png"
+              src="/dr-yuvraaj-logo.png"
               alt="Dr. Yuvraaj Singh"
-              width={550}
+              width={539}
               height={60}
               priority
             />
@@ -122,7 +122,7 @@ export default function Footer() {
               href="/assessment"
               className="inline-block rounded-full px-6 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#421A17] bg-[#722F27]"
             >
-              BOOK APPOINTMENT
+              Request Consultation
             </Link>
           </div>
         </div>

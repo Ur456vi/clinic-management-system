@@ -278,7 +278,7 @@ function promptFor(q: (typeof QUESTIONS)[number], sex: string | null): string {
 function renderAnswer(q: (typeof QUESTIONS)[number], raw: unknown): string {
   if (!raw || typeof raw !== "object") return "—"
   const a = raw as { kind?: string }
-  if (a.kind === "single" && q.kind === "single") {
+  if (a.kind === "single" && (q.kind === "single" || q.kind === "femaleOnly")) {
     const opt = q.options[(a as { choice: number }).choice]
     return opt ? opt.label : "—"
   }
