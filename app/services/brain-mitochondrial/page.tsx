@@ -448,7 +448,7 @@ export default function BrainMitochondrialPage() {
         <div className="mx-auto max-w-[1280px] px-6 md:px-10 pt-16 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative">
           
           {/* LEFT COLUMN: Text Block (40% on large screens) */}
-          <div className="lg:col-span-5 flex flex-col justify-center z-20">
+          <div className="lg:col-span-6 flex flex-col justify-center z-20">
             <h1 className="font-serif-brand text-[44px] sm:text-[52px] xl:text-[60px] font-normal leading-[1.05] tracking-tight text-[var(--color-text-primary)]">
               <span className="font-light">Brain &</span>
               <span className="block font-light mt-1">Mitochondrial</span>
@@ -473,21 +473,21 @@ export default function BrainMitochondrialPage() {
             
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="#program"
+                href="/assessment"
                 className="inline-flex items-center justify-center rounded px-6 py-3.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 bg-[var(--color-accent-green)]"
               >
-                Explore the Program &rarr;
+                Request Consultation &rarr;
               </Link>
-              <Link
+              {/* <Link
                 href="/assessment"
                 className="inline-flex items-center justify-center rounded border-[1.5px] px-6 py-3.5 text-[13px] font-semibold bg-transparent transition-colors hover:bg-[var(--color-accent-red)]/5 border-[var(--color-accent-red)] text-[var(--color-accent-red)]"
               >
                 Request Consultation
-              </Link>
+              </Link> */}
             </div>
 
             {/* Relocated Hero Icon Bar: Placed directly in the left column underneath the buttons */}
-            <div className="mt-10 flex flex-row flex-wrap items-center gap-x-6 gap-y-4 border-t border-[var(--color-border-light)] pt-6">
+            <div className="mt-10 flex flex-row flex-wrap items-center gap-x-6 gap-y-5 border-t border-[var(--color-border-light)] pt-6">
               
               <div className="flex items-center gap-3">
                 <div className="p-1 rounded-full border border-[var(--color-border-light)]/60 bg-white/20">
@@ -533,7 +533,7 @@ export default function BrainMitochondrialPage() {
           </div>
 
           {/* CENTER COLUMN: Beautiful Empty Scientific Space (40% on large screens) */}
-          <div className="lg:col-span-4 relative flex items-center justify-center min-h-[360px] lg:min-h-[480px] overflow-visible">
+          <div className="lg:col-span-3 relative flex items-center justify-center min-h-[360px] lg:min-h-[480px] overflow-visible">
             {/* Radial soft glow sage green circle */}
             <div className="absolute top-[10%] left-[10%] right-[10%] bottom-[10%] -z-10 rounded-full opacity-35 bg-[radial-gradient(circle,#C5CFA8_0%,transparent_70%)] pointer-events-none" />
             
