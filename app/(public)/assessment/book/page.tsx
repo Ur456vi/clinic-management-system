@@ -16,7 +16,11 @@ import { useEffect, useMemo, useState } from "react";
 
 import { CalendarPicker } from "@/components/public/assessment/CalendarPicker";
 import { useQuiz } from "@/components/public/assessment/QuizContext";
-import { QUESTIONS, TOTAL_STEPS } from "@/components/public/assessment/questions";
+import {
+  isAssessmentComplete,
+  QUESTIONS,
+  totalStepsForSex,
+} from "@/components/public/assessment/questions";
 import { QuizHeader } from "@/components/public/assessment/QuizPrimitives";
 import { scoreQuiz } from "@/components/public/assessment/scoring";
 import {
@@ -56,9 +60,13 @@ export default function BookAssessmentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const result = useMemo(() => scoreQuiz(state.answers), [state.answers]);
+  const result = useMemo(
+    () => scoreQuiz(state.answers, state.sex),
+    [state.answers, state.sex],
+  );
+  const totalSteps = totalStepsForSex(state.sex);
   const answered = Object.keys(state.answers).length;
-  const isComplete = answered === TOTAL_STEPS;
+  const isComplete = isAssessmentComplete(state.sex, state.answers);
 
   // Bounce to intro if there's nothing to book against.
   useEffect(() => {
@@ -303,7 +311,7 @@ export default function BookAssessmentPage() {
                 className="text-xs"
                 style={{ color: "var(--brand-warning)" }}
               >
-                Note: only {answered} of {TOTAL_STEPS} questions answered.{" "}
+                Note: only {answered} of {totalSteps} questions answered.{" "}
                 <Link
                   href={`/assessment/q/${Math.max(1, answered + 1)}`}
                   className="font-semibold underline"

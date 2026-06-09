@@ -320,7 +320,7 @@ function renderAnswer(q: (typeof QUESTIONS)[number], raw: unknown): string {
   if (!raw || typeof raw !== "object") return "— not answered —"
   const a = raw as { kind?: string }
 
-  if (a.kind === "single" && q.kind === "single") {
+  if (a.kind === "single" && (q.kind === "single" || q.kind === "femaleOnly")) {
     const choice = (a as { choice: number }).choice
     const opt = q.options[choice]
     return opt ? `${opt.label} (${opt.score})` : "—"
