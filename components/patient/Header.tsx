@@ -16,16 +16,16 @@ export default function Header() {
   const [search, setSearch] = useState("");
 
   return (
-    <header className="h-16 bg-white border-b border-[#EAECF0] flex items-center justify-between px-8 z-10 gap-4 flex-shrink-0">
+    <header className="h-16 bg-white dark:bg-[#1F2937] border-b border-[#EAECF0] dark:border-[#374151] flex items-center justify-between px-8 z-10 gap-4 flex-shrink-0">
       {/* Search Bar */}
-      <div className="flex items-center gap-2 w-96 h-10 border border-[#EAECF0] rounded-lg px-4 bg-[#F9FAFB] focus-within:bg-white focus-within:border-[#2E37A4] focus-within:ring-2 focus-within:ring-[#EEF0FF] transition-all">
-        <Search className="w-4 h-4 text-[#6C7688]" />
+      <div className="flex items-center gap-2 w-96 h-10 border border-[#EAECF0] dark:border-[#374151] rounded-lg px-4 bg-[#F9FAFB] dark:bg-[#111827] focus-within:bg-white focus-within:border-[#2E37A4] focus-within:ring-2 focus-within:ring-[#EEF0FF] transition-all">
+        <Search className="w-4 h-4 text-[#6C7688] dark:text-[#94A3B8]" />
         <input
           type="text"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border-none outline-none text-sm text-[#141414] placeholder-[#6C7688] bg-transparent w-full font-medium"
+          className="border-none outline-none text-sm text-[#141414] dark:text-[#F9FAFB] placeholder-[#6C7688] dark:placeholder-[#94A3B8] bg-transparent w-full font-medium"
         />
       </div>
 

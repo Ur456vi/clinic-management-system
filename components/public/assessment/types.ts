@@ -2,10 +2,11 @@
  * Quiz data types for the public-site Health Assessment.
  *
  * The quiz is a 16-question wizard split across 6 "levels" (categories).
- * Each question is one of three kinds:
+ * Each question is one of several kinds:
  *   - single        : pick one of N labelled options (the most common shape)
  *   - splitGender   : different question per sex; we pick the variant based
  *                     on the user's declared sex at the intro screen
+ *   - femaleOnly    : shown only when sex is female or other (skipped for men)
  *   - multiToggle   : list of yes/no toggles, each scored independently
  *   - comorbidities : multi-select with no individual score (chips), used
  *                     for the "Do you have any of the following?" item.
@@ -59,6 +60,13 @@ export type MultiToggleQuestion = {
   prompt: string;
   options: { label: string; yesScore: number; noScore: number }[];
 };
+export type FemaleOnlyQuestion = {
+  kind: "femaleOnly";
+  id: string;
+  category: CategoryKey;
+  prompt: string;
+  options: AnswerOption[];
+};
 
 export type ComorbiditiesQuestion = {
   kind: "comorbidities";
@@ -74,6 +82,7 @@ export type QuizQuestion =
   | SingleQuestion
   | SplitGenderQuestion
   | MultiToggleQuestion
+  | FemaleOnlyQuestion
   | ComorbiditiesQuestion;
 
 /* ----- Answer values stored per question id ---------------------------- */

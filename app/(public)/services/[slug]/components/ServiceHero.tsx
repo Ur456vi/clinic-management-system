@@ -146,26 +146,26 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
             <>
               {/* Doctor Image for Men's Hormonal */}
               <img
-                src="/images/landing/dr-yuvraaj-singh.png"
+                src="/images/landing/dr-yuvraj-image.png"
                 alt="Hero"
                 className="absolute bottom-0 right-0 h-[90%] lg:h-[100%] object-contain object-bottom hidden md:block lg:right-[15%] xl:right-[15%]"
               />
 
               {/* Floating Quote */}
-              <div className="absolute right-[8%] top-[25%] hidden xl:block z-10 w-[200px]">
+              {/* <div className="absolute right-[8%] top-[25%] hidden xl:block z-10 w-[200px]">
                 <span className="text-[#5C6B46] text-[60px] font-serif leading-none absolute -top-8 -left-4">&ldquo;</span>
                 <p className="text-[#1F1F1F]/90 font-medium text-[17px] leading-[1.6] relative z-10">
                   Decline is not<br />inevitable.<br />It is a signal.<br />And every signal<br />has a cause.
                 </p>
                 <div className="w-6 h-[2px] bg-[#722F27] mt-6 opacity-60" />
-              </div>
+              </div> */}
             </>
           ) : (
             <>
               {/* Doctor/Hero Image — only for non-female, non-mens-hormonal, and non-aesthetic */}
               {!isAesthetic && (
                 <img
-                  src="/images/landing/doctor-hero.png"
+                  src="/images/landing/dr-yuvraj-image.png"
                   alt="Hero"
                   className="absolute bottom-0 right-0 h-[90%] lg:h-[100%] object-contain object-bottom hidden md:block lg:right-[20%] xl:right-[25%]"
                 />
@@ -443,7 +443,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                   className="inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium px-6 py-3.5 text-[13px]"
                   style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
                 >
-                  Book Consultation
+                  Request Consultation
                 </Link>
               </div>
             </>
@@ -458,15 +458,15 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                       className="inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-8 py-4 text-[14px]"
                       style={{ background: "#647153" }}
                     >
-                      Book Your Consultation <span>→</span>
+                      Request Consultation <span>→</span>
                     </Link>
-                    <Link
+                    {/* <Link
                       href="#approach"
                       className="inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium px-8 py-4 text-[14px] bg-[#FAF8F5]"
                       style={{ borderColor: "#E5DCDA", color: "#722F27" }}
                     >
                       Take the Hormone Assessment <span>↗</span>
-                    </Link>
+                    </Link> */}
                   </>
                 ) : (
                   <>
@@ -477,9 +477,9 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                       }`}
                       style={{ background: "#889A6A" }}
                     >
-                      Book Consultation <span>→</span>
+                      Request Consultation <span>→</span>
                     </Link>
-                    <Link
+                    {/* <Link
                       href="#approach"
                       className={`inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium ${
                         isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'
@@ -487,7 +487,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                       style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
                     >
                       Explore Clinical Framework <span>→</span>
-                    </Link>
+                    </Link> */}
                   </>
                 )}
               </div>

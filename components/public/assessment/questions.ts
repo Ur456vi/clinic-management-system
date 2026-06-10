@@ -9,7 +9,7 @@
  * disturbances") which is unnumbered in the Figma but slotted between
  * the hormonal-strength/mood-swings split (Q8) and the stress questions.
  */
-import type { QuizQuestion } from "./types";
+import type { AnswerValue, QuizQuestion, Sex } from "./types";
 
 export const QUESTIONS: QuizQuestion[] = [
   /* ---- Level 1 — Energy & Performance ---- */
@@ -127,8 +127,9 @@ export const QUESTIONS: QuizQuestion[] = [
       ],
     },
   },
+  
   {
-    kind: "single",
+    kind: "femaleOnly",
     id: "q9",
     category: "hormonal",
     prompt: "Any irregular cycles / hot flashes / sleep disturbances?",
@@ -236,4 +237,35 @@ export const QUESTIONS: QuizQuestion[] = [
   // re-uses the prior numbering. We keep our own 1..16 (this is index 16).
 ];
 
+/** Max steps (women / other). Men skip `femaleOnly` questions. */
 export const TOTAL_STEPS = QUESTIONS.length;
+
+export function isQuestionVisible(q: QuizQuestion, sex: Sex | null): boolean {
+  if (q.kind === "femaleOnly" && sex === "male") return false;
+  return true;
+}
+
+/** Questions shown in the wizard for the selected sex. */
+export function questionsForSex(sex: Sex | null): QuizQuestion[] {
+  return QUESTIONS.filter((q) => isQuestionVisible(q, sex));
+}
+
+export function totalStepsForSex(sex: Sex | null): number {
+  return questionsForSex(sex).length;
+}
+
+export function isAssessmentComplete(
+  sex: Sex | null,
+  answers: Record<string, AnswerValue>,
+): boolean {
+  return questionsForSex(sex).every((q) => q.id in answers);
+}
+
+export function nextUnansweredStep(
+  sex: Sex | null,
+  answers: Record<string, AnswerValue>,
+): number {
+  const qs = questionsForSex(sex);
+  const idx = qs.findIndex((q) => !(q.id in answers));
+  return idx === -1 ? qs.length : idx + 1;
+}

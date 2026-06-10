@@ -98,14 +98,14 @@ export default function AddDepartmentPage() {
     <form className="flex flex-col gap-8 pb-12 max-w-[840px]" onSubmit={submit}>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Add Department</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Add Department</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             A care lane used to route staff and slot appointments.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/admin/departments">
-            <Button type="button" variant="outline" className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg">
+            <Button type="button" variant="outline" className="px-6 h-11 border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] font-semibold rounded-lg">
               Cancel
             </Button>
           </Link>
@@ -120,12 +120,12 @@ export default function AddDepartmentPage() {
         </div>
       </div>
 
-      <Link href="/admin/departments" className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium">
+      <Link href="/admin/departments" className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium">
         <ArrowLeft className="h-4 w-4" /> Back to Departments
       </Link>
 
       <div className="bg-[#2E37A4] rounded-xl p-6 text-white flex items-center gap-4 shadow-sm">
-        <div className="h-12 w-12 rounded-lg bg-white/20 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-lg bg-white dark:bg-[#1F2937]/20 flex items-center justify-center">
           <Building2 className="h-6 w-6 text-white" />
         </div>
         <div>
@@ -135,7 +135,7 @@ export default function AddDepartmentPage() {
       </div>
 
       <section className="space-y-5">
-        <h3 className="text-lg font-bold text-[#101828]">Details</h3>
+        <h3 className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Field label="Name" required error={fieldErrors.name}>
             <input
@@ -186,8 +186,8 @@ export function PricingEditor({
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-[#101828]">Default pricing</h3>
-          <p className="text-sm text-[#667085]">
+          <h3 className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">Default pricing</h3>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
             Service code → price (₹). Seeds appointment / invoice line items.
           </p>
         </div>
@@ -201,7 +201,7 @@ export function PricingEditor({
         </Button>
       </div>
       {prices.length === 0 ? (
-        <p className="text-sm text-[#98A2B3]">No pricing configured.</p>
+        <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">No pricing configured.</p>
       ) : (
         <div className="space-y-3">
           {prices.map((row, i) => (
@@ -215,7 +215,7 @@ export function PricingEditor({
                 className={`${inputCls} flex-1`}
               />
               <div className="relative w-40">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085] text-sm">₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085] dark:text-[#94A3B8] text-sm">₹</span>
                 <input
                   type="number"
                   min={0}
@@ -244,7 +244,7 @@ export function PricingEditor({
 }
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
 
 function Field({
   label,
@@ -261,12 +261,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
       {children}
-      {hint ? <p className="text-xs text-[#667085]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{hint}</p> : null}
       {error ? <p className="text-xs text-[#B42318]">{error}</p> : null}
     </label>
   )

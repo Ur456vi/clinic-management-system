@@ -17,11 +17,11 @@ const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
-  { href: "/services/mens-hormonal", label: "Men's Hormonal" },
-  { href: "/services/female-hormonal", label: "Female Restorative" },
+  { href: "/services/mens-hormonal", label: "Men's Health" },
+  { href: "/services/female-hormonal", label: "Female Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },
-  { href: "/blog", label: "Blog" },
+  // { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
 

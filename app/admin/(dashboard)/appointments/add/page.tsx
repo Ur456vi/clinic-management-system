@@ -218,8 +218,8 @@ function NewAppointmentPageInner() {
       {/* Page Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">New Appointment</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">New Appointment</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Pick an existing patient, doctor, and slot.
           </p>
         </div>
@@ -227,7 +227,7 @@ function NewAppointmentPageInner() {
           <Link href="/admin/appointments">
             <Button
               variant="outline"
-              className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg"
+              className="px-6 h-11 border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] font-semibold rounded-lg"
             >
               Cancel
             </Button>
@@ -235,7 +235,7 @@ function NewAppointmentPageInner() {
           {step > 0 ? (
             <Button
               variant="outline"
-              className="px-6 h-11 border-[#2E37A4] text-[#2E37A4] font-semibold hover:bg-[#F4F5FF] rounded-lg"
+              className="px-6 h-11 border-[#2E37A4] text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:bg-[#F4F5FF] rounded-lg"
               onClick={prev}
             >
               Previous
@@ -269,14 +269,14 @@ function NewAppointmentPageInner() {
       <div>
         <Link
           href="/admin/appointments"
-          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium"
+          className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4" /> Back to appointments
         </Link>
       </div>
 
       {/* Stepper */}
-      <div className="border-b border-[#EAECF0]">
+      <div className="border-b border-[#EAECF0] dark:border-[#374151]">
         <div className="flex gap-8 overflow-x-auto pb-px">
           {STEPS.map((s, i) => {
             const isActive = step === i
@@ -288,8 +288,8 @@ function NewAppointmentPageInner() {
                 onClick={() => i <= step && setStep(i)}
                 className={`flex items-center gap-2 pb-4 px-1 relative transition-all whitespace-nowrap ${
                   isActive
-                    ? "text-[#2E37A4]"
-                    : "text-[#667085] hover:text-[#101828]"
+                    ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                    : "text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]"
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -306,7 +306,7 @@ function NewAppointmentPageInner() {
       </div>
 
       {/* Step body */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         <div className="p-8 max-w-[1000px]">
           {step === 0 ? (
             <PatientPicker
@@ -378,31 +378,31 @@ function PatientPicker({
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
-          <User className="h-5 w-5 text-[#2E37A4]" />
+          <User className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
         </div>
-        <h2 className="text-xl font-bold text-[#101828]">Select Patient</h2>
+        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Select Patient</h2>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name, email, phone, or patient #…"
-          className="w-full pl-10 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg text-sm bg-white text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          className="w-full pl-10 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
         />
       </div>
 
-      <div className="border border-[#EAECF0] rounded-lg divide-y divide-[#EAECF0] max-h-[400px] overflow-y-auto">
+      <div className="border border-[#EAECF0] dark:border-[#374151] rounded-lg divide-y divide-[#EAECF0] dark:divide-[#374151] max-h-[400px] overflow-y-auto">
         {loading ? (
-          <div className="p-6 text-center text-sm text-[#667085] flex items-center justify-center gap-2">
+          <div className="p-6 text-center text-sm text-[#667085] dark:text-[#94A3B8] flex items-center justify-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" /> Searching…
           </div>
         ) : items.length === 0 ? (
-          <div className="p-6 text-center text-sm text-[#667085]">
+          <div className="p-6 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
             No patients matched.{" "}
-            <Link href="/admin/patients/add" className="text-[#2E37A4] font-semibold hover:underline">
+            <Link href="/admin/patients/add" className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline">
               Add a new patient
             </Link>
             .
@@ -416,13 +416,13 @@ function PatientPicker({
                 type="button"
                 onClick={() => onSelect(p)}
                 className={`w-full text-left px-4 py-3 hover:bg-[#F9FAFB] transition-colors ${
-                  isSel ? "bg-[#F4F5FF]" : ""
+                  isSel ? "bg-[#F4F5FF] dark:bg-[#312E81]" : ""
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#101828]">{p.fullName}</p>
-                    <p className="text-xs text-[#667085]">
+                    <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{p.fullName}</p>
+                    <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                       #{p.patientNumber} · {p.email ?? "no email"} ·{" "}
                       {p.phone ?? "no phone"}
                     </p>
@@ -430,7 +430,7 @@ function PatientPicker({
                   {isSel ? (
                     <CheckCircle className="h-5 w-5 text-[#12B76A]" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-[#98A2B3] -rotate-90" />
+                    <ChevronDown className="h-4 w-4 text-[#98A2B3] dark:text-[#94A3B8] -rotate-90" />
                   )}
                 </div>
               </button>
@@ -550,13 +550,13 @@ function SlotPicker({
         <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
           <Calendar className="h-5 w-5 text-[#027A48]" />
         </div>
-        <h2 className="text-xl font-bold text-[#101828]">Doctor &amp; Slot</h2>
+        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Doctor &amp; Slot</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Field label="Doctor" required error={fieldErrors.staffId}>
           <div className="relative">
-            <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+            <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
             <select
               value={form.doctor?.id ?? ""}
               onChange={(e) => {
@@ -564,7 +564,7 @@ function SlotPicker({
                 setForm({ ...form, doctor: d, time: "" })
               }}
               disabled={loading}
-              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
+              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
             >
               <option value="">
                 {loading
@@ -589,7 +589,7 @@ function SlotPicker({
             onChange={(e) =>
               setForm({ ...form, durationMin: Number.parseInt(e.target.value, 10), time: "" })
             }
-            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           >
             <option value="15">15 minutes</option>
             <option value="30">30 minutes</option>
@@ -605,7 +605,7 @@ function SlotPicker({
             value={form.date}
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setForm({ ...form, date: e.target.value, time: "" })}
-            className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
           />
         </Field>
 
@@ -614,8 +614,8 @@ function SlotPicker({
       {/* Available open slots (driven by /api/appointments/availability) */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Clock className="h-4 w-4 text-[#667085]" />
-          <span className="text-sm font-medium text-[#344054]">
+          <Clock className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
+          <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">
             Available time slots{form.durationMin ? ` · ${form.durationMin} min` : ""}
           </span>
           {fieldErrors.endsAt ? (
@@ -624,17 +624,17 @@ function SlotPicker({
         </div>
 
         {!form.doctor || !form.date ? (
-          <p className="text-sm text-[#98A2B3]">
+          <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">
             Select a doctor and date to see {form.doctor?.fullName ?? "the doctor"}&apos;s open slots.
           </p>
         ) : slotsLoading ? (
-          <div className="flex items-center gap-2 text-sm text-[#667085]">
+          <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading open slots…
           </div>
         ) : slotsError ? (
           <p className="text-sm text-[#B42318]">{slotsError}</p>
         ) : slots.length === 0 ? (
-          <p className="text-sm text-[#98A2B3]">
+          <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">
             No open slots for this day — try another date or a shorter duration.
           </p>
         ) : (
@@ -650,7 +650,7 @@ function SlotPicker({
                   className={`h-10 rounded-lg border text-sm font-medium transition-colors ${
                     selected
                       ? "bg-[#2E37A4] border-[#2E37A4] text-white"
-                      : "border-[#D0D5DD] text-[#344054] hover:border-[#2E37A4] hover:bg-[#F4F5FF]"
+                      : "border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:border-[#2E37A4] hover:bg-[#F4F5FF]"
                   }`}
                 >
                   {t}
@@ -679,7 +679,7 @@ function DetailsStep({
         <div className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center border border-[#E9D7FE]">
           <FileText className="h-5 w-5 text-[#6941C6]" />
         </div>
-        <h2 className="text-xl font-bold text-[#101828]">Details</h2>
+        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Details</h2>
       </div>
 
       <Field label="Reason for visit">
@@ -688,7 +688,7 @@ function DetailsStep({
           value={form.reason}
           onChange={(e) => setForm({ ...form, reason: e.target.value })}
           placeholder="Chief complaint, referral context, etc."
-          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
         />
       </Field>
       <Field label="Internal notes (optional)">
@@ -697,7 +697,7 @@ function DetailsStep({
           value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
           placeholder="Anything reception/doctor should know ahead of the visit"
-          className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
         />
       </Field>
     </div>
@@ -722,33 +722,33 @@ function ReviewStep({ form }: { form: FormState }) {
         <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
           <CheckCircle className="h-5 w-5 text-[#027A48]" />
         </div>
-        <h2 className="text-xl font-bold text-[#101828]">Review</h2>
+        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Review</h2>
       </div>
-      <div className="bg-[#F9FAFB] border border-[#EAECF0] rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-sm">
+      <div className="bg-[#F9FAFB] dark:bg-[#111827] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-sm">
         <ReviewBlock title="Patient">
           {form.patient ? (
             <>
-              <p className="font-semibold text-[#101828]">{form.patient.fullName}</p>
-              <p className="text-xs text-[#667085]">
+              <p className="font-semibold text-[#101828] dark:text-[#F9FAFB]">{form.patient.fullName}</p>
+              <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                 #{form.patient.patientNumber}
                 {form.patient.email ? ` · ${form.patient.email}` : ""}
                 {form.patient.phone ? ` · ${form.patient.phone}` : ""}
               </p>
             </>
           ) : (
-            <p className="text-[#98A2B3]">Not selected</p>
+            <p className="text-[#98A2B3] dark:text-[#94A3B8]">Not selected</p>
           )}
         </ReviewBlock>
         <ReviewBlock title="Doctor">
           {form.doctor ? (
             <>
-              <p className="font-semibold text-[#101828]">{form.doctor.fullName}</p>
+              <p className="font-semibold text-[#101828] dark:text-[#F9FAFB]">{form.doctor.fullName}</p>
               {form.doctor.specialization ? (
-                <p className="text-xs text-[#2E37A4]">{form.doctor.specialization}</p>
+                <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC]">{form.doctor.specialization}</p>
               ) : null}
             </>
           ) : (
-            <p className="text-[#98A2B3]">Not selected</p>
+            <p className="text-[#98A2B3] dark:text-[#94A3B8]">Not selected</p>
           )}
         </ReviewBlock>
         <ReviewBlock title="Date">{dateLabel}</ReviewBlock>
@@ -785,7 +785,7 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
@@ -806,10 +806,10 @@ function ReviewBlock({
 }) {
   return (
     <div className={wide ? "md:col-span-2" : ""}>
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#667085] mb-1">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8] mb-1">
         {title}
       </p>
-      <div className="text-[#101828]">{children}</div>
+      <div className="text-[#101828] dark:text-[#F9FAFB]">{children}</div>
     </div>
   )
 }

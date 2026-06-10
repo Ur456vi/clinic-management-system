@@ -137,8 +137,8 @@ export default function EmailSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-[#667085]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+      <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading email settings…</p>
       </div>
     )
@@ -147,23 +147,23 @@ export default function EmailSettingsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-[720px]">
       <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-xl bg-[#F4F5FF] flex items-center justify-center">
-          <Mail className="h-5 w-5 text-[#2E37A4]" />
+        <div className="h-11 w-11 rounded-xl bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+          <Mail className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Email (SMTP)</h1>
-          <p className="text-sm text-[#667085]">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Email (SMTP)</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
             Transactional email is sent via Brevo SMTP using these credentials.
           </p>
         </div>
       </div>
 
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6 space-y-5">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6 space-y-5">
         {/* Enable toggle */}
         <label className="flex items-center justify-between gap-4 cursor-pointer">
           <span>
-            <span className="block text-sm font-semibold text-[#101828]">Enable SMTP sending</span>
-            <span className="block text-xs text-[#667085]">
+            <span className="block text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Enable SMTP sending</span>
+            <span className="block text-xs text-[#667085] dark:text-[#94A3B8]">
               When off, emails fall back to the configured API provider or the dev console.
             </span>
           </span>
@@ -194,12 +194,12 @@ export default function EmailSettingsPage() {
           </Field>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-[#344054]">
+        <label className="flex items-center gap-2 text-sm text-[#344054] dark:text-[#CBD5E1]">
           <input
             type="checkbox"
             checked={form.secure}
             onChange={(e) => setForm({ ...form, secure: e.target.checked })}
-            className="h-4 w-4 rounded border-[#D0D5DD] text-[#2E37A4]"
+            className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC]"
           />
           Use TLS (secure) — typically on for port 465, off for 587
         </label>
@@ -244,7 +244,7 @@ export default function EmailSettingsPage() {
           </Field>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-[#667085] pt-1">
+        <div className="flex items-center gap-2 text-xs text-[#667085] dark:text-[#94A3B8] pt-1">
           <ShieldCheck className="h-4 w-4 text-[#027A48]" />
           The password is stored encrypted and never shown again.
         </div>
@@ -262,9 +262,9 @@ export default function EmailSettingsPage() {
       </div>
 
       {/* Test */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
-        <h2 className="text-sm font-semibold text-[#101828] mb-1">Send a test email</h2>
-        <p className="text-xs text-[#667085] mb-4">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">Send a test email</h2>
+        <p className="text-xs text-[#667085] dark:text-[#94A3B8] mb-4">
           Uses the saved settings. Save &amp; enable SMTP first for a true SMTP test.
         </p>
         <Field label="Recipient">
@@ -290,7 +290,7 @@ export default function EmailSettingsPage() {
 }
 
 const inputCls =
-  "w-full h-11 px-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
 
 function Field({
   label,
@@ -303,7 +303,7 @@ function Field({
 }) {
   return (
     <label className={`flex flex-col gap-1.5 ${className ?? ""}`}>
-      <span className="text-sm font-medium text-[#344054]">{label}</span>
+      <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{label}</span>
       {children}
     </label>
   )

@@ -400,7 +400,7 @@ export default function PhysicalRestorationPage() {
                 href="/assessment"
                 className="inline-flex items-center justify-center rounded-none border-[1.5px] px-6 py-3.5 text-[13px] font-semibold bg-transparent transition-colors hover:bg-[var(--color-accent-red)]/5 border-[var(--color-accent-red)] text-[var(--color-accent-red)]"
               >
-                Book Consultation
+                Request Consultation
               </Link>
             </div>
 
@@ -1352,7 +1352,7 @@ export default function PhysicalRestorationPage() {
                   href="/assessment"
                   className="bg-[#FAF8F5] hover:bg-[#FAF8F5]/90 text-[#4A5240] border border-[#FAF8F5] transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
                 >
-                  Book Consultation &rarr;
+                  Request Consultation &rarr;
                 </Link>
                 <Link
                   href="#program"

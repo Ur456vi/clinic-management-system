@@ -26,6 +26,19 @@ import {
 
 type Params = { id: string }
 
+/**
+ * Latest RMO intake for this patient, surfaced read-only inside the doctor's
+ * MAIN consultation ("RMO Summary" tab). Returns null when no RMO chart
+ * exists yet (e.g. a patient booked straight in with the doctor).
+ */
+async function latestRmoSummary(patientId: string) {
+  return db.consultation.findFirst({
+    where: { patientId, type: ConsultationType.RMO },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, sections: true, status: true, createdAt: true },
+  })
+}
+
 export const GET = defineHandler<Params>(async ({ params }) => {
   const session = await requireSession()
   const { id } = appointmentIdParamSchema.parse(await params)
@@ -42,6 +55,13 @@ export const GET = defineHandler<Params>(async ({ params }) => {
     userId: session.userId,
     role: session.role,
   })
+
+  // The doctor's MAIN chart carries the patient's latest RMO intake so the
+  // "RMO Summary" tab can render it without a second round-trip.
+  if (consultation.type === ConsultationType.MAIN) {
+    const rmoSummary = await latestRmoSummary(consultation.patientId)
+    return ok({ ...consultation, rmoSummary })
+  }
   return ok(consultation)
 })
 
@@ -66,6 +86,10 @@ export const POST = defineHandler<Params>(async ({ params }) => {
       userId: session.userId,
       role: session.role,
     })
+    if (existing.type === ConsultationType.MAIN) {
+      const rmoSummary = await latestRmoSummary(existing.patientId)
+      return ok({ ...existing, rmoSummary })
+    }
     return ok(existing)
   }
 
@@ -88,5 +112,9 @@ export const POST = defineHandler<Params>(async ({ params }) => {
     data: { consultationId: consultation.id },
   })
 
+  if (consultation.type === ConsultationType.MAIN) {
+    const rmoSummary = await latestRmoSummary(consultation.patientId)
+    return ok({ ...consultation, rmoSummary })
+  }
   return ok(consultation)
 })
