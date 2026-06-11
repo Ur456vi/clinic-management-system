@@ -6,8 +6,10 @@
  * Reached from the Appointments kebab -> "Start appointment" when the
  * booking is assigned to an RMO. Find-or-creates the consultation linked to
  * the appointment (idempotent), then presents the tab-based RMO intake form
- * (Informant -> Examination Summary) and a Summary tab. From here the RMO can
- * book a follow-up with themselves or hand the patient off to Dr. Yuvraaj.
+ * (Informant -> Examination Summary), a Vitals tab (records readings against
+ * the patient via /api/patients/[id]/vitals — same store as the Patient
+ * Detail page), and a Summary tab. From here the RMO can book a follow-up
+ * with themselves or hand the patient off to Dr. Yuvraaj.
  *
  * The rich form markup mirrors the approved Figma "RMO Consultation" design.
  */
@@ -22,7 +24,7 @@ import { notify } from "@/lib/notify"
 import { RMO_FIELDS, SECTION_KEY, SECTION_LABEL, SECTION_ORDER } from "@/lib/rmo-fields"
 import DoctorConsultation from "./DoctorConsultation"
 
-const mainTabs = ["RMO Consultation", "Summary"] as const
+const mainTabs = ["RMO Consultation", "Vitals", "Summary"] as const
 const formSections = [
   "Informant",
   "Demographics",
@@ -49,6 +51,39 @@ interface Consultation {
     createdAt: string
     sections?: Record<string, Record<string, unknown>> | null
   } | null
+}
+
+interface VitalReading {
+  id: string
+  systolic: number | null
+  diastolic: number | null
+  heartRate: number | null
+  weightKg: number | null
+  temperatureF: number | null
+  spo2: number | null
+  notes: string | null
+  recordedAt: string
+  recordedBy: { id: string; fullName: string } | null
+}
+
+type VitalFormState = {
+  systolic: string
+  diastolic: string
+  heartRate: string
+  weightKg: string
+  temperatureF: string
+  spo2: string
+  notes: string
+}
+
+const EMPTY_VITAL_FORM: VitalFormState = {
+  systolic: "",
+  diastolic: "",
+  heartRate: "",
+  weightKg: "",
+  temperatureF: "",
+  spo2: "",
+  notes: "",
 }
 
 /**
@@ -243,6 +278,83 @@ export default function StartAppointmentConsultationPage() {
 
   const patientId = consult?.patient?.id
 
+  // Vitals tab — readings live on the patient (same store the Patient Detail
+  // page uses), so the RMO sees the latest reading and can record a new one
+  // without leaving the consultation.
+  const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
+  const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
+  const [vitalSaving, setVitalSaving] = useState(false)
+
+  const fetchVitals = useCallback(async () => {
+    if (!patientId) return
+    try {
+      const res = await fetch(`/api/patients/${patientId}/vitals?limit=1`, {
+        credentials: "include",
+      })
+      if (!res.ok) {
+        setLatestVital(null)
+        return
+      }
+      const json = await res.json()
+      const rows: VitalReading[] = Array.isArray(json?.data) ? json.data : []
+      setLatestVital(rows[0] ?? null)
+    } catch {
+      setLatestVital(null)
+    }
+  }, [patientId])
+
+  useEffect(() => {
+    void fetchVitals()
+  }, [fetchVitals])
+
+  const recordVital = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (vitalSaving || !patientId) return
+      const num = (v: string) => (v.trim() === "" ? undefined : Number(v))
+      const payload = {
+        systolic: num(vitalForm.systolic),
+        diastolic: num(vitalForm.diastolic),
+        heartRate: num(vitalForm.heartRate),
+        weightKg: num(vitalForm.weightKg),
+        temperatureF: num(vitalForm.temperatureF),
+        spo2: num(vitalForm.spo2),
+        notes: vitalForm.notes.trim() === "" ? undefined : vitalForm.notes.trim(),
+      }
+      if (
+        ![payload.systolic, payload.diastolic, payload.heartRate, payload.weightKg, payload.temperatureF, payload.spo2].some(
+          (x) => x !== undefined,
+        )
+      ) {
+        notify.error("Enter at least one measurement")
+        return
+      }
+      setVitalSaving(true)
+      try {
+        const res = await fetch(`/api/patients/${patientId}/vitals`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const j = await res.json().catch(() => null)
+          throw new Error(j?.error?.message ?? "Couldn't save vitals")
+        }
+        notify.success("Vitals recorded")
+        setVitalForm(EMPTY_VITAL_FORM)
+        await fetchVitals()
+      } catch (err) {
+        notify.error("Couldn't save vitals", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        })
+      } finally {
+        setVitalSaving(false)
+      }
+    },
+    [patientId, vitalForm, vitalSaving, fetchVitals],
+  )
+
   const bookRmoFollowUp = async () => {
     await save() // persist RMO notes before leaving
     const q = new URLSearchParams({ role: "RMO" })
@@ -282,7 +394,7 @@ export default function StartAppointmentConsultationPage() {
   // Dr. Yuvraaj's (MAIN) consultation is a distinct flow — Patient Detail,
   // RMO Summary, Infusion/Rehab/Aesthetic, Test, Final Prescription.
   if (consult.type === "MAIN") {
-    return <DoctorConsultation appointmentId={appointmentId} consult={consult} quiz={quiz} />
+    return <DoctorConsultation appointmentId={appointmentId} consult={consult} />
   }
 
   return (
@@ -2575,6 +2687,72 @@ export default function StartAppointmentConsultationPage() {
                     </>
                 ) : null}
                 </form>
+              ) : activeMainStep === "Vitals" ? (
+                /* Vitals tab */
+                <div>
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Vitals</h2>
+                    <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
+                      Record the patient&apos;s vitals for this visit. Readings are saved to the patient record.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] p-6 mb-6">
+                    <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Latest reading</h3>
+                    {latestVital === undefined ? (
+                      <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
+                        <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+                        Loading…
+                      </div>
+                    ) : latestVital === null ? (
+                      <p className="text-sm text-[#667085] dark:text-[#94A3B8]">No vitals recorded yet.</p>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <VitalStat label="Blood pressure" value={latestVital.systolic && latestVital.diastolic ? `${latestVital.systolic}/${latestVital.diastolic}` : "—"} unit="mmHg" />
+                        <VitalStat label="Heart rate" value={latestVital.heartRate ?? "—"} unit="bpm" />
+                        <VitalStat label="Weight" value={latestVital.weightKg ?? "—"} unit="kg" />
+                        <VitalStat label="Temp" value={latestVital.temperatureF ?? "—"} unit="°F" />
+                        <VitalStat label="SpO₂" value={latestVital.spo2 ?? "—"} unit="%" />
+                        <VitalStat
+                          label="Recorded"
+                          value={new Date(latestVital.recordedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                          unit={latestVital.recordedBy?.fullName ?? ""}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Record new reading</h3>
+                  <form onSubmit={recordVital} className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <VitalInput label="Systolic (mmHg)" value={vitalForm.systolic} onChange={(v) => setVitalForm({ ...vitalForm, systolic: v })} />
+                    <VitalInput label="Diastolic (mmHg)" value={vitalForm.diastolic} onChange={(v) => setVitalForm({ ...vitalForm, diastolic: v })} />
+                    <VitalInput label="Heart rate (bpm)" value={vitalForm.heartRate} onChange={(v) => setVitalForm({ ...vitalForm, heartRate: v })} />
+                    <VitalInput label="Weight (kg)" value={vitalForm.weightKg} onChange={(v) => setVitalForm({ ...vitalForm, weightKg: v })} />
+                    <VitalInput label="Temp (°F)" value={vitalForm.temperatureF} onChange={(v) => setVitalForm({ ...vitalForm, temperatureF: v })} />
+                    <VitalInput label="SpO₂ (%)" value={vitalForm.spo2} onChange={(v) => setVitalForm({ ...vitalForm, spo2: v })} />
+                    <div className="col-span-2 sm:col-span-3">
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Notes</span>
+                        <input
+                          value={vitalForm.notes}
+                          onChange={(e) => setVitalForm({ ...vitalForm, notes: e.target.value })}
+                          placeholder="Optional"
+                          className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                        />
+                      </label>
+                    </div>
+                    <div className="col-span-2 sm:col-span-3 flex justify-end">
+                      <Button
+                        type="submit"
+                        disabled={vitalSaving || !patientId}
+                        className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white flex items-center gap-2"
+                      >
+                        {vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        Save vitals
+                      </Button>
+                    </div>
+                  </form>
+                </div>
               ) : (
                 /* Summary tab */
                 <div>
@@ -2603,6 +2781,7 @@ export default function StartAppointmentConsultationPage() {
                     )
                     const tabs: { key: string; label: string }[] = [
                       ...dataSections.map((s) => ({ key: s, label: SECTION_LABEL[s] })),
+                      ...(latestVital ? [{ key: "__vitals", label: "Vitals" }] : []),
                       ...(quiz ? [{ key: "__quiz", label: "Quiz Assessment" }] : []),
                     ]
                     if (tabs.length === 0) {
@@ -2638,7 +2817,39 @@ export default function StartAppointmentConsultationPage() {
 
                         {/* Active panel */}
                         <div className="p-5">
-                          {current === "__quiz" && quiz ? (
+                          {current === "__vitals" && latestVital ? (
+                            <div>
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                                  Latest Vitals
+                                </h3>
+                                <button
+                                  onClick={() => setActiveMainStep("Vitals")}
+                                  className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                                >
+                                  Record new reading →
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                                <VitalStat label="Blood pressure" value={latestVital.systolic && latestVital.diastolic ? `${latestVital.systolic}/${latestVital.diastolic}` : "—"} unit="mmHg" />
+                                <VitalStat label="Heart rate" value={latestVital.heartRate ?? "—"} unit="bpm" />
+                                <VitalStat label="Weight" value={latestVital.weightKg ?? "—"} unit="kg" />
+                                <VitalStat label="Temp" value={latestVital.temperatureF ?? "—"} unit="°F" />
+                                <VitalStat label="SpO₂" value={latestVital.spo2 ?? "—"} unit="%" />
+                                <VitalStat
+                                  label="Recorded"
+                                  value={new Date(latestVital.recordedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                                  unit={latestVital.recordedBy?.fullName ?? ""}
+                                />
+                              </div>
+                              {latestVital.notes ? (
+                                <p className="mt-4 text-sm text-[#344054] dark:text-[#CBD5E1] whitespace-pre-wrap">
+                                  <span className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">Notes: </span>
+                                  {latestVital.notes}
+                                </p>
+                              ) : null}
+                            </div>
+                          ) : current === "__quiz" && quiz ? (
                             <div>
                               <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
@@ -2757,5 +2968,32 @@ export default function StartAppointmentConsultationPage() {
         </Button>
       </div>
     </div>
+  )
+}
+
+function VitalStat({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-[#667085] dark:text-[#94A3B8]">{label}</span>
+      <span className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">
+        {value}
+        {unit ? <span className="text-xs font-normal text-[#98A2B3] dark:text-[#94A3B8] ml-1">{unit}</span> : null}
+      </span>
+    </div>
+  )
+}
+
+function VitalInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm">
+      <span className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{label}</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+      />
+    </label>
   )
 }

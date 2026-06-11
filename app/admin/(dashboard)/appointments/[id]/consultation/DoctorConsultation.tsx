@@ -7,31 +7,22 @@
  * type MAIN (i.e. the appointment is assigned to a doctor, not an RMO). The
  * RMO intake form lives in `page.tsx`; this is the doctor's distinct flow:
  *
- *   Patient Detail -> RMO Summary -> Infusion, Rehab & Aesthetic -> Test ->
- *   Final Prescription
+ *   Patient Detail -> Infusion, Rehab & Aesthetic -> Test -> Final Prescription
  *
  * Editable sections persist to `Consultation.sections` via PATCH
  * /api/consultations/:id, keyed by the field registry in lib/main-fields.ts.
- * The RMO Summary section is read-only, rendered from the `rmoSummary` blob
- * the consultation API attaches for MAIN charts.
+ * The RMO intake is reviewed on its own screen
+ * (/admin/appointments/[id]/rmo-summary), linked from the header.
  */
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
-import { ArrowLeft, CalendarPlus, ChevronDown, Loader2, Save, User } from "lucide-react"
+import { useState } from "react"
+import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Save, Trash2, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
-import { MAIN_FIELDS, MAIN_SECTIONS, type MainControl } from "@/lib/main-fields"
-import { RMO_FIELDS, SECTION_KEY, SECTION_LABEL, SECTION_ORDER } from "@/lib/rmo-fields"
-
-interface RmoSummary {
-  id: string
-  status: string
-  createdAt: string
-  sections?: Record<string, Record<string, unknown>> | null
-}
+import { MAIN_FIELDS, MAIN_SECTIONS, type MainControl, type TableColumn } from "@/lib/main-fields"
 
 export interface DoctorConsult {
   id: string
@@ -39,18 +30,11 @@ export interface DoctorConsult {
   status: string
   sections?: Record<string, Record<string, unknown>> | null
   patient: { id: string; fullName: string; patientNumber: string } | null
-  rmoSummary?: RmoSummary | null
 }
 
 interface Props {
   appointmentId: string
   consult: DoctorConsult
-  quiz: {
-    totalScore: number
-    scoreOutOf: number
-    band: string
-    topRisks: { key: string; label: string; severity: string }[]
-  } | null
 }
 
 const inputCls =
@@ -58,7 +42,7 @@ const inputCls =
 const areaCls =
   "w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
 
-export default function DoctorConsultation({ appointmentId, consult, quiz }: Props) {
+export default function DoctorConsultation({ appointmentId, consult }: Props) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState(MAIN_SECTIONS[0].slug)
   const [saving, setSaving] = useState(false)
@@ -114,6 +98,20 @@ export default function DoctorConsultation({ appointmentId, consult, quiz }: Pro
 
   const renderControl = (c: MainControl) => {
     const value = form[c.n] ?? ""
+    if (c.kind === "table") {
+      return (
+        <div key={c.n} className="flex flex-col gap-1.5 col-span-2">
+          <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{c.l}</label>
+          <TableControl
+            columns={c.columns}
+            addLabel={c.addLabel}
+            value={value}
+            onChange={(v) => setField(c.n, v)}
+          />
+          {c.hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{c.hint}</p> : null}
+        </div>
+      )
+    }
     return (
       <div key={c.n} className={`flex flex-col gap-1.5 ${c.full ? "col-span-2" : ""}`}>
         <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{c.l}</label>
@@ -155,19 +153,6 @@ export default function DoctorConsultation({ appointmentId, consult, quiz }: Pro
     )
   }
 
-  // RMO Summary: sub-tabs over the captured RMO sections + quiz.
-  const rmoSecs = (consult.rmoSummary?.sections ?? {}) as Record<string, Record<string, unknown>>
-  const rmoVal = (f: { s: string; n: string }) => {
-    const v = rmoSecs?.[SECTION_KEY[f.s]]?.[f.n]
-    return v == null ? "" : String(v)
-  }
-  const rmoDataSections = useMemo(
-    () => SECTION_ORDER.filter((sec) => RMO_FIELDS.some((f) => f.s === sec && rmoVal(f).trim() !== "")),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [consult.rmoSummary],
-  )
-  const [rmoTab, setRmoTab] = useState("")
-
   return (
     <div className="flex flex-col gap-6 max-w-[1200px] pb-28">
       {/* Header */}
@@ -195,6 +180,11 @@ export default function DoctorConsultation({ appointmentId, consult, quiz }: Pro
             {consult.patient ? <span className="text-[#98A2B3] dark:text-[#94A3B8]">#{consult.patient.patientNumber}</span> : null}
           </div>
         </div>
+        <Link href={`/admin/appointments/${appointmentId}/rmo-summary`}>
+          <Button variant="outline" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" /> View RMO Summary
+          </Button>
+        </Link>
       </div>
 
       {/* Body */}
@@ -226,109 +216,14 @@ export default function DoctorConsultation({ appointmentId, consult, quiz }: Pro
                 <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">{section.description}</p>
               </div>
 
-              {section.key === null ? (
-                /* RMO Summary — read-only */
-                <div>
-                  {consult.rmoSummary ? (
-                    <p className="text-sm text-[#344054] dark:text-[#CBD5E1] mb-4">
-                      Captured by the RMO on{" "}
-                      <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
-                        {new Date(consult.rmoSummary.createdAt).toLocaleDateString()}
-                      </span>
-                      .
-                    </p>
-                  ) : null}
-
-                  {(() => {
-                    const tabs: { key: string; label: string }[] = [
-                      ...rmoDataSections.map((s) => ({ key: s, label: SECTION_LABEL[s] })),
-                      ...(quiz ? [{ key: "__quiz", label: "Quiz Assessment" }] : []),
-                    ]
-                    if (tabs.length === 0) {
-                      return (
-                        <div className="rounded-xl border border-dashed border-[#D0D5DD] dark:border-[#374151] p-6 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
-                          No RMO intake recorded for this patient yet.
-                        </div>
-                      )
-                    }
-                    const current = tabs.some((t) => t.key === rmoTab) ? rmoTab : tabs[0].key
-                    return (
-                      <div className="rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden">
-                        <div className="flex flex-wrap gap-1.5 p-3 bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
-                          {tabs.map((t) => (
-                            <button
-                              key={t.key}
-                              onClick={() => setRmoTab(t.key)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                                current === t.key
-                                  ? "bg-[#2E37A4] text-white"
-                                  : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
-                              }`}
-                            >
-                              {t.label}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="p-5">
-                          {current === "__quiz" && quiz ? (
-                            <div>
-                              <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Health Assessment Quiz</h3>
-                                <span className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">
-                                  {quiz.totalScore}
-                                  <span className="text-xs font-normal text-[#667085] dark:text-[#94A3B8]"> / {quiz.scoreOutOf}</span>
-                                  <span className="ml-2 text-xs font-semibold text-[#3538CD]">{quiz.band}</span>
-                                </span>
-                              </div>
-                              {quiz.topRisks?.length ? (
-                                <div className="flex flex-wrap gap-2">
-                                  {quiz.topRisks.map((r) => (
-                                    <span
-                                      key={r.key}
-                                      className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#FEF3F2] text-[#B42318]"
-                                    >
-                                      {r.label} · {r.severity}
-                                    </span>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-sm text-[#667085] dark:text-[#94A3B8]">No elevated risk areas.</p>
-                              )}
-                              <Link
-                                href={`/admin/appointments/${appointmentId}/quiz`}
-                                className="inline-block mt-3 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
-                              >
-                                View full quiz assessment →
-                              </Link>
-                            </div>
-                          ) : (
-                            <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151] -my-1">
-                              {RMO_FIELDS.filter((f) => f.s === current && rmoVal(f).trim() !== "").map((f) => (
-                                <div key={f.n} className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-3">
-                                  <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
-                                  <dd className="sm:col-span-2 text-sm text-[#101828] dark:text-[#F9FAFB] whitespace-pre-wrap break-words">
-                                    {rmoVal(f)}
-                                  </dd>
-                                </div>
-                              ))}
-                            </dl>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })()}
-                </div>
-              ) : (
-                /* Editable sections */
-                <div className="space-y-10">
-                  {section.groups.map((g, gi) => (
-                    <div key={gi} className={gi > 0 ? "pt-8 border-t border-[#EAECF0] dark:border-[#374151]" : ""}>
-                      {g.title ? <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">{g.title}</h3> : null}
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-6">{g.controls.map(renderControl)}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="space-y-10">
+                {section.groups.map((g, gi) => (
+                  <div key={gi} className={gi > 0 ? "pt-8 border-t border-[#EAECF0] dark:border-[#374151]" : ""}>
+                    {g.title ? <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">{g.title}</h3> : null}
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-6">{g.controls.map(renderControl)}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -347,6 +242,125 @@ export default function DoctorConsultation({ appointmentId, consult, quiz }: Pro
         <Button onClick={bookFollowUp} className="bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2">
           <CalendarPlus className="h-4 w-4" /> Book follow-up
         </Button>
+      </div>
+    </div>
+  )
+}
+
+/* ── structured-table control ────────────────────────────────────── */
+
+type TableRow = Record<string, string>
+
+/** Tolerant parse of a table control's stored JSON value. */
+function parseRows(value: string): TableRow[] {
+  if (!value) return []
+  try {
+    const parsed = JSON.parse(value)
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((r) =>
+      r && typeof r === "object"
+        ? Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v == null ? "" : String(v)]))
+        : {},
+    )
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Repeating-row editor for `table` controls (Supplements, Infusion plans…).
+ * Rows serialize to a JSON string so they persist through the same
+ * string-per-field save path as every other control.
+ */
+function TableControl({
+  columns,
+  addLabel,
+  value,
+  onChange,
+}: {
+  columns: TableColumn[]
+  addLabel?: string
+  value: string
+  onChange: (v: string) => void
+}) {
+  const rows = parseRows(value)
+
+  const commit = (next: TableRow[]) => {
+    // Store "" when empty so save() skips the field entirely.
+    onChange(next.length === 0 ? "" : JSON.stringify(next))
+  }
+
+  const setCell = (ri: number, key: string, v: string) => {
+    const next = rows.map((r, i) => (i === ri ? { ...r, [key]: v } : r))
+    commit(next)
+  }
+
+  const addRow = () => {
+    commit([...rows, Object.fromEntries(columns.map((c) => [c.key, ""]))])
+  }
+
+  const removeRow = (ri: number) => {
+    commit(rows.filter((_, i) => i !== ri))
+  }
+
+  return (
+    <div className="rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden">
+      {rows.length > 0 ? (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
+              {columns.map((c) => (
+                <th
+                  key={c.key}
+                  className="px-3 py-2.5 text-left text-xs font-semibold text-[#667085] dark:text-[#94A3B8]"
+                >
+                  {c.label}
+                </th>
+              ))}
+              <th className="w-10" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
+            {rows.map((row, ri) => (
+              <tr key={ri}>
+                {columns.map((c) => (
+                  <td key={c.key} className="px-1.5 py-1.5 align-top">
+                    <input
+                      type="text"
+                      value={row[c.key] ?? ""}
+                      onChange={(e) => setCell(ri, c.key, e.target.value)}
+                      placeholder={c.placeholder}
+                      className="w-full h-10 px-2.5 border border-transparent hover:border-[#D0D5DD] dark:hover:border-[#374151] rounded-lg bg-transparent text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] focus:bg-white dark:focus:bg-[#1F2937] transition-all"
+                    />
+                  </td>
+                ))}
+                <td className="px-1.5 py-1.5 align-middle">
+                  <button
+                    type="button"
+                    onClick={() => removeRow(ri)}
+                    aria-label="Remove row"
+                    className="p-2 text-[#98A2B3] hover:text-[#B42318] rounded-md hover:bg-[#FEF3F2] transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="px-4 py-4 text-sm text-[#667085] dark:text-[#94A3B8]">
+          No entries yet.
+        </p>
+      )}
+      <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2">
+        <button
+          type="button"
+          onClick={addRow}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+        >
+          <Plus className="h-3.5 w-3.5" /> {addLabel ?? "Add row"}
+        </button>
       </div>
     </div>
   )

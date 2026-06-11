@@ -141,7 +141,7 @@ export default function AppointmentDetailPage({
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ to: status }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       notify.success(`Marked ${status.toLowerCase()}`)

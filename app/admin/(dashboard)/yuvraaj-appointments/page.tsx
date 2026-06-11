@@ -84,6 +84,7 @@ export default function YuvraajAppointmentsPage() {
   return (
     <AppointmentsList
       staffId={staffId}
+      showRmoSummary
       title="Dr. Yuvraaj Singh — Appointments"
       subtitle="Every booking assigned to Dr. Yuvraaj Singh."
       emptyHint="No appointments are currently assigned to Dr. Yuvraaj Singh. Adjust the status filter above to widen your search."
