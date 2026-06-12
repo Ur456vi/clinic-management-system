@@ -1,0 +1,86 @@
+name: Deploy to EC2 (vyara-uat)
+
+on:
+  push:
+    branches:
+      - uat
+
+jobs:
+  deploy:
+    name: Build & Deploy to UAT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: uat
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          DATABASE_URL: ${{ secrets.UAT_DATABASE_URL }}
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.UAT_DATABASE_URL }}
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.UAT_DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.UAT_NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.UAT_NEXTAUTH_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.UAT_NEXT_PUBLIC_APP_URL }}
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.UAT_EC2_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.UAT_EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy .next build to UAT EC2
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            .next/ \
+            ${{ secrets.UAT_EC2_USER }}@${{ secrets.UAT_EC2_HOST }}:/home/ec2-user/vyara-uat/.next/
+
+      - name: Deploy to UAT EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DATABASE_URL: ${{ secrets.UAT_DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.UAT_NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.UAT_NEXTAUTH_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.UAT_NEXT_PUBLIC_APP_URL }}
+        with:
+          host: ${{ secrets.UAT_EC2_HOST }}
+          username: ${{ secrets.UAT_EC2_USER }}
+          key: ${{ secrets.UAT_EC2_KEY }}
+          envs: DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL,NEXT_PUBLIC_APP_URL
+          script: |
+            set -e
+            APP_DIR=/home/ec2-user/vyara-uat
+            mkdir -p $APP_DIR && cd $APP_DIR
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/Ur456vi/clinic-management-system.git
+            fi
+            git fetch origin uat
+            git reset --hard origin/uat
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=%s\nNEXT_PUBLIC_APP_URL=%s\n" "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${NEXTAUTH_URL}" "${NEXT_PUBLIC_APP_URL}" > .env
+            chmod 600 .env
+            npx prisma migrate deploy
+            if pm2 list | grep -q "vyara-uat"; then
+              pm2 restart vyara-uat
+            else
+              pm2 start npm --name vyara-uat -- start
+            fi
+            pm2 save
+            echo "UAT Deploy complete!"
