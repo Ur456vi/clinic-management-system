@@ -155,7 +155,7 @@ export function ConventionalSection({ svc }: { svc: ServiceContent }) {
                       <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46] mt-0.5">
                         <CheckCircleIcon size={14} className="text-[#687C59]" />
                       </div>
-                      <span className="text-[14px] font-semibold leading-tight text-neutral-900 lg:whitespace-nowrap">
+                      <span className="text-[14px] font-semibold leading-tight text-neutral-900">
                         {step.title}
                       </span>
                     </div>

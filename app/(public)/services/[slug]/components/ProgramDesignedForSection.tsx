@@ -71,7 +71,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 {/* Horizontal Separator Line (Figma Style) */}
                 <div className="w-12 h-[1.5px] bg-[#D2B48C] mt-5 mb-5" />
                 
-                <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium max-w-[320px]">
+                <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium max-w-[320px]">
                   Which is why aesthetic care in this Institute is integrated into a broader framework of internal restoration and long-term health optimization.
                 </p>
               </div>
@@ -262,7 +262,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
               </p>
             </div>
             
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:flex md:flex-nowrap md:justify-between items-start gap-y-6 md:gap-y-0 gap-x-1 lg:gap-x-2 mt-4 w-full">
+            <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-between items-start gap-y-6 gap-x-2 md:gap-x-1 lg:gap-x-2 mt-4 w-full">
               {/* Cognition */}
               <div className="flex flex-col items-center flex-1 min-w-0 max-w-[85px]">
                 <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center mb-3">

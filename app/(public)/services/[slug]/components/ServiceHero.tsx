@@ -383,6 +383,33 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
             ))}
           </p>
 
+          {/* Mobile/Tablet Side Text/Quote Blocks */}
+          {isAesthetic && (
+            <div className="mt-8 block xl:hidden border-l-2 border-[#7A2329] pl-4 max-w-[500px]">
+              <h3 className="text-[#1F1F1F] font-medium text-[18px] md:text-[20px] leading-snug" style={{ fontFamily: "var(--font-display)" }}>
+                Appearance is Deeply Connected to Physiology.
+              </h3>
+              <p className="text-[#1F1F1F] font-semibold text-[14px] leading-relaxed mt-3">
+                The skin is the body's largest organ.
+              </p>
+              <p className="text-[#4B4B4B] text-[13px] leading-relaxed mt-2">
+                Hair, connective tissue, facial structure, and skin integrity are biological systems influenced by internal health.
+              </p>
+            </div>
+          )}
+
+          {isMensHormonal && (
+            <div className="mt-8 block xl:hidden border-l-2 border-[#722F27] pl-4 max-w-[500px] text-[#1F1F1F]/95 font-medium text-[15px] leading-relaxed italic">
+              &ldquo;Decline is not inevitable. It is a signal. And every signal has a cause.&rdquo;
+            </div>
+          )}
+
+          {isMetabolic && (
+            <div className="mt-8 block xl:hidden border-l-2 border-[#722F27] pl-4 max-w-[500px] text-[#1F1F1F]/95 font-medium text-[15px] leading-relaxed italic">
+              &ldquo;Metabolism is not a willpower problem. It is a physiological system.&rdquo;
+            </div>
+          )}
+
           {isAesthetic ? (
             <>
                {/* Icons Row first with vertical separator lines */}

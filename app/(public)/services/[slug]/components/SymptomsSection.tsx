@@ -13,7 +13,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
         <div className="mx-auto max-w-[1440px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-6 pt-6 pb-4 md:px-12 md:pt-8 md:pb-6 items-stretch">
           
           {/* Left Column (Text) */}
-          <div className="lg:col-span-3 flex flex-col justify-center lg:pr-6">
+          <div className="lg:col-span-4 xl:col-span-3 flex flex-col justify-center lg:pr-6">
             <h2
               className="font-medium leading-[1.2] mb-6"
               style={{
@@ -29,18 +29,18 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
             </p>
           </div>
 
-          {/* Middle Column (Grid of 9 Tiles in exactly two rows) */}
-          <div className="lg:col-span-6 flex items-center justify-center">
-            <div className="flex flex-col gap-6 w-full items-center">
+          {/* Middle Column (Grid of 9 Tiles) */}
+          <div className="lg:col-span-8 xl:col-span-6 flex items-center justify-center mt-6 lg:mt-0">
+            {/* Desktop Layout (exact 2 rows of 5 and 4 items) */}
+            <div className="hidden lg:flex flex-col gap-6 w-full items-center">
               {/* Row 1: 5 items */}
-              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+              <div className="flex justify-center gap-x-6 w-full">
                 {s.items.slice(0, 5).map((item, idx) => (
-                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
-                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
-                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
-                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                  <div key={idx} className="w-[18%] min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[48px] h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A]" />
                     </div>
-                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                    <div className="text-[#1F1F1F] text-[12px] font-semibold leading-snug">
                       {item.label.split(' ').map((word, i) => (
                         <span key={i} className="block">{word}</span>
                       ))}
@@ -50,14 +50,13 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
               </div>
 
               {/* Row 2: 4 items */}
-              <div className="flex justify-center gap-x-2 sm:gap-x-4 lg:gap-x-6 w-full">
+              <div className="flex justify-center gap-x-6 w-full">
                 {s.items.slice(5).map((item, idx) => (
-                  <div key={idx} className="w-[18%] min-w-[70px] lg:min-w-[80px] flex flex-col items-center text-center">
-                    <div className="flex items-center justify-center w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
-                       <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A] lg:hidden" />
-                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A] hidden lg:block" />
+                  <div key={idx} className="w-[18%] min-w-[80px] flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-[48px] h-[48px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                       <ResolvedIcon name={item.icon} size={22} className="text-[#889A6A]" />
                     </div>
-                    <div className="text-[#1F1F1F] text-[11px] lg:text-[12px] font-semibold leading-snug">
+                    <div className="text-[#1F1F1F] text-[12px] font-semibold leading-snug">
                       {item.label.split(' ').map((word, i) => (
                         <span key={i} className="block">{word}</span>
                       ))}
@@ -66,10 +65,26 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                 ))}
               </div>
             </div>
+
+            {/* Mobile/Tablet Layout (Responsive Grid) */}
+            <div className="grid lg:hidden grid-cols-3 sm:grid-cols-5 gap-y-6 gap-x-4 justify-items-center w-full">
+              {s.items.map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center text-center w-full max-w-[100px]">
+                  <div className="flex items-center justify-center w-[40px] h-[40px] rounded-full bg-[#FCFAF5] border border-[#F0EBE1] mb-2 shrink-0 shadow-sm">
+                     <ResolvedIcon name={item.icon} size={18} className="text-[#889A6A]" />
+                  </div>
+                  <div className="text-[#1F1F1F] text-[11px] font-semibold leading-snug">
+                    {item.label.split(' ').map((word, i) => (
+                      <span key={i} className="block">{word}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Right Column (Quote Card) */}
-          <div className="lg:col-span-3 flex flex-col items-stretch mt-8 lg:mt-0">
+          <div className="lg:col-span-12 xl:col-span-3 flex flex-col items-stretch mt-8 lg:mt-0 w-full max-w-[600px] xl:max-w-none mx-auto">
             <div className="bg-[#F7F5EC] rounded-[8px] p-5 lg:p-6 xl:p-8 h-full flex flex-col justify-start relative overflow-hidden shadow-sm">
                {/* Quote Icon */}
                <div className="text-[#5C6B46] text-[60px] lg:text-[70px] xl:text-[80px] font-serif leading-none mb-2 mt-[-10px] select-none opacity-80">
@@ -77,15 +92,12 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                </div>
                
                {/* Quote Text */}
-               <p className="text-black font-semibold text-[14px] lg:text-[12.5px] xl:text-[14.5px] leading-[1.55] relative z-10">
-                 Yet, aesthetic medicine<br />
-                 is often approached<br />
-                 in isolation—focused<br />
-                 only on cosmetic<br />
-                 correction without<br />
-                 understanding the<br />
-                 physiological environment<br />
-                 underneath it.
+               <p className="text-black font-semibold text-[14px] xl:text-[14.5px] leading-[1.55] relative z-10 text-balance">
+                 Yet, aesthetic medicine{" "}
+                 <br className="hidden md:inline" />
+                 is often approached in isolation—focused only on cosmetic correction{" "}
+                 <br className="hidden md:inline" />
+                 without understanding the physiological environment underneath it.
                </p>
                
                {/* Faint botanical outline */}
@@ -783,9 +795,12 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                
                {/* Quote Text */}
                <p className="text-[#1F1F1F] font-medium text-[15px] md:text-[16px] leading-[1.6] relative z-10">
-                 What has been<br />
-                 normalized is<br />
-                 often physiological<br />
+                 What has been{" "}
+                 <br className="hidden lg:inline" />
+                 normalized is{" "}
+                 <br className="hidden lg:inline" />
+                 often physiological{" "}
+                 <br className="hidden lg:inline" />
                  dysfunction.
                </p>
                

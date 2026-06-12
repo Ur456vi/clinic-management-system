@@ -54,22 +54,22 @@ export default function Header() {
         className="w-full"
         style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-3 md:px-12">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 md:px-12 relative">
           {/* Cursive logotype */}
-          <Link href="/" className="flex items-center gap-3" aria-label="Home">
-  <Image
-    src="/dr-yuvraaj-logo.png"
-    alt="Dr. Yuvraaj Singh"
-    width={449}
-    height={50}
-    priority
-  />
-
-  
-</Link>
+          <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0" aria-label="Home">
+            <Image
+              src="/dr-yuvraaj-logo.png"
+              alt="Dr. Yuvraaj Singh"
+              width={449}
+              height={50}
+              priority
+              style={{ width: "auto" }}
+              className="h-5 sm:h-6 md:h-8 lg:h-10 xl:h-[50px] shrink-0"
+            />
+          </Link>
 
           {/* Center socials */}
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-3 md:flex md:absolute md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 z-10">
             <SocialBubble href="#" label="Facebook">
               <FacebookIcon size={16} />
             </SocialBubble>
@@ -82,10 +82,10 @@ export default function Header() {
           </div>
 
           {/* Right side CTA + phone */}
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4 z-20">
             <Link
               href="/assessment"
-              className="rounded px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95"
+              className="rounded px-3 py-1.5 md:px-5 md:py-2.5 text-[10px] md:text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-colors hover:opacity-95 shrink-0"
               style={{
                 background: "var(--brand-burgundy)",
                 letterSpacing: "0.08em",
@@ -95,7 +95,7 @@ export default function Header() {
             </Link>
             <a
               href={PHONE_HREF}
-              className="hidden items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors md:flex"
+              className="hidden items-center gap-2 rounded border px-4 py-2 text-sm font-medium transition-colors lg:flex shrink-0"
               style={{
                 borderColor: "var(--brand-rule)",
                 color: "var(--brand-ink-soft)",
@@ -114,7 +114,7 @@ export default function Header() {
         style={{ background: "var(--brand-burgundy)" }}
         aria-label="Primary"
       >
-        <ul className="mx-auto flex max-w-[1440px] items-center justify-center gap-6 overflow-x-auto px-6 py-3 md:gap-10 md:px-12">
+        <ul className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-center gap-y-2 gap-x-4 px-6 py-3 md:gap-x-10 md:gap-y-0 md:px-12">
           {NAV_LINKS.map((l) => (
             <li key={l.href} className="shrink-0">
               <Link

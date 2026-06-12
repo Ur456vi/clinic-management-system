@@ -487,8 +487,8 @@ export default function PhysicalRestorationPage() {
             </div>
 
           </div>          {/* RIGHT COLUMN: Image Area (col-span-7) */}
-          <div className="lg:col-span-7 relative flex items-center justify-center min-h-[420px] w-full z-10 pl-0 pr-4 md:pr-6 xl:pl-8 xl:pr-10">
-            <div className="flex flex-row items-center justify-between w-full h-[400px] relative gap-4">
+          <div className="lg:col-span-7 relative flex items-center justify-center w-full z-10 pl-0 pr-4 md:pr-6 xl:pl-8 xl:pr-10">
+            <div className="flex flex-col xl:flex-row items-center xl:justify-between w-full xl:h-[400px] relative gap-4">
               
               {/* Left part: Separate Left-side Indicators Container (no longer relative to the image) */}
               <div className="relative w-[200px] h-[340px] shrink-0 hidden xl:block pointer-events-none">
@@ -590,13 +590,13 @@ export default function PhysicalRestorationPage() {
               </div>
 
               {/* Center part: Image container (wider, placeholder box removed completely) */}
-              <div className="relative w-[280px] h-[400px] flex items-center justify-center shrink-0">
+              <div className="relative w-[280px] h-[400px] flex items-center justify-center shrink-0 hidden xl:flex">
                 {/* Empty container with absolute zero styling / borders, placeholder box completely removed */}
               </div>
 
               {/* Right part: Small Rectangle Blog Quote (w-[180px] shrink-0) */}
               <div 
-                className="border p-5 shadow-[0_8px_24px_rgba(0,0,0,0.02)] relative overflow-hidden flex flex-col justify-between min-h-[220px] w-[180px] shrink-0 z-20"
+                className="border p-5 shadow-[0_8px_24px_rgba(0,0,0,0.02)] relative overflow-hidden flex flex-col justify-between min-h-[220px] w-full max-w-[420px] xl:w-[180px] xl:shrink-0 z-20 mx-auto"
                 style={{
                   backgroundColor: "#FEFDFB",
                   borderColor: "var(--color-border-light)",
@@ -1225,7 +1225,7 @@ export default function PhysicalRestorationPage() {
       <section className="w-full py-4 bg-[#F5F0E8] px-4 sm:px-6 md:px-8">
         <div className="mx-auto max-w-[1280px]">
           
-          <div className="relative bg-[#FEFDFB] border border-[var(--color-border-light)] rounded-2xl overflow-hidden p-8 md:p-12 shadow-sm">
+          <div className="relative bg-[#FEFDFB] border border-[var(--color-border-light)] rounded-2xl overflow-hidden p-5 md:p-12 shadow-sm">
             
             {/* Right Side Landscape Background Image with absolute positioning */}
             <div 
@@ -1337,23 +1337,26 @@ export default function PhysicalRestorationPage() {
             </div>
 
             {/* Compact dark olive green CTA banner at bottom with negative margins to touch bottom card borders */}
-            <div className="mt-8 -mx-8 md:-mx-12 -mb-8 md:-mb-12 rounded-t-none rounded-b-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#4A5240] text-white relative z-10 shadow-sm">
-              <div className="flex items-center gap-3">
-                <LeafIcon className="w-6 h-6 text-[#EDE8DF] shrink-0" />
-                <span className="font-serif-brand text-[16px] sm:text-[19px] md:text-[20px] lg:text-[21px] font-normal text-white text-left leading-normal">
-                  Restore Function. Rebuild Strength. Renew Your Capacity For Life.
-                </span>
+            <div className="mt-8 -mx-5 md:-mx-12 -mb-5 md:-mb-12 rounded-t-none rounded-b-2xl p-6 md:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 bg-[#4A5240] text-white relative z-10 shadow-sm">
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
+                <div className="text-white/80 shrink-0">
+                  <LeafIcon className="w-8 h-8 text-[#EDE8DF]" />
+                </div>
+                <p className="text-[#FAF8F5]/90 text-[14px] md:text-[15px] font-medium leading-relaxed tracking-wide font-sans">
+                  Restore Function. Rebuild Strength.<br className="hidden md:block" />
+                  Renew Your Capacity For Life.
+                </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto shrink-0 justify-center md:justify-end">
+              <div className="flex flex-wrap items-center justify-center gap-4 shrink-0 w-full lg:w-auto">
                 <Link
                   href="/assessment"
-                  className="inline-flex items-center justify-center rounded-none px-6 py-3.5 text-[12.5px] font-semibold text-[#4A5240] transition-colors bg-[#EDE8DF] hover:bg-[#FEFDFB] text-center shadow-sm"
+                  className="bg-[#FAF8F5] hover:bg-[#FAF8F5]/90 text-[#4A5240] border border-[#FAF8F5] transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
                 >
                   Request Consultation &rarr;
                 </Link>
                 <Link
                   href="#program"
-                  className="inline-flex items-center justify-center rounded-none border-[1.5px] px-6 py-3.5 text-[12.5px] font-semibold bg-transparent transition-colors hover:bg-white/5 border-white text-white text-center"
+                  className="bg-transparent hover:bg-white/5 text-[#FAF8F5] border border-[#FAF8F5]/80 transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
                 >
                   Explore Our Programs &rarr;
                 </Link>

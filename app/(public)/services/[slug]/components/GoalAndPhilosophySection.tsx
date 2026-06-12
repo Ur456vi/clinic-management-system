@@ -20,10 +20,10 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
                 
                 {/* Left Text */}
                 <div className="flex-1">
-                  <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-neutral-950 font-normal">
+                  <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-[var(--brand-burgundy)] font-normal">
                     Because external appearance cannot be separated from internal physiology.
                   </h3>
-                  <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-700 font-medium">
+                  <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium">
                     When the body functions better internally, the effects are often visible externally—through skin quality, vitality, recovery, facial integrity, and the way an individual carries themselves over time.
                   </p>
                 </div>
@@ -78,13 +78,13 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
             {/* Middle Text */}
             <div className="w-full xl:w-[65%] flex flex-col gap-4">
               <h2 
-                className="text-[20px] md:text-[24px] xl:text-[26px] font-medium text-[#1F1F1F] leading-[1.3] lg:whitespace-nowrap"
+                className="text-[20px] md:text-[24px] xl:text-[26px] font-medium text-[#1F1F1F] leading-[1.3]"
                 style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.01em" }}
               >
                 The Goal Is Not Just To Make You Lighter.<br />
                 It Is To Make You <span className="text-[#5C6B46]">Metabolically Stronger.</span>
               </h2>
-              <p className="text-[#1F1F1F]/80 text-[13px] md:text-[14px] font-medium leading-relaxed lg:whitespace-nowrap">
+              <p className="text-[#1F1F1F]/80 text-[13px] md:text-[14px] font-medium leading-relaxed">
                 Because sustainable health is not built through restriction and short-term intensity.<br className="hidden md:block" />
                 It is built through physiological restoration, structured monitoring,<br className="hidden md:block" />
                 and long-term metabolic stability.

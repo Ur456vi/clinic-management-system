@@ -218,21 +218,21 @@ export default function HomeContent() {
 
             <div className="mt-12 flex flex-col md:flex-row flex-wrap gap-x-8 gap-y-6 max-w-2xl">
               {HERO_TILES.map((t) => (
-                <div key={t.label} className="flex flex-col md:flex-row items-center md:items-start gap-4 text-center md:text-left">
-                  <div className="relative w-10 h-10 shrink-0 mt-2 md:mt-0">
+                <div key={t.label} className="flex items-start md:items-center gap-4 text-left w-full">
+                  <div className="relative w-10 h-10 shrink-0 mt-1 md:mt-0">
                     <Image
                       src={t.icon}
                       alt={t.label}
                       fill
                       className="object-contain"
+                      sizes="40px"
                     />
                   </div>
                   <span
-                    className="font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[14px] h-auto md:h-[163px] flex items-center"
+                    className="flex-1 font-sans font-normal uppercase leading-[25px] tracking-[0.5px] text-[14px] md:h-[163px] flex items-center"
                     style={{
                       color: "var(--brand-ink-soft)",
-                      width: t.icon.includes("Neuron") ? "195px" : "100%",
-                      maxWidth: "550px",
+                      maxWidth: t.icon.includes("Neuron") ? "195px" : "550px",
                     }}
                   >
                     {t.label}
@@ -256,6 +256,7 @@ export default function HomeContent() {
               fill
               priority
               className="object-cover object-left-top"
+              sizes="(max-width: 768px) 100vw, 720px"
             />
           </div>
         </div>
@@ -368,6 +369,7 @@ export default function HomeContent() {
                 fill
                 priority
                 className="object-cover"
+                sizes="(max-width: 768px) 100vw, 631px"
               />
             </div>
           </div>
@@ -404,6 +406,7 @@ export default function HomeContent() {
                       alt={f.title}
                       fill
                       className="object-contain"
+                      sizes="32px"
                     />
                   </div>
                   <p
@@ -445,7 +448,7 @@ export default function HomeContent() {
 
           <div className="mt-12 flex flex-col lg:flex-row gap-8 items-center justify-between">
             {/* The 4 steps */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 w-full relative">
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 w-full relative">
               {FRAMEWORK.map((f) => (
                 <div
                   key={f.no}
@@ -465,12 +468,13 @@ export default function HomeContent() {
                     >
                       {f.no}
                     </span>
-                    <div className="relative w-[90px] h-[90px] shrink-0">
+                    <div className="relative w-[70px] h-[70px] md:w-[90px] md:h-[90px] shrink-0">
                       <Image
                         src={f.icon}
                         alt={f.body}
                         fill
                         className="object-contain"
+                        sizes="(max-width: 768px) 70px, 90px"
                       />
                     </div>
                   </div>
