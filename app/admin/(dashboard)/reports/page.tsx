@@ -114,7 +114,8 @@ export default function ReportsPage() {
       const invoiceList: Array<{
         status: InvStatus
         totalCents: number
-        paidCents: number
+        paidCents?: number
+        payments?: { amountCents?: number; status?: string }[]
         currency: string
       }> = invoices?.items ?? invoices?.data?.items ?? invoices?.data ?? []
       const asmList: Array<{
@@ -153,9 +154,18 @@ export default function ReportsPage() {
       let currency = "INR"
       for (const inv of invoiceList) {
         invByStatus[inv.status] = (invByStatus[inv.status] ?? 0) + 1
-        paid += inv.paidCents
+        // `paidCents` isn't serialized by the list endpoint — derive it from
+        // the included CAPTURED payments; coerce so sums can't become NaN.
+        const direct = Number(inv.paidCents)
+        const paidC = Number.isFinite(direct)
+          ? direct
+          : (inv.payments ?? [])
+              .filter((p) => p.status === "CAPTURED")
+              .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
+        const totalC = Number(inv.totalCents ?? 0) || 0
+        paid += paidC
         if (inv.status === "OPEN" || inv.status === "PARTIALLY_PAID") {
-          outstanding += Math.max(0, inv.totalCents - inv.paidCents)
+          outstanding += Math.max(0, totalC - paidC)
         }
         if (inv.currency) currency = inv.currency
       }

@@ -81,19 +81,39 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       notify.success("Consultation saved")
 
       // Prescription ready -> the visit is done: move the appointment to
-      // COMPLETED (legal only from CONFIRMED; any other state 400s and is
-      // ignored quietly — e.g. already completed on a previous save).
-      const prescriptionReady = MAIN_FIELDS.some(
-        (f) => f.key === "finalPrescription" && (form[f.n] ?? "") !== "",
-      )
+      // COMPLETED. "Ready" is deliberately strict — a diagnosis plus at
+      // least one treatment line (supplement / medication / infusion) — so
+      // a stray advice note can't complete the visit. If the appointment
+      // was never accepted (still REQUESTED), step it through CONFIRMED
+      // first; the doctor running the consult implies acceptance.
+      const hasRows = (n: string) => {
+        try {
+          const rows = JSON.parse(form[n] ?? "[]")
+          return Array.isArray(rows) && rows.length > 0
+        } catch {
+          return false
+        }
+      }
+      const prescriptionReady =
+        (form["finalPrescription__diagnosis"] ?? "").trim() !== "" &&
+        (hasRows("finalPrescription__supplements_rows") ||
+          hasRows("infusionRehabAesthetic__infusion_rows") ||
+          (form["finalPrescription__medications"] ?? "").trim() !== "")
       if (prescriptionReady && !markedCompleted) {
         try {
-          const t = await fetch(`/api/appointments/${appointmentId}/transition`, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ to: "COMPLETED" }),
-          })
+          const transition = (to: "CONFIRMED" | "COMPLETED") =>
+            fetch(`/api/appointments/${appointmentId}/transition`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ to }),
+            })
+          let t = await transition("COMPLETED")
+          if (!t.ok) {
+            // Possibly still REQUESTED — accept, then complete.
+            const accepted = await transition("CONFIRMED")
+            if (accepted.ok) t = await transition("COMPLETED")
+          }
           if (t.ok) {
             setMarkedCompleted(true)
             notify.success("Appointment marked completed")

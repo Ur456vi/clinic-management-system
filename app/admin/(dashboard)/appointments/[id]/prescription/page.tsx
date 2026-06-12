@@ -209,14 +209,15 @@ export default function PrescriptionPage() {
     void (async () => {
       setError(null)
       try {
+        // Read-only GET — viewing a prescription must never create a chart
+        // (the POST variant find-or-creates the consultation row).
         const res = await fetch(`/api/appointments/${appointmentId}/consultation`, {
-          method: "POST",
           credentials: "include",
         })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const { data } = await res.json()
         if (!cancelled) {
-          setConsult(data as Consultation)
+          setConsult((data as Consultation | null) ?? null)
           setGeneratedAt(new Date())
         }
       } catch (err) {

@@ -19,6 +19,7 @@ import { defineHandler, ok, requireSession } from "@/lib/api"
 import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/errors"
 import { appointmentIdParamSchema } from "@/lib/validation/appointment"
+import { assertAppointmentAccess } from "@/lib/services/appointment"
 import {
   createConsultation,
   getConsultation,
@@ -45,9 +46,12 @@ export const GET = defineHandler<Params>(async ({ params }) => {
 
   const appt = await db.appointment.findUnique({
     where: { id },
-    select: { consultationId: true },
+    select: { consultationId: true, staffId: true },
   })
   if (!appt) throw new NotFoundError("Appointment not found")
+
+  // Non-admin staff may only read consultations on their own appointments.
+  await assertAppointmentAccess(appt.staffId, session)
 
   if (!appt.consultationId) return ok(null)
 
@@ -75,10 +79,15 @@ export const POST = defineHandler<Params>(async ({ params }) => {
       consultationId: true,
       patientId: true,
       reason: true,
+      staffId: true,
       staff: { select: { user: { select: { role: true } } } },
     },
   })
   if (!appt) throw new NotFoundError("Appointment not found")
+
+  // Only the assigned staff member (or admin/reception) may start or
+  // resume the consultation for this appointment.
+  await assertAppointmentAccess(appt.staffId, session)
 
   // Already started — return the existing chart.
   if (appt.consultationId) {

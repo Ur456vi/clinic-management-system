@@ -207,7 +207,8 @@ export default function AppointmentsList({
                 <th className="px-6 py-3 font-semibold">Date / Time</th>
                 <th className="px-6 py-3 font-semibold">Reason</th>
                 <th className="px-6 py-3 font-semibold">Status</th>
-                <th className="px-6 py-3 font-semibold">Actions</th>
+                {/* Sticky so the kebab stays reachable when the table scrolls sideways. */}
+                <th className="px-6 py-3 font-semibold sticky right-0 bg-[#F9FAFB] dark:bg-[#111827]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
@@ -355,8 +356,8 @@ function AppointmentRow({
         <StatusPill status={row.status} />
       </td>
 
-      {/* Actions */}
-      <td className="px-6 py-4">
+      {/* Actions — sticky so the kebab stays reachable under horizontal scroll. */}
+      <td className="px-6 py-4 sticky right-0 bg-white dark:bg-[#1F2937]">
         <AppointmentActionMenu row={row} showRmoSummary={showRmoSummary} onChanged={onChanged} />
       </td>
     </tr>
@@ -392,7 +393,16 @@ function AppointmentActionMenu({
     if (r) {
       // Anchor below the button, right-aligned, in viewport (fixed) coords so
       // the menu escapes the table's overflow-hidden / overflow-x-auto clip.
-      setCoords({ top: r.bottom + 4, left: r.right - MENU_W })
+      // If the menu would spill past the bottom of the viewport, flip it above
+      // the button instead — otherwise the lowest items ("View quiz
+      // Assessment", "View prescription") end up off-screen and unreachable
+      // (the menu closes on scroll).
+      const itemCount =
+        3 + (row.status === "REQUESTED" ? 1 : 0) + (showRmoSummary ? 1 : 0) + (row.status === "COMPLETED" ? 1 : 0)
+      const menuH = itemCount * 38 + 10
+      const top =
+        r.bottom + 4 + menuH > window.innerHeight ? Math.max(8, r.top - menuH - 4) : r.bottom + 4
+      setCoords({ top, left: r.right - MENU_W })
     }
     setOpen(true)
   }

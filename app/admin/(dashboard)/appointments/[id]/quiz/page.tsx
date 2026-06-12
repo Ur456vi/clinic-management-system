@@ -251,7 +251,11 @@ export default function AppointmentQuizPage() {
           Patient&apos;s answers
         </p>
         <ol className="space-y-4">
-          {QUESTIONS.map((q, i) => (
+          {/* Only the questions this respondent was actually asked — men skip
+              the female-only question, so numbering follows their quiz. */}
+          {QUESTIONS.filter(
+            (q) => !(q.kind === "femaleOnly" && quiz.contactSex === "male"),
+          ).map((q, i) => (
             <li key={q.id} className="border-l-2 pl-4" style={{ borderColor: "#EAECF0" }}>
               <p className="text-xs uppercase tracking-wider text-[#98A2B3] dark:text-[#94A3B8] font-semibold">
                 Q{i + 1} · {labelFor(q.category as CategoryKey)}

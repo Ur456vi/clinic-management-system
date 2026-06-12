@@ -60,6 +60,34 @@ const VIEW_ROLES: readonly Role[] = [
   Role.AESTHETICS_SPECIALIST,
 ]
 
+/**
+ * Roles that see the whole appointment book. Everyone else is scoped to
+ * appointments assigned to their own staff profile — both in lists and on
+ * single records (`assertAppointmentAccess`).
+ */
+const FULL_BOOK_ROLES: readonly Role[] = [Role.ADMIN, Role.RECEPTION]
+
+/**
+ * Ownership gate for single-appointment access (detail, transition,
+ * consultation, RMO summary, quiz…). ADMIN/RECEPTION pass; any other role
+ * must be the staff member the appointment is assigned to.
+ */
+export async function assertAppointmentAccess(
+  appointmentStaffId: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (FULL_BOOK_ROLES.includes(actor.role)) return
+  const staff = await db.staff.findUnique({
+    where: { userId: actor.userId },
+    select: { id: true },
+  })
+  if (!staff || staff.id !== appointmentStaffId) {
+    throw new ForbiddenError(
+      "You can only access appointments assigned to you",
+    )
+  }
+}
+
 /** Statuses that "hold" a staff slot for conflict-check purposes. */
 const SLOT_HOLDING_STATUSES: readonly AppointmentStatus[] = [
   AppointmentStatus.REQUESTED,
@@ -299,11 +327,11 @@ export async function listAppointments(
     if (input.to) (where.startsAt as Prisma.DateTimeFilter).lt = input.to
   }
 
-  // Account scoping: ADMIN sees the full book; every other role only sees
-  // appointments assigned to their own staff profile. This also overrides
-  // any caller-supplied staffId so a non-admin can't list someone else's
-  // schedule.
-  if (actor.role !== Role.ADMIN) {
+  // Account scoping: ADMIN and RECEPTION (front desk manages the whole
+  // book) see everything; every other role only sees appointments assigned
+  // to their own staff profile. This also overrides any caller-supplied
+  // staffId so a non-admin can't list someone else's schedule.
+  if (!FULL_BOOK_ROLES.includes(actor.role)) {
     const staff = await db.staff.findUnique({
       where: { userId: actor.userId },
       select: { id: true },
@@ -352,6 +380,8 @@ export async function getAppointment(
     include: APPOINTMENT_INCLUDE,
   })
   if (!appointment) throw new NotFoundError("Appointment not found")
+
+  await assertAppointmentAccess(appointment.staffId, actor)
 
   await recordAudit({
     actorUserId: actor.userId,
@@ -498,6 +528,8 @@ export async function transitionAppointment(
   return db.$transaction(async (tx) => {
     const before = await tx.appointment.findUnique({ where: { id } })
     if (!before) throw new NotFoundError("Appointment not found")
+
+    await assertAppointmentAccess(before.staffId, actor)
 
     if (before.status === input.to) {
       throw new ValidationError(
