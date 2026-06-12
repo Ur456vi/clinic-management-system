@@ -45,6 +45,12 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.UAT_EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Prepare deployment directory on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.UAT_EC2_USER }}@${{ secrets.UAT_EC2_HOST }} \
+            "mkdir -p /home/ec2-user/vyara-uat/.next"
+
       - name: Copy .next build to UAT EC2
         run: |
           rsync -az --delete \
@@ -66,23 +72,51 @@ jobs:
             set -e
             APP_DIR=/home/ec2-user/vyara-uat
             mkdir -p $APP_DIR && cd $APP_DIR
+
             if [ ! -d ".git" ]; then
               git init
               git remote add origin https://github.com/Ur456vi/clinic-management-system.git
             fi
             git fetch origin uat
             git reset --hard origin/uat
+
             # Write .env from GitHub secrets + hardcoded UAT domain
             printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.alogborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.alogborne.com\n" \
               "${DATABASE_URL}" "${NEXTAUTH_SECRET}" > .env
             chmod 600 .env
+
             # Run Prisma migrations on UAT DB
             npx prisma migrate deploy
+
+            # Configure Nginx reverse proxy for UAT
+            sudo tee /etc/nginx/conf.d/vyara-uat.conf > /dev/null <<'NGINXCONF'
+            server {
+                listen 80;
+                server_name vyara.alogborne.com;
+
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            NGINXCONF
+
+            # Test and reload Nginx
+            sudo nginx -t && sudo systemctl reload nginx
+
             # Restart or start the UAT app via PM2
             if pm2 list | grep -q "vyara-uat"; then
               pm2 restart vyara-uat
             else
               pm2 start npm --name vyara-uat -- start
             fi
+
             pm2 save
             echo "UAT Deploy complete! Live at https://vyara.alogborne.com"
