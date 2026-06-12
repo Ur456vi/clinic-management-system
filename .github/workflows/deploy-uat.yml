@@ -41,7 +41,7 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.UAT_EC2_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.UAT_EC2_HOST }} >> ~/.ssh/known_hosts
 
@@ -60,35 +60,29 @@ jobs:
         with:
           host: ${{ secrets.UAT_EC2_HOST }}
           username: ${{ secrets.UAT_EC2_USER }}
-          key: ${{ secrets.UAT_EC2_KEY }}
+          key: ${{ secrets.EC2_KEY }}
           envs: DATABASE_URL,NEXTAUTH_SECRET
           script: |
             set -e
             APP_DIR=/home/ec2-user/vyara-uat
             mkdir -p $APP_DIR && cd $APP_DIR
-
             if [ ! -d ".git" ]; then
               git init
               git remote add origin https://github.com/Ur456vi/clinic-management-system.git
             fi
-
             git fetch origin uat
             git reset --hard origin/uat
-
             # Write .env from GitHub secrets + hardcoded UAT domain
             printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.alogborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.alogborne.com\n" \
               "${DATABASE_URL}" "${NEXTAUTH_SECRET}" > .env
             chmod 600 .env
-
             # Run Prisma migrations on UAT DB
             npx prisma migrate deploy
-
             # Restart or start the UAT app via PM2
             if pm2 list | grep -q "vyara-uat"; then
               pm2 restart vyara-uat
             else
               pm2 start npm --name vyara-uat -- start
             fi
-
             pm2 save
             echo "UAT Deploy complete! Live at https://vyara.alogborne.com"
