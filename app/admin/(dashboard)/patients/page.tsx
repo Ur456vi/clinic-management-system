@@ -48,7 +48,7 @@ function PatientActionMenu({ patientId }: { patientId: string }) {
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className="p-1.5 text-[#667085] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
+        className="p-1.5 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
       >
         <MoreHorizontal className="h-5 w-5" />
       </button>
@@ -56,14 +56,14 @@ function PatientActionMenu({ patientId }: { patientId: string }) {
       {isOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 mt-1 w-32 rounded-md shadow-lg bg-white ring-1 ring-[#EAECF0] z-10"
+          className="absolute right-0 mt-1 w-32 rounded-md shadow-lg bg-white dark:bg-[#1F2937] ring-1 ring-[#EAECF0] dark:ring-[#374151] z-10"
         >
           <div className="py-1">
-            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors">
+            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50 hover:text-[#101828] transition-colors">
               View
             </button>
 
-            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 hover:text-[#101828] transition-colors">
+            <button className="w-full text-left px-4 py-2 text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50 hover:text-[#101828] transition-colors">
               Edit
             </button>
           </div>
@@ -130,11 +130,11 @@ export default function PatientsPage() {
     <div className="flex flex-col gap-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[#101828]">
+        <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
           Patients
         </h1>
 
-        <p className="text-sm text-[#667085] mt-1">
+        <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
           Manage your patient records and information
         </p>
       </div>
@@ -144,7 +144,7 @@ export default function PatientsPage() {
         <div className="flex items-center gap-3 flex-1">
           {/* Search */}
           <div className="relative w-[320px]">
-            <Search className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-5 w-5 text-[#667085] my-auto ml-1" />
+            <Search className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-5 w-5 text-[#667085] dark:text-[#94A3B8] my-auto ml-1" />
 
             <input
               type="text"
@@ -153,19 +153,19 @@ export default function PatientsPage() {
                 setSearchQuery(e.target.value)
               }
               placeholder="Search patients by name or email..."
-              className="block w-full pl-11 pr-3 py-2.5 border border-[#D0D5DD] rounded-lg bg-white text-sm placeholder-[#667085] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+              className="block w-full pl-11 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm placeholder-[#667085] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
             />
           </div>
 
           {/* Filter */}
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-sm font-medium text-[#344054] hover:bg-gray-50 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50 transition-colors">
             <Filter className="h-4 w-4" />
             <span>All patients</span>
           </button>
 
           {/* Count */}
           {!isLoading && !error && (
-            <span className="text-sm text-[#667085]">
+            <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
               {filteredPatients.length} patient
               {filteredPatients.length !== 1 ? "s" : ""}
             </span>
@@ -182,38 +182,38 @@ export default function PatientsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-[#EAECF0]">
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+              <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Patient
                 </th>
 
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Contact
                 </th>
 
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Status
                 </th>
 
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Registration Date
                 </th>
 
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Assigned Doctor
                 </th>
 
-                <th className="px-6 py-3 text-xs font-medium text-[#667085] uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#EAECF0]">
+            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {/* Loading */}
               {isLoading && (
                 <tr>
@@ -221,8 +221,8 @@ export default function PatientsPage() {
                     colSpan={6}
                     className="px-6 py-12 text-center"
                   >
-                    <div className="flex flex-col items-center justify-center text-[#667085]">
-                      <Loader2 className="h-8 w-8 animate-spin text-[#2E37A4] mb-4" />
+                    <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
+                      <Loader2 className="h-8 w-8 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-4" />
 
                       <p className="text-sm font-medium">
                         Loading patients...
@@ -266,7 +266,7 @@ export default function PatientsPage() {
                       colSpan={6}
                       className="px-6 py-12 text-center"
                     >
-                      <div className="flex flex-col items-center justify-center text-[#667085]">
+                      <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
                         <User className="h-8 w-8 mb-4 text-[#D0D5DD]" />
 
                         <p className="text-sm font-medium">
@@ -289,15 +289,15 @@ export default function PatientsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
-                          <User className="h-5 w-5 text-[#2E37A4]" />
+                          <User className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
                         </div>
 
                         <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-[#101828]">
+                          <span className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
                             {patient.fullName}
                           </span>
 
-                          <span className="text-xs text-[#667085]">
+                          <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
                             ID: {patient.patientNumber}
                           </span>
                         </div>
@@ -307,11 +307,11 @@ export default function PatientsPage() {
                     {/* Contact */}
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm text-[#101828]">
+                        <span className="text-sm text-[#101828] dark:text-[#F9FAFB]">
                           {patient.email || "—"}
                         </span>
 
-                        <span className="text-xs text-[#667085]">
+                        <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
                           {patient.phone || "—"}
                         </span>
                       </div>
@@ -324,7 +324,7 @@ export default function PatientsPage() {
                           patient.status === "ACTIVE"
                             ? "bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]"
                             : patient.status === "INACTIVE"
-                            ? "bg-[#F2F4F7] text-[#344054] border-[#D0D5DD]"
+                            ? "bg-[#F2F4F7] dark:bg-[#111827] text-[#344054] dark:text-[#CBD5E1] border-[#D0D5DD] dark:border-[#374151]"
                             : "bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]"
                         }`}
                       >
@@ -336,12 +336,12 @@ export default function PatientsPage() {
                     </td>
 
                     {/* Date */}
-                    <td className="px-6 py-4 text-sm text-[#667085]">
+                    <td className="px-6 py-4 text-sm text-[#667085] dark:text-[#94A3B8]">
                       {formatDate(patient.createdAt)}
                     </td>
 
                     {/* Doctor */}
-                    <td className="px-6 py-4 text-sm text-[#667085]">
+                    <td className="px-6 py-4 text-sm text-[#667085] dark:text-[#94A3B8]">
                       {patient.primaryDoctorId
                         ? "Assigned"
                         : "No"}

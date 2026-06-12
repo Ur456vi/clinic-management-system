@@ -164,6 +164,9 @@ export const POST = defineHandler(async ({ req, requestId }) => {
             passwordHash,
             role: Role.PATIENT,
             isActive: true,
+            // Account is created with a system-generated temp password that
+            // is emailed to the patient. Force a reset on first login.
+            mustResetPassword: true,
           },
           select: { id: true },
         });

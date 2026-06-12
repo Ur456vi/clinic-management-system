@@ -119,8 +119,8 @@ export default function InvoiceDetailsPage({
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center gap-3 text-sm text-[#667085]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+      <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
         Loading invoice…
       </div>
     )
@@ -129,14 +129,14 @@ export default function InvoiceDetailsPage({
   if (error || !invoice) {
     return (
       <div className="p-8 max-w-xl">
-        <div className="bg-white border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <p className="text-sm font-semibold text-[#B42318]">
             {error ?? "Invoice not found"}
           </p>
           <Link
             href="/admin/invoices"
-            className="text-sm text-[#2E37A4] hover:underline font-semibold"
+            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all invoices
           </Link>
@@ -158,13 +158,13 @@ export default function InvoiceDetailsPage({
       {/* Header actions */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Invoice Details</h1>
-          <p className="text-xs text-[#98A2B3] mt-1 font-mono">{invoice.id}</p>
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Invoice Details</h1>
+          <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1 font-mono">{invoice.id}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
-            className="px-4 h-10 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg flex items-center gap-2"
+            className="px-4 h-10 border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] font-semibold rounded-lg flex items-center gap-2"
             onClick={() => window.print()}
           >
             <Printer className="h-4 w-4" /> Print
@@ -189,28 +189,28 @@ export default function InvoiceDetailsPage({
       <div>
         <Link
           href="/admin/invoices"
-          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium"
+          className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4" /> Back to invoices
         </Link>
       </div>
 
       {/* Main invoice card */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-[#EAECF0] flex justify-between items-start flex-wrap gap-4">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+        <div className="p-8 border-b border-[#EAECF0] dark:border-[#374151] flex justify-between items-start flex-wrap gap-4">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black text-[#101828] tracking-tight">INVOICE</h2>
-            <p className="text-xs font-medium text-[#667085]">Invoice #</p>
-            <p className="text-lg font-bold text-[#101828]">{invoice.invoiceNumber}</p>
+            <h2 className="text-2xl font-black text-[#101828] dark:text-[#F9FAFB] tracking-tight">INVOICE</h2>
+            <p className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">Invoice #</p>
+            <p className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">{invoice.invoiceNumber}</p>
             <div className="pt-3">
               <StatusPill status={invoice.status} />
             </div>
           </div>
           <div className="text-right space-y-0.5">
-            <p className="text-xs font-medium text-[#667085]">Issued</p>
-            <p className="text-lg font-bold text-[#101828]">{issuedLabel}</p>
+            <p className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">Issued</p>
+            <p className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">{issuedLabel}</p>
             {invoice.dueAt ? (
-              <p className="text-xs text-[#667085] mt-1">
+              <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1">
                 Due{" "}
                 {new Date(invoice.dueAt).toLocaleDateString("en-GB", {
                   day: "2-digit",
@@ -223,17 +223,17 @@ export default function InvoiceDetailsPage({
         </div>
 
         {/* Patient info */}
-        <div className="p-8 border-b border-[#EAECF0] bg-[#F9FAFB]/50">
+        <div className="p-8 border-b border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB]/50 dark:bg-[#111827]/50">
           <div className="flex items-center gap-2 mb-5">
-            <User className="h-5 w-5 text-[#667085]" />
-            <h3 className="text-base font-bold text-[#101828]">Patient Information</h3>
+            <User className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+            <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Patient Information</h3>
           </div>
           {invoice.patient ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <KV label="Patient">
                 <Link
                   href={`/admin/patients/${invoice.patient.id}`}
-                  className="text-[#2E37A4] font-semibold hover:underline"
+                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   {invoice.patient.fullName}
                 </Link>
@@ -242,7 +242,7 @@ export default function InvoiceDetailsPage({
               <KV label="Status">{invoice.patient.status}</KV>
             </div>
           ) : (
-            <p className="text-sm text-[#98A2B3]">
+            <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">
               Patient record is no longer linked to this invoice.
             </p>
           )}
@@ -250,31 +250,31 @@ export default function InvoiceDetailsPage({
 
         {/* Items */}
         <div className="p-8">
-          <h3 className="text-base font-bold text-[#101828] mb-5">Invoice Items</h3>
+          <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB] mb-5">Invoice Items</h3>
           {invoice.items.length === 0 ? (
-            <p className="text-sm text-[#98A2B3]">No line items.</p>
+            <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">No line items.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#F9FAFB] border-y border-[#EAECF0] text-xs text-[#667085] uppercase tracking-wider">
+                  <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-y border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                     <th className="px-4 py-3 font-semibold">Description</th>
                     <th className="px-4 py-3 font-semibold text-right">Qty</th>
                     <th className="px-4 py-3 font-semibold text-right">Unit Price</th>
                     <th className="px-4 py-3 font-semibold text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EAECF0]">
+                <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
                   {invoice.items.map((it) => (
                     <tr key={it.id}>
-                      <td className="px-4 py-4 text-sm text-[#101828]">{it.description}</td>
-                      <td className="px-4 py-4 text-sm text-[#101828] text-right">
+                      <td className="px-4 py-4 text-sm text-[#101828] dark:text-[#F9FAFB]">{it.description}</td>
+                      <td className="px-4 py-4 text-sm text-[#101828] dark:text-[#F9FAFB] text-right">
                         {it.quantity}
                       </td>
-                      <td className="px-4 py-4 text-sm text-[#101828] text-right">
+                      <td className="px-4 py-4 text-sm text-[#101828] dark:text-[#F9FAFB] text-right">
                         {formatMoney(it.unitPriceCents, invoice.currency)}
                       </td>
-                      <td className="px-4 py-4 text-sm font-bold text-[#101828] text-right">
+                      <td className="px-4 py-4 text-sm font-bold text-[#101828] dark:text-[#F9FAFB] text-right">
                         {formatMoney(it.totalCents, invoice.currency)}
                       </td>
                     </tr>
@@ -287,26 +287,26 @@ export default function InvoiceDetailsPage({
           <div className="mt-6 flex justify-end">
             <div className="w-full max-w-[300px] space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="font-semibold text-[#667085]">Subtotal</span>
-                <span className="font-semibold text-[#101828]">
+                <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Subtotal</span>
+                <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
                   {formatMoney(invoice.subtotalCents, invoice.currency)}
                 </span>
               </div>
               <div className="h-px bg-[#EAECF0]" />
               <div className="flex justify-between">
-                <span className="text-base font-black text-[#101828]">Grand Total</span>
-                <span className="text-base font-black text-[#2E37A4]">
+                <span className="text-base font-black text-[#101828] dark:text-[#F9FAFB]">Grand Total</span>
+                <span className="text-base font-black text-[#2E37A4] dark:text-[#A5B4FC]">
                   {formatMoney(invoice.totalCents, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="font-semibold text-[#667085]">Paid</span>
+                <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Paid</span>
                 <span className="font-semibold text-[#12B76A]">
                   {formatMoney(invoice.paidCents, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="font-semibold text-[#667085]">Balance Due</span>
+                <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Balance Due</span>
                 <span className="font-semibold text-[#B42318]">
                   {formatMoney(
                     Math.max(0, invoice.totalCents - invoice.paidCents),
@@ -320,38 +320,38 @@ export default function InvoiceDetailsPage({
       </div>
 
       {/* Payment history */}
-      <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-[#EAECF0]">
-          <h3 className="text-base font-bold text-[#101828]">Payment History</h3>
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-[#EAECF0] dark:border-[#374151]">
+          <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Payment History</h3>
         </div>
         {invoice.payments.length === 0 ? (
-          <p className="px-6 py-6 text-sm text-[#98A2B3]">No payments recorded yet.</p>
+          <p className="px-6 py-6 text-sm text-[#98A2B3] dark:text-[#94A3B8]">No payments recorded yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#F9FAFB] border-b border-[#EAECF0] text-xs text-[#667085] uppercase tracking-wider">
+                <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   <th className="px-6 py-3 font-semibold">Date</th>
                   <th className="px-6 py-3 font-semibold">Method</th>
                   <th className="px-6 py-3 font-semibold">Note</th>
                   <th className="px-6 py-3 font-semibold text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EAECF0]">
+              <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
                 {invoice.payments.map((p) => (
                   <tr key={p.id} className="hover:bg-[#F9FAFB] transition-colors">
-                    <td className="px-6 py-3 text-sm text-[#101828]">
+                    <td className="px-6 py-3 text-sm text-[#101828] dark:text-[#F9FAFB]">
                       {new Date(p.receivedAt).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-6 py-3 text-sm text-[#101828]">{p.method}</td>
-                    <td className="px-6 py-3 text-sm text-[#667085]">
+                    <td className="px-6 py-3 text-sm text-[#101828] dark:text-[#F9FAFB]">{p.method}</td>
+                    <td className="px-6 py-3 text-sm text-[#667085] dark:text-[#94A3B8]">
                       {p.note ?? "—"}
                     </td>
-                    <td className="px-6 py-3 text-sm font-bold text-[#101828] text-right">
+                    <td className="px-6 py-3 text-sm font-bold text-[#101828] dark:text-[#F9FAFB] text-right">
                       {formatMoney(p.amountCents, invoice.currency)}
                     </td>
                   </tr>
@@ -368,8 +368,8 @@ export default function InvoiceDetailsPage({
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <p className="text-xs font-medium text-[#667085]">{label}</p>
-      <p className="text-sm font-bold text-[#101828]">{children}</p>
+      <p className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{label}</p>
+      <p className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{children}</p>
     </div>
   )
 }

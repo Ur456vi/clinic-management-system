@@ -4,9 +4,12 @@
  * Admin Dashboard — live counts + upcoming appointments + flagged invoices.
  *
  * Replaces the previous static "1,248 patients / $42,500 revenue" mock
- * card. Pulls the first 200 rows from each list endpoint, aggregates
- * client-side, and shows the next few upcoming appointments + any
- * overdue invoices.
+ * card. Pulls the first 100 rows (the API page-size cap) from each list
+ * endpoint, aggregates client-side, and shows the next few upcoming
+ * appointments + any overdue invoices.
+ *
+ * NOTE: counts are therefore accurate up to 100 per entity. A dedicated
+ * count endpoint would be needed to show exact totals beyond that.
  */
 
 import Link from "next/link"
@@ -81,10 +84,10 @@ export default function DashboardPage() {
     try {
       const [patientsRes, staffRes, apptsRes, invoicesRes, asmRes] =
         await Promise.all([
-          fetch("/api/patients?limit=200", { credentials: "include" }),
+          fetch("/api/patients?limit=100", { credentials: "include" }),
           fetch("/api/staff?limit=100", { credentials: "include" }),
-          fetch("/api/appointments?limit=200", { credentials: "include" }),
-          fetch("/api/invoices?limit=200", { credentials: "include" }),
+          fetch("/api/appointments?limit=100", { credentials: "include" }),
+          fetch("/api/invoices?limit=100", { credentials: "include" }),
           fetch("/api/admin/assessment-submissions?take=50", {
             credentials: "include",
           }),
@@ -154,8 +157,8 @@ export default function DashboardPage() {
         name: "Total Patients",
         value: data.patientsCount.toString(),
         icon: Users,
-        color: "text-[#2E37A4]",
-        bg: "bg-[#F4F5FF]",
+        color: "text-[#2E37A4] dark:text-[#A5B4FC]",
+        bg: "bg-[#F4F5FF] dark:bg-[#312E81]",
         href: "/admin/patients",
       },
       {
@@ -179,7 +182,7 @@ export default function DashboardPage() {
         value: formatMoney(data.revenueCents, data.currency),
         icon: FileText,
         color: "text-[#175CD3]",
-        bg: "bg-[#EFF8FF]",
+        bg: "bg-[#EFF8FF] dark:bg-[#1E3A5F]",
         href: "/admin/invoices",
       },
     ],
@@ -189,20 +192,20 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#101828]">Dashboard</h1>
-        <p className="text-sm text-[#667085] mt-1">
+        <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Dashboard</h1>
+        <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
           Live snapshot — pulled from the operational endpoints.
         </p>
       </div>
 
       {error ? (
-        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-5 flex items-start gap-3">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl shadow-sm p-5 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-[#D92D20] mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-[#B42318]">
               Couldn&apos;t load some widgets
             </p>
-            <p className="text-xs text-[#667085] mt-1">{error}</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1">{error}</p>
           </div>
         </div>
       ) : null}
@@ -213,16 +216,16 @@ export default function DashboardPage() {
           <Link
             key={stat.name}
             href={stat.href}
-            className="bg-white border border-[#EAECF0] rounded-xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
+            className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
           >
             <div className={`h-12 w-12 rounded-lg ${stat.bg} flex items-center justify-center`}>
               <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#667085]">{stat.name}</p>
-              <p className="text-2xl font-bold text-[#101828]">
+              <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8]">{stat.name}</p>
+              <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
                 {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+                  <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
                 ) : (
                   stat.value
                 )}
@@ -234,35 +237,35 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm flex flex-col">
-          <div className="px-6 py-4 border-b border-[#EAECF0] flex items-center justify-between">
-            <h3 className="text-base font-bold text-[#101828]">Upcoming Appointments</h3>
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm flex flex-col">
+          <div className="px-6 py-4 border-b border-[#EAECF0] dark:border-[#374151] flex items-center justify-between">
+            <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Upcoming Appointments</h3>
             <Link
               href="/admin/appointments"
-              className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b]"
+              className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:text-[#1d246b]"
             >
               View All
             </Link>
           </div>
           {loading ? (
-            <div className="p-8 flex items-center justify-center gap-2 text-sm text-[#667085]">
+            <div className="p-8 flex items-center justify-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading…
             </div>
           ) : data.upcoming.length === 0 ? (
-            <div className="p-8 text-center text-sm text-[#667085]">
+            <div className="p-8 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
               No upcoming appointments. New bookings will show up here.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#F9FAFB] border-b border-[#EAECF0]">
-                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase">Patient</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase">When</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] uppercase">Status</th>
+                  <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
+                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] uppercase">Patient</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] uppercase">When</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] uppercase">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EAECF0]">
+                <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
                   {data.upcoming.map((apt) => (
                     <tr key={apt.id} className="hover:bg-[#F9FAFB] transition-colors">
                       <td className="px-6 py-4">
@@ -270,15 +273,15 @@ export default function DashboardPage() {
                           href={`/admin/appointments/${apt.id}`}
                           className="block"
                         >
-                          <p className="text-sm font-semibold text-[#101828]">
+                          <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
                             {apt.patient?.fullName ?? "—"}
                           </p>
-                          <p className="text-xs text-[#667085]">
+                          <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                             {apt.staff?.fullName ?? "—"}
                           </p>
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-sm text-[#667085]">
+                      <td className="px-6 py-4 text-sm text-[#667085] dark:text-[#94A3B8]">
                         {new Date(apt.startsAt).toLocaleString("en-GB", {
                           day: "2-digit",
                           month: "short",
@@ -298,8 +301,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Clinic Performance */}
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
-          <h3 className="text-base font-bold text-[#101828] mb-6">Clinic Performance</h3>
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
+          <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB] mb-6">Clinic Performance</h3>
           <div className="space-y-4">
             <PerformanceRow
               icon={<TrendingUp className="h-5 w-5 text-[#12B76A]" />}
@@ -313,8 +316,8 @@ export default function DashboardPage() {
               ok
             />
             <PerformanceRow
-              icon={<Clock className="h-5 w-5 text-[#2E37A4]" />}
-              tintBg="bg-[#F4F5FF]"
+              icon={<Clock className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
+              tintBg="bg-[#F4F5FF] dark:bg-[#312E81]"
               title="Outstanding balance"
               subtitle={
                 loading
@@ -325,7 +328,7 @@ export default function DashboardPage() {
             />
             <PerformanceRow
               icon={<ClipboardCheck className="h-5 w-5 text-[#3538CD]" />}
-              tintBg="bg-[#F4F5FF]"
+              tintBg="bg-[#F4F5FF] dark:bg-[#312E81]"
               title="Pending assessment bookings"
               subtitle={
                 loading
@@ -377,11 +380,11 @@ function PerformanceRow({
   actionHref?: string
   actionLabel?: string
 }) {
-  const titleColor = danger ? "text-[#B42318]" : "text-[#101828]"
-  const subColor = danger ? "text-[#F04438]" : "text-[#667085]"
+  const titleColor = danger ? "text-[#B42318]" : "text-[#101828] dark:text-[#F9FAFB]"
+  const subColor = danger ? "text-[#F04438]" : "text-[#667085] dark:text-[#94A3B8]"
   const rowBg = danger
     ? "bg-[#FEF3F2] border-[#FEE4E2]"
-    : "bg-[#F9FAFB] border-[#EAECF0]"
+    : "bg-[#F9FAFB] dark:bg-[#111827] border-[#EAECF0] dark:border-[#374151]"
   return (
     <div
       className={`flex items-center justify-between p-4 rounded-xl border ${rowBg}`}
@@ -399,7 +402,7 @@ function PerformanceRow({
         <Link
           href={actionHref}
           className={`text-xs font-bold hover:underline ${
-            danger ? "text-[#B42318]" : "text-[#2E37A4]"
+            danger ? "text-[#B42318]" : "text-[#2E37A4] dark:text-[#A5B4FC]"
           }`}
         >
           {actionLabel}

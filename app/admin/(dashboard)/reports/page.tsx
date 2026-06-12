@@ -236,7 +236,7 @@ export default function ReportsPage() {
         value: stats.assessments.byStatus.REQUESTED.toString(),
         sub: `${stats.assessments.byStatus.CONFIRMED} confirmed slots`,
         bg: "#FDB022",
-        icon: <ClipboardCheck className="h-5 w-5 text-[#141414] opacity-85" />,
+        icon: <ClipboardCheck className="h-5 w-5 text-[#141414] dark:text-[#F9FAFB] opacity-85" />,
         textColor: "#141414",
         subColor: "rgba(20,20,20,0.65)",
       },
@@ -248,8 +248,8 @@ export default function ReportsPage() {
     <div className="flex flex-col gap-6 max-w-[1400px]">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Reports &amp; Analytics</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Reports &amp; Analytics</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Live counts pulled from the operational endpoints — refresh to
             re-fetch.
           </p>
@@ -270,20 +270,20 @@ export default function ReportsPage() {
       </div>
 
       {error ? (
-        <div className="bg-white border border-[#FECDCA] rounded-xl shadow-sm p-6 flex items-start gap-3">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl shadow-sm p-6 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-[#D92D20] mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-[#B42318]">
               Couldn&apos;t load some stats
             </p>
-            <p className="text-xs text-[#667085] mt-1">{error}</p>
+            <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1">{error}</p>
           </div>
         </div>
       ) : null}
 
       {loading ? (
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-12 flex items-center justify-center gap-3 text-sm text-[#667085]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
           Loading dashboard…
         </div>
       ) : (
@@ -330,7 +330,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <BreakdownCard
               title="Appointments by status"
-              icon={<Calendar className="h-5 w-5 text-[#2E37A4]" />}
+              icon={<Calendar className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Requested", value: stats.appointments.byStatus.REQUESTED, fg: "#175CD3" },
                 { label: "Confirmed", value: stats.appointments.byStatus.CONFIRMED, fg: "#027A48" },
@@ -341,7 +341,7 @@ export default function ReportsPage() {
             />
             <BreakdownCard
               title="Invoices by status"
-              icon={<FileText className="h-5 w-5 text-[#2E37A4]" />}
+              icon={<FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Open", value: stats.invoices.byStatus.OPEN, fg: "#175CD3" },
                 {
@@ -360,7 +360,7 @@ export default function ReportsPage() {
             />
             <BreakdownCard
               title="Assessments by status"
-              icon={<ClipboardCheck className="h-5 w-5 text-[#2E37A4]" />}
+              icon={<ClipboardCheck className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Requested", value: stats.assessments.byStatus.REQUESTED, fg: "#175CD3" },
                 { label: "Confirmed", value: stats.assessments.byStatus.CONFIRMED, fg: "#027A48" },
@@ -371,29 +371,29 @@ export default function ReportsPage() {
           </div>
 
           {/* Recent assessment submissions */}
-          <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-6">
+          <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-[#2E37A4]" />
-                <h2 className="text-base font-bold text-[#101828]">
+                <TrendingUp className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                <h2 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">
                   Latest health-assessment submissions
                 </h2>
               </div>
               <Link
                 href="/admin/assessments"
-                className="text-xs font-semibold text-[#2E37A4] hover:underline"
+                className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
               >
                 View all →
               </Link>
             </div>
             {stats.assessments.recent.length === 0 ? (
-              <p className="text-sm text-[#98A2B3]">
+              <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">
                 No public-site assessment submissions yet. They&apos;ll show up
                 here as patients complete the quiz.
               </p>
             ) : (
               <table className="w-full text-sm">
-                <thead className="text-xs text-[#667085] uppercase tracking-wider">
+                <thead className="text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   <tr>
                     <th className="text-left py-2 font-semibold">Patient</th>
                     <th className="text-left py-2 font-semibold">Score</th>
@@ -402,17 +402,17 @@ export default function ReportsPage() {
                     <th className="text-left py-2 font-semibold" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EAECF0]">
+                <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
                   {stats.assessments.recent.map((a) => (
                     <tr key={a.id}>
-                      <td className="py-2.5 font-semibold text-[#101828]">
+                      <td className="py-2.5 font-semibold text-[#101828] dark:text-[#F9FAFB]">
                         {a.contactName}
                       </td>
-                      <td className="py-2.5 text-[#344054]">{a.totalScore}</td>
+                      <td className="py-2.5 text-[#344054] dark:text-[#CBD5E1]">{a.totalScore}</td>
                       <td className="py-2.5">
                         <BandPill band={a.band} />
                       </td>
-                      <td className="py-2.5 text-[#667085]">
+                      <td className="py-2.5 text-[#667085] dark:text-[#94A3B8]">
                         {new Date(a.createdAt).toLocaleDateString("en-GB", {
                           day: "2-digit",
                           month: "short",
@@ -422,7 +422,7 @@ export default function ReportsPage() {
                       <td className="py-2.5 text-right">
                         <Link
                           href={`/admin/assessments/${a.id}`}
-                          className="text-xs font-semibold text-[#2E37A4] hover:underline"
+                          className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
                         >
                           Open
                         </Link>
@@ -434,7 +434,7 @@ export default function ReportsPage() {
             )}
           </div>
 
-          <p className="text-xs text-[#98A2B3]">
+          <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8]">
             Totals are computed from the most recent 200 rows per endpoint.
             Dedicated aggregation endpoints will replace this approach as the
             data volume grows.
@@ -456,10 +456,10 @@ function BreakdownCard({
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value))
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-xl shadow-sm p-5">
+    <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         {icon}
-        <h3 className="text-sm font-bold text-[#101828]">{title}</h3>
+        <h3 className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{title}</h3>
       </div>
       <div className="space-y-3">
         {rows.map((r) => {
@@ -467,12 +467,12 @@ function BreakdownCard({
           return (
             <div key={r.label}>
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-[#344054]">{r.label}</span>
+                <span className="text-[#344054] dark:text-[#CBD5E1]">{r.label}</span>
                 <span className="font-semibold" style={{ color: r.fg }}>
                   {r.value}
                 </span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden bg-[#F2F4F7]">
+              <div className="h-2 rounded-full overflow-hidden bg-[#F2F4F7] dark:bg-[#111827]">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${pct}%`, background: r.fg }}

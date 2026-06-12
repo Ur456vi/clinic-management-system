@@ -156,8 +156,8 @@ export default function AddPatientPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Add New Patient</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Add New Patient</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Only full name is required. Other demographics can be filled in
             now or later from the patient&apos;s profile.
           </p>
@@ -167,7 +167,7 @@ export default function AddPatientPage() {
             <Button
               type="button"
               variant="outline"
-              className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg"
+              className="px-6 h-11 border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] font-semibold rounded-lg"
             >
               Cancel
             </Button>
@@ -190,7 +190,7 @@ export default function AddPatientPage() {
       <div>
         <Link
           href="/admin/patients"
-          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium"
+          className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Patients
         </Link>
@@ -198,7 +198,7 @@ export default function AddPatientPage() {
 
       {/* Banner */}
       <div className="bg-[#2E37A4] rounded-xl p-6 text-white flex items-center gap-4 shadow-sm">
-        <div className="h-12 w-12 rounded-lg bg-white/20 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-lg bg-white dark:bg-[#1F2937]/20 flex items-center justify-center">
           <UserPlus className="h-6 w-6 text-white" />
         </div>
         <div>
@@ -212,7 +212,7 @@ export default function AddPatientPage() {
 
       {/* Identity */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Identity</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Identity</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Full Name" required error={fieldErrors.fullName}>
             <input
@@ -224,7 +224,7 @@ export default function AddPatientPage() {
           </Field>
           <Field label="Email" error={fieldErrors.email}>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <input
                 type="email"
                 value={form.email}
@@ -236,7 +236,7 @@ export default function AddPatientPage() {
           </Field>
           <Field label="Phone Number" error={fieldErrors.phone}>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <input
                 type="tel"
                 value={form.phone}
@@ -258,7 +258,7 @@ export default function AddPatientPage() {
             <select
               value={form.sex}
               onChange={(e) => set("sex", e.target.value as FormState["sex"])}
-              className={`${inputCls} bg-white`}
+              className={`${inputCls} bg-white dark:bg-[#1F2937]`}
             >
               <option value="">Prefer not to say</option>
               <option value="MALE">Male</option>
@@ -280,7 +280,7 @@ export default function AddPatientPage() {
 
       {/* Address */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Address</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Address</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field
             label="Place of Residence"
@@ -299,7 +299,7 @@ export default function AddPatientPage() {
               value={form.address}
               onChange={(e) => set("address", e.target.value)}
               placeholder="Street, locality, postal code"
-              className="w-full rounded-lg border border-[#D0D5DD] p-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="w-full rounded-lg border border-[#D0D5DD] dark:border-[#374151] p-3 text-sm bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
             />
           </Field>
         </div>
@@ -307,7 +307,7 @@ export default function AddPatientPage() {
 
       {/* Clinic context */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Clinic context</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Clinic context</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field
             label="Referral source"
@@ -333,12 +333,12 @@ export default function AddPatientPage() {
             error={fieldErrors.primaryDoctorId}
           >
             <div className="relative">
-              <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <select
                 value={form.primaryDoctorId}
                 onChange={(e) => set("primaryDoctorId", e.target.value)}
                 disabled={loadingDoctors || doctors.length === 0}
-                className={`${inputCls} pl-10 bg-white disabled:bg-[#F9FAFB] disabled:cursor-not-allowed`}
+                className={`${inputCls} pl-10 bg-white dark:bg-[#1F2937] disabled:bg-[#F9FAFB] disabled:cursor-not-allowed`}
               >
                 <option value="">No primary doctor</option>
                 {doctors.map((d) => (
@@ -359,7 +359,7 @@ export default function AddPatientPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
 
 function Field({
   label,
@@ -376,12 +376,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
       {children}
-      {hint ? <p className="text-xs text-[#667085]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{hint}</p> : null}
       {error ? <p className="text-xs text-[#B42318]">{error}</p> : null}
     </label>
   )

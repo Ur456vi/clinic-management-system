@@ -19,36 +19,36 @@ export default function PatientSettingsPage() {
   return (
     <div className="p-8 flex flex-col gap-8 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-[#141414]">Settings</h1>
-        <p className="text-sm text-[#6C7688] mt-1">
+        <h1 className="text-2xl font-bold text-[#141414] dark:text-[#F9FAFB]">Settings</h1>
+        <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">
           Manage how the Institute contacts you and how your data is used.
         </p>
       </div>
 
-      <section className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm">
-        <header className="px-6 py-4 border-b border-[#EAECF0] flex items-center gap-3">
+      <section className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm">
+        <header className="px-6 py-4 border-b border-[#EAECF0] dark:border-[#374151] flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-[#EEF0FF] flex items-center justify-center">
-            <Bell className="h-4 w-4 text-[#2E37A4]" />
+            <Bell className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#141414]">
+            <h2 className="text-base font-bold text-[#141414] dark:text-[#F9FAFB]">
               Appointment reminders
             </h2>
-            <p className="text-xs text-[#6C7688]">
+            <p className="text-xs text-[#6C7688] dark:text-[#94A3B8]">
               Pick how you&apos;d like to be reminded about upcoming visits.
             </p>
           </div>
         </header>
         <div className="px-6 py-5 space-y-4">
           <Toggle
-            icon={<Mail className="h-4 w-4 text-[#6C7688]" />}
+            icon={<Mail className="h-4 w-4 text-[#6C7688] dark:text-[#94A3B8]" />}
             title="Email reminders"
             description="Receive a reminder 24 hours before each appointment."
             checked={emailReminders}
             onChange={setEmailReminders}
           />
           <Toggle
-            icon={<Bell className="h-4 w-4 text-[#6C7688]" />}
+            icon={<Bell className="h-4 w-4 text-[#6C7688] dark:text-[#94A3B8]" />}
             title="SMS reminders"
             description="Get an SMS reminder 2 hours before each appointment."
             checked={smsReminders}
@@ -57,23 +57,23 @@ export default function PatientSettingsPage() {
         </div>
       </section>
 
-      <section className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm">
-        <header className="px-6 py-4 border-b border-[#EAECF0] flex items-center gap-3">
+      <section className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm">
+        <header className="px-6 py-4 border-b border-[#EAECF0] dark:border-[#374151] flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-[#FEF3F2] flex items-center justify-center">
             <Lock className="h-4 w-4 text-[#B42318]" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#141414]">
+            <h2 className="text-base font-bold text-[#141414] dark:text-[#F9FAFB]">
               Privacy
             </h2>
-            <p className="text-xs text-[#6C7688]">
+            <p className="text-xs text-[#6C7688] dark:text-[#94A3B8]">
               Control how your information is used outside of your care.
             </p>
           </div>
         </header>
         <div className="px-6 py-5 space-y-4">
           <Toggle
-            icon={<Lock className="h-4 w-4 text-[#6C7688]" />}
+            icon={<Lock className="h-4 w-4 text-[#6C7688] dark:text-[#94A3B8]" />}
             title="Share de-identified data for research"
             description="We never share data that can identify you personally."
             checked={shareForResearch}
@@ -117,8 +117,8 @@ function Toggle({
       <div className="flex items-start gap-3 min-w-0">
         <span className="mt-0.5">{icon}</span>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-[#141414]">{title}</p>
-          <p className="text-xs text-[#6C7688]">{description}</p>
+          <p className="text-sm font-bold text-[#141414] dark:text-[#F9FAFB]">{title}</p>
+          <p className="text-xs text-[#6C7688] dark:text-[#94A3B8]">{description}</p>
         </div>
       </div>
       <button
@@ -131,7 +131,7 @@ function Toggle({
         }`}
       >
         <span
-          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+          className={`inline-block h-5 w-5 transform rounded-full bg-white dark:bg-[#1F2937] shadow transition-transform ${
             checked ? "translate-x-5" : "translate-x-0.5"
           }`}
         />

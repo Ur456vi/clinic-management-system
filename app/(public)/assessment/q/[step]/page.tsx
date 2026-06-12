@@ -25,7 +25,10 @@ import { notFound, useRouter } from "next/navigation";
 import { use, useEffect } from "react";
 
 import { useQuiz } from "@/components/public/assessment/QuizContext";
-import { QUESTIONS, TOTAL_STEPS } from "@/components/public/assessment/questions";
+import {
+  questionsForSex,
+  totalStepsForSex,
+} from "@/components/public/assessment/questions";
 import {
   CategoryRail,
   ChipToggle,
@@ -49,10 +52,6 @@ export default function QuizStepPage({
 
   const { state, hydrated, setAnswer } = useQuiz();
 
-  if (!Number.isInteger(step) || step < 1 || step > TOTAL_STEPS) {
-    notFound();
-  }
-
   // If the user lands on /q/N without an intro selection, bounce them
   // back to /assessment to pick a sex.
   useEffect(() => {
@@ -61,13 +60,20 @@ export default function QuizStepPage({
     }
   }, [hydrated, state.sex, router]);
 
-  const question = QUESTIONS[step - 1];
+  const visibleQuestions = questionsForSex(state.sex);
+  const totalSteps = totalStepsForSex(state.sex);
+
+  if (!Number.isInteger(step) || step < 1 || step > totalSteps) {
+    notFound();
+  }
+
+  const question = visibleQuestions[step - 1];
   const category = CATEGORIES.find((c) => c.key === question.category)!;
   const existing = state.answers[question.id];
 
   const onPrev = step > 1 ? () => router.push(`/assessment/q/${step - 1}`) : null;
   const onNext = () => {
-    if (step < TOTAL_STEPS) {
+    if (step < totalSteps) {
       router.push(`/assessment/q/${step + 1}`);
     } else {
       router.push("/assessment/result");
@@ -87,7 +93,7 @@ export default function QuizStepPage({
             onPrev={onPrev}
             onNext={onNext}
             nextDisabled={!isAnswered}
-            nextLabel={step === TOTAL_STEPS ? "See Results" : "Next"}
+            nextLabel={step === totalSteps ? "See Results" : "Next"}
           />
           <LevelProgressBar activeLevel={category.level} />
         </div>
@@ -135,7 +141,7 @@ export default function QuizStepPage({
 /* ──────────────────────────────────────────────────────────────────── */
 
 function promptFor(
-  q: (typeof QUESTIONS)[number],
+  q: ReturnType<typeof questionsForSex>[number],
   sex: "male" | "female" | "other",
 ): string {
   if (q.kind === "splitGender") {
@@ -146,7 +152,7 @@ function promptFor(
 }
 
 function answeredEnough(
-  q: (typeof QUESTIONS)[number],
+  q: ReturnType<typeof questionsForSex>[number],
   v: AnswerValue | undefined,
 ): boolean {
   if (q.kind === "comorbidities") return true; // empty selection is valid
@@ -162,13 +168,13 @@ function QuestionBody({
   sex,
   onAnswer,
 }: {
-  question: (typeof QUESTIONS)[number];
+  question: ReturnType<typeof questionsForSex>[number];
   existing: AnswerValue | undefined;
   sex: "male" | "female" | "other";
   onAnswer: (v: AnswerValue) => void;
 }) {
-  // SINGLE -----------------------------------------------------------
-  if (question.kind === "single") {
+  // SINGLE / FEMALE-ONLY ---------------------------------------------
+  if (question.kind === "single" || question.kind === "femaleOnly") {
     const chosen =
       existing?.kind === "single" ? existing.choice : null;
     return (

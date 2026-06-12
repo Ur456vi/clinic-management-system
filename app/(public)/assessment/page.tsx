@@ -110,8 +110,9 @@ export default function AssessmentIntroPage() {
                 className="text-xs mb-5"
                 style={{ color: "var(--brand-ink-soft)" }}
               >
-                One of the questions is tailored by sex. This isn&apos;t
-                stored beyond this session unless you book an assessment.
+                A few hormonal-health questions are tailored by sex. This
+                isn&apos;t stored beyond this session unless you book an
+                assessment.
               </p>
 
               <div className="grid grid-cols-1 gap-3">

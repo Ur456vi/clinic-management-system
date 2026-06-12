@@ -48,6 +48,63 @@ interface PatientApi {
   updatedAt: string
 }
 
+type ApptStatus =
+  | "REQUESTED"
+  | "CONFIRMED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_SHOW"
+
+interface ActivityAppt {
+  id: string
+  startsAt: string
+  status: ApptStatus
+  reason: string | null
+  staff: { id: string; fullName: string; specialization: string | null } | null
+  department: { id: string; name: string } | null
+}
+
+const APPT_STATUS_STYLE: Record<ApptStatus, { label: string; cls: string }> = {
+  REQUESTED: { label: "Requested", cls: "bg-[#FFFAEB] text-[#B54708]" },
+  CONFIRMED: { label: "Confirmed", cls: "bg-[#EFF8FF] dark:bg-[#1E3A5F] text-[#175CD3]" },
+  COMPLETED: { label: "Completed", cls: "bg-[#ECFDF3] text-[#027A48]" },
+  CANCELLED: { label: "Cancelled", cls: "bg-[#FEF3F2] text-[#B42318]" },
+  NO_SHOW: { label: "No show", cls: "bg-[#F2F4F7] dark:bg-[#111827] text-[#475467] dark:text-[#CBD5E1]" },
+}
+
+interface VitalReading {
+  id: string
+  systolic: number | null
+  diastolic: number | null
+  heartRate: number | null
+  weightKg: number | null
+  temperatureF: number | null
+  spo2: number | null
+  notes: string | null
+  recordedAt: string
+  recordedBy: { id: string; fullName: string } | null
+}
+
+type VitalFormState = {
+  systolic: string
+  diastolic: string
+  heartRate: string
+  weightKg: string
+  temperatureF: string
+  spo2: string
+  notes: string
+}
+
+const EMPTY_VITAL_FORM: VitalFormState = {
+  systolic: "",
+  diastolic: "",
+  heartRate: "",
+  weightKg: "",
+  temperatureF: "",
+  spo2: "",
+  notes: "",
+}
+
 type FormState = {
   fullName: string
   email: string
@@ -105,6 +162,77 @@ export default function PatientDetailPage({
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
+  const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
+  const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
+  const [vitalOpen, setVitalOpen] = useState(false)
+  const [vitalSaving, setVitalSaving] = useState(false)
+
+  const fetchVitals = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/patients/${id}/vitals?limit=1`, {
+        credentials: "include",
+      })
+      if (!res.ok) {
+        setLatestVital(null)
+        return
+      }
+      const json = await res.json()
+      const rows: VitalReading[] = Array.isArray(json?.data) ? json.data : []
+      setLatestVital(rows[0] ?? null)
+    } catch {
+      setLatestVital(null)
+    }
+  }, [id])
+
+  const recordVital = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (vitalSaving) return
+      const num = (v: string) => (v.trim() === "" ? undefined : Number(v))
+      const payload = {
+        systolic: num(vitalForm.systolic),
+        diastolic: num(vitalForm.diastolic),
+        heartRate: num(vitalForm.heartRate),
+        weightKg: num(vitalForm.weightKg),
+        temperatureF: num(vitalForm.temperatureF),
+        spo2: num(vitalForm.spo2),
+        notes: vitalForm.notes.trim() === "" ? undefined : vitalForm.notes.trim(),
+      }
+      if (
+        ![payload.systolic, payload.diastolic, payload.heartRate, payload.weightKg, payload.temperatureF, payload.spo2].some(
+          (x) => x !== undefined,
+        )
+      ) {
+        notify.error("Enter at least one measurement")
+        return
+      }
+      setVitalSaving(true)
+      try {
+        const res = await fetch(`/api/patients/${id}/vitals`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const j = await res.json().catch(() => null)
+          throw new Error(j?.error?.message ?? "Couldn't save vitals")
+        }
+        notify.success("Vitals recorded")
+        setVitalForm(EMPTY_VITAL_FORM)
+        setVitalOpen(false)
+        await fetchVitals()
+      } catch (err) {
+        notify.error("Couldn't save vitals", {
+          description: err instanceof Error ? err.message : "Unknown error",
+        })
+      } finally {
+        setVitalSaving(false)
+      }
+    },
+    [id, vitalForm, vitalSaving, fetchVitals],
+  )
 
   const fetchOne = useCallback(async () => {
     setError(null)
@@ -122,10 +250,34 @@ export default function PatientDetailPage({
     }
   }, [id])
 
+  const fetchActivity = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/appointments?patientId=${id}&limit=50`,
+        { credentials: "include" },
+      )
+      if (!res.ok) {
+        setActivity([])
+        return
+      }
+      const json = await res.json()
+      const rows: ActivityAppt[] = Array.isArray(json?.data) ? json.data : []
+      rows.sort(
+        (a, b) =>
+          new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime(),
+      )
+      setActivity(rows.slice(0, 8))
+    } catch {
+      setActivity([])
+    }
+  }, [id])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchOne()
-  }, [fetchOne])
+    void fetchActivity()
+    void fetchVitals()
+  }, [fetchOne, fetchActivity, fetchVitals])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -167,8 +319,8 @@ export default function PatientDetailPage({
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center gap-3 text-sm text-[#667085]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" /> Loading patient…
+      <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" /> Loading patient…
       </div>
     )
   }
@@ -176,14 +328,14 @@ export default function PatientDetailPage({
   if (error || !patient) {
     return (
       <div className="p-8 max-w-xl">
-        <div className="bg-white border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <p className="text-sm font-semibold text-[#B42318]">
             {error ?? "Patient not found"}
           </p>
           <Link
             href="/admin/patients"
-            className="text-sm text-[#2E37A4] hover:underline font-semibold"
+            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all patients
           </Link>
@@ -198,16 +350,16 @@ export default function PatientDetailPage({
         <div className="flex items-center gap-3">
           <Link
             href="/admin/patients"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] text-[#344054] hover:bg-gray-50"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50"
             aria-label="Back to patients"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-[#101828]">
+            <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
               {editing ? "Edit patient" : patient.fullName}
             </h1>
-            <p className="text-xs text-[#98A2B3] mt-1">
+            <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1">
               Patient #{patient.patientNumber} · <span className="font-mono">{patient.id}</span>
             </p>
           </div>
@@ -224,8 +376,8 @@ export default function PatientDetailPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6 lg:col-span-2">
-          <h2 className="text-base font-semibold text-[#101828] mb-4">
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 lg:col-span-2">
+          <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">
             Contact information
           </h2>
           {editing && form ? (
@@ -321,7 +473,7 @@ export default function PatientDetailPage({
                   value={form.address}
                   onChange={(e) => setForm({ ...form, address: e.target.value })}
                   placeholder="Street, locality, city, postal code"
-                  className="rounded-lg border border-[#D0D5DD] p-3 text-sm w-full bg-white"
+                  className="rounded-lg border border-[#D0D5DD] dark:border-[#374151] p-3 text-sm w-full bg-white dark:bg-[#1F2937]"
                 />
               </Field>
 
@@ -340,7 +492,7 @@ export default function PatientDetailPage({
                 </Button>
                 <Link
                   href={`/admin/patients/${id}`}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#667085] hover:text-[#101828]"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]"
                 >
                   <X className="h-4 w-4" /> Cancel
                 </Link>
@@ -405,11 +557,11 @@ export default function PatientDetailPage({
                 />
               ) : null}
               {patient.address ? (
-                <div className="md:col-span-2 border-t border-[#F2F4F7] pt-4">
-                  <dt className="text-xs uppercase text-[#667085] font-semibold tracking-wider mb-1">
+                <div className="md:col-span-2 border-t border-[#F2F4F7] dark:border-[#374151] pt-4">
+                  <dt className="text-xs uppercase text-[#667085] dark:text-[#94A3B8] font-semibold tracking-wider mb-1">
                     Address
                   </dt>
-                  <dd className="text-sm text-[#344054] whitespace-pre-wrap">
+                  <dd className="text-sm text-[#344054] dark:text-[#CBD5E1] whitespace-pre-wrap">
                     {patient.address}
                   </dd>
                 </div>
@@ -418,24 +570,164 @@ export default function PatientDetailPage({
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6">
-          <h2 className="text-base font-semibold text-[#101828] mb-4">
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6">
+          <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">
             Recent activity
           </h2>
-          <p className="text-sm text-[#667085]">
-            Appointments and notes for this patient will appear here once the
-            consultation flow is connected.
-          </p>
+          {activity === null ? (
+            <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
+              <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+              Loading activity…
+            </div>
+          ) : activity.length === 0 ? (
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
+              No appointments recorded for this patient yet.
+            </p>
+          ) : (
+            <ol className="flex flex-col gap-3">
+              {activity.map((a) => {
+                const style =
+                  APPT_STATUS_STYLE[a.status] ?? APPT_STATUS_STYLE.REQUESTED
+                return (
+                  <li
+                    key={a.id}
+                    className="flex flex-col gap-1 border-l-2 border-[#EAECF0] dark:border-[#374151] pl-3 py-0.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">
+                        {new Date(a.startsAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        <span className="text-[#98A2B3] dark:text-[#94A3B8] font-normal">
+                          {" · "}
+                          {new Date(a.startsAt).toLocaleTimeString("en-GB", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </span>
+                      <span
+                        className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${style.cls}`}
+                      >
+                        {style.label}
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#475467] dark:text-[#CBD5E1]">
+                      {a.staff?.fullName ?? "Unassigned"}
+                      {a.staff?.specialization
+                        ? ` · ${a.staff.specialization}`
+                        : a.department?.name
+                          ? ` · ${a.department.name}`
+                          : ""}
+                    </span>
+                    {a.reason ? (
+                      <span className="text-xs text-[#667085] dark:text-[#94A3B8] truncate">
+                        {a.reason}
+                      </span>
+                    ) : null}
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+        </div>
+
+        {/* Vitals */}
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 lg:col-span-3">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB]">
+              Vitals
+            </h2>
+            <button
+              type="button"
+              onClick={() => setVitalOpen((v) => !v)}
+              className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+            >
+              {vitalOpen ? "Cancel" : "Record reading"}
+            </button>
+          </div>
+
+          {latestVital === undefined ? (
+            <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
+              <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+              Loading…
+            </div>
+          ) : latestVital === null ? (
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
+              No vitals recorded yet.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <VitalStat label="Blood pressure" value={latestVital.systolic && latestVital.diastolic ? `${latestVital.systolic}/${latestVital.diastolic}` : "—"} unit="mmHg" />
+              <VitalStat label="Heart rate" value={latestVital.heartRate ?? "—"} unit="bpm" />
+              <VitalStat label="Weight" value={latestVital.weightKg ?? "—"} unit="kg" />
+              <VitalStat label="Temp" value={latestVital.temperatureF ?? "—"} unit="°F" />
+              <VitalStat label="SpO₂" value={latestVital.spo2 ?? "—"} unit="%" />
+              <VitalStat label="Recorded" value={new Date(latestVital.recordedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })} unit={latestVital.recordedBy?.fullName ?? ""} />
+            </div>
+          )}
+
+          {vitalOpen ? (
+            <form onSubmit={recordVital} className="mt-5 pt-5 border-t border-[#EAECF0] dark:border-[#374151] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <VitalInput label="Systolic" value={vitalForm.systolic} onChange={(v) => setVitalForm({ ...vitalForm, systolic: v })} />
+              <VitalInput label="Diastolic" value={vitalForm.diastolic} onChange={(v) => setVitalForm({ ...vitalForm, diastolic: v })} />
+              <VitalInput label="Heart rate" value={vitalForm.heartRate} onChange={(v) => setVitalForm({ ...vitalForm, heartRate: v })} />
+              <VitalInput label="Weight (kg)" value={vitalForm.weightKg} onChange={(v) => setVitalForm({ ...vitalForm, weightKg: v })} />
+              <VitalInput label="Temp (°F)" value={vitalForm.temperatureF} onChange={(v) => setVitalForm({ ...vitalForm, temperatureF: v })} />
+              <VitalInput label="SpO₂ (%)" value={vitalForm.spo2} onChange={(v) => setVitalForm({ ...vitalForm, spo2: v })} />
+              <div className="col-span-2 sm:col-span-3 lg:col-span-5">
+                <label className="flex flex-col gap-1.5 text-sm">
+                  <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">Notes</span>
+                  <input value={vitalForm.notes} onChange={(e) => setVitalForm({ ...vitalForm, notes: e.target.value })} className={inputCls} placeholder="Optional" />
+                </label>
+              </div>
+              <div className="flex items-end">
+                <Button type="submit" disabled={vitalSaving} className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white h-10 px-4 rounded-lg text-sm font-semibold inline-flex items-center gap-2 w-full justify-center">
+                  {vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save
+                </Button>
+              </div>
+            </form>
+          ) : null}
         </div>
       </div>
     </div>
   )
 }
 
+function VitalStat({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-[#667085] dark:text-[#94A3B8]">{label}</span>
+      <span className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">
+        {value}
+        {unit ? <span className="text-xs font-normal text-[#98A2B3] dark:text-[#94A3B8] ml-1">{unit}</span> : null}
+      </span>
+    </div>
+  )
+}
+
+function VitalInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">{label}</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+      />
+    </label>
+  )
+}
+
 /* ── atoms ────────────────────────────────────────────────────────── */
 
 const inputCls =
-  "h-10 rounded-lg border border-[#D0D5DD] px-3 text-sm w-full bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
 
 function Field({
   label,
@@ -452,7 +744,7 @@ function Field({
 }) {
   return (
     <label className={`flex flex-col gap-1.5 text-sm ${wide ? "md:col-span-2" : ""}`}>
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
@@ -473,10 +765,10 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="text-[#667085] mt-0.5">{icon}</div>
+      <div className="text-[#667085] dark:text-[#94A3B8] mt-0.5">{icon}</div>
       <div>
-        <dt className="text-xs uppercase text-[#667085]">{label}</dt>
-        <dd className="text-[#101828] font-medium">{value}</dd>
+        <dt className="text-xs uppercase text-[#667085] dark:text-[#94A3B8]">{label}</dt>
+        <dd className="text-[#101828] dark:text-[#F9FAFB] font-medium">{value}</dd>
       </div>
     </div>
   )

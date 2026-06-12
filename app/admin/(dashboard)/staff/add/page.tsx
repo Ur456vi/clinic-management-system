@@ -161,8 +161,8 @@ export default function AddStaffPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">Add New Staff Member</h1>
-          <p className="text-sm text-[#667085] mt-1">
+          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Add New Staff Member</h1>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
             Creates a User + Staff record in one transaction.
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function AddStaffPage() {
             <Button
               type="button"
               variant="outline"
-              className="px-6 h-11 border-[#D0D5DD] text-[#344054] font-semibold rounded-lg"
+              className="px-6 h-11 border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] font-semibold rounded-lg"
             >
               Cancel
             </Button>
@@ -194,7 +194,7 @@ export default function AddStaffPage() {
       <div>
         <Link
           href="/admin/staff"
-          className="inline-flex items-center gap-2 text-[#667085] hover:text-[#101828] text-sm font-medium"
+          className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Staff
@@ -203,7 +203,7 @@ export default function AddStaffPage() {
 
       {/* Green banner */}
       <div className="bg-[#12B76A] rounded-xl p-6 text-white flex items-center gap-4 shadow-sm">
-        <div className="h-12 w-12 rounded-lg bg-white/20 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-lg bg-white dark:bg-[#1F2937]/20 flex items-center justify-center">
           <UserPlus className="h-6 w-6 text-white" />
         </div>
         <div>
@@ -217,7 +217,7 @@ export default function AddStaffPage() {
 
       {/* Basic Information */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Basic Information</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Basic Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="First Name" required error={fieldErrors.firstName}>
@@ -247,7 +247,7 @@ export default function AddStaffPage() {
             error={fieldErrors.email}
           >
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <input
                 type="email"
                 value={form.email}
@@ -260,7 +260,7 @@ export default function AddStaffPage() {
 
           <Field label="Phone Number" error={fieldErrors.phone}>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <input
                 type="tel"
                 value={form.phone}
@@ -275,16 +275,16 @@ export default function AddStaffPage() {
 
       {/* Role + Department */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Role &amp; Department</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Role &amp; Department</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Role" required error={fieldErrors.role}>
             <div className="relative">
-              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <select
                 value={form.role}
                 onChange={(e) => set("role", e.target.value as Role)}
-                className={`${inputCls} pl-10 bg-white`}
+                className={`${inputCls} pl-10 bg-white dark:bg-[#1F2937]`}
               >
                 {ROLES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -307,12 +307,12 @@ export default function AddStaffPage() {
             error={fieldErrors.departmentId}
           >
             <div className="relative">
-              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085]" />
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <select
                 value={form.departmentId}
                 onChange={(e) => set("departmentId", e.target.value)}
                 disabled={loadingDepartments || departments.length === 0}
-                className={`${inputCls} pl-10 bg-white disabled:bg-[#F9FAFB] disabled:cursor-not-allowed`}
+                className={`${inputCls} pl-10 bg-white dark:bg-[#1F2937] disabled:bg-[#F9FAFB] disabled:cursor-not-allowed`}
               >
                 <option value="">No department</option>
                 {departments.map((d) => (
@@ -328,7 +328,7 @@ export default function AddStaffPage() {
 
       {/* Account */}
       <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#101828]">Account</h3>
+        <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Account</h3>
 
         <Field
           label="Initial password"
@@ -351,7 +351,7 @@ export default function AddStaffPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] rounded-lg text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
 
 function Field({
   label,
@@ -368,12 +368,12 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-[#344054] font-medium">
+      <span className="text-[#344054] dark:text-[#CBD5E1] font-medium">
         {label}
         {required ? <span className="text-[#B42318]"> *</span> : null}
       </span>
       {children}
-      {hint ? <p className="text-xs text-[#667085]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{hint}</p> : null}
       {error ? <p className="text-xs text-[#B42318]">{error}</p> : null}
     </label>
   )

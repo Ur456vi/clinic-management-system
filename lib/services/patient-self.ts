@@ -99,7 +99,9 @@ export async function getSelfProfile(args: {
 // ---------------------------------------------------------------------------
 
 const SELF_APPOINTMENT_INCLUDE = {
-  staff: { select: { id: true, fullName: true, role: true } },
+  // Staff carries the display name + specialization; `role` lives on the
+  // linked User, not Staff, so it's intentionally not selected here.
+  staff: { select: { id: true, fullName: true, specialization: true } },
   department: { select: { id: true, name: true } },
 } as const
 
@@ -149,8 +151,9 @@ export async function listSelfAppointments(args: {
 
 const SELF_PLAN_INCLUDE = {
   items: { orderBy: { createdAt: "asc" as const } },
-  createdBy: { select: { id: true, fullName: true } },
-  signedBy: { select: { id: true, fullName: true } },
+  // A User has no `fullName` — read the clinician's name off their Staff row.
+  createdBy: { select: { id: true, staff: { select: { fullName: true } } } },
+  signedBy: { select: { id: true, staff: { select: { fullName: true } } } },
 } as const
 
 export type SelfTreatmentPlan = Prisma.TreatmentPlanGetPayload<{

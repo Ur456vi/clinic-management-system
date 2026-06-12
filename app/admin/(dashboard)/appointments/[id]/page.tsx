@@ -141,7 +141,7 @@ export default function AppointmentDetailPage({
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ to: status }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       notify.success(`Marked ${status.toLowerCase()}`)
@@ -157,8 +157,8 @@ export default function AppointmentDetailPage({
 
   if (loading) {
     return (
-      <div className="p-8 flex items-center gap-3 text-sm text-[#667085]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4]" />
+      <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
         Loading appointment…
       </div>
     )
@@ -167,14 +167,14 @@ export default function AppointmentDetailPage({
   if (error || !appt) {
     return (
       <div className="p-8 max-w-xl">
-        <div className="bg-white border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <p className="text-sm font-semibold text-[#B42318]">
             {error ?? "Appointment not found"}
           </p>
           <Link
             href="/admin/appointments"
-            className="text-sm text-[#2E37A4] hover:underline font-semibold"
+            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all appointments
           </Link>
@@ -202,14 +202,14 @@ export default function AppointmentDetailPage({
         <div className="flex items-center gap-3">
           <Link
             href="/admin/appointments"
-            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] text-[#344054] hover:bg-gray-50"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50"
             aria-label="Back to appointments"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-[#101828]">Appointment</h1>
-            <p className="text-xs text-[#98A2B3] mt-0.5 font-mono">{appt.id}</p>
+            <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Appointment</h1>
+            <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-0.5 font-mono">{appt.id}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -255,25 +255,25 @@ export default function AppointmentDetailPage({
       </div>
 
       {editingTime ? (
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-5">
-          <p className="text-sm font-semibold text-[#101828] mb-3">Reschedule</p>
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-5">
+          <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-3">Reschedule</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             <input
               type="date"
               value={draft.date}
               onChange={(e) => setDraft({ ...draft, date: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
             />
             <input
               type="time"
               value={draft.time}
               onChange={(e) => setDraft({ ...draft, time: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
             />
             <select
               value={draft.duration}
               onChange={(e) => setDraft({ ...draft, duration: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
             >
               <option value="15">15 minutes</option>
               <option value="30">30 minutes</option>
@@ -303,14 +303,14 @@ export default function AppointmentDetailPage({
       ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6 lg:col-span-2">
-          <h2 className="text-base font-semibold text-[#101828] mb-4">Overview</h2>
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 lg:col-span-2">
+          <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Overview</h2>
           <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 text-sm">
             <Item icon={<User className="h-4 w-4" />} label="Patient">
               {appt.patient ? (
                 <Link
                   href={`/admin/patients/${appt.patient.id}`}
-                  className="text-[#2E37A4] font-semibold hover:underline"
+                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   {appt.patient.fullName}
                 </Link>
@@ -318,7 +318,7 @@ export default function AppointmentDetailPage({
                 "—"
               )}
               {appt.patient ? (
-                <p className="text-xs text-[#98A2B3] mt-0.5">
+                <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-0.5">
                   #{appt.patient.patientNumber}
                 </p>
               ) : null}
@@ -326,7 +326,7 @@ export default function AppointmentDetailPage({
             <Item icon={<Stethoscope className="h-4 w-4" />} label="Doctor">
               {appt.staff?.fullName ?? "—"}
               {appt.staff?.specialization ? (
-                <p className="text-xs text-[#2E37A4] mt-0.5">
+                <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC] mt-0.5">
                   {appt.staff.specialization}
                 </p>
               ) : null}
@@ -344,11 +344,11 @@ export default function AppointmentDetailPage({
               {appt.reason ?? "—"}
             </Item>
             {appt.notes ? (
-              <div className="md:col-span-2 border-t border-[#F2F4F7] pt-4">
-                <dt className="text-xs uppercase text-[#667085] font-semibold tracking-wider mb-1">
+              <div className="md:col-span-2 border-t border-[#F2F4F7] dark:border-[#374151] pt-4">
+                <dt className="text-xs uppercase text-[#667085] dark:text-[#94A3B8] font-semibold tracking-wider mb-1">
                   Notes
                 </dt>
-                <dd className="text-sm text-[#344054] whitespace-pre-wrap">
+                <dd className="text-sm text-[#344054] dark:text-[#CBD5E1] whitespace-pre-wrap">
                   {appt.notes}
                 </dd>
               </div>
@@ -356,10 +356,10 @@ export default function AppointmentDetailPage({
           </dl>
         </div>
 
-        <div className="bg-white rounded-xl border border-[#EAECF0] shadow-sm p-6 flex flex-col gap-3">
-          <h2 className="text-base font-semibold text-[#101828] mb-1">Status</h2>
+        <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm p-6 flex flex-col gap-3">
+          <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">Status</h2>
           <StatusPill status={appt.status} />
-          <div className="text-xs text-[#667085] mt-2 space-y-1">
+          <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-2 space-y-1">
             <p>
               Created{" "}
               {new Date(appt.createdAt).toLocaleString("en-GB", {
@@ -396,12 +396,12 @@ function Item({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="text-[#667085] mt-0.5">{icon}</div>
+      <div className="text-[#667085] dark:text-[#94A3B8] mt-0.5">{icon}</div>
       <div className="min-w-0">
-        <dt className="text-xs uppercase text-[#667085] font-semibold tracking-wider">
+        <dt className="text-xs uppercase text-[#667085] dark:text-[#94A3B8] font-semibold tracking-wider">
           {label}
         </dt>
-        <dd className="text-[#101828] font-medium mt-0.5">{children}</dd>
+        <dd className="text-[#101828] dark:text-[#F9FAFB] font-medium mt-0.5">{children}</dd>
       </div>
     </div>
   )

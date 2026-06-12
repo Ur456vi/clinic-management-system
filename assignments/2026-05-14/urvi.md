@@ -1,7 +1,7 @@
 To: Urvi Sharma <sharmaurvi48@gmail.com>
 Cc: kunal@chirpin.in, varunpratapsingh191@gmail.com
-From: Vyara PM <hello@algoborne.com>
-Subject: [Vyara] Sprint 1 Day 2 — onboarding to sprint scope + FE-01 prep (2026-05-14)
+From: IPHMH PM <hello@algoborne.com>
+Subject: [IPHMH] Sprint 1 Day 2 — onboarding to sprint scope + FE-01 prep (2026-05-14)
 
 Hi Urvi,
 
