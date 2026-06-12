@@ -207,7 +207,7 @@ export default function HomeContent() {
               biological precision and long-term physician-guided care.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
               <CTAButton href="#framework" variant="olive">
                 Explore The Clinical Framework
               </CTAButton>
@@ -216,7 +216,7 @@ export default function HomeContent() {
               </CTAButton>
             </div>
 
-            <div className="mt-12 flex flex-wrap gap-x-8 gap-y-6 max-w-2xl">
+            <div className="mt-12 flex flex-col md:flex-row flex-wrap gap-x-8 gap-y-6 max-w-2xl">
               {HERO_TILES.map((t) => (
                 <div key={t.label} className="flex items-start md:items-center gap-4 text-left w-full">
                   <div className="relative w-10 h-10 shrink-0 mt-1 md:mt-0">
@@ -452,9 +452,9 @@ export default function HomeContent() {
               {FRAMEWORK.map((f) => (
                 <div
                   key={f.no}
-                  className="flex flex-col justify-start relative z-10 py-6"
+                  className="flex flex-col items-center md:items-start justify-start relative z-10 py-6"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center md:justify-start gap-4">
                     <span
                       className="shrink-0 flex items-center"
                       style={{
@@ -479,7 +479,7 @@ export default function HomeContent() {
                     </div>
                   </div>
                   <p
-                    className="mt-6 text-xs leading-relaxed max-w-[220px]"
+                    className="mt-6 text-xs leading-relaxed max-w-[220px] text-center md:text-left"
                     style={{ color: "var(--brand-ink-soft)" }}
                   >
                     {f.body}

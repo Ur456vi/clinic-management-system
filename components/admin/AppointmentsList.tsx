@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   PlayCircle,
   ClipboardList,
+  FileText,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -74,6 +75,11 @@ export interface AppointmentsListProps {
   staffId?: string
   /** Show the "Add Appointment" CTA (default true). */
   showAdd?: boolean
+  /**
+   * Show the "RMO Summary" row action (default false). Enabled on the
+   * Dr Yuvraaj view so the doctor can review the RMO intake before starting.
+   */
+  showRmoSummary?: boolean
   /** Empty-state copy override. */
   emptyHint?: string
 }
@@ -83,6 +89,7 @@ export default function AppointmentsList({
   subtitle,
   staffId,
   showAdd = true,
+  showRmoSummary = false,
   emptyHint,
 }: AppointmentsListProps) {
   const [rows, setRows] = useState<AppointmentApi[]>([])
@@ -252,6 +259,7 @@ export default function AppointmentsList({
                   <AppointmentRow
                     key={row.id}
                     row={row}
+                    showRmoSummary={showRmoSummary}
                     onChanged={() => void fetchAppointments()}
                   />
                 ))
@@ -268,9 +276,11 @@ export default function AppointmentsList({
 
 function AppointmentRow({
   row,
+  showRmoSummary,
   onChanged,
 }: {
   row: AppointmentApi
+  showRmoSummary: boolean
   onChanged: () => void
 }) {
   const starts = new Date(row.startsAt)
@@ -346,7 +356,7 @@ function AppointmentRow({
 
       {/* Actions */}
       <td className="px-6 py-4">
-        <AppointmentActionMenu row={row} onChanged={onChanged} />
+        <AppointmentActionMenu row={row} showRmoSummary={showRmoSummary} onChanged={onChanged} />
       </td>
     </tr>
   )
@@ -356,9 +366,11 @@ function AppointmentRow({
 
 function AppointmentActionMenu({
   row,
+  showRmoSummary,
   onChanged,
 }: {
   row: AppointmentApi
+  showRmoSummary: boolean
   onChanged: () => void
 }) {
   const router = useRouter()
@@ -463,6 +475,18 @@ function AppointmentActionMenu({
             {row.status === "REQUESTED" ? (
               <button className={item} onClick={() => void accept()}>
                 <CheckCircle2 className="h-4 w-4 text-[#027A48]" /> Accept
+              </button>
+            ) : null}
+
+            {showRmoSummary ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/appointments/${row.id}/rmo-summary`)
+                }}
+              >
+                <FileText className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> RMO Summary
               </button>
             ) : null}
 
