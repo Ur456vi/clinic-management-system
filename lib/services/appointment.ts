@@ -299,6 +299,19 @@ export async function listAppointments(
     if (input.to) (where.startsAt as Prisma.DateTimeFilter).lt = input.to
   }
 
+  // Account scoping: ADMIN sees the full book; every other role only sees
+  // appointments assigned to their own staff profile. This also overrides
+  // any caller-supplied staffId so a non-admin can't list someone else's
+  // schedule.
+  if (actor.role !== Role.ADMIN) {
+    const staff = await db.staff.findUnique({
+      where: { userId: actor.userId },
+      select: { id: true },
+    })
+    if (!staff) return { items: [], nextCursor: null }
+    where.staffId = staff.id
+  }
+
   const rows = await db.appointment.findMany({
     where,
     take: take + 1,

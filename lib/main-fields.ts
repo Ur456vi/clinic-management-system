@@ -78,14 +78,46 @@ export const MAIN_SECTIONS: MainSection[] = [
   {
     slug: "Patient Detail",
     label: "Patient Detail",
-    description: "Presenting complaint, history, and bedside vitals",
+    description: "Demographics, history, vitals, and examination",
     key: "patientDetail",
     groups: [
+      {
+        title: "Demographics & Registration",
+        controls: [
+          { kind: "date", n: "patientDetail__dob", l: "Date of Birth" },
+          { kind: "select", n: "patientDetail__gender", l: "Gender", options: ["Male", "Female", "Other"], placeholder: "Select gender" },
+          { kind: "text", n: "patientDetail__contact", l: "Contact Number", placeholder: "e.g., +91 98XXXXXXXX" },
+          { kind: "text", n: "patientDetail__email", l: "Email", placeholder: "e.g., patient@example.com" },
+          { kind: "text", n: "patientDetail__occupation", l: "Occupation", placeholder: "e.g., Corporate – Finance" },
+          { kind: "select", n: "patientDetail__referred_by", l: "Referred By", options: ["Self", "Doctor", "Relative", "Friend", "Other"], placeholder: "Select referral" },
+          { kind: "date", n: "patientDetail__registration_date", l: "Registration Date" },
+        ],
+      },
+      {
+        title: "Consultation Details",
+        controls: [
+          { kind: "date", n: "patientDetail__consultation_date", l: "Consultation Date" },
+          { kind: "text", n: "patientDetail__consultation_duration", l: "Duration (minutes)", placeholder: "e.g., 42" },
+          { kind: "select", n: "patientDetail__consultation_mode", l: "Mode", options: ["In-Clinic", "In-Person", "Online"], placeholder: "Select mode" },
+        ],
+      },
+      {
+        title: "Preliminary Consultation Summary (RMO)",
+        controls: [
+          { kind: "date", n: "patientDetail__assessment_date", l: "Assessment Date" },
+          { kind: "text", n: "patientDetail__reviewed_by", l: "Reviewed By", placeholder: "e.g., Dr. Yuvraaj Singh" },
+          { kind: "date", n: "patientDetail__reviewed_on", l: "Reviewed On" },
+          { kind: "textarea", n: "patientDetail__chief_concerns", l: "Chief Concerns Reported", placeholder: "One per line — e.g., Fatigue & low energy for 8–10 months", rows: 4, full: true },
+          { kind: "textarea", n: "patientDetail__relevant_medical_history", l: "Relevant Medical History", placeholder: "e.g., No known chronic illness. Occasional gastritis. No regular medications.", rows: 3, full: true },
+          { kind: "textarea", n: "patientDetail__family_history", l: "Family History", placeholder: "e.g., Father – Hypertension & Diabetes", rows: 2, full: true },
+        ],
+      },
       {
         title: "Presentation",
         controls: [
           { kind: "textarea", n: "patientDetail__chief_complaint", l: "Chief Complaint", placeholder: "Primary reason for this visit", rows: 3, full: true },
           { kind: "textarea", n: "patientDetail__history_presenting", l: "History of Presenting Illness", placeholder: "Onset, duration, progression, aggravating / relieving factors", rows: 4, full: true },
+          { kind: "textarea", n: "patientDetail__additional_clinical_notes", l: "Additional History & Clinical Notes", placeholder: "Work stress, meals, sleep pattern, sexual health, habits — one per line", rows: 4, full: true },
         ],
       },
       {
@@ -100,10 +132,31 @@ export const MAIN_SECTIONS: MainSection[] = [
         controls: [
           { kind: "text", n: "patientDetail__vitals_bp", l: "Blood Pressure (mmHg)", placeholder: "e.g., 120/80" },
           { kind: "text", n: "patientDetail__vitals_pulse", l: "Pulse (bpm)", placeholder: "e.g., 72" },
+          { kind: "text", n: "patientDetail__vitals_rr", l: "Respiratory Rate (/min)", placeholder: "e.g., 16" },
           { kind: "text", n: "patientDetail__vitals_weight", l: "Weight (kg)", placeholder: "e.g., 70" },
           { kind: "text", n: "patientDetail__vitals_height", l: "Height (cm)", placeholder: "e.g., 170" },
           { kind: "text", n: "patientDetail__vitals_spo2", l: "SpO2 (%)", placeholder: "e.g., 98" },
           { kind: "text", n: "patientDetail__vitals_temp", l: "Temperature (°F)", placeholder: "e.g., 98.6" },
+        ],
+      },
+      {
+        title: "Anthropometrics & Body Composition",
+        controls: [
+          { kind: "date", n: "patientDetail__anthro_measured_on", l: "Measured On" },
+          { kind: "text", n: "patientDetail__anthro_bmi", l: "BMI (kg/m²)", placeholder: "e.g., 27.5" },
+          { kind: "text", n: "patientDetail__anthro_body_fat", l: "Body Fat %", placeholder: "e.g., 21.8" },
+          { kind: "text", n: "patientDetail__anthro_waist", l: "Waist Circumference (cm)", placeholder: "e.g., 94" },
+          { kind: "text", n: "patientDetail__anthro_hip", l: "Hip Circumference (cm)", placeholder: "e.g., 98" },
+          { kind: "text", n: "patientDetail__anthro_whr", l: "Waist–Hip Ratio", placeholder: "e.g., 0.96" },
+        ],
+      },
+      {
+        title: "Systemic Exam",
+        controls: [
+          { kind: "text", n: "patientDetail__exam_cvs", l: "CVS", placeholder: "e.g., S1S2 normal, no murmurs" },
+          { kind: "text", n: "patientDetail__exam_rs", l: "RS", placeholder: "e.g., Clear" },
+          { kind: "text", n: "patientDetail__exam_pa", l: "P/A", placeholder: "e.g., Soft, non-tender" },
+          { kind: "text", n: "patientDetail__exam_cns", l: "CNS", placeholder: "e.g., NAD" },
         ],
       },
     ],
@@ -186,6 +239,7 @@ export const MAIN_SECTIONS: MainSection[] = [
       {
         title: "Diagnosis",
         controls: [
+          { kind: "textarea", n: "finalPrescription__clinical_impression", l: "Clinical Impression", placeholder: "e.g., Male with features of androgen deficiency with metabolic dysregulation.", rows: 3, full: true },
           { kind: "textarea", n: "finalPrescription__diagnosis", l: "Diagnosis", placeholder: "Provisional / final diagnosis", rows: 3, full: true },
         ],
       },

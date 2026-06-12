@@ -18,7 +18,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Save, Trash2, User } from "lucide-react"
+import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Printer, Save, Trash2, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
@@ -46,6 +46,8 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState(MAIN_SECTIONS[0].slug)
   const [saving, setSaving] = useState(false)
+  // Session-local guard so we only fire the COMPLETED transition once.
+  const [markedCompleted, setMarkedCompleted] = useState(false)
 
   // Flatten previously-saved MAIN sections back into the flat form map.
   const [form, setForm] = useState<Record<string, string>>(() => {
@@ -77,6 +79,29 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       notify.success("Consultation saved")
+
+      // Prescription ready -> the visit is done: move the appointment to
+      // COMPLETED (legal only from CONFIRMED; any other state 400s and is
+      // ignored quietly — e.g. already completed on a previous save).
+      const prescriptionReady = MAIN_FIELDS.some(
+        (f) => f.key === "finalPrescription" && (form[f.n] ?? "") !== "",
+      )
+      if (prescriptionReady && !markedCompleted) {
+        try {
+          const t = await fetch(`/api/appointments/${appointmentId}/transition`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ to: "COMPLETED" }),
+          })
+          if (t.ok) {
+            setMarkedCompleted(true)
+            notify.success("Appointment marked completed")
+          }
+        } catch {
+          /* status transition is best-effort; the consultation is saved */
+        }
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Save failed"
       notify.error("Couldn't save consultation", { description: message })
@@ -180,11 +205,18 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
             {consult.patient ? <span className="text-[#98A2B3] dark:text-[#94A3B8]">#{consult.patient.patientNumber}</span> : null}
           </div>
         </div>
-        <Link href={`/admin/appointments/${appointmentId}/rmo-summary`}>
-          <Button variant="outline" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" /> View RMO Summary
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/appointments/${appointmentId}/rmo-summary`}>
+            <Button variant="outline" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" /> View RMO Summary
+            </Button>
+          </Link>
+          <Link href={`/admin/appointments/${appointmentId}/prescription`}>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Printer className="h-4 w-4" /> Print prescription
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Body */}

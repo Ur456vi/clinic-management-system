@@ -26,6 +26,7 @@ import {
   PlayCircle,
   ClipboardList,
   FileText,
+  Printer,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -503,6 +504,18 @@ function AppointmentActionMenu({
             <button className={item} onClick={() => void viewQuiz()}>
               <ClipboardList className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View quiz Assessment
             </button>
+
+            {row.status === "COMPLETED" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/appointments/${row.id}/prescription`)
+                }}
+              >
+                <Printer className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View prescription
+              </button>
+            ) : null}
           </div>
         </div>
       )}
