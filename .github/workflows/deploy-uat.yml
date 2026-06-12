@@ -58,6 +58,13 @@ jobs:
             .next/ \
             ${{ secrets.UAT_EC2_USER }}@${{ secrets.UAT_EC2_HOST }}:/home/ec2-user/vyara-uat/.next/
 
+      - name: Copy package files to UAT EC2
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            package.json package-lock.json prisma/ \
+            ${{ secrets.UAT_EC2_USER }}@${{ secrets.UAT_EC2_HOST }}:/home/ec2-user/vyara-uat/
+
       - name: Deploy to UAT EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -71,22 +78,18 @@ jobs:
           script: |
             set -e
             APP_DIR=/home/ec2-user/vyara-uat
-            mkdir -p $APP_DIR && cd $APP_DIR
-
-            if [ ! -d ".git" ]; then
-              git init
-              git remote add origin https://github.com/Ur456vi/clinic-management-system.git
-            fi
-            git fetch origin uat
-            git reset --hard origin/uat
+            cd $APP_DIR
 
             # Write .env from GitHub secrets + hardcoded UAT domain
             printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.alogborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.alogborne.com\n" \
               "${DATABASE_URL}" "${NEXTAUTH_SECRET}" > .env
             chmod 600 .env
 
-            # Run Prisma migrations on UAT DB
-            npx prisma migrate deploy
+            # Install dependencies using the project's own node_modules (Prisma 6)
+            npm install --omit=dev
+
+            # Run Prisma migrations using local installed version (not npx which pulls latest)
+            npm run prisma:deploy
 
             # Configure Nginx reverse proxy for UAT
             sudo tee /etc/nginx/conf.d/vyara-uat.conf > /dev/null <<'NGINXCONF'
