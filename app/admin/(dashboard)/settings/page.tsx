@@ -1,34 +1,178 @@
-/**
- * Admin Settings — the shared <ProfileSettings /> form plus links to
- * admin-only configuration sections (e.g. Email/SMTP).
- */
-import Link from "next/link";
-import { Mail, ChevronRight } from "lucide-react";
+"use client";
 
-import ProfileSettings from "@/components/profile/ProfileSettings";
+/**
+ * Admin Settings Page — Features a vertical settings-specific sidebar layout
+ * with options for Email SMTP (Admin only), Profile Settings, Change Password,
+ * and Notifications wrapped inside a clean outline container.
+ */
+import { Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import {
+  User,
+  Lock,
+  Bell,
+  Mail,
+  Loader2,
+} from "lucide-react";
+
+import ProfileSettings, { type ProfileSettingsTab } from "@/components/profile/ProfileSettings";
+import EmailSettingsPage from "./email/page";
+
+type SettingsTab = "email-smtp" | ProfileSettingsTab;
+
+function SettingsPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  // Determine active tab from URL query param (null if no valid tab query is present)
+  const tabParam = searchParams.get("tab") as SettingsTab | null;
+  const activeTab: SettingsTab | null =
+    tabParam && ["email-smtp", "profile", "password", "notifications"].includes(tabParam)
+      ? tabParam
+      : null;
+
+  const handleTabChange = (newTab: SettingsTab) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", newTab);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <p className="text-sm font-medium">Loading settings…</p>
+      </div>
+    );
+  }
+
+  // Redirect non-admins if they try to access email-smtp directly via URL param
+  if (activeTab === "email-smtp" && !isAdmin) {
+    handleTabChange("profile");
+    return null;
+  }
+
+  return (
+    <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-8 py-2">
+      {/* Sidebar navigation */}
+      <aside className="w-full lg:w-64 shrink-0">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4 flex flex-col gap-1.5">
+          <h2 className="text-xs font-semibold text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider px-2 mb-2">
+            Settings Menu
+          </h2>
+
+          {/* Email SMTP Tab (Admin only) - At the top */}
+          {isAdmin && (
+            <button
+              onClick={() => handleTabChange("email-smtp")}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
+                activeTab === "email-smtp"
+                  ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                  : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
+              }`}
+            >
+              <Mail
+                className={`h-5 w-5 shrink-0 ${
+                  activeTab === "email-smtp"
+                    ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                    : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
+                }`}
+              />
+              <span>Email SMTP</span>
+            </button>
+          )}
+
+          {/* Profile Settings Tab */}
+          <button
+            onClick={() => handleTabChange("profile")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
+              activeTab === "profile"
+                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
+            }`}
+          >
+            <User
+              className={`h-5 w-5 shrink-0 ${
+                activeTab === "profile"
+                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
+              }`}
+            />
+            <span>Profile Settings</span>
+          </button>
+
+          {/* Change Password Tab */}
+          <button
+            onClick={() => handleTabChange("password")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
+              activeTab === "password"
+                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
+            }`}
+          >
+            <Lock
+              className={`h-5 w-5 shrink-0 ${
+                activeTab === "password"
+                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
+              }`}
+            />
+            <span>Change Password</span>
+          </button>
+
+          {/* Notifications Tab */}
+          <button
+            onClick={() => handleTabChange("notifications")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
+              activeTab === "notifications"
+                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
+            }`}
+          >
+            <Bell
+              className={`h-5 w-5 shrink-0 ${
+                activeTab === "notifications"
+                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
+              }`}
+            />
+            <span>Notifications</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main settings content */}
+      <div className="flex-1 min-w-0">
+        {activeTab === "email-smtp" ? (
+          <EmailSettingsPage />
+        ) : activeTab ? (
+          <ProfileSettings
+            activeTab={activeTab}
+            showTabsHeader={false}
+            showHeader={false}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col gap-6">
-      <Link
-        href="/admin/settings/email"
-        className="flex items-center justify-between gap-3 max-w-[720px] bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-5 hover:border-[#2E37A4] hover:bg-[#F4F5FF] transition-colors"
-      >
-        <span className="flex items-center gap-3">
-          <span className="h-10 w-10 rounded-lg bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-            <Mail className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
-          </span>
-          <span>
-            <span className="block text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Email (SMTP)</span>
-            <span className="block text-xs text-[#667085] dark:text-[#94A3B8]">
-              Configure Brevo SMTP credentials for transactional email
-            </span>
-          </span>
-        </span>
-        <ChevronRight className="h-5 w-5 text-[#98A2B3] dark:text-[#94A3B8]" />
-      </Link>
-
-      <ProfileSettings />
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
+          <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+          <p className="text-sm font-medium">Loading settings…</p>
+        </div>
+      }
+    >
+      <SettingsPageContent />
+    </Suspense>
   );
 }

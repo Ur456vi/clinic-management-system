@@ -56,6 +56,8 @@ const SELF_PROFILE_SELECT = {
   email: true,
   phone: true,
   status: true,
+  dateOfBirth: true,
+  sex: true,
   primaryDoctor: {
     select: { id: true, fullName: true },
   },
@@ -152,8 +154,8 @@ export async function listSelfAppointments(args: {
 const SELF_PLAN_INCLUDE = {
   items: { orderBy: { createdAt: "asc" as const } },
   // A User has no `fullName` — read the clinician's name off their Staff row.
-  createdBy: { select: { id: true, staff: { select: { fullName: true } } } },
-  signedBy: { select: { id: true, staff: { select: { fullName: true } } } },
+  createdBy: { select: { id: true, staff: { select: { fullName: true, avatarUrl: true, specialization: true } } } },
+  signedBy: { select: { id: true, staff: { select: { fullName: true, avatarUrl: true, specialization: true } } } },
 } as const
 
 export type SelfTreatmentPlan = Prisma.TreatmentPlanGetPayload<{
