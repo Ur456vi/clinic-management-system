@@ -26,9 +26,9 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
       {/* Background Decor & Right Side Assets */}
       <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[60%] pointer-events-none z-0">
 
-         {/* Hex Pattern — only for non-female and non-aesthetic */}
-         {!isFemale && !isAesthetic && (
-           <div className="absolute inset-0 opacity-[0.25]" style={{ color: "var(--brand-burgundy)" }}>
+         {/* Hex Pattern — only for non-female */}
+         {!isFemale && (
+           <div className="hidden md:block absolute inset-0 opacity-[0.25]" style={{ color: "var(--brand-burgundy)" }}>
              <HeroPattern className="h-full w-full" opacity={1} />
            </div>
          )}
