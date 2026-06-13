@@ -37,8 +37,9 @@ import { notify } from "@/lib/notify"
 
 /** Clinic working hours (local, 24h "HH:MM"). The availability service has
  *  no per-staff schedule yet, so the booking UI bounds slot generation to
- *  this window. Make this configurable per department/staff in a later pass. */
-const CLINIC_OPEN = "09:00"
+ *  this window. Clinic operates 10:00 AM – 6:00 PM (incl. Dr. Yuvraaj).
+ *  Make this configurable per department/staff in a later pass. */
+const CLINIC_OPEN = "10:00"
 const CLINIC_CLOSE = "18:00"
 
 const STEPS = [
@@ -190,19 +191,30 @@ function NewAppointmentPageInner() {
         throw new Error(json?.error?.message ?? "Booking failed")
       }
       // Fire the patient + doctor confirmation emails (best-effort; the
-      // booking already succeeded so we never block on this).
+      // booking already succeeded so we never block on this). Surface the
+      // real result so the toast doesn't claim "sent" when there was no
+      // email on file or the provider rejected it.
       const createdId = json?.data?.id
+      let emailedTo = 0
       if (createdId) {
         try {
-          await fetch(`/api/appointments/${createdId}/send-confirmation`, {
+          const er = await fetch(`/api/appointments/${createdId}/send-confirmation`, {
             method: "POST",
             credentials: "include",
           })
+          const ej = await er.json().catch(() => null)
+          const sent = ej?.data?.sent ?? {}
+          emailedTo = (sent?.patient?.ok === true ? 1 : 0) + (sent?.doctor?.ok === true ? 1 : 0)
         } catch {
           /* email is best-effort */
         }
       }
-      notify.success("Appointment booked — confirmation emails sent")
+      notify.success(
+        emailedTo > 0 ? "Appointment booked — confirmation email sent" : "Appointment booked",
+        emailedTo > 0
+          ? undefined
+          : { description: "No confirmation email sent — patient/doctor has no email on file." },
+      )
       router.push("/admin/appointments")
     } catch (err) {
       notify.error("Couldn't create appointment", {

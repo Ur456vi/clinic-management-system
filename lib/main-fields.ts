@@ -57,7 +57,16 @@ export type MainControl =
       full?: boolean
     }
 
-export type MainGroup = { title?: string; controls: MainControl[] }
+export type MainGroup = {
+  title?: string
+  controls: MainControl[]
+  /**
+   * Optional inline action rendered after the group's controls.
+   * `recordVitals` posts the Vitals fields to the patient's Vitals record
+   * (so they show up in "Latest Vitals"), de-duped by an explicit button.
+   */
+  action?: "recordVitals"
+}
 
 export type MainSection = {
   /** Left-nav slug (also the React key). */
@@ -82,7 +91,7 @@ export const MAIN_SECTIONS: MainSection[] = [
     key: "patientDetail",
     groups: [
       {
-        title: "Demographics & Registration",
+        title: "Demographics",
         controls: [
           { kind: "date", n: "patientDetail__dob", l: "Date of Birth" },
           { kind: "select", n: "patientDetail__gender", l: "Gender", options: ["Male", "Female", "Other"], placeholder: "Select gender" },
@@ -90,7 +99,6 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "text", n: "patientDetail__email", l: "Email", placeholder: "e.g., patient@example.com" },
           { kind: "text", n: "patientDetail__occupation", l: "Occupation", placeholder: "e.g., Corporate – Finance" },
           { kind: "select", n: "patientDetail__referred_by", l: "Referred By", options: ["Self", "Doctor", "Relative", "Friend", "Other"], placeholder: "Select referral" },
-          { kind: "date", n: "patientDetail__registration_date", l: "Registration Date" },
         ],
       },
       {
@@ -101,17 +109,9 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "select", n: "patientDetail__consultation_mode", l: "Mode", options: ["In-Clinic", "Online"], placeholder: "Select mode" },
         ],
       },
-      {
-        title: "Preliminary Consultation Summary (RMO)",
-        controls: [
-          { kind: "date", n: "patientDetail__assessment_date", l: "Assessment Date" },
-          { kind: "text", n: "patientDetail__reviewed_by", l: "Reviewed By", placeholder: "e.g., Dr. Yuvraaj Singh" },
-          { kind: "date", n: "patientDetail__reviewed_on", l: "Reviewed On" },
-          { kind: "textarea", n: "patientDetail__chief_concerns", l: "Chief Concerns Reported", placeholder: "One per line — e.g., Fatigue & low energy for 8–10 months", rows: 4, full: true },
-          { kind: "textarea", n: "patientDetail__relevant_medical_history", l: "Relevant Medical History", placeholder: "e.g., No known chronic illness. Occasional gastritis. No regular medications.", rows: 3, full: true },
-          { kind: "textarea", n: "patientDetail__family_history", l: "Family History", placeholder: "e.g., Father – Hypertension & Diabetes", rows: 2, full: true },
-        ],
-      },
+      // The RMO intake (chief concerns, history, family history, background,
+      // anthropometrics, registration date) is captured in the RMO consultation
+      // and reviewed via "View RMO Summary" — not re-entered here.
       {
         title: "Presentation",
         controls: [
@@ -121,14 +121,8 @@ export const MAIN_SECTIONS: MainSection[] = [
         ],
       },
       {
-        title: "Background",
-        controls: [
-          { kind: "textarea", n: "patientDetail__known_allergies", l: "Known Allergies", placeholder: "Drug / food / environmental", rows: 2 },
-          { kind: "textarea", n: "patientDetail__current_medications", l: "Current Medications", placeholder: "Names, doses, frequency", rows: 2 },
-        ],
-      },
-      {
         title: "Vitals",
+        action: "recordVitals",
         controls: [
           { kind: "text", n: "patientDetail__vitals_bp", l: "Blood Pressure (mmHg)", placeholder: "e.g., 120/80" },
           { kind: "text", n: "patientDetail__vitals_pulse", l: "Pulse (bpm)", placeholder: "e.g., 72" },
@@ -140,14 +134,20 @@ export const MAIN_SECTIONS: MainSection[] = [
         ],
       },
       {
-        title: "Anthropometrics & Body Composition",
+        title: "General Physical Examination (GPE)",
         controls: [
-          { kind: "date", n: "patientDetail__anthro_measured_on", l: "Measured On" },
-          { kind: "text", n: "patientDetail__anthro_bmi", l: "BMI (kg/m²)", placeholder: "e.g., 27.5" },
-          { kind: "text", n: "patientDetail__anthro_body_fat", l: "Body Fat %", placeholder: "e.g., 21.8" },
-          { kind: "text", n: "patientDetail__anthro_waist", l: "Waist Circumference (cm)", placeholder: "e.g., 94" },
-          { kind: "text", n: "patientDetail__anthro_hip", l: "Hip Circumference (cm)", placeholder: "e.g., 98" },
-          { kind: "text", n: "patientDetail__anthro_whr", l: "Waist–Hip Ratio", placeholder: "e.g., 0.96" },
+          { kind: "select", n: "patientDetail__gpe_general_appearance", l: "General Appearance", options: ["Well-looking", "Ill-looking", "Cachectic", "Obese", "Distressed"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_build_nutrition", l: "Build & Nutrition", options: ["Well-built & nourished", "Average", "Poorly nourished", "Overweight"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_pallor", l: "Pallor", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_icterus", l: "Icterus", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_cyanosis", l: "Cyanosis", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_clubbing", l: "Clubbing", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_lymphadenopathy", l: "Lymphadenopathy", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_edema", l: "Pedal Edema", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_dehydration", l: "Dehydration", options: ["Absent", "Mild", "Moderate", "Severe"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_jvp", l: "JVP", options: ["Normal", "Raised"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_thyroid", l: "Thyroid", options: ["Normal", "Enlarged"], placeholder: "Select" },
+          { kind: "textarea", n: "patientDetail__gpe_other_findings", l: "Other Findings", placeholder: "Skin, nails, ENT, lymph nodes, any other general findings", rows: 3, full: true },
         ],
       },
       {

@@ -220,17 +220,37 @@ export default function RmoSummaryPage() {
                 </button>
               ))}
             </div>
-            <div className="p-5">
-              <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151] -my-1">
-                {RMO_FIELDS.filter((f) => f.s === current && val(f).trim() !== "").map((f) => (
-                  <div key={f.n} className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-3">
-                    <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
-                    <dd className="sm:col-span-2 text-sm text-[#101828] dark:text-[#F9FAFB] whitespace-pre-wrap break-words">
-                      {val(f)}
-                    </dd>
+            <div className="p-5 flex flex-col gap-5">
+              {(() => {
+                const visible = RMO_FIELDS.filter((f) => f.s === current && val(f).trim() !== "")
+                // Group consecutive fields by subsection (the registry orders
+                // each section's fields by `sub`), so the summary shows the
+                // same headings as the form — "Bladder Habits", "Sleep", etc.
+                const groups: { sub: string; fields: typeof RMO_FIELDS }[] = []
+                for (const f of visible) {
+                  const sub = f.sub ?? ""
+                  const last = groups[groups.length - 1]
+                  if (last && last.sub === sub) last.fields.push(f)
+                  else groups.push({ sub, fields: [f] })
+                }
+                return groups.map((g, gi) => (
+                  <div key={gi}>
+                    {g.sub ? (
+                      <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">{g.sub}</h3>
+                    ) : null}
+                    <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151] -my-1">
+                      {g.fields.map((f) => (
+                        <div key={f.n} className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-3">
+                          <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
+                          <dd className="sm:col-span-2 text-sm text-[#101828] dark:text-[#F9FAFB] whitespace-pre-wrap break-words">
+                            {val(f)}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
-                ))}
-              </dl>
+                ))
+              })()}
             </div>
           </div>
         )}

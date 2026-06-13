@@ -47,8 +47,6 @@ const RMO_PREFILL: Record<string, { key: string; n: string }> = {
   patientDetail__gender: { key: "demographics", n: "demographics__sex" },
   patientDetail__occupation: { key: "demographics", n: "demographics__occupation" },
   patientDetail__consultation_date: { key: "demographics", n: "demographics__date_of_consultation" },
-  patientDetail__chief_concerns: { key: "medical_history", n: "medical_history__medical_conditions" },
-  patientDetail__family_history: { key: "medical_history", n: "medical_history__parental_medical_history" },
 }
 
 interface Props {
@@ -158,6 +156,60 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
   }
 
   const patientId = consult.patient?.id
+
+  // Push the Vitals fields into the patient's Vitals record (the canonical
+  // store the "Latest Vitals" cards read), instead of leaving them stranded
+  // in the consultation blob. Explicit button → one reading per click, no
+  // duplicate rows on repeated consult saves.
+  const [vitalsSaving, setVitalsSaving] = useState(false)
+  const recordVitals = async () => {
+    if (!patientId || vitalsSaving) return
+    const num = (v?: string) => {
+      const s = (v ?? "").trim()
+      if (s === "") return undefined
+      const n = Number(s)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const bp = (form["patientDetail__vitals_bp"] ?? "").trim()
+    const m = bp.match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/)
+    const payload = {
+      systolic: m ? Number(m[1]) : undefined,
+      diastolic: m ? Number(m[2]) : undefined,
+      heartRate: num(form["patientDetail__vitals_pulse"]),
+      weightKg: num(form["patientDetail__vitals_weight"]),
+      heightCm: num(form["patientDetail__vitals_height"]),
+      temperatureF: num(form["patientDetail__vitals_temp"]),
+      spo2: num(form["patientDetail__vitals_spo2"]),
+    }
+    if (
+      ![payload.systolic, payload.diastolic, payload.heartRate, payload.weightKg, payload.heightCm, payload.temperatureF, payload.spo2].some(
+        (x) => x !== undefined,
+      )
+    ) {
+      notify.error("Enter at least one vital", {
+        description: "BP (e.g. 120/80), pulse, weight, height, SpO₂, or temperature.",
+      })
+      return
+    }
+    setVitalsSaving(true)
+    try {
+      const res = await fetch(`/api/patients/${patientId}/vitals`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const j = await res.json().catch(() => null)
+      if (!res.ok) throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      notify.success("Vitals saved to patient record")
+    } catch (err) {
+      notify.error("Couldn't save vitals", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setVitalsSaving(false)
+    }
+  }
 
   const bookFollowUp = async () => {
     await save()
@@ -300,6 +352,23 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
                   <div key={gi} className={gi > 0 ? "pt-8 border-t border-[#EAECF0] dark:border-[#374151]" : ""}>
                     {g.title ? <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">{g.title}</h3> : null}
                     <div className="grid grid-cols-2 gap-x-6 gap-y-6">{g.controls.map(renderControl)}</div>
+                    {g.action === "recordVitals" ? (
+                      <div className="mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void recordVitals()}
+                          disabled={vitalsSaving}
+                          className="flex items-center gap-2"
+                        >
+                          {vitalsSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                          Save vitals to patient record
+                        </Button>
+                        <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1.5">
+                          Records BP, pulse, weight, height, SpO₂ and temperature to the patient&apos;s Vitals so they appear in “Latest Vitals”.
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
