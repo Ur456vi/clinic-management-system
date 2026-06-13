@@ -16,7 +16,13 @@
  */
 
 import type { Appointment, Prisma } from "@prisma/client"
-import { AppointmentStatus, Role } from "@prisma/client"
+import {
+  AppointmentStatus,
+  AssessmentBand,
+  AssessmentSubmissionStatus,
+  Role,
+} from "@prisma/client"
+import { randomUUID } from "node:crypto"
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
@@ -93,6 +99,14 @@ const SLOT_HOLDING_STATUSES: readonly AppointmentStatus[] = [
   AppointmentStatus.REQUESTED,
   AppointmentStatus.CONFIRMED,
 ]
+
+/** Client band string → AssessmentBand enum (booking-attached quiz). */
+const ASSESSMENT_BAND_MAP: Record<"optimal" | "mild" | "moderate" | "significant", AssessmentBand> = {
+  optimal: AssessmentBand.OPTIMAL,
+  mild: AssessmentBand.MILD,
+  moderate: AssessmentBand.MODERATE,
+  significant: AssessmentBand.SIGNIFICANT,
+}
 
 // ---------------------------------------------------------------------------
 // Include shape
@@ -697,9 +711,19 @@ async function bookCore(
 
   const staff = await tx.staff.findUnique({
     where: { id: input.staffId },
-    select: { id: true, departmentId: true },
+    select: { id: true, departmentId: true, user: { select: { role: true } } },
   })
   if (!staff) throw new NotFoundError("Staff not found")
+
+  // Triage rule: a patient self-booking always sees a Medical Officer
+  // (RMO) first — they cannot book a doctor (e.g. Dr. Yuvraaj) directly.
+  // Enforced here so a tampered request can't bypass the UI restriction.
+  // Reception/on-behalf bookings are unaffected.
+  if (channel === "SELF" && staff.user?.role !== Role.RMO) {
+    throw new ForbiddenError(
+      "Patients can only book a Medical Officer (RMO) for the first visit. They will route you to a specialist if needed.",
+    )
+  }
 
   const conflict = await hasSlotConflict({
     staffId: input.staffId,
@@ -733,6 +757,44 @@ async function bookCore(
     },
     include: APPOINTMENT_INCLUDE,
   })
+
+  // Quiz-first portal booking: persist the scored Health Assessment for the
+  // same patient, stamped to the booked slot, so the RMO/Doctor see it on
+  // this visit (the quiz view resolves the patient's latest submission).
+  if (input.assessment) {
+    const a = input.assessment
+    const p = await tx.patient.findUnique({
+      where: { id: input.patientId },
+      select: { fullName: true, email: true, phone: true },
+    })
+    const preferredTime = `${String(startsAt.getHours()).padStart(2, "0")}:${String(
+      startsAt.getMinutes(),
+    ).padStart(2, "0")}`
+    await tx.assessmentSubmission.create({
+      data: {
+        patientId: input.patientId,
+        contactName: p?.fullName ?? "",
+        contactEmail: p?.email ?? "",
+        contactPhone: p?.phone ?? "",
+        contactSex: a.sex,
+        preferredAt: startsAt,
+        preferredTime,
+        notes:
+          channel === "SELF"
+            ? "Patient portal self-assessment"
+            : "Assessment captured at booking",
+        totalScore: a.totalScore,
+        scoreOutOf: a.scoreOutOf,
+        band: ASSESSMENT_BAND_MAP[a.band],
+        byCategory: a.byCategory as unknown as Prisma.InputJsonValue,
+        topRisks: a.topRisks as unknown as Prisma.InputJsonValue,
+        suggestedFocus: a.suggestedFocus as unknown as Prisma.InputJsonValue,
+        answers: a.answers as Prisma.InputJsonValue,
+        bookingRef: `BOOK-${randomUUID().slice(0, 8).toUpperCase()}`,
+        status: AssessmentSubmissionStatus.COMPLETED,
+      },
+    })
+  }
 
   await recordAudit(
     {

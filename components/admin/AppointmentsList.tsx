@@ -27,6 +27,7 @@ import {
   ClipboardList,
   FileText,
   Printer,
+  Tablet,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -398,7 +399,11 @@ function AppointmentActionMenu({
       // Assessment", "View prescription") end up off-screen and unreachable
       // (the menu closes on scroll).
       const itemCount =
-        3 + (row.status === "REQUESTED" ? 1 : 0) + (showRmoSummary ? 1 : 0) + (row.status === "COMPLETED" ? 1 : 0)
+        3 +
+        (row.status === "REQUESTED" ? 1 : 0) +
+        (showRmoSummary ? 1 : 0) +
+        (row.status === "COMPLETED" ? 1 : 0) +
+        (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0)
       const menuH = itemCount * 38 + 10
       const top =
         r.bottom + 4 + menuH > window.innerHeight ? Math.max(8, r.top - menuH - 4) : r.bottom + 4
@@ -514,6 +519,19 @@ function AppointmentActionMenu({
             <button className={item} onClick={() => void viewQuiz()}>
               <ClipboardList className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View quiz Assessment
             </button>
+
+            {/* Walk-in tablet quiz — only meaningful before the visit is done. */}
+            {row.status === "REQUESTED" || row.status === "CONFIRMED" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/kiosk/${row.id}`)
+                }}
+              >
+                <Tablet className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" /> Start tablet assessment
+              </button>
+            ) : null}
 
             {row.status === "COMPLETED" ? (
               <button

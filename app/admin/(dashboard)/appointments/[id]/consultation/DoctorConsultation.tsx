@@ -30,6 +30,25 @@ export interface DoctorConsult {
   status: string
   sections?: Record<string, Record<string, unknown>> | null
   patient: { id: string; fullName: string; patientNumber: string } | null
+  /** Latest RMO intake (attached by the consultation endpoint) — used to
+   * pre-fill matching doctor fields so they aren't re-typed. */
+  rmoSummary?: {
+    sections?: Record<string, Record<string, unknown>> | null
+  } | null
+}
+
+/**
+ * Doctor Patient-Detail field ← RMO intake field, for fields that share an
+ * identical value format (so the prefill round-trips cleanly). Referral /
+ * vitals are intentionally excluded — their RMO option values differ.
+ */
+const RMO_PREFILL: Record<string, { key: string; n: string }> = {
+  patientDetail__dob: { key: "demographics", n: "demographics__date_of_birth" },
+  patientDetail__gender: { key: "demographics", n: "demographics__sex" },
+  patientDetail__occupation: { key: "demographics", n: "demographics__occupation" },
+  patientDetail__consultation_date: { key: "demographics", n: "demographics__date_of_consultation" },
+  patientDetail__chief_concerns: { key: "medical_history", n: "medical_history__medical_conditions" },
+  patientDetail__family_history: { key: "medical_history", n: "medical_history__parental_medical_history" },
 }
 
 interface Props {
@@ -56,6 +75,14 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
     for (const f of MAIN_FIELDS) {
       const v = secs?.[f.key]?.[f.n]
       if (v != null) flat[f.n] = String(v)
+    }
+    // Seed still-empty doctor fields from the RMO intake so demographics and
+    // history aren't re-keyed. Saved doctor values always win (only fill blanks).
+    const rmo = (consult.rmoSummary?.sections ?? {}) as Record<string, Record<string, unknown>>
+    for (const [target, src] of Object.entries(RMO_PREFILL)) {
+      if (flat[target]) continue
+      const v = rmo?.[src.key]?.[src.n]
+      if (v != null && String(v) !== "") flat[target] = String(v)
     }
     return flat
   })
@@ -199,7 +226,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1200px] pb-28">
+    <div className="flex flex-col gap-6 max-w-[1200px]">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
@@ -281,8 +308,10 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
         </div>
       </div>
 
-      {/* Sticky action footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937]/95 backdrop-blur px-8 py-4 flex items-center justify-end gap-3 ml-[84px] lg:ml-[280px]">
+      {/* Action footer — sticks to the bottom of the content column (the
+          scrolling <main>), so it never reaches over the sidebar. The
+          negative margins cancel <main>'s p-8 padding so it spans full width. */}
+      <div className="sticky bottom-0 z-30 -mx-8 -mb-8 mt-2 border-t border-[#EAECF0] dark:border-[#374151] bg-white/95 dark:bg-[#1F2937]/95 backdrop-blur px-8 py-4 flex items-center justify-end gap-3">
         <Button
           onClick={() => void save()}
           disabled={saving}

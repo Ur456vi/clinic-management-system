@@ -37,7 +37,7 @@ If the COMPLETED transition fails (appointment never accepted), the save flow no
 **ISS-08 ✅ FIXED — Single-record access now account-scoped**
 New `assertAppointmentAccess()` ownership gate in the appointment service: ADMIN/RECEPTION pass; any other role must be the assigned staff member. Applied to appointment detail (`getAppointment`), status transitions, and the per-appointment consultation (GET+POST), RMO-summary, and quiz endpoints. Verified: doctor fetching another staff member's appointment/quiz/rmo-summary gets **403**; own records still 200.
 *Fixed in:* `lib/services/appointment.ts`, `app/api/appointments/[id]/{consultation,rmo-summary,quiz}/route.ts`.
-*Bonus systemic fix:* service-layer errors (`lib/errors.ts` Forbidden/NotFound/Validation) were surfacing as **500 INTERNAL_ERROR** because the API error mapper only recognised its own `lib/api/errors.ts` classes. `errorResponse()` now duck-types the service AppError shape and returns the real status/code (`lib/api/errors.ts`).
+*Note:* a transient **500 INTERNAL_ERROR** seen mid-development on the forbidden path was a stale dev-server (HMR) compile artifact — on retest the gate returns the correct **403 FORBIDDEN**. The existing `isServiceAppError()` branch in `errorResponse()` already maps `lib/errors.ts` AppErrors to their real status; no mapper change was needed.
 
 **ISS-09 ✅ FIXED — Reception exempted from own-only scoping**
 List scoping now keys off `FULL_BOOK_ROLES` (ADMIN + RECEPTION) — front desk manages the whole book again; doctors/RMOs/specialists stay scoped to their own appointments.
@@ -53,17 +53,21 @@ The Actions header and cell are now `sticky right-0` with matching backgrounds, 
 
 ## Polish / decisions
 
-**ISS-12 🟡 Prescription header placeholders & derived values**
-KMC Reg. No. "XXXXXX", phone "+91 XXXXX XXXXX", QR block is static text; Prescription ID is derived from the consultation UUID at render time (not persisted), and "Report generated" re-stamps on every view — two prints of the same record can differ.
+**ISS-12 ✅ FIXED — Prescription stable identity + clinic constants**
+"Report generated" now reads the consultation's last-save time (`updatedAt`) instead of render-time `new Date()`, so two prints of the same record are byte-identical (verified: reload keeps `13 Jun 2026 | 12:15 AM`). Prescription ID derives its year from persisted data, not the wall clock. Clinic letterhead values (KMC Reg, phone, website, email, address) are consolidated into a single `CLINIC` constant for one-place editing, and the misleading static "Scan to access your report online" QR caption was removed. Remaining: real registration/contact values + an actual QR are a data/asset task, not code.
+*Fixed in:* `app/admin/(dashboard)/appointments/[id]/prescription/page.tsx`.
 
-**ISS-13 🟡 Mode mapping approximation**
-Form mode "In-Person" ticks the "In-Clinic" box on the printed sheet (sheet only offers In-Clinic/Online). Either drop "In-Person" from the form or add it to the sheet.
+**ISS-13 ✅ FIXED — Mode options aligned to the sheet**
+The consultation Mode select now offers **In-Clinic / Online** only (dropped the redundant "In-Person"), matching the printed sheet's two-state checkbox. Legacy rows saved as "In-Person" still tick the In-Clinic box.
+*Fixed in:* `lib/main-fields.ts`.
 
-**ISS-14 🟡 Consultation sticky footer overlaps sidebar**
-The fixed Save/Book footer uses hard-coded margins (`ml-[84px] lg:ml-[280px]`) and covers the sidebar "Help & Support" item at some widths.
+**ISS-14 ✅ FIXED — Consultation footer no longer overlaps the sidebar**
+The action footer changed from viewport-`fixed` with sidebar-width margin hacks to `sticky bottom-0` inside the scrolling content column (negative margins cancel `<main>`'s padding so it still spans full width). Verified: footer aligns to the content column; "Help & Support" stays visible.
+*Fixed in:* `DoctorConsultation.tsx`.
 
-**ISS-15 🟡 Prescription sheet needs sideways scroll inside admin layout**
-Sheet is fixed at 1040px design width; in narrower admin content areas the on-screen preview scrolls horizontally. Print is unaffected (zoom-fit). Optional: scale-to-fit preview or a full-width route outside the dashboard shell.
+**ISS-15 🟡 OPEN (accepted) — Prescription preview sideways scroll**
+The sheet keeps its fixed 1040px design width; in narrower admin content areas the on-screen preview scrolls horizontally. **Print is unaffected** (zoom-fit to A4). Left as-is to avoid a brittle responsive-scale hack; a scale-to-fit preview or a full-width print route outside the dashboard shell is the future option.
 
-**ISS-16 🟡 Duplicate data entry between RMO intake and doctor form**
-DOB/sex/occupation/referral are captured in the RMO intake and again in the doctor's Patient Detail section; nothing pre-fills from the patient record or RMO sections, inviting mismatches (e.g. RMO "walk-in" vs doctor "Self").
+**ISS-16 ✅ FIXED — Doctor form pre-fills from the RMO intake**
+The doctor's Patient Detail now seeds still-empty fields (DOB, gender, occupation, consultation date, chief concerns, family history) from the attached RMO summary, so shared data isn't re-keyed. Saved doctor values always win — only blanks are filled. Referral and vitals are intentionally excluded because their RMO option values differ (the source of the "walk-in" vs "Self" mismatch).
+*Fixed in:* `DoctorConsultation.tsx` (`RMO_PREFILL`).

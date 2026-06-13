@@ -30,12 +30,25 @@ interface Consultation {
   status: string
   sections?: Record<string, Record<string, unknown>> | null
   patient: { id: string; fullName: string; patientNumber: string } | null
+  /** Last save — used as the stable "report generated" stamp. */
+  updatedAt?: string
 }
 
 const INK = "#1C2B27" // near-black green for headers
 const GREEN = "#1F3D33" // deep brand green
 const GOLD = "#B08D44"
 const CREAM = "#F6F1E7"
+
+/** Clinic constants — single source for the printed letterhead/footer.
+ * Replace the XXXX placeholders with the live registration & contact once
+ * confirmed; every print reads from here. */
+const CLINIC = {
+  kmcReg: "XXXXXX",
+  phone: "+91 XXXXX XXXXX",
+  website: "www.ihmh.in",
+  email: "care@ihmh.in",
+  address: "Institute of Hormonal & Metabolic Health, Bengaluru, Karnataka",
+} as const
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -202,7 +215,6 @@ export default function PrescriptionPage() {
   const [consult, setConsult] = useState<Consultation | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [generatedAt, setGeneratedAt] = useState<Date | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -218,7 +230,6 @@ export default function PrescriptionPage() {
         const { data } = await res.json()
         if (!cancelled) {
           setConsult((data as Consultation | null) ?? null)
-          setGeneratedAt(new Date())
         }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load prescription")
@@ -266,11 +277,17 @@ export default function PrescriptionPage() {
   const fp = (n: string) => v("finalPrescription", `finalPrescription__${n}`)
 
   const patient = consult.patient
-  const rxId = `IHMH-P-${new Date().getFullYear()}-${consult.id.replace(/-/g, "").slice(0, 5).toUpperCase()}`
   const consultDate = pd("consultation_date")
   const mode = pd("consultation_mode")
   const supplements = parseRows(fp("supplements_rows"))
   const infusions = parseRows(ira("infusion_rows"))
+
+  // Stable, deterministic prescription identity — derived from persisted data
+  // so two prints of the same record are identical. The "report generated"
+  // stamp is the consultation's last-save time, not render time.
+  const generated = consult.updatedAt ? new Date(consult.updatedAt) : null
+  const rxYear = (generated ?? (consultDate ? new Date(consultDate) : null))?.getFullYear()
+  const rxId = `IHMH-P-${rxYear ?? "—"}-${consult.id.replace(/-/g, "").slice(0, 5).toUpperCase()}`
 
   return (
     <div className="flex flex-col gap-4">
@@ -345,8 +362,8 @@ export default function PrescriptionPage() {
             <p className="px-2.5 py-1.5 flex justify-between gap-2 border-t" style={{ borderColor: "#E5DFD0" }}>
               <span className="font-bold">REPORT GENERATED :</span>
               <span>
-                {generatedAt
-                  ? `${fmtDate(generatedAt.toISOString())} | ${generatedAt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
+                {generated
+                  ? `${fmtDate(generated.toISOString())} | ${generated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
                   : "—"}
               </span>
             </p>
@@ -674,7 +691,7 @@ export default function PrescriptionPage() {
               <br />
               Fellowship in Endocrinology &amp; Metabolic Medicine (A4M, USA)
               <br />
-              KMC Reg. No.: XXXXXX
+              KMC Reg. No.: {CLINIC.kmcReg}
             </p>
           </Card>
         </div>
@@ -682,11 +699,10 @@ export default function PrescriptionPage() {
         {/* Footer */}
         <div className="mt-4 text-white text-[9.5px]" style={{ background: "#161D1A" }}>
           <div className="flex items-center justify-between gap-4 px-6 py-3 flex-wrap">
-            <span>Scan to access your report online</span>
-            <span>📞 +91 XXXXX XXXXX</span>
-            <span>🌐 www.ihmh.in</span>
-            <span>✉️ care@ihmh.in</span>
-            <span>📍 Institute of Hormonal &amp; Metabolic Health, Bengaluru, Karnataka</span>
+            <span>📞 {CLINIC.phone}</span>
+            <span>🌐 {CLINIC.website}</span>
+            <span>✉️ {CLINIC.email}</span>
+            <span>📍 {CLINIC.address}</span>
           </div>
           <p className="text-center italic pb-2 text-[8.5px]" style={{ color: "#C9C2B0" }}>
             This prescription is confidential and intended solely for the patient named above.
