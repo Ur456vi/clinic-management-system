@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 
-type Status = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type Status = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
 interface InvoiceApi {
   id: string
@@ -49,12 +49,13 @@ interface InvoiceApi {
     description: string
     quantity: number
     unitPriceCents: number
-    totalCents: number
+    lineTotalCents: number
   }[]
   payments: {
     id: string
     amountCents: number
     method: string
+    status?: string
     receivedAt: string
     note: string | null
   }[]
@@ -145,6 +146,12 @@ export default function InvoiceDetailsPage({
     )
   }
 
+  // `paidCents` isn't a column on Invoice — derive it from CAPTURED payments
+  // so "Paid"/"Balance Due" don't render ₹NaN on an unpaid invoice.
+  const paidCents = invoice.payments
+    .filter((p) => !p.status || p.status === "CAPTURED")
+    .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
+
   const issuedLabel = invoice.issuedAt
     ? new Date(invoice.issuedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -169,7 +176,7 @@ export default function InvoiceDetailsPage({
           >
             <Printer className="h-4 w-4" /> Print
           </Button>
-          {invoice.status === "OPEN" || invoice.status === "PARTIALLY_PAID" ? (
+          {invoice.status === "ISSUED" || invoice.status === "PARTIALLY_PAID" ? (
             <Button
               className="bg-[#12B76A] hover:bg-[#0E9A57] text-white px-4 h-10 rounded-lg flex items-center gap-2"
               disabled={updating}
@@ -275,7 +282,7 @@ export default function InvoiceDetailsPage({
                         {formatMoney(it.unitPriceCents, invoice.currency)}
                       </td>
                       <td className="px-4 py-4 text-sm font-bold text-[#101828] dark:text-[#F9FAFB] text-right">
-                        {formatMoney(it.totalCents, invoice.currency)}
+                        {formatMoney(it.lineTotalCents, invoice.currency)}
                       </td>
                     </tr>
                   ))}
@@ -302,14 +309,14 @@ export default function InvoiceDetailsPage({
               <div className="flex justify-between text-sm">
                 <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Paid</span>
                 <span className="font-semibold text-[#12B76A]">
-                  {formatMoney(invoice.paidCents, invoice.currency)}
+                  {formatMoney(paidCents, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Balance Due</span>
                 <span className="font-semibold text-[#B42318]">
                   {formatMoney(
-                    Math.max(0, invoice.totalCents - invoice.paidCents),
+                    Math.max(0, invoice.totalCents - paidCents),
                     invoice.currency,
                   )}
                 </span>
@@ -377,12 +384,12 @@ function KV({ label, children }: { label: string; children: React.ReactNode }) {
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; label: string }> = {
     DRAFT: { bg: "#F2F4F7", fg: "#344054", label: "Draft" },
-    OPEN: { bg: "#EFF8FF", fg: "#175CD3", label: "Open" },
+    ISSUED: { bg: "#EFF8FF", fg: "#175CD3", label: "Issued" },
     PARTIALLY_PAID: { bg: "#FFF1D6", fg: "#B5642A", label: "Partially Paid" },
     PAID: { bg: "#ECFDF3", fg: "#027A48", label: "Paid" },
     VOID: { bg: "#FEF3F2", fg: "#B42318", label: "Void" },
   }
-  const c = map[status] ?? map.OPEN
+  const c = map[status] ?? map.ISSUED
   return (
     <span
       className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"

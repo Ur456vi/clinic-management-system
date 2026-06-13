@@ -28,6 +28,7 @@ import {
   FileText,
   Printer,
   Tablet,
+  Receipt,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -398,12 +399,14 @@ function AppointmentActionMenu({
       // the button instead — otherwise the lowest items ("View quiz
       // Assessment", "View prescription") end up off-screen and unreachable
       // (the menu closes on scroll).
+      const billable = row.status !== "CANCELLED" && row.status !== "NO_SHOW"
       const itemCount =
         3 +
         (row.status === "REQUESTED" ? 1 : 0) +
         (showRmoSummary ? 1 : 0) +
         (row.status === "COMPLETED" ? 1 : 0) +
-        (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0)
+        (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0) +
+        (billable ? 1 : 0)
       const menuH = itemCount * 38 + 10
       const top =
         r.bottom + 4 + menuH > window.innerHeight ? Math.max(8, r.top - menuH - 4) : r.bottom + 4
@@ -491,6 +494,20 @@ function AppointmentActionMenu({
             {row.status === "REQUESTED" ? (
               <button className={item} onClick={() => void accept()}>
                 <CheckCircle2 className="h-4 w-4 text-[#027A48]" /> Accept
+              </button>
+            ) : null}
+
+            {/* Check-in billing — reception creates + issues an invoice for
+                this visit, then prints a copy for the patient. */}
+            {row.status !== "CANCELLED" && row.status !== "NO_SHOW" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/invoices/add?appointmentId=${row.id}`)
+                }}
+              >
+                <Receipt className="h-4 w-4 text-[#027A48]" /> Create invoice
               </button>
             ) : null}
 
