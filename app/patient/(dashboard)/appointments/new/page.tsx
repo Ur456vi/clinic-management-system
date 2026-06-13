@@ -93,9 +93,10 @@ export default function PatientBookAppointmentPage() {
     setSlotsLoading(true)
     setSelectedSlot(null)
     try {
-      const from = new Date(`${date}T00:00:00`)
-      const to = new Date(`${date}T00:00:00`)
-      to.setDate(to.getDate() + 1)
+      // Clinic hours: 10:00 AM – 6:00 PM. Bounding the window here keeps the
+      // patient picker in step with the admin booking + Dr. Yuvraaj slots.
+      const from = new Date(`${date}T10:00:00`)
+      const to = new Date(`${date}T18:00:00`)
       const qs = new URLSearchParams({
         staffId: doctorId,
         from: from.toISOString(),

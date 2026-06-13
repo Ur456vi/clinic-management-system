@@ -14,11 +14,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  AlertCircle,
   Calendar,
   ChevronRight,
   Heart,
   Loader2,
   Plus,
+  Ruler,
   Stethoscope,
   Thermometer,
   Weight as WeightIcon,
@@ -30,6 +32,7 @@ type Profile = {
   fullName: string;
   patientNumber: string;
   primaryDoctor: { id: string; fullName: string } | null;
+  knownAllergies?: string | null;
 };
 
 type Vital = {
@@ -37,6 +40,7 @@ type Vital = {
   diastolic: number | null;
   heartRate: number | null;
   weightKg: number | null;
+  heightCm: number | null;
   temperatureF: number | null;
   spo2: number | null;
   recordedAt: string;
@@ -158,6 +162,7 @@ export default function PatientDashboardPage() {
     { label: "Blood Pressure", value: bp, unit: "mmHg", icon: Heart, color: "text-[#D92D20]", bg: "bg-[#FEF3F2]" },
     { label: "Heart Rate", value: vital?.heartRate ?? null, unit: "bpm", icon: Activity, color: "text-[#2E37A4] dark:text-[#A5B4FC]", bg: "bg-[#F4F5FF] dark:bg-[#312E81]" },
     { label: "Weight", value: vital?.weightKg ?? null, unit: "kg", icon: WeightIcon, color: "text-[#175CD3]", bg: "bg-[#EFF8FF] dark:bg-[#1E3A5F]" },
+    { label: "Height", value: vital?.heightCm ?? null, unit: "cm", icon: Ruler, color: "text-[#6938EF]", bg: "bg-[#F4F3FF] dark:bg-[#312E81]" },
     { label: "SpO₂", value: vital?.spo2 ?? null, unit: "%", icon: Droplets, color: "text-[#12B76A]", bg: "bg-[#ECFDF3]" },
     { label: "Temperature", value: vital?.temperatureF ?? null, unit: "°F", icon: Thermometer, color: "text-[#F79009]", bg: "bg-[#FFFAEB]" },
   ];
@@ -189,6 +194,22 @@ export default function PatientDashboardPage() {
         </button>
       </div>
 
+      {/* Drug allergy alert — surfaced from the latest RMO intake */}
+      {profile?.knownAllergies ? (
+        <div className="rounded-xl border-2 border-[#FDA29B] bg-[#FEF3F2] dark:border-[#7A271A] dark:bg-[#55160C] px-5 py-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-[#D92D20]" />
+            <span className="text-xs font-bold uppercase tracking-wide text-[#B42318]">Drug allergies on file</span>
+          </div>
+          <p className="mt-1 text-xl font-extrabold leading-tight text-[#B42318] whitespace-pre-wrap break-words">
+            {profile.knownAllergies}
+          </p>
+          <p className="mt-1 text-xs text-[#B42318]/80">
+            Always mention these to any clinician. Contact the clinic if this looks wrong.
+          </p>
+        </div>
+      ) : null}
+
       {/* Vitals */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -199,7 +220,7 @@ export default function PatientDashboardPage() {
             </span>
           ) : null}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {vitalCards.map((c) => (
             <div key={c.label} className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-4 shadow-sm">
               <div className="flex items-center justify-between">

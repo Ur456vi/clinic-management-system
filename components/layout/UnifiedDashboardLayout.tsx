@@ -20,6 +20,7 @@ import {
   FlaskConical,
   FileSignature,
   ClipboardCheck,
+  Receipt,
   User,
   CalendarCheck2,
   ChevronsLeft,
@@ -54,6 +55,7 @@ const patientSidebarItems = [
   { name: "Appointments", icon: Calendar, href: "/patient/appointments" },
   { name: "Lab Management", icon: FlaskConical, href: "/patient/lab-management" },
   { name: "Prescriptions", icon: FileSignature, href: "/patient/prescriptions" },
+  { name: "Billing", icon: Receipt, href: "/patient/invoices" },
   { name: "Reports", icon: BarChart3, href: "/patient/reports" },
 ]
 
