@@ -30,7 +30,7 @@ import {
 import { Button } from "@/components/ui/button"
 
 type ApptStatus = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
-type InvStatus = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type InvStatus = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 type AsmStatus = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
 
 interface Stats {
@@ -69,7 +69,7 @@ const EMPTY_STATS: Stats = {
     outstandingCents: 0,
     byStatus: {
       DRAFT: 0,
-      OPEN: 0,
+      ISSUED: 0,
       PARTIALLY_PAID: 0,
       PAID: 0,
       VOID: 0,
@@ -144,7 +144,7 @@ export default function ReportsPage() {
 
       const invByStatus: Record<InvStatus, number> = {
         DRAFT: 0,
-        OPEN: 0,
+        ISSUED: 0,
         PARTIALLY_PAID: 0,
         PAID: 0,
         VOID: 0,
@@ -164,7 +164,7 @@ export default function ReportsPage() {
               .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
         const totalC = Number(inv.totalCents ?? 0) || 0
         paid += paidC
-        if (inv.status === "OPEN" || inv.status === "PARTIALLY_PAID") {
+        if (inv.status === "ISSUED" || inv.status === "PARTIALLY_PAID") {
           outstanding += Math.max(0, totalC - paidC)
         }
         if (inv.currency) currency = inv.currency
@@ -353,7 +353,7 @@ export default function ReportsPage() {
               title="Invoices by status"
               icon={<FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
               rows={[
-                { label: "Open", value: stats.invoices.byStatus.OPEN, fg: "#175CD3" },
+                { label: "Issued", value: stats.invoices.byStatus.ISSUED, fg: "#175CD3" },
                 {
                   label: "Partially paid",
                   value: stats.invoices.byStatus.PARTIALLY_PAID,

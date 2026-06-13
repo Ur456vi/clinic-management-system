@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 
 type ApptStatus = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
-type InvStatus = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type InvStatus = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
 interface ApptRow {
   id: string
@@ -136,7 +136,7 @@ export default function DashboardPage() {
         const paid = paidCentsOf(inv)
         const total = Number(inv.totalCents ?? 0) || 0
         revenue += paid
-        if (inv.status === "OPEN" || inv.status === "PARTIALLY_PAID") {
+        if (inv.status === "ISSUED" || inv.status === "PARTIALLY_PAID") {
           outstanding += Math.max(0, total - paid)
           const issued = new Date(inv.issuedAt).getTime()
           if (issued < thirtyDaysAgo) overdue.push(inv)
