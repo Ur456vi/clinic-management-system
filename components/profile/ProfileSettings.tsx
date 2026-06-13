@@ -175,11 +175,26 @@ function formatRole(role: string): string {
 
 /* ---- Component ------------------------------------------------------ */
 
-type Tab = "profile" | "password" | "notifications";
+export type ProfileSettingsTab = "profile" | "password" | "notifications";
 
-export default function ProfileSettings() {
+interface ProfileSettingsProps {
+  activeTab?: ProfileSettingsTab;
+  showTabsHeader?: boolean;
+  showHeader?: boolean;
+}
+
+export default function ProfileSettings({
+  activeTab,
+  showTabsHeader = true,
+  showHeader = true,
+}: ProfileSettingsProps = {}) {
   const { update: refreshSession } = useSession();
-  const [tab, setTab] = useState<Tab>("profile");
+  const [localTab, setLocalTab] = useState<ProfileSettingsTab>("profile");
+
+  const tab = activeTab ?? localTab;
+  const setTab = (t: ProfileSettingsTab) => {
+    setLocalTab(t);
+  };
   const [profile, setProfile] = useState<AnyProfile | null>(null);
   const [form, setForm] = useState<AnyForm | null>(null);
   const [loading, setLoading] = useState(true);
@@ -310,38 +325,42 @@ export default function ProfileSettings() {
   /* ── Rendering ────────────────────────────────────────────────── */
 
   return (
-    <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Profile Settings</h1>
-          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
-            Personal information visible across the portal.
-          </p>
+    <div className={showHeader ? "p-6 lg:p-8 flex flex-col gap-6 max-w-[1200px] mx-auto" : "flex flex-col gap-6 w-full"}>
+      {showHeader && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Profile Settings</h1>
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
+              Personal information visible across the portal.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden">
         {/* Tabs */}
-        <div className="flex border-b border-[#F2F4F7] dark:border-[#374151] overflow-x-auto">
-          <TabButton
-            label="Profile Settings"
-            icon={<UserIcon className="h-4 w-4" />}
-            active={tab === "profile"}
-            onClick={() => setTab("profile")}
-          />
-          <TabButton
-            label="Change Password"
-            icon={<Lock className="h-4 w-4" />}
-            active={tab === "password"}
-            onClick={() => setTab("password")}
-          />
-          <TabButton
-            label="Notifications"
-            icon={<Bell className="h-4 w-4" />}
-            active={tab === "notifications"}
-            onClick={() => setTab("notifications")}
-          />
-        </div>
+        {showTabsHeader && (
+          <div className="flex border-b border-[#F2F4F7] dark:border-[#374151] overflow-x-auto">
+            <TabButton
+              label="Profile Settings"
+              icon={<UserIcon className="h-4 w-4" />}
+              active={tab === "profile"}
+              onClick={() => setTab("profile")}
+            />
+            <TabButton
+              label="Change Password"
+              icon={<Lock className="h-4 w-4" />}
+              active={tab === "password"}
+              onClick={() => setTab("password")}
+            />
+            <TabButton
+              label="Notifications"
+              icon={<Bell className="h-4 w-4" />}
+              active={tab === "notifications"}
+              onClick={() => setTab("notifications")}
+            />
+          </div>
+        )}
 
         <div className="p-6 lg:p-8">
           {tab === "profile" ? (
