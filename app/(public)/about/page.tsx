@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 const ABOUT_TILES = [
   { icon: <AwardIcon size={22} />, label: "Decades of Clinical Excellence" },
   { icon: <MicroscopeIcon size={22} />, label: "Advanced Training Across Disciplines" },
-  { icon: <TargetIcon size={22} />, label: "From Internship to Predictive Care (3Ps)" },
+  // { icon: <TargetIcon size={22} />, label: "From Internship to Predictive Care (3Ps)" },
   { icon: <ClockIcon size={22} />, label: "Built for Long-Term Health & Longevity" },
 ];
 
@@ -44,7 +44,7 @@ const CHAPTERS = [
     no: "01",
     title: "A Different Beginning",
     eyebrow: "Years in Internal Medicine and Critical Care",
-    body: "Managing the most complex, life-threatening conditions across multiple disciplines: Neurosciences (NIMHANS, Bangalore), Cardiology (Kokilaben Institute), Oncology (Kidwai Memorial Institute), Advanced Clinical Care (with Oncology Faculty, Gurgaon).",
+    body: "As a specialist trained in Internal Medicine and Critical Care, Dr. Yuvraaj Singh spent years managing some of the most complex and life-threatening conditions. At a time when critical care in India was still evolving, he chose to go deeper—training across multiple high-intensity disciplines integrated into his post-graduate curriculum: Neurosciences at National Institute of Mental Health and Neurosciences, Bangalore, Cardiology at Sri Jayadeva Institute of Cardiovascular Sciences and Research, Bangalore and Oncology at Kidwai Memorial Institute of Oncology, Bangalore and later completing Advanced clinical work in Oncology at Fortis Memorial Research Institute, Gurgaon.",
     image: "/images/landing/abt-1.png",
     alignment: "left" as const,
   },

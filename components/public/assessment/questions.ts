@@ -192,6 +192,7 @@ export const QUESTIONS: QuizQuestion[] = [
       "High cholesterol",
       "Cardiac Disease",
       "Cancer (current treatment or survivor)",
+      "None of the above",
     ],
   },
   {

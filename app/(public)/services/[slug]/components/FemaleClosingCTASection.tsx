@@ -1,5 +1,6 @@
 import React from "react";
 import { type ServiceContent } from "@/components/public/services-config";
+import { EcgLine } from "@/components/public/ui";
 
 export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "female-hormonal") return null;
@@ -41,51 +42,9 @@ export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
             </div>
 
             {/* ECG Heartbeat line */}
-            <div className="mt-8 w-full" aria-hidden="true">
-              <svg
-                viewBox="0 0 420 52"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-full"
-                preserveAspectRatio="xMidYMid meet"
-              >
-                <path
-                  d={`
-                    M0 26
-                    L60 26
-                    L72 26
-                    L80 10
-                    L88 42
-                    L96 4
-                    L104 48
-                    L112 26
-                    L124 26
-                    L132 18
-                    L138 34
-                    L144 22
-                    L150 30
-                    L156 26
-                    L168 26
-                    L176 14
-                    L182 38
-                    L188 8
-                    L196 44
-                    L204 26
-                    L216 26
-                    L222 20
-                    L228 32
-                    L234 24
-                    L240 28
-                    L246 26
-                    L420 26
-                  `}
-                  stroke="#8A9E76"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
+            <div className="mt-6">
+                          <EcgLine />
+                        </div>
           </div>
 
           {/* ── RIGHT: CTA Area ── */}

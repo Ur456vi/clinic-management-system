@@ -294,11 +294,11 @@ export function CalendarPicker({ value, onChange }: CalendarPickerProps) {
 
 const TIME_SLOTS: string[] = (() => {
   const out: string[] = [];
-  for (let h = 9; h < 19; h++) {
-    for (const m of [0, 30]) {
-      out.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-    }
+
+  for (let h = 10; h <= 18; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
   }
+
   return out;
 })();
 
