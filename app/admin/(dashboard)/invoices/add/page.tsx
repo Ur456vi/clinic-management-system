@@ -51,6 +51,8 @@ export default function CreateInvoicePage() {
   const [patient, setPatient] = useState<PatientLite | null>(null)
   const [patientLocked, setPatientLocked] = useState(false)
   const [patientOptions, setPatientOptions] = useState<PatientLite[]>([])
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([])
+  const [departmentId, setDepartmentId] = useState("")
   const [items, setItems] = useState<LineItem[]>([
     { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES, taxPct: CONSULT_TAX_PCT },
   ])
@@ -75,6 +77,7 @@ export default function CreateInvoicePage() {
                 patientNumber: data.patient.patientNumber,
               })
               setPatientLocked(true)
+              if (data.department?.id) setDepartmentId(data.department.id)
               const clinician = data.staff?.fullName ? ` — ${data.staff.fullName}` : ""
               setItems([
                 {
@@ -116,6 +119,25 @@ export default function CreateInvoicePage() {
     }
   }, [appointmentId, patientIdParam])
 
+  // Department options for the selector (reception picks the billed service area).
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch("/api/departments?limit=100", { credentials: "include" })
+        if (!res.ok) return
+        const json = await res.json()
+        const rows = (json?.data ?? []).map((d: { id: string; name: string }) => ({ id: d.id, name: d.name }))
+        if (!cancelled) setDepartments(rows)
+      } catch {
+        /* ignore */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const setItem = (i: number, patch: Partial<LineItem>) =>
     setItems((prev) => prev.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   const addItem = () =>
@@ -137,6 +159,7 @@ export default function CreateInvoicePage() {
 
   const canSubmit =
     !!patient &&
+    !!departmentId &&
     items.length > 0 &&
     items.every((it) => it.description.trim() && rupeesToCents(it.unitPriceRupees) >= 0 && (Number.parseFloat(it.quantity) || 0) > 0)
 
@@ -147,6 +170,7 @@ export default function CreateInvoicePage() {
       const body = {
         patientId: patient.id,
         appointmentId,
+        departmentId: departmentId || undefined,
         notes: notes.trim() || undefined,
         items: items.map((it) => ({
           description: it.description.trim(),
@@ -181,7 +205,7 @@ export default function CreateInvoicePage() {
       })
       setSubmitting(false)
     }
-  }, [patient, canSubmit, submitting, appointmentId, notes, items, router])
+  }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, items, router])
 
   return (
     <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-3xl">
@@ -228,6 +252,25 @@ export default function CreateInvoicePage() {
                 ))}
               </select>
             )}
+          </div>
+
+          {/* Department */}
+          <div className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">
+              Department <span className="text-[#B42318]">*</span>
+            </span>
+            <select
+              value={departmentId}
+              onChange={(e) => setDepartmentId(e.target.value)}
+              className={inputCls + " h-11"}
+            >
+              <option value="">Select a department…</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Line items */}

@@ -94,9 +94,9 @@ export default function ReportsPage() {
     setRefreshing(true)
     try {
       const [patientsRes, apptsRes, invoicesRes, asmRes] = await Promise.all([
-        fetch("/api/patients?limit=200", { credentials: "include" }),
-        fetch("/api/appointments?limit=200", { credentials: "include" }),
-        fetch("/api/invoices?limit=200", { credentials: "include" }),
+        fetch("/api/patients?limit=100", { credentials: "include" }),
+        fetch("/api/appointments?limit=100", { credentials: "include" }),
+        fetch("/api/invoices?limit=100", { credentials: "include" }),
         fetch("/api/admin/assessment-submissions?take=100", {
           credentials: "include",
         }),
@@ -445,7 +445,7 @@ export default function ReportsPage() {
           </div>
 
           <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8]">
-            Totals are computed from the most recent 200 rows per endpoint.
+            Totals are computed from the most recent 100 rows per endpoint.
             Dedicated aggregation endpoints will replace this approach as the
             data volume grows.
           </p>

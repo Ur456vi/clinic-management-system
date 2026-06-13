@@ -219,6 +219,7 @@ model Department {
 
   staff        Staff[]
   appointments Appointment[]
+  invoices     Invoice[]
 
   @@map("departments")
 }
@@ -828,6 +829,11 @@ model Invoice {
   appointmentId String?      @map("appointment_id") @db.Uuid
   appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 
+  /// Department the billed service belongs to. Chosen by reception at
+  /// check-in; SetNull keeps the invoice if the department is retired.
+  departmentId String?     @map("department_id") @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
   /// Sum of `lineSubtotalCents` across items.
   subtotalCents Int @map("subtotal_cents")
   /// Sum of `lineTaxCents` across items.
@@ -857,6 +863,7 @@ model Invoice {
   @@index([patientId, createdAt(sort: Desc)])
   @@index([status])
   @@index([appointmentId])
+  @@index([departmentId])
   @@map("invoices")
 }
 

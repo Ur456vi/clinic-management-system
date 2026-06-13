@@ -44,6 +44,7 @@ interface InvoiceApi {
     status: string
   } | null
   appointment: { id: string; startsAt: string } | null
+  department: { id: string; name: string } | null
   items: {
     id: string
     description: string
@@ -95,22 +96,29 @@ export default function InvoiceDetailsPage({
   }, [fetchOne])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // Payment is collected at the desk via UPI QR; reception confirms it here.
+  // We RECORD a real CAPTURED payment for the outstanding balance (method
+  // UPI) rather than just flipping status — the service recomputes the
+  // invoice status from captured payments, so revenue/Balance Due stay
+  // consistent everywhere they're derived.
   const markPaid = async () => {
     if (!invoice || updating) return
+    const balanceCents = Math.max(0, invoice.totalCents - paidCents)
+    if (balanceCents <= 0) return
     setUpdating(true)
     try {
-      const res = await fetch(`/api/invoices/${id}`, {
-        method: "PATCH",
+      const res = await fetch(`/api/invoices/${id}/payments`, {
+        method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status: "PAID" }),
+        body: JSON.stringify({ amountCents: balanceCents, method: "UPI" }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json?.error?.message ?? "Update failed")
-      notify.success("Invoice marked paid")
+      if (!res.ok) throw new Error(json?.error?.message ?? "Couldn't record payment")
+      notify.success("Payment recorded — invoice paid")
       await fetchOne()
     } catch (err) {
-      notify.error("Couldn't mark paid", {
+      notify.error("Couldn't record payment", {
         description: err instanceof Error ? err.message : "Unknown error",
       })
     } finally {
@@ -187,7 +195,7 @@ export default function InvoiceDetailsPage({
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              Mark Paid
+              Mark UPI payment received
             </Button>
           ) : null}
         </div>
@@ -247,6 +255,7 @@ export default function InvoiceDetailsPage({
               </KV>
               <KV label="Patient #">{invoice.patient.patientNumber}</KV>
               <KV label="Status">{invoice.patient.status}</KV>
+              {invoice.department ? <KV label="Department">{invoice.department.name}</KV> : null}
             </div>
           ) : (
             <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">

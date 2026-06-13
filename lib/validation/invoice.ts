@@ -125,6 +125,7 @@ export type InvoiceItemInput = z.infer<typeof invoiceItemInputSchema>
 export const createInvoiceSchema = z.object({
   patientId: uuid,
   appointmentId: uuid.optional(),
+  departmentId: uuid.optional(),
   gstNumber: trimmedOptional(20),
   placeOfSupply: trimmedOptional(2),
   notes: trimmedOptional(2000),

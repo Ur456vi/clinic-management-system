@@ -84,6 +84,7 @@ const INVOICE_INCLUDE = {
   appointment: {
     select: { id: true, startsAt: true, endsAt: true, status: true },
   },
+  department: { select: { id: true, name: true } },
   items: { orderBy: { createdAt: "asc" as const } },
   payments: { orderBy: { receivedAt: "desc" as const } },
 } as const
@@ -226,6 +227,7 @@ export async function createInvoice(
           invoiceNumber,
           patientId: input.patientId,
           appointmentId: input.appointmentId,
+          departmentId: input.departmentId,
           subtotalCents,
           taxCents,
           totalCents,
