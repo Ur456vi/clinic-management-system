@@ -24,6 +24,10 @@ import { notify } from "@/lib/notify"
 type LineItem = { description: string; quantity: string; unitPriceRupees: string; taxPct: string }
 type PatientLite = { id: string; fullName: string; patientNumber: string }
 
+// Doctor consultation is a core healthcare service → GST-exempt (0%) in
+// India. Manually-added lines (supplements, products, aesthetic procedures)
+// can be taxable, so they default to the standard 18% — reception adjusts.
+const CONSULT_TAX_PCT = "0"
 const DEFAULT_TAX_PCT = "18"
 const DEFAULT_CONSULT_RUPEES = "1000.00"
 
@@ -48,7 +52,7 @@ export default function CreateInvoicePage() {
   const [patientLocked, setPatientLocked] = useState(false)
   const [patientOptions, setPatientOptions] = useState<PatientLite[]>([])
   const [items, setItems] = useState<LineItem[]>([
-    { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES, taxPct: DEFAULT_TAX_PCT },
+    { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES, taxPct: CONSULT_TAX_PCT },
   ])
   const [notes, setNotes] = useState("")
   const [loading, setLoading] = useState(true)
@@ -77,7 +81,7 @@ export default function CreateInvoicePage() {
                   description: `Consultation${clinician}`,
                   quantity: "1",
                   unitPriceRupees: DEFAULT_CONSULT_RUPEES,
-                  taxPct: DEFAULT_TAX_PCT,
+                  taxPct: CONSULT_TAX_PCT,
                 },
               ])
             }
@@ -270,6 +274,9 @@ export default function CreateInvoicePage() {
                 </button>
               </div>
             </div>
+            <p className="text-xs text-[#6C7688] dark:text-[#94A3B8]">
+              Doctor consultation is GST-exempt (0%). Apply GST only to taxable items such as supplements or products.
+            </p>
           </div>
 
           {/* Totals */}
