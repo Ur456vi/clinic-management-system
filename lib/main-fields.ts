@@ -268,14 +268,6 @@ export const MAIN_SECTIONS: MainSection[] = [
         ],
       },
       {
-        title: "Lifestyle & Therapeutic Advice",
-        controls: [
-          { kind: "textarea", n: "finalPrescription__advice_nutrition", l: "Nutrition", placeholder: "e.g., High-protein whole-food diet. Reduce refined carbs & sugar.", rows: 2, full: true },
-          { kind: "textarea", n: "finalPrescription__advice_training", l: "Training", placeholder: "e.g., Resistance training 3×/week. Daily 8–10k steps / movement.", rows: 2, full: true },
-          { kind: "textarea", n: "finalPrescription__advice_sleep", l: "Sleep & Recovery", placeholder: "e.g., Aim 7–8 hrs sleep. Sleep before 11 PM. Avoid screens 60 min prior.", rows: 2, full: true },
-        ],
-      },
-      {
         title: "Follow-up",
         controls: [
           { kind: "date", n: "finalPrescription__follow_up_date", l: "Follow-up Date" },

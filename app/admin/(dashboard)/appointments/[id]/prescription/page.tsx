@@ -623,33 +623,13 @@ export default function PrescriptionPage() {
               </Card>
             </div>
 
-            {/* 8. Lifestyle & therapeutic advice */}
-            <div>
-              <SectionHeader no={8} title="Lifestyle & Therapeutic Advise" />
-              <div className="grid grid-cols-3 gap-2.5 mt-2">
-                {[
-                  { icon: "🍽", title: "Nutrition", text: fp("advice_nutrition") },
-                  { icon: "🏋", title: "Training", text: fp("advice_training") },
-                  { icon: "🌙", title: "Sleep & Recovery", text: fp("advice_sleep") },
-                ].map((c) => (
-                  <Card key={c.title} className="p-3">
-                    <p className="text-[10.5px] font-bold mb-1 flex items-center gap-1" style={{ color: "#28342F" }}>
-                      <span>{c.icon}</span> {c.title}
-                    </p>
-                    <p className="text-[9.5px] leading-4" style={{ color: "#3D4A45" }}>
-                      {c.text || "—"}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* 9. Follow-up + signature */}
+        {/* 8. Follow-up + signature */}
         <div className="px-6 mt-4" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
           <div>
-            <SectionHeader no={9} title="Follow-up & Next Steps" />
+            <SectionHeader no={8} title="Follow-up & Next Steps" />
             <Card className="mt-2">
               <div className="grid grid-cols-[200px_1fr] gap-4">
                 <div>
