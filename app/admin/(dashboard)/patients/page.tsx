@@ -10,9 +10,11 @@ import {
   User,
   Loader2,
   AlertCircle,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { notify } from "@/lib/notify"
 
 type Patient = {
   id: string
@@ -25,8 +27,17 @@ type Patient = {
   primaryDoctorId?: string
 }
 
-function PatientActionMenu({ patientId }: { patientId: string }) {
+function PatientActionMenu({
+  patientId,
+  patientName,
+  onDeleted,
+}: {
+  patientId: string
+  patientName: string
+  onDeleted: () => void
+}) {
   const [isOpen, setIsOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -41,6 +52,35 @@ function PatientActionMenu({ patientId }: { patientId: string }) {
     }
   }, [isOpen])
 
+  const handleDelete = async () => {
+    setIsOpen(false)
+    if (
+      !window.confirm(
+        `Permanently delete ${patientName}?\n\nThis removes the patient and ALL their records — appointments, invoices, payments, vitals, consultations, lab results and prescriptions. This cannot be undone.`,
+      )
+    )
+      return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/patients/${patientId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Patient deleted")
+      onDeleted()
+    } catch (err) {
+      notify.error("Couldn't delete patient", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="relative inline-block text-left">
       <button
@@ -48,15 +88,16 @@ function PatientActionMenu({ patientId }: { patientId: string }) {
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className="p-1.5 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors"
+        disabled={deleting}
+        className="p-1.5 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
       >
-        <MoreHorizontal className="h-5 w-5" />
+        {deleting ? <Loader2 className="h-5 w-5 animate-spin" /> : <MoreHorizontal className="h-5 w-5" />}
       </button>
 
       {isOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 mt-1 w-32 rounded-md shadow-lg bg-white dark:bg-[#1F2937] ring-1 ring-[#EAECF0] dark:ring-[#374151] z-10"
+          className="absolute right-0 mt-1 w-40 rounded-md shadow-lg bg-white dark:bg-[#1F2937] ring-1 ring-[#EAECF0] dark:ring-[#374151] z-10"
         >
           <div className="py-1">
             <Link
@@ -72,6 +113,13 @@ function PatientActionMenu({ patientId }: { patientId: string }) {
             >
               Edit
             </Link>
+
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm font-medium text-[#B42318] hover:bg-[#FEF3F2] transition-colors"
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </button>
           </div>
         </div>
       )}
@@ -357,6 +405,8 @@ export default function PatientsPage() {
                     <td className="px-6 py-4">
                       <PatientActionMenu
                         patientId={patient.id}
+                        patientName={patient.fullName}
+                        onDeleted={fetchPatients}
                       />
                     </td>
                   </tr>

@@ -559,3 +559,44 @@ export async function recordPayment(
     return { invoice: updated, paymentId: payment.id }
   })
 }
+
+// ---------------------------------------------------------------------------
+// Hard delete (permanent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Permanently delete an invoice (its items + payments cascade). Irreversible.
+ * ADMIN-only. Note: deleting a PAID invoice also removes its CAPTURED
+ * payments, which lowers payment-derived revenue.
+ */
+export async function deleteInvoice(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (actor.role !== Role.ADMIN) {
+    throw new ForbiddenError("Only ADMIN may delete invoices")
+  }
+  await db.$transaction(async (tx) => {
+    const before = await tx.invoice.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Invoice not found")
+
+    await tx.invoice.delete({ where: { id } }) // items + payments cascade
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: "DELETE",
+        entityType: "Invoice",
+        entityId: id,
+        detail: {
+          before: {
+            invoiceNumber: before.invoiceNumber,
+            status: before.status,
+            totalCents: before.totalCents,
+          },
+          method: "hard-delete (permanent, cascade items+payments)",
+        },
+      },
+    })
+  })
+}

@@ -412,3 +412,39 @@ export async function softDeleteDepartment(
     })
   })
 }
+
+// ---------------------------------------------------------------------------
+// Hard delete (permanent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Permanently delete a department. Irreversible.
+ *
+ * All references are `SetNull` (staff.departmentId, appointment.departmentId,
+ * invoice.departmentId), so linked rows are detached — not deleted. ADMIN-only
+ * (enforced at the route).
+ */
+export async function hardDeleteDepartment(
+  id: string,
+  actorUserId: string,
+): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const before = await tx.department.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Department not found")
+
+    await tx.department.delete({ where: { id } })
+
+    await tx.auditLog.create({
+      data: {
+        actorUserId,
+        action: "DELETE",
+        entityType: "Department",
+        entityId: id,
+        detail: {
+          before: { name: before.name, slug: before.slug, isActive: before.isActive },
+          method: "hard-delete (permanent)",
+        },
+      },
+    })
+  })
+}

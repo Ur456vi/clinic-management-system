@@ -3,7 +3,7 @@
  *
  *   GET    — fetch one patient (writes a READ audit row)  [staff only]
  *   PATCH  — partial update                               [ADMIN/DOCTOR/RMO/RECEPTION]
- *   DELETE — soft-delete (status -> ARCHIVED)             [ADMIN only]
+ *   DELETE — permanently delete the patient + all records [ADMIN only]
  *
  * Admin endpoint — gated to staff. Patients use /api/patient/me/* for
  * self-service; they must not be able to read or mutate other patients.
@@ -15,7 +15,7 @@ import { defineHandler, noContent, ok, requireRole } from "@/lib/api"
 import { updatePatientSchema } from "@/lib/validation/patient"
 import {
   getPatient,
-  softDeletePatient,
+  hardDeletePatient,
   updatePatient,
 } from "@/lib/services/patient"
 
@@ -52,6 +52,6 @@ export const PATCH = defineHandler<Params>(async ({ req, params }) => {
 export const DELETE = defineHandler<Params>(async ({ params }) => {
   const session = await requireRole(Role.ADMIN)
   const { id } = await params
-  await softDeletePatient(id, session.userId)
+  await hardDeletePatient(id, session.userId)
   return noContent()
 })

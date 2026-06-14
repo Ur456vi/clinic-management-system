@@ -4,8 +4,8 @@
  *   GET    — fetch one department (writes a READ audit row).
  *            Auth: any authenticated clinic user.
  *   PATCH  — partial update. Auth: ADMIN only.
- *   DELETE — soft-delete (Department.isActive=false). Auth: ADMIN only.
- *            Refuses if active staff are still assigned.
+ *   DELETE — permanently delete the department. Auth: ADMIN only.
+ *            Linked staff/appointments/invoices are detached (SetNull).
  */
 
 import {
@@ -19,7 +19,7 @@ import { Role } from "@prisma/client"
 import { updateDepartmentSchema } from "@/lib/validation/department"
 import {
   getDepartment,
-  softDeleteDepartment,
+  hardDeleteDepartment,
   updateDepartment,
 } from "@/lib/services/department"
 
@@ -46,9 +46,9 @@ export const PATCH = defineHandler<Params>(async ({ req, params }) => {
 export const DELETE = defineHandler<Params>(async ({ params }) => {
   const session = await requireSession()
   if (session.role !== Role.ADMIN) {
-    throw new ForbiddenError("Only ADMIN may archive departments")
+    throw new ForbiddenError("Only ADMIN may delete departments")
   }
   const { id } = await params
-  await softDeleteDepartment(id, session.userId)
+  await hardDeleteDepartment(id, session.userId)
   return noContent()
 })

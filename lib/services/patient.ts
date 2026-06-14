@@ -294,3 +294,51 @@ export async function softDeletePatient(
     return after
   })
 }
+
+// ---------------------------------------------------------------------------
+// Hard delete (permanent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Permanently delete a patient and ALL their records. Irreversible.
+ *
+ * FK rules: vitals, consultations, treatment plans and lab results are
+ * `Cascade` and go automatically when the patient row is removed.
+ * Appointments, invoices, infusion logs and assessment submissions are
+ * `Restrict`, so they are deleted first inside the same transaction
+ * (invoice items + payments cascade with their invoice).
+ *
+ * ADMIN-only — enforced at the route. Writes a DELETE audit row capturing
+ * the deleted patient snapshot.
+ */
+export async function hardDeletePatient(
+  id: string,
+  actorUserId: string,
+): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const before = await tx.patient.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Patient not found")
+
+    // Remove the Restrict-ed dependents first; the Cascade-ed ones (vitals,
+    // consultations, treatment plans, lab results) drop with the patient.
+    await tx.invoice.deleteMany({ where: { patientId: id } }) // items + payments cascade
+    await tx.infusionLog.deleteMany({ where: { patientId: id } })
+    await tx.assessmentSubmission.deleteMany({ where: { patientId: id } })
+    await tx.appointment.deleteMany({ where: { patientId: id } })
+    await tx.patient.delete({ where: { id } })
+
+    await recordAudit(
+      {
+        actorUserId,
+        action: "DELETE",
+        entityType: "Patient",
+        entityId: id,
+        detail: {
+          before: before as unknown as Prisma.InputJsonValue,
+          method: "hard-delete (permanent, cascade)",
+        },
+      },
+      { tx },
+    )
+  })
+}

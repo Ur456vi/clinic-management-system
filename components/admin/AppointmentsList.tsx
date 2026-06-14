@@ -29,6 +29,7 @@ import {
   Printer,
   Tablet,
   Receipt,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -402,12 +403,13 @@ function AppointmentActionMenu({
       const billable = row.status !== "CANCELLED" && row.status !== "NO_SHOW"
       const itemCount =
         3 +
+        1 + // Delete (always shown)
         (row.status === "REQUESTED" ? 1 : 0) +
         (showRmoSummary ? 1 : 0) +
         (row.status === "COMPLETED" ? 1 : 0) +
         (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0) +
         (billable ? 1 : 0)
-      const menuH = itemCount * 38 + 10
+      const menuH = itemCount * 38 + 20 // +divider
       const top =
         r.bottom + 4 + menuH > window.innerHeight ? Math.max(8, r.top - menuH - 4) : r.bottom + 4
       setCoords({ top, left: r.right - MENU_W })
@@ -453,6 +455,41 @@ function AppointmentActionMenu({
   const viewQuiz = () => {
     setOpen(false)
     router.push(`/admin/appointments/${row.id}/quiz`)
+  }
+
+  const deleteAppt = async () => {
+    setOpen(false)
+    const who = row.patient?.fullName ?? "this patient"
+    const when = new Date(row.startsAt).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    if (
+      !window.confirm(
+        `Permanently delete the appointment for ${who} on ${when}?\n\nThis cannot be undone. A linked invoice or consultation is detached, not deleted.`,
+      )
+    )
+      return
+    setBusy(true)
+    try {
+      const res = await fetch(`/api/appointments/${row.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Appointment deleted")
+      onChanged()
+    } catch (err) {
+      notify.error("Couldn't delete appointment", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setBusy(false)
+    }
   }
 
   const item =
@@ -561,6 +598,15 @@ function AppointmentActionMenu({
                 <Printer className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View prescription
               </button>
             ) : null}
+
+            <div className="my-1 border-t border-[#EAECF0] dark:border-[#374151]" />
+
+            <button
+              onClick={() => void deleteAppt()}
+              className="w-full text-left px-4 py-2 text-sm font-medium text-[#B42318] hover:bg-[#FEF3F2] transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" /> Delete
+            </button>
           </div>
         </div>
       )}
