@@ -817,6 +817,46 @@ async function bookCore(
 }
 
 // ---------------------------------------------------------------------------
+// Hard delete (permanent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Permanently delete an appointment. Irreversible. ADMIN-only.
+ *
+ * `Invoice.appointmentId` and `Appointment.consultationId` are `SetNull`, so a
+ * linked invoice or consultation is detached — not deleted. Writes a DELETE
+ * audit row with the deleted appointment snapshot.
+ */
+export async function deleteAppointment(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (actor.role !== Role.ADMIN) {
+    throw new ForbiddenError("Only ADMIN may delete appointments")
+  }
+  await db.$transaction(async (tx) => {
+    const before = await tx.appointment.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Appointment not found")
+
+    await tx.appointment.delete({ where: { id } })
+
+    await recordAudit(
+      {
+        actorUserId: actor.userId,
+        action: "DELETE",
+        entityType: "Appointment",
+        entityId: id,
+        detail: {
+          before: before as unknown as Prisma.InputJsonValue,
+          method: "hard-delete (permanent)",
+        },
+      },
+      { tx },
+    )
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Re-exports
 // ---------------------------------------------------------------------------
 

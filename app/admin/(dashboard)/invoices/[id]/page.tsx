@@ -11,6 +11,7 @@
  */
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { use, useCallback, useEffect, useState } from "react"
 import {
   ArrowLeft,
@@ -19,6 +20,7 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -70,10 +72,12 @@ export default function InvoiceDetailsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const router = useRouter()
   const [invoice, setInvoice] = useState<InvoiceApi | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchOne = useCallback(async () => {
     setError(null)
@@ -123,6 +127,34 @@ export default function InvoiceDetailsPage({
       })
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const deleteInvoice = async () => {
+    if (!invoice || deleting) return
+    if (
+      !window.confirm(
+        `Permanently delete invoice ${invoice.invoiceNumber}?\n\nIts line items and any recorded payments are deleted too — if it was paid, that amount is removed from revenue. This cannot be undone.`,
+      )
+    )
+      return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/invoices/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Invoice deleted")
+      router.push("/admin/invoices")
+    } catch (err) {
+      notify.error("Couldn't delete invoice", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+      setDeleting(false)
     }
   }
 
@@ -198,6 +230,15 @@ export default function InvoiceDetailsPage({
               Mark UPI payment received
             </Button>
           ) : null}
+          <Button
+            variant="outline"
+            className="px-4 h-10 border-[#FDA29B] text-[#B42318] hover:bg-[#FEF3F2] font-semibold rounded-lg flex items-center gap-2"
+            disabled={deleting}
+            onClick={() => void deleteInvoice()}
+          >
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Delete
+          </Button>
         </div>
       </div>
 
