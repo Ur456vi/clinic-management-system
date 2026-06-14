@@ -265,8 +265,31 @@ export default function ContactPage() {
                       style={inputStyle}
                     />
                   </IconField>
+                  <div>
+  <label
+    htmlFor="cn-message"
+    className="mb-2 block text-sm font-medium"
+    style={{ color: "var(--brand-ink)" }}
+  >
+    7. Message
+  </label>
 
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+  <textarea
+    id="cn-message"
+    name="message"
+    rows={5}
+    placeholder="Tell us about your concerns or how we can help you..."
+    style={{
+      ...inputStyle,
+      minHeight: "140px",
+      resize: "vertical",
+      width: "100%",
+      paddingLeft: "16px", // normal padding since no icon
+    }}
+  />
+</div>
+
+                  {/* <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <IconField
                       label="4. Date"
                       htmlFor="cn-date"
@@ -291,9 +314,9 @@ export default function ContactPage() {
                         style={inputStyle}
                       />
                     </IconField>
-                  </div>
+                  </div> */}
 
-                  <IconField
+                  {/* <IconField
                     label="6. Service"
                     htmlFor="cn-service"
                     icon={<FileTextIcon size={16} />}
@@ -320,7 +343,7 @@ export default function ContactPage() {
                     >
                       <ChevronDownIcon size={16} />
                     </span>
-                  </IconField>
+                  </IconField> */}
 
                   <button
                     type="submit"

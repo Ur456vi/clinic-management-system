@@ -458,7 +458,7 @@ function ArcGauge({
   const stroke = bandColors[band];
 
   return (
-    <svg width="200" height="110" viewBox="0 0 200 110" aria-hidden="true">
+    <svg width="200" height="150" viewBox="0 0 200 110" aria-hidden="true">
       {/* Background arc */}
       <path
         d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}

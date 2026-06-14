@@ -294,12 +294,11 @@ export function CalendarPicker({ value, onChange }: CalendarPickerProps) {
 
 const TIME_SLOTS: string[] = (() => {
   const out: string[] = [];
-  // Last appointment starts 17:30 so a 30-min slot still ends by 18:00.
-  for (let h = 10; h < 18; h++) {
-    for (const m of [0, 30]) {
-      out.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-    }
+
+  for (let h = 10; h <= 18; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
   }
+
   return out;
 })();
 

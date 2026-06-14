@@ -113,7 +113,7 @@ const INSTITUTE_DEFINITION = [
   },
   {
     title: "Focused Clinical Environment",
-    body: "Time, attention, and clinical depth are prioritized. Who This Is Designed For.",
+    body: "Time, attention, and clinical depth are prioritized.",
   },
 ];
 
