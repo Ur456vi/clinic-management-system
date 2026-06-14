@@ -23,6 +23,7 @@ import { useEffect, useState } from "react"
 import { AlertCircle, ArrowLeft, Loader2, Printer } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { groupSelectedByPanel, parseSelectedTests } from "@/lib/test-catalog"
 
 interface Consultation {
   id: string
@@ -553,20 +554,30 @@ export default function PrescriptionPage() {
             <div>
               <SectionHeader no={6} title="Investigations Ordered" />
               <Card className="mt-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
-                    <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
-                      🧪 HORMONAL PROFILE
-                    </p>
-                    <Bullets text={ts("hormonal_profile")} />
-                  </div>
-                  <div className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
-                    <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
-                      🧬 METABOLIC &amp; GENERAL PROFILE
-                    </p>
-                    <Bullets text={ts("metabolic_general_profile")} />
-                  </div>
-                </div>
+                {(() => {
+                  const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
+                  if (groups.length === 0)
+                    return <p className="text-[11px]" style={{ color: "#98A2B3" }}>No investigations ordered.</p>
+                  return (
+                    <div className="grid grid-cols-2 gap-3">
+                      {groups.map(({ panel, tests }) => (
+                        <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
+                          <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
+                            {panel.name}
+                          </p>
+                          <ul className="space-y-0.5">
+                            {tests.map((t) => (
+                              <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
+                                <span style={{ color: GOLD }}>•</span>
+                                <span>{t}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
                 <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
                   🔒 {ts("sample_collection") || "Sample collection at IHMH Lab"} &nbsp;|&nbsp;{" "}
                   {ts("report_turnaround") || "Reports in 48–72 hrs"}

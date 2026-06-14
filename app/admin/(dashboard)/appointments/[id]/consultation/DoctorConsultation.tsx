@@ -23,6 +23,7 @@ import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Printer,
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { MAIN_FIELDS, MAIN_SECTIONS, type MainControl, type TableColumn } from "@/lib/main-fields"
+import TestPanelSelector from "@/components/admin/TestPanelSelector"
 
 export interface DoctorConsult {
   id: string
@@ -222,6 +223,13 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
 
   const renderControl = (c: MainControl) => {
     const value = form[c.n] ?? ""
+    if (c.kind === "testPanels") {
+      return (
+        <div key={c.n} className="col-span-2">
+          <TestPanelSelector value={value} onChange={(v) => setField(c.n, v)} />
+        </div>
+      )
+    }
     if (c.kind === "table") {
       return (
         <div key={c.n} className="flex flex-col gap-1.5 col-span-2">

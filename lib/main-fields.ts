@@ -56,6 +56,13 @@ export type MainControl =
       hint?: string
       full?: boolean
     }
+  | {
+      kind: "testPanels"
+      n: string
+      l: string
+      hint?: string
+      full?: boolean
+    }
 
 export type MainGroup = {
   title?: string
@@ -207,15 +214,8 @@ export const MAIN_SECTIONS: MainSection[] = [
     key: "test",
     groups: [
       {
-        title: "Hormonal Profile",
         controls: [
-          { kind: "textarea", n: "test__hormonal_profile", l: "Tests Ordered", placeholder: "One per line — e.g., Total Testosterone, Free Testosterone, SHBG, LH, FSH, Estradiol (E2), Prolactin, Cortisol – AM, DHEA-S", rows: 4, full: true },
-        ],
-      },
-      {
-        title: "Metabolic & General Profile",
-        controls: [
-          { kind: "textarea", n: "test__metabolic_general_profile", l: "Tests Ordered", placeholder: "One per line — e.g., CBC, ESR, Fasting Glucose, Insulin & HOMA-IR, HbA1c, Lipid Profile, LFT, KFT, Vitamin D (25-OH), Vitamin B12, Ferritin, hs-CRP, TSH, Free T3, Free T4", rows: 4, full: true },
+          { kind: "testPanels", n: "test__selected_tests", l: "Select Test Panels", full: true },
         ],
       },
       {
