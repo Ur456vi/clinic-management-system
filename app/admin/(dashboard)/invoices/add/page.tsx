@@ -14,7 +14,7 @@
  * save it redirects there, where reception clicks Print.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react"
@@ -43,6 +43,16 @@ function fmt(cents: number): string {
 }
 
 export default function CreateInvoicePage() {
+  // useSearchParams must sit under a Suspense boundary so the route doesn't
+  // bail out of prerendering at build time.
+  return (
+    <Suspense fallback={null}>
+      <CreateInvoiceForm />
+    </Suspense>
+  )
+}
+
+function CreateInvoiceForm() {
   const router = useRouter()
   const sp = useSearchParams()
   const appointmentId = sp.get("appointmentId") ?? undefined
