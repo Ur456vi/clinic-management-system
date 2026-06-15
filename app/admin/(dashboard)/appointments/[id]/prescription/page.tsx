@@ -597,11 +597,11 @@ export default function PrescriptionPage() {
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. SUPPLEMENTS &amp; NUTRACEUTICALS
+                    A. MEDICATIONS &amp; SUPPLEMENTS
                   </p>
                   <RxTable
                     columns={[
-                      { key: "product", label: "Product / Supplement" },
+                      { key: "product", label: "Medication / Supplement" },
                       { key: "dose", label: "Dose" },
                       { key: "timing", label: "Timing" },
                       { key: "duration", label: "Duration" },
@@ -609,14 +609,6 @@ export default function PrescriptionPage() {
                     rows={supplements}
                   />
                 </div>
-                {fp("medications") ? (
-                  <div>
-                    <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
-                      MEDICATIONS
-                    </p>
-                    <Bullets text={fp("medications")} />
-                  </div>
-                ) : null}
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
                     B. INFUSION / INJECTABLE <span className="font-normal">(Scheduled at Clinic)</span>

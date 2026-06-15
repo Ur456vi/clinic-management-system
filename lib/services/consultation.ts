@@ -135,6 +135,12 @@ const CONSULTATION_INCLUDE = {
       fullName: true,
       sex: true,
       dateOfBirth: true,
+      // Demographics surfaced so the doctor's Patient Detail tab can
+      // pre-fill from the patient master record.
+      phone: true,
+      email: true,
+      occupation: true,
+      referralSource: true,
       status: true,
       primaryDoctorId: true,
     },
