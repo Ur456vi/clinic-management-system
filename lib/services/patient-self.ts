@@ -536,3 +536,54 @@ export async function listSelfPrescriptions(args: {
 
   return { items, nextCursor }
 }
+
+export type SelfPrescriptionDetail = {
+  id: string
+  sections: Prisma.JsonValue | null
+  patientName: string
+  patientNumber: string
+  updatedAt: string | null
+}
+
+/**
+ * One prescription's raw consultation sections, scoped to the calling
+ * patient — so the portal can render it with the same `PrescriptionSheet`
+ * the admin uses. Hard-pinned to `patientId` + MAIN so a patient can never
+ * read another patient's (or an RMO) chart.
+ */
+export async function getSelfPrescription(args: {
+  patientId: string
+  actorUserId: string
+  consultationId: string
+}): Promise<SelfPrescriptionDetail> {
+  const consult = await db.consultation.findFirst({
+    where: {
+      id: args.consultationId,
+      patientId: args.patientId,
+      type: ConsultationType.MAIN,
+    },
+    select: {
+      id: true,
+      sections: true,
+      updatedAt: true,
+      patient: { select: { fullName: true, patientNumber: true } },
+    },
+  })
+  if (!consult) throw new NotFoundError("Prescription not found")
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "Consultation",
+    entityId: consult.id,
+    detail: { scope: "self.prescription" },
+  })
+
+  return {
+    id: consult.id,
+    sections: consult.sections,
+    patientName: consult.patient?.fullName ?? "",
+    patientNumber: consult.patient?.patientNumber ?? "",
+    updatedAt: consult.updatedAt?.toISOString() ?? null,
+  }
+}

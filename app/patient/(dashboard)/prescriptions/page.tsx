@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Search, 
   Filter, 
@@ -95,6 +96,8 @@ export default function PatientPrescriptionsPage() {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [activeActionMenuId, setActiveActionMenuId] = useState<string | null>(null);
   const [selectedPlanForDetail, setSelectedPlanForDetail] = useState<Plan | null>(null);
+  const router = useRouter();
+  const openPrescription = useCallback((id: string) => router.push(`/patient/prescriptions/${id}`), [router]);
   const [printPlan, setPrintPlan] = useState<Plan | null>(null);
   const [printAllMode, setPrintAllMode] = useState(false);
 
@@ -928,7 +931,7 @@ export default function PatientPrescriptionsPage() {
                       return (
                         <tr
                           key={plan.id}
-                          onClick={() => setSelectedPlanForDetail(plan)}
+                          onClick={() => openPrescription(plan.id)}
                           className="group cursor-pointer hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-colors align-middle"
                         >
                           {/* ID Column */}
@@ -997,7 +1000,7 @@ export default function PatientPrescriptionsPage() {
                               >
                                 <button
                                   onClick={() => {
-                                    setSelectedPlanForDetail(plan);
+                                    openPrescription(plan.id);
                                     setActiveActionMenuId(null);
                                   }}
                                   className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
