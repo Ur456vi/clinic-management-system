@@ -445,9 +445,9 @@ export default function StartAppointmentConsultationPage() {
       </div>
 
       {/* Body */}
-      <div className="flex gap-6">
+      <div className="flex gap-6 items-start">
         {activeMainStep === "RMO Consultation" && (
-          <aside className="w-[240px] flex-shrink-0">
+          <aside className="w-[240px] flex-shrink-0 sticky top-24">
             <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
               {formSections.map((section) => (
                 <button
@@ -487,16 +487,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">
                                 Relationship to Patient<span className="text-red-500">*</span>
                               </label>
-                              <div className="relative">
-                                <select name="informant__relationship_to_patient" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select relationship</option>
-                                  <option value="parent">Parent</option>
-                                  <option value="sibling">Sibling</option>
-                                  <option value="spouse">Spouse</option>
-                                  <option value="friend">Friend</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <input name="informant__relationship_to_patient"
+                                type="text"
+                                placeholder="Relationship to patient"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">
@@ -524,18 +519,11 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Relationship</label>
-                              <div className="relative">
-                                <select name="informant__relationship" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select relationship</option>
-                                  <option value="relative">Relative</option>
-                                  <option value="friend">Friend</option>
-                                  <option value="spouse">Spouse</option>
-                                  <option value="parent">Parent</option>
-                                  <option value="sibling">Sibling</option>
-                                  <option value="other">Other</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <input name="informant__relationship"
+                                type="text"
+                                placeholder="Relationship"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1696,16 +1684,11 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Habits</label>
-                              <div className="relative">
-                                <select name="personal_history__personal_habits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select habits</option>
-                                  <option value="none">None</option>
-                                  <option value="cosmetics">Cosmetics</option>
-                                  <option value="sunscreens">Sunscreens</option>
-                                  <option value="other applicants">Other applicants</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <input name="personal_history__personal_habits"
+                                type="text"
+                                placeholder="E.g. cosmetics, sunscreens, etc."
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
                             </div>
                           </div>
                         </div>
