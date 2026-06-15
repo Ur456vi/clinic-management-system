@@ -476,27 +476,25 @@ export default function ContactPage() {
 
           {/* Map */}
           <div
-            className="relative overflow-hidden rounded-xl border bg-white"
-            style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
-          >
-            <iframe
-  title="Institute of Precision Metabolic & Hormonal Health"
-  src="https://www.google.com/maps?q=811,Harnoor+House,Sector+42,Gurugram,Haryana+122002&output=embed"
-  width="100%"
-  height="100%"
-  className="absolute inset-0 border-0"
-  loading="lazy"
-  allowFullScreen
-/>
-            {/* Floating location label */}
-            <div className="pointer-events-none absolute left-1/2 top-10 z-10 -translate-x-1/2 rounded-md bg-white px-4 py-3 text-center text-sm font-medium shadow-lg">
-              <span style={{ color: "var(--brand-ink)" }}>
-                Institute of Precision
-                <br />
-                Hormonal &amp; Metabolic Health
-              </span>
-            </div>
-          </div>
+  className="relative overflow-hidden rounded-xl border bg-white"
+  style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
+>
+  <Image
+    src="/images/landing/contact-map.png"
+    alt="Institute of Precision Metabolic & Hormonal Health Location"
+    fill
+    className="object-cover"
+  />
+
+  {/* Floating location label */}
+  <div className="pointer-events-none absolute left-1/2 top-10 z-10 -translate-x-1/2 rounded-md bg-white px-4 py-3 text-center text-sm font-medium shadow-lg">
+    <span style={{ color: "var(--brand-ink)" }}>
+      Institute of Precision
+      <br />
+      Hormonal &amp; Metabolic Health
+    </span>
+  </div>
+</div>
         </div>
       </section>
 
