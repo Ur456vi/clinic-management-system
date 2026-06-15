@@ -23,6 +23,7 @@ import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/api/errors"
 import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
+import { parseRxItem } from "@/lib/rx-library"
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -327,4 +328,262 @@ export async function listSelfInvoices(args: {
   })
 
   return { items: rows, nextCursor }
+}
+
+// ---------------------------------------------------------------------------
+// Prescriptions (derived from the doctor's MAIN consultation Final Prescription)
+// ---------------------------------------------------------------------------
+//
+// The patient portal "Prescriptions" surface is built around the `Plan`
+// shape, but the actual prescribing happens inside the Dr. Yuvraaj MAIN
+// consultation (stored in `Consultation.sections.finalPrescription`). This
+// reads those consultations and projects each into a prescription the portal
+// can list / open / print — without a separate TreatmentPlan write.
+
+type RxRow = Record<string, string>
+
+type PrescriptionDoctor = {
+  id: string
+  staff: { fullName: string; avatarUrl: string | null; specialization: string | null } | null
+} | null
+
+export type SelfPrescriptionItem = {
+  id: string
+  kind: "RX" | "SUPPLEMENT" | "IV" | "REHAB" | "AESTHETIC"
+  name: string
+  dose: string | null
+  frequency: string | null
+  durationDays: number | null
+  instructions: string | null
+}
+
+export type SelfPrescription = {
+  id: string
+  title: string
+  summary: string | null
+  status: string
+  version: number
+  createdAt: Date
+  signedBy: PrescriptionDoctor
+  createdBy: PrescriptionDoctor
+  items: SelfPrescriptionItem[]
+}
+
+/** Tolerant parse of a table control's stored JSON-string value. */
+function parseRowsJson(v: unknown): RxRow[] {
+  if (typeof v !== "string" || !v.trim()) return []
+  try {
+    const arr = JSON.parse(v)
+    if (!Array.isArray(arr)) return []
+    return arr.map((r) => (r && typeof r === "object" ? (r as RxRow) : {}))
+  } catch {
+    return []
+  }
+}
+
+/** "12 Weeks" -> 84, "1 month" -> 30, "30 days" -> 30; unparseable -> null. */
+function durationToDays(s: string | undefined): number | null {
+  if (!s) return null
+  const m = s.match(/(\d+(?:\.\d+)?)\s*(day|week|month|year)s?/i)
+  if (!m) return null
+  const n = Number.parseFloat(m[1])
+  const unit = m[2].toLowerCase()
+  const mult = unit === "day" ? 1 : unit === "week" ? 7 : unit === "month" ? 30 : 365
+  return Math.round(n * mult)
+}
+
+function sectionField(sections: Prisma.JsonValue | null | undefined, key: string, field: string): string {
+  if (!sections || typeof sections !== "object" || Array.isArray(sections)) return ""
+  const sec = (sections as Record<string, unknown>)[key]
+  if (!sec || typeof sec !== "object" || Array.isArray(sec)) return ""
+  const v = (sec as Record<string, unknown>)[field]
+  return v == null ? "" : String(v).trim()
+}
+
+/**
+ * Project a MAIN consultation into a portal prescription. Returns `null`
+ * when the Final Prescription is empty (no diagnosis + no items) so blank
+ * drafts don't surface to the patient.
+ */
+function shapePrescription(
+  consult: { id: string; status: string; createdAt: Date; sections: Prisma.JsonValue | null },
+  doctor: PrescriptionDoctor,
+): SelfPrescription | null {
+  const diagnosis = sectionField(consult.sections, "finalPrescription", "finalPrescription__diagnosis")
+  const impression = sectionField(consult.sections, "finalPrescription", "finalPrescription__clinical_impression")
+
+  const medRows = parseRowsJson(
+    (consult.sections as Record<string, Record<string, unknown>> | null)?.finalPrescription?.[
+      "finalPrescription__supplements_rows"
+    ],
+  )
+  const infusionRows = parseRowsJson(
+    (consult.sections as Record<string, Record<string, unknown>> | null)?.infusionRehabAesthetic?.[
+      "infusionRehabAesthetic__infusion_rows"
+    ],
+  )
+
+  const items: SelfPrescriptionItem[] = []
+  medRows.forEach((r, i) => {
+    let name = (r.product ?? "").trim()
+    if (!name) return
+    let dose = (r.dose ?? "").trim()
+    let frequency = (r.timing ?? "").trim()
+    // Older rows stored the whole "Name dose freq" string in the first
+    // column; split it so dose/frequency render in their own cells.
+    if (!dose && !frequency) {
+      const parsed = parseRxItem(name)
+      name = parsed.product
+      dose = parsed.dose
+      frequency = parsed.timing
+    }
+    items.push({
+      id: `${consult.id}-m${i}`,
+      kind: "RX",
+      name,
+      dose: dose || null,
+      frequency: frequency || null,
+      durationDays: durationToDays((r.duration ?? "").trim()),
+      instructions: (r.duration ?? "").trim() || null,
+    })
+  })
+  infusionRows.forEach((r, i) => {
+    const name = (r.therapy ?? "").trim()
+    if (!name) return
+    items.push({
+      id: `${consult.id}-i${i}`,
+      kind: "IV",
+      name,
+      dose: (r.dose ?? "").trim() || null,
+      frequency: (r.schedule ?? "").trim() || null,
+      durationDays: null,
+      instructions: (r.purpose ?? "").trim() || null,
+    })
+  })
+
+  if (items.length === 0 && !diagnosis && !impression) return null
+
+  return {
+    id: consult.id,
+    title: diagnosis || "Prescription",
+    summary: [impression, diagnosis].filter(Boolean).join(" — ") || null,
+    status: "SIGNED",
+    version: 1,
+    createdAt: consult.createdAt,
+    signedBy: doctor,
+    createdBy: doctor,
+    items,
+  }
+}
+
+/**
+ * The calling patient's prescriptions, newest first. Built from MAIN
+ * consultations that carry a Final Prescription. The prescribing doctor is
+ * resolved from the linked appointment's assigned staff (not the consultation
+ * creator, which may be an admin who opened the chart).
+ */
+export async function listSelfPrescriptions(args: {
+  patientId: string
+  actorUserId: string
+  input: SelfListInput
+}): Promise<SelfListResult<SelfPrescription>> {
+  const take = clampLimit(args.input.limit)
+
+  const consults = await db.consultation.findMany({
+    where: { patientId: args.patientId, type: ConsultationType.MAIN },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: Math.min(take * 2, MAX_PAGE_SIZE) + 1,
+    select: { id: true, status: true, createdAt: true, sections: true },
+  })
+
+  // Map consultationId -> prescribing doctor via the linked appointment.
+  const ids = consults.map((c) => c.id)
+  const appts = ids.length
+    ? await db.appointment.findMany({
+        where: { patientId: args.patientId, consultationId: { in: ids } },
+        select: {
+          consultationId: true,
+          staff: { select: { id: true, fullName: true, avatarUrl: true, specialization: true } },
+        },
+      })
+    : []
+  const doctorByConsult = new Map<string, PrescriptionDoctor>()
+  for (const a of appts) {
+    if (!a.consultationId) continue
+    doctorByConsult.set(
+      a.consultationId,
+      a.staff
+        ? { id: a.staff.id, staff: { fullName: a.staff.fullName, avatarUrl: a.staff.avatarUrl, specialization: a.staff.specialization } }
+        : null,
+    )
+  }
+
+  const all = consults
+    .map((c) => shapePrescription(c, doctorByConsult.get(c.id) ?? null))
+    .filter((p): p is SelfPrescription => p !== null)
+
+  let nextCursor: string | null = null
+  const items = all.slice(0, take)
+  if (all.length > take) nextCursor = items[items.length - 1]?.id ?? null
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "Consultation",
+    entityId: args.patientId,
+    detail: { scope: "self.prescriptions", count: items.length },
+  })
+
+  return { items, nextCursor }
+}
+
+export type SelfPrescriptionDetail = {
+  id: string
+  sections: Prisma.JsonValue | null
+  patientName: string
+  patientNumber: string
+  updatedAt: string | null
+}
+
+/**
+ * One prescription's raw consultation sections, scoped to the calling
+ * patient — so the portal can render it with the same `PrescriptionSheet`
+ * the admin uses. Hard-pinned to `patientId` + MAIN so a patient can never
+ * read another patient's (or an RMO) chart.
+ */
+export async function getSelfPrescription(args: {
+  patientId: string
+  actorUserId: string
+  consultationId: string
+}): Promise<SelfPrescriptionDetail> {
+  const consult = await db.consultation.findFirst({
+    where: {
+      id: args.consultationId,
+      patientId: args.patientId,
+      type: ConsultationType.MAIN,
+    },
+    select: {
+      id: true,
+      sections: true,
+      updatedAt: true,
+      patient: { select: { fullName: true, patientNumber: true } },
+    },
+  })
+  if (!consult) throw new NotFoundError("Prescription not found")
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "Consultation",
+    entityId: consult.id,
+    detail: { scope: "self.prescription" },
+  })
+
+  return {
+    id: consult.id,
+    sections: consult.sections,
+    patientName: consult.patient?.fullName ?? "",
+    patientNumber: consult.patient?.patientNumber ?? "",
+    updatedAt: consult.updatedAt?.toISOString() ?? null,
+  }
 }
