@@ -17,7 +17,7 @@
  */
 
 import type { Prisma } from "@prisma/client"
-import { TreatmentPlanStatus } from "@prisma/client"
+import { ConsultationType, TreatmentPlanStatus } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/api/errors"
@@ -65,11 +65,25 @@ const SELF_PROFILE_SELECT = {
 
 export type SelfProfile = Prisma.PatientGetPayload<{
   select: typeof SELF_PROFILE_SELECT
-}>
+}> & {
+  /** Known drug allergies from the patient's latest RMO intake, if any. */
+  knownAllergies: string | null
+}
+
+/** Pull "Known Allergies" out of an RMO consultation's `sections` blob. */
+function extractKnownAllergies(sections: Prisma.JsonValue | undefined | null): string | null {
+  if (!sections || typeof sections !== "object" || Array.isArray(sections)) return null
+  const mh = (sections as Record<string, unknown>)["medicalHistory"]
+  if (!mh || typeof mh !== "object" || Array.isArray(mh)) return null
+  const v = (mh as Record<string, unknown>)["medical_history__known_allergies"]
+  const s = v == null ? "" : String(v).trim()
+  return s || null
+}
 
 /**
  * Return the calling patient's own profile. A read row is written
- * best-effort.
+ * best-effort. Includes the latest known drug allergies so the portal can
+ * surface a safety banner (mirrors the admin RMO Summary).
  */
 export async function getSelfProfile(args: {
   patientId: string
@@ -85,6 +99,14 @@ export async function getSelfProfile(args: {
     throw new NotFoundError("Patient profile not found")
   }
 
+  // Latest RMO intake carries the captured allergy history.
+  const consult = await db.consultation.findFirst({
+    where: { patientId: args.patientId, type: ConsultationType.RMO },
+    orderBy: { createdAt: "desc" },
+    select: { sections: true },
+  })
+  const knownAllergies = extractKnownAllergies(consult?.sections)
+
   await recordAudit({
     actorUserId: args.actorUserId,
     action: "READ",
@@ -93,7 +115,7 @@ export async function getSelfProfile(args: {
     detail: { scope: "self.profile" },
   })
 
-  return profile
+  return { ...profile, knownAllergies }
 }
 
 // ---------------------------------------------------------------------------
@@ -266,6 +288,7 @@ export async function listSelfLabResults(args: {
 const SELF_INVOICE_INCLUDE = {
   items: { orderBy: { createdAt: "asc" as const } },
   payments: { orderBy: { receivedAt: "desc" as const } },
+  department: { select: { id: true, name: true } },
 } as const
 
 export type SelfInvoice = Prisma.InvoiceGetPayload<{

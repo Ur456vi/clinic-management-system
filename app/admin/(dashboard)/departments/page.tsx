@@ -17,11 +17,13 @@ import {
   ChevronRight,
   Loader2,
   Search,
+  Trash2,
   UserCheck,
   Users,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { notify } from "@/lib/notify"
 
 interface Department {
   id: string
@@ -155,7 +157,7 @@ export default function DepartmentsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((d) => (
-            <DepartmentCard key={d.id} dept={d} />
+            <DepartmentCard key={d.id} dept={d} onDeleted={fetchDepartments} />
           ))}
         </div>
       )}
@@ -163,8 +165,39 @@ export default function DepartmentsPage() {
   )
 }
 
-function DepartmentCard({ dept }: { dept: Department }) {
+function DepartmentCard({ dept, onDeleted }: { dept: Department; onDeleted: () => void }) {
   const palette = paletteFor(dept.slug)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (
+      !window.confirm(
+        `Permanently delete the ${dept.name} department?\n\nLinked staff, appointments and invoices will be unassigned (not deleted). This cannot be undone.`,
+      )
+    )
+      return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/departments/${dept.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Department deleted")
+      onDeleted()
+    } catch (err) {
+      notify.error("Couldn't delete department", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+      setDeleting(false)
+    }
+  }
+
   return (
     <Link
       href={`/admin/departments/${dept.id}`}
@@ -203,14 +236,16 @@ function DepartmentCard({ dept }: { dept: Department }) {
           />
         </div>
         <div className="flex items-center justify-between pt-3 border-t border-[#EAECF0] dark:border-[#374151]">
-          <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
-            Created{" "}
-            {new Date(dept.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </span>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#B42318] hover:text-[#912018] disabled:opacity-50"
+            aria-label={`Delete ${dept.name}`}
+          >
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Delete
+          </button>
           <span className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] inline-flex items-center gap-1">
             Open <ChevronRight className="h-4 w-4" />
           </span>

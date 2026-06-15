@@ -80,6 +80,16 @@ export default function QuizStepPage({
     }
   };
 
+  // Single-choice questions auto-advance to the next step after a brief
+  // pause (so the selection is visible). Multi-select kinds (multiToggle /
+  // comorbidities) stay put — the user sets several rows, then clicks Next.
+  const onAnswer = (v: AnswerValue) => {
+    setAnswer(question.id, v);
+    if (v.kind === "single" || v.kind === "splitGender") {
+      window.setTimeout(onNext, 220);
+    }
+  };
+
   const isAnswered = answeredEnough(question, existing);
 
   return (
@@ -129,7 +139,7 @@ export default function QuizStepPage({
               question={question}
               existing={existing}
               sex={state.sex ?? "other"}
-              onAnswer={(v) => setAnswer(question.id, v)}
+              onAnswer={onAnswer}
             />
           </div>
         </div>

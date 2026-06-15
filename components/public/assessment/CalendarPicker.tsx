@@ -290,7 +290,7 @@ export function CalendarPicker({ value, onChange }: CalendarPickerProps) {
   );
 }
 
-/* ── time slots (9:00 – 18:30, every 30 min) ──────────────────────── */
+/* ── time slots (10:00 AM – 6:00 PM clinic hours, every 30 min) ────── */
 
 const TIME_SLOTS: string[] = (() => {
   const out: string[] = [];

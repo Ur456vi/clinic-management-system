@@ -29,12 +29,13 @@ function SettingsPageContent() {
 
   const isAdmin = session?.user?.role === "ADMIN";
 
-  // Determine active tab from URL query param (null if no valid tab query is present)
+  // Determine active tab from URL query param, defaulting to email-smtp for admins, or profile for others.
   const tabParam = searchParams.get("tab") as SettingsTab | null;
-  const activeTab: SettingsTab | null =
+  const defaultTab = isAdmin ? "email-smtp" : "profile";
+  const activeTab: SettingsTab =
     tabParam && ["email-smtp", "profile", "password", "notifications"].includes(tabParam)
       ? tabParam
-      : null;
+      : defaultTab;
 
   const handleTabChange = (newTab: SettingsTab) => {
     const params = new URLSearchParams(searchParams.toString());
