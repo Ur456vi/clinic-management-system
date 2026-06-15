@@ -66,6 +66,11 @@ export interface DoctorConsult {
   rmoSummary?: {
     sections?: Record<string, Record<string, unknown>> | null
   } | null
+  /** Appointment slot info — pre-fills the Consultation Details date + duration. */
+  appointment?: {
+    date?: string | null
+    durationMinutes?: number | null
+  } | null
 }
 
 /**
@@ -133,6 +138,18 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
           (o) => o.toLowerCase() === String(p.referralSource).toLowerCase(),
         )
         if (ref) seed("patientDetail__referred_by", ref)
+      }
+    }
+
+    // Consultation Details — date + booked duration from the appointment slot
+    // (still-blank only; saved doctor values + RMO prefill win).
+    const appt = consult.appointment
+    if (appt) {
+      if (!flat["patientDetail__consultation_duration"] && appt.durationMinutes != null) {
+        flat["patientDetail__consultation_duration"] = String(appt.durationMinutes)
+      }
+      if (!flat["patientDetail__consultation_date"] && appt.date) {
+        flat["patientDetail__consultation_date"] = String(appt.date).slice(0, 10)
       }
     }
 
@@ -269,6 +286,12 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
     await save()
     const q = new URLSearchParams({ role: "DOCTOR", doctor: "Yuvraaj" })
     if (patientId) q.set("patientId", patientId)
+    // Carry the follow-up date + notes the doctor set in the prescription so
+    // the booking opens pre-dated instead of blank.
+    const fuDate = form["finalPrescription__follow_up_date"]
+    if (fuDate) q.set("date", fuDate)
+    const fuNotes = form["finalPrescription__follow_up_notes"]?.trim()
+    if (fuNotes) q.set("reason", `Follow-up: ${fuNotes}`)
     router.push(`/admin/appointments/add?${q.toString()}`)
   }
 

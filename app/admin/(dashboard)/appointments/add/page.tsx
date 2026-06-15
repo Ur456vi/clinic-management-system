@@ -107,7 +107,6 @@ function NewAppointmentPageInner() {
   const prefillRole = searchParams.get("role")
 
   // Preselect the patient when arriving with ?patientId.
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!prefillPatientId) return
     let cancelled = false
@@ -139,6 +138,20 @@ function NewAppointmentPageInner() {
       cancelled = true
     }
   }, [prefillPatientId])
+
+  // Preselect the date (+ reason) when arriving from a "Book follow-up"
+  // hand-off so the slot picker opens pre-dated instead of blank.
+  const prefillDate = searchParams.get("date")
+  const prefillReason = searchParams.get("reason")
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!prefillDate && !prefillReason) return
+    setForm((f) => ({
+      ...f,
+      ...(prefillDate ? { date: prefillDate } : {}),
+      ...(prefillReason && !f.reason ? { reason: prefillReason } : {}),
+    }))
+  }, [prefillDate, prefillReason])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const canAdvance = useMemo(() => {

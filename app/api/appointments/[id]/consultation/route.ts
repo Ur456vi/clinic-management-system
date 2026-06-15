@@ -40,13 +40,27 @@ async function latestRmoSummary(patientId: string) {
   })
 }
 
+/**
+ * Appointment slot info surfaced on the consultation so the doctor's
+ * "Consultation Details" can pre-fill the date + booked duration.
+ */
+function apptInfo(appt: { startsAt: Date; endsAt: Date }) {
+  return {
+    date: appt.startsAt.toISOString(),
+    durationMinutes: Math.max(
+      0,
+      Math.round((appt.endsAt.getTime() - appt.startsAt.getTime()) / 60000),
+    ),
+  }
+}
+
 export const GET = defineHandler<Params>(async ({ params }) => {
   const session = await requireSession()
   const { id } = appointmentIdParamSchema.parse(await params)
 
   const appt = await db.appointment.findUnique({
     where: { id },
-    select: { consultationId: true, staffId: true },
+    select: { consultationId: true, staffId: true, startsAt: true, endsAt: true },
   })
   if (!appt) throw new NotFoundError("Appointment not found")
 
@@ -59,14 +73,15 @@ export const GET = defineHandler<Params>(async ({ params }) => {
     userId: session.userId,
     role: session.role,
   })
+  const appointment = apptInfo(appt)
 
   // The doctor's MAIN chart carries the patient's latest RMO intake so the
   // "RMO Summary" tab can render it without a second round-trip.
   if (consultation.type === ConsultationType.MAIN) {
     const rmoSummary = await latestRmoSummary(consultation.patientId)
-    return ok({ ...consultation, rmoSummary })
+    return ok({ ...consultation, appointment, rmoSummary })
   }
-  return ok(consultation)
+  return ok({ ...consultation, appointment })
 })
 
 export const POST = defineHandler<Params>(async ({ params }) => {
@@ -80,6 +95,8 @@ export const POST = defineHandler<Params>(async ({ params }) => {
       patientId: true,
       reason: true,
       staffId: true,
+      startsAt: true,
+      endsAt: true,
       staff: { select: { user: { select: { role: true } } } },
     },
   })
@@ -89,6 +106,8 @@ export const POST = defineHandler<Params>(async ({ params }) => {
   // resume the consultation for this appointment.
   await assertAppointmentAccess(appt.staffId, session)
 
+  const appointment = apptInfo(appt)
+
   // Already started — return the existing chart.
   if (appt.consultationId) {
     const existing = await getConsultation(appt.consultationId, {
@@ -97,9 +116,9 @@ export const POST = defineHandler<Params>(async ({ params }) => {
     })
     if (existing.type === ConsultationType.MAIN) {
       const rmoSummary = await latestRmoSummary(existing.patientId)
-      return ok({ ...existing, rmoSummary })
+      return ok({ ...existing, appointment, rmoSummary })
     }
-    return ok(existing)
+    return ok({ ...existing, appointment })
   }
 
   const type =
@@ -123,7 +142,7 @@ export const POST = defineHandler<Params>(async ({ params }) => {
 
   if (consultation.type === ConsultationType.MAIN) {
     const rmoSummary = await latestRmoSummary(consultation.patientId)
-    return ok({ ...consultation, rmoSummary })
+    return ok({ ...consultation, appointment, rmoSummary })
   }
-  return ok(consultation)
+  return ok({ ...consultation, appointment })
 })
