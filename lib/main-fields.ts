@@ -55,11 +55,27 @@ export type MainControl =
       addLabel?: string
       hint?: string
       full?: boolean
+      /**
+       * Adds an "Add from library" picker next to "Add row".
+       *  - "rx": meds/supplements catalog → fills the FIRST column with the item.
+       *  - "infusion": IV protocol catalog → adds one row per component in the
+       *    FIRST column.
+       */
+      library?: "rx" | "infusion"
     }
   | {
       kind: "testPanels"
       n: string
       l: string
+      hint?: string
+      full?: boolean
+    }
+  | {
+      kind: "medicationsLibrary"
+      n: string
+      l: string
+      placeholder?: string
+      rows?: number
       hint?: string
       full?: boolean
     }
@@ -182,6 +198,7 @@ export const MAIN_SECTIONS: MainSection[] = [
             n: "infusionRehabAesthetic__infusion_rows",
             l: "Scheduled Therapies",
             addLabel: "Add therapy",
+            library: "infusion",
             full: true,
             columns: [
               { key: "therapy", label: "Therapy", placeholder: "e.g., NAD+ Support Infusion" },
@@ -251,6 +268,7 @@ export const MAIN_SECTIONS: MainSection[] = [
             n: "finalPrescription__supplements_rows",
             l: "Supplements",
             addLabel: "Add supplement",
+            library: "rx",
             full: true,
             columns: [
               { key: "product", label: "Product / Supplement", placeholder: "e.g., IHMH Omega-3 (TG form)" },
@@ -264,7 +282,7 @@ export const MAIN_SECTIONS: MainSection[] = [
       {
         title: "Medications",
         controls: [
-          { kind: "textarea", n: "finalPrescription__medications", l: "Medications", placeholder: "Drug — dose — frequency — duration (one per line)", rows: 5, full: true },
+          { kind: "medicationsLibrary", n: "finalPrescription__medications", l: "Medications", placeholder: "Drug — dose — frequency — duration (one per line)", rows: 5, full: true },
         ],
       },
       {

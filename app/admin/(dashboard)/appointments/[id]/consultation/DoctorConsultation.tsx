@@ -24,6 +24,22 @@ import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { MAIN_FIELDS, MAIN_SECTIONS, type MainControl, type TableColumn } from "@/lib/main-fields"
 import TestPanelSelector from "@/components/admin/TestPanelSelector"
+import RxLibraryPicker from "@/components/admin/RxLibraryPicker"
+import {
+  INFUSION_PROTOCOLS,
+  RX_LIBRARY,
+  RX_SUFFIXES,
+  type RxCategory,
+} from "@/lib/rx-library"
+
+/** Infusion protocols presented to RxLibraryPicker as a single category. */
+const INFUSION_CATEGORIES: RxCategory[] = [
+  {
+    id: "infusion-protocols",
+    name: "Infusion Protocols",
+    groups: [{ name: "", items: INFUSION_PROTOCOLS.map((p) => p.name) }],
+  },
+]
 
 export interface DoctorConsult {
   id: string
@@ -221,12 +237,64 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
 
   const section = MAIN_SECTIONS.find((s) => s.slug === activeSection) ?? MAIN_SECTIONS[0]
 
+  // Append a library item as a new line in a textarea-backed field.
+  const appendLine = (n: string, text: string) =>
+    setForm((p) => {
+      const cur = (p[n] ?? "").replace(/\s+$/, "")
+      return { ...p, [n]: cur ? `${cur}\n${text}` : text }
+    })
+
+  // Append an instruction suffix to the last line (or start one).
+  const appendSuffix = (n: string, suffix: string) =>
+    setForm((p) => {
+      const cur = p[n] ?? ""
+      if (!cur.trim()) return { ...p, [n]: suffix }
+      const lines = cur.split("\n")
+      lines[lines.length - 1] = `${lines[lines.length - 1].replace(/\s+$/, "")} — ${suffix}`
+      return { ...p, [n]: lines.join("\n") }
+    })
+
   const renderControl = (c: MainControl) => {
     const value = form[c.n] ?? ""
     if (c.kind === "testPanels") {
       return (
         <div key={c.n} className="col-span-2">
           <TestPanelSelector value={value} onChange={(v) => setField(c.n, v)} />
+        </div>
+      )
+    }
+    if (c.kind === "medicationsLibrary") {
+      return (
+        <div key={c.n} className="flex flex-col gap-1.5 col-span-2">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{c.l}</label>
+            <RxLibraryPicker
+              categories={RX_LIBRARY}
+              onPick={(item) => appendLine(c.n, item)}
+              label="Add from library"
+              searchPlaceholder="Search medication / supplement…"
+            />
+          </div>
+          <textarea
+            value={value}
+            onChange={(e) => setField(c.n, e.target.value)}
+            placeholder={c.placeholder}
+            rows={c.rows ?? 5}
+            className={areaCls}
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {RX_SUFFIXES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => appendSuffix(c.n, s)}
+                className="text-[11px] px-2 py-1 rounded-full border border-[#EAECF0] dark:border-[#374151] text-[#475467] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] dark:hover:bg-[#111827]"
+              >
+                + {s}
+              </button>
+            ))}
+          </div>
+          {c.hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{c.hint}</p> : null}
         </div>
       )
     }
@@ -239,6 +307,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
             addLabel={c.addLabel}
             value={value}
             onChange={(v) => setField(c.n, v)}
+            library={c.library}
           />
           {c.hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{c.hint}</p> : null}
         </div>
@@ -435,17 +504,33 @@ function TableControl({
   addLabel,
   value,
   onChange,
+  library,
 }: {
   columns: TableColumn[]
   addLabel?: string
   value: string
   onChange: (v: string) => void
+  library?: "rx" | "infusion"
 }) {
   const rows = parseRows(value)
+  const firstKey = columns[0]?.key
 
   const commit = (next: TableRow[]) => {
     // Store "" when empty so save() skips the field entirely.
     onChange(next.length === 0 ? "" : JSON.stringify(next))
+  }
+
+  // Library pick → new row(s) with the first column prefilled. An infusion
+  // protocol expands into one row per component ingredient.
+  const addFromLibrary = (picked: string) => {
+    if (!firstKey) return
+    if (library === "infusion") {
+      const proto = INFUSION_PROTOCOLS.find((p) => p.name === picked)
+      const comps = proto ? proto.components : [picked]
+      commit([...rows, ...comps.map((c) => ({ [firstKey]: c }))])
+    } else {
+      commit([...rows, { [firstKey]: picked }])
+    }
   }
 
   const setCell = (ri: number, key: string, v: string) => {
@@ -511,7 +596,7 @@ function TableControl({
           No entries yet.
         </p>
       )}
-      <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2">
+      <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2 flex items-center gap-4">
         <button
           type="button"
           onClick={addRow}
@@ -519,6 +604,14 @@ function TableControl({
         >
           <Plus className="h-3.5 w-3.5" /> {addLabel ?? "Add row"}
         </button>
+        {library ? (
+          <RxLibraryPicker
+            categories={library === "infusion" ? INFUSION_CATEGORIES : RX_LIBRARY}
+            onPick={addFromLibrary}
+            label={library === "infusion" ? "Add from infusion library" : "Add from library"}
+            searchPlaceholder={library === "infusion" ? "Search protocol…" : "Search medication / supplement…"}
+          />
+        ) : null}
       </div>
     </div>
   )
