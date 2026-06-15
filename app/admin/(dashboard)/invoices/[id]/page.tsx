@@ -203,7 +203,7 @@ export default function InvoiceDetailsPage({
   return (
     <div className="flex flex-col gap-6 pb-12">
       {/* Header actions */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="no-print flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Invoice Details</h1>
           <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1 font-mono">{invoice.id}</p>
@@ -242,7 +242,7 @@ export default function InvoiceDetailsPage({
         </div>
       </div>
 
-      <div>
+      <div className="no-print">
         <Link
           href="/admin/invoices"
           className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
@@ -251,6 +251,8 @@ export default function InvoiceDetailsPage({
         </Link>
       </div>
 
+      {/* Printable region — only this prints (invoice + payment history) */}
+      <div className="inv-print flex flex-col gap-6">
       {/* Main invoice card */}
       <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         <div className="p-8 border-b border-[#EAECF0] dark:border-[#374151] flex justify-between items-start flex-wrap gap-4">
@@ -418,6 +420,19 @@ export default function InvoiceDetailsPage({
           </div>
         )}
       </div>
+      </div>
+
+      {/* Print rules: only the invoice region prints; hide app chrome + toolbar */}
+      <style>{`
+        .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        @media print {
+          @page { size: A4; margin: 12mm; }
+          body * { visibility: hidden; }
+          .inv-print, .inv-print * { visibility: visible; }
+          .inv-print { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+        }
+      `}</style>
     </div>
   )
 }
