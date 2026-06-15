@@ -327,42 +327,9 @@ export default function PrescriptionSheet({
               </Card>
             </div>
 
-            {/* 2. Preliminary consultation summary */}
+            {/* 2. Baseline assessment & physical exam */}
             <div>
-              <SectionHeader no={2} title="Preliminary Consultation Summary" sub="(Junior Doctor)" />
-              <Card className="mt-2">
-                <div
-                  className="flex justify-between text-[10px] font-semibold pb-2 mb-3 border-b"
-                  style={{ borderColor: "#E5DFD0", color: "#3D4A45" }}
-                >
-                  <span>📅 Assessment Date: {fmtDate(pd("assessment_date"))}</span>
-                  <span>
-                    🕐 Reviewed By: {pd("reviewed_by") || "—"}
-                    {pd("reviewed_on") ? ` on ${fmtDate(pd("reviewed_on"))}` : ""}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <MiniHeading>A. Chief Concerns Reported</MiniHeading>
-                    <Bullets text={pd("chief_concerns")} />
-                  </div>
-                  <div>
-                    <MiniHeading>B. Relevant Medical History</MiniHeading>
-                    <Bullets text={pd("relevant_medical_history")} />
-                    <p className="text-[10.5px] font-bold mt-2" style={{ color: "#28342F" }}>
-                      Family History:
-                    </p>
-                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      {pd("family_history") || "—"}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* 3. Baseline assessment & physical exam */}
-            <div>
-              <SectionHeader no={3} title="Baseline Assessment & Physical Exam" sub="(Junior Doctor)" />
+              <SectionHeader no={2} title="Baseline Assessment & Physical Exam"  />
               <Card className="mt-2">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -383,11 +350,6 @@ export default function PrescriptionSheet({
                     <div className="space-y-1">
                       <KV k="Height" v={pd("vitals_height") ? `${pd("vitals_height")} cm` : ""} />
                       <KV k="Weight" v={pd("vitals_weight") ? `${pd("vitals_weight")} kg` : ""} />
-                      <KV k="BMI" v={pd("anthro_bmi") ? `${pd("anthro_bmi")} kg/m²` : ""} />
-                      <KV k="Body Fat %" v={pd("anthro_body_fat") ? `${pd("anthro_body_fat")} %` : ""} />
-                      <KV k="Waist Circumference" v={pd("anthro_waist") ? `${pd("anthro_waist")} cm` : ""} />
-                      <KV k="Hip Circumference" v={pd("anthro_hip") ? `${pd("anthro_hip")} cm` : ""} />
-                      <KV k="Waist–Hip Ratio" v={pd("anthro_whr")} />
                     </div>
                   </div>
                 </div>
@@ -407,7 +369,7 @@ export default function PrescriptionSheet({
             {/* Treatment planning (rehab / aesthetic notes) */}
             {(ira("rehab_plan") || ira("aesthetic_plan") || ira("treatment_notes")) && (
               <div>
-                <SectionHeader no={4} title="Rehab & Aesthetic Plan" />
+                <SectionHeader no={3} title="Rehab & Aesthetic Plan" />
                 <Card className="mt-2 space-y-2">
                   {ira("rehab_plan") ? (
                     <p className="text-[10.5px]" style={{ color: "#28342F" }}>
@@ -427,13 +389,10 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
             )}
-          </div>
 
-          {/* ── RIGHT COLUMN ── */}
-          <div className="space-y-4">
             {/* 5. Main consultation */}
             <div>
-              <SectionHeader no={5} title="Main Consultation with Dr. Yuvraaj Singh" />
+              <SectionHeader no={4} title="Main Consultation with Dr. Yuvraaj Singh" />
               <Card className="mt-2 p-0 overflow-hidden">
                 <div
                   className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
@@ -460,10 +419,15 @@ export default function PrescriptionSheet({
                 </div>
               </Card>
             </div>
+          </div>
+
+          {/* ── RIGHT COLUMN ── */}
+          <div className="space-y-4">
+            
 
             {/* 6. Investigations ordered */}
             <div>
-              <SectionHeader no={6} title="Investigations Ordered" />
+              <SectionHeader no={5} title="Investigations Ordered" />
               <Card className="mt-2">
                 {(() => {
                   const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
@@ -504,7 +468,7 @@ export default function PrescriptionSheet({
 
             {/* 7. Initiation plan */}
             <div>
-              <SectionHeader no={7} title="Initiation Plan" sub="(To Begin After Today)" />
+              <SectionHeader no={6} title="Initiation Plan" sub="(To Begin After Today)" />
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
@@ -543,7 +507,7 @@ export default function PrescriptionSheet({
         {/* 8. Follow-up + signature */}
         <div className="px-6 mt-4" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
           <div>
-            <SectionHeader no={8} title="Follow-up & Next Steps" />
+            <SectionHeader no={7} title="Follow-up & Next Steps" />
             <Card className="mt-2">
               <div className="grid grid-cols-[200px_1fr] gap-4">
                 <div>
