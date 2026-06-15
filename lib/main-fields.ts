@@ -132,7 +132,6 @@ export const MAIN_SECTIONS: MainSection[] = [
         controls: [
           { kind: "date", n: "patientDetail__consultation_date", l: "Consultation Date" },
           { kind: "text", n: "patientDetail__consultation_duration", l: "Duration (minutes)", placeholder: "e.g., 42" },
-          { kind: "select", n: "patientDetail__consultation_mode", l: "Mode", options: ["In-Clinic", "Online"], placeholder: "Select mode" },
         ],
       },
       // The RMO intake (chief concerns, history, family history, background,
