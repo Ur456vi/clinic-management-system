@@ -630,7 +630,7 @@ export default function BrainMitochondrialPage() {
 
           {/* Right Block (70%) — Row/Grid of 8 circles */}
           <div className="lg:col-span-8 w-full py-2">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-y-6 gap-x-2 sm:gap-x-4 justify-items-center items-start w-full">
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-y-6 gap-x-2 sm:gap-x-4 justify-items-center items-start w-full">
               
               <div className="flex flex-col items-center text-center gap-3 w-full">
                 <div className="w-[48px] h-[48px] rounded-full border border-[var(--color-border-light)] flex items-center justify-center text-[var(--color-icon-stroke)] bg-white/70 shadow-sm transition-transform hover:scale-105">
@@ -803,64 +803,57 @@ export default function BrainMitochondrialPage() {
                   At the Institute of Precision Hormonal and Metabolic Health, these programs are structured around evaluating and supporting:
                 </p>
 
-                {/* 7 Cell Recovery indicators grid (4 top, 3 bottom) */}
-                <div className="flex flex-col gap-6 w-full">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 justify-items-center">
-                    
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <MitoShapeIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Mitochondrial Function</span>
+                <div className="grid grid-cols-3 gap-x-2 gap-y-6 sm:gap-4 justify-items-center w-full">
+                  
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <MitoShapeIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
                     </div>
-
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <InflammatoryIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Inflammatory Burden</span>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <OxidativeIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Oxidative Stress</span>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <ScaleIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Metabolic Efficiency</span>
-                    </div>
-
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Mitochondrial Function</span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 justify-items-center sm:px-6">
-                    
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[105px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <VascularIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Vascular & Neuro Health</span>
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <InflammatoryIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
                     </div>
-
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[105px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <FlaskIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Hormonal Contributors</span>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center gap-2 max-w-[105px] group">
-                      <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
-                        <RecoveryWaveIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
-                      </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Recovery Physiology</span>
-                    </div>
-
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Inflammatory Burden</span>
                   </div>
+
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <OxidativeIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
+                    </div>
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Oxidative Stress</span>
+                  </div>
+
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[95px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <ScaleIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
+                    </div>
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Metabolic Efficiency</span>
+                  </div>
+
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[105px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <VascularIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
+                    </div>
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Vascular & Neuro Health</span>
+                  </div>
+
+                  <div className="flex flex-col items-center text-center gap-2 max-w-[105px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <FlaskIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
+                    </div>
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Hormonal Contributors</span>
+                  </div>
+
+                  <div className="hidden flex-col items-center text-center gap-2 max-w-[105px] group">
+                    <div className="w-12 h-12 rounded-full border border-[var(--color-border-light)] flex items-center justify-center bg-white shadow-sm transition-all group-hover:scale-105">
+                      <RecoveryWaveIcon className="w-6 h-6 text-[var(--color-accent-green)]" />
+                    </div>
+                    <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Recovery Physiology</span>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -1145,7 +1138,7 @@ export default function BrainMitochondrialPage() {
                     {/* Connecting line */}
                     <div className="absolute top-[23px] left-8 right-8 h-[1px] border-t border-dashed border-[var(--color-border-light)] z-0 hidden sm:block" />
                     
-                    <div className="relative z-10 grid grid-cols-3 sm:grid-cols-5 gap-6 sm:gap-4 justify-items-center">
+                    <div className="relative z-10 grid grid-cols-2 sm:grid-cols-5 gap-6 sm:gap-4 justify-items-center">
                       
                       <div className="flex flex-col items-center text-center gap-2.5 max-w-[95px] group">
                         <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-colors group-hover:bg-[#EDE8DF]">
@@ -1175,7 +1168,7 @@ export default function BrainMitochondrialPage() {
                         <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Recovery Patterns</span>
                       </div>
 
-                      <div className="flex flex-col items-center text-center gap-2.5 max-w-[95px] group">
+                      <div className="flex flex-col items-center text-center gap-2.5 max-w-[95px] group col-span-2 sm:col-span-1 justify-self-center">
                         <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-colors group-hover:bg-[#EDE8DF]">
                           <PersonIcon />
                         </div>

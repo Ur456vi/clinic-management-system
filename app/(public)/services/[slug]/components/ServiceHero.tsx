@@ -430,17 +430,17 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
               </div>
 
               {/* Buttons Row below the icons */}
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-10 flex flex-col md:flex-row gap-4 w-full md:w-auto">
                 <Link
                   href="#approach"
-                  className="inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-6 py-3.5 text-[13px]"
+                  className="inline-flex items-center justify-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-3.5 py-2.5 md:px-6 md:py-3.5 text-[11px] md:text-[13px] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
                   style={{ background: "#889A6A" }}
                 >
                   Explore Our Approach <span>→</span>
                 </Link>
                 <Link
                   href="/assessment"
-                  className="inline-flex items-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium px-6 py-3.5 text-[13px]"
+                  className="inline-flex items-center justify-center gap-2 rounded border transition-colors hover:bg-[#722F27]/5 font-medium px-3.5 py-2.5 md:px-6 md:py-3.5 text-[11px] md:text-[13px] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
                   style={{ borderColor: "var(--brand-burgundy)", color: "var(--brand-burgundy)" }}
                 >
                   Request Consultation
@@ -450,12 +450,12 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
           ) : (
             <>
               {/* Buttons Row */}
-              <div className="mt-10 flex flex-wrap gap-4">
+              <div className="mt-10 flex flex-col md:flex-row gap-4 w-full md:w-auto">
                 {isMensHormonal ? (
                   <>
                     <Link
                       href="/assessment"
-                      className="inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-8 py-4 text-[14px]"
+                      className="inline-flex items-center justify-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium px-4 py-2.5 md:px-8 md:py-4 text-[12px] md:text-[14px] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
                       style={{ background: "#647153" }}
                     >
                       Request Consultation <span>→</span>
@@ -472,8 +472,8 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                   <>
                     <Link
                       href="/assessment"
-                      className={`inline-flex items-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium ${
-                        isFemale ? 'px-8 py-4 text-[14px]' : 'px-6 py-3.5 text-[13px]'
+                      className={`inline-flex items-center justify-center gap-2 rounded text-white transition-colors hover:opacity-95 font-medium w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap ${
+                        isFemale ? 'px-4 py-2.5 md:px-8 md:py-4 text-[12px] md:text-[14px]' : 'px-3.5 py-2.5 md:px-6 md:py-3.5 text-[11px] md:text-[13px]'
                       }`}
                       style={{ background: "#889A6A" }}
                     >

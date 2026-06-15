@@ -9,7 +9,7 @@ export function FemaleFinalPositioningSection({ svc }: { svc: ServiceContent }) 
     <section className="w-full bg-[#E1E5D1] relative overflow-hidden flex items-center min-h-[280px]">
 
       {/* ── LEFT: Ceramic vases botanical illustration ── */}
-      <div className="absolute left-0 bottom-0 h-full w-[22%] md:w-[18%] lg:w-[22%] pointer-events-none select-none flex items-end">
+      <div className="absolute left-0 bottom-0 h-full w-[22%] md:w-[18%] lg:w-[22%] pointer-events-none select-none hidden md:flex items-end">
         <svg
           viewBox="0 0 220 340"
           fill="none"
@@ -280,8 +280,8 @@ export function FemaleFinalPositioningSection({ svc }: { svc: ServiceContent }) 
       <div className="mx-auto max-w-[1440px] px-6 md:px-12 w-full relative z-10 flex">
         
         {/* Left Content Area */}
-        <div className="w-full md:w-[65%] lg:w-[60%] py-6 md:py-8 pl-[15%] md:pl-[12%] lg:pl-[10%] flex flex-col justify-center">
-          <h2 className="text-[28px] md:text-[34px] lg:text-[40px] font-medium text-[#722F27] mb-4 whitespace-nowrap" style={{ fontFamily: "var(--font-display)" }}>
+        <div className="w-full md:w-[65%] lg:w-[60%] py-6 md:py-8 pl-6 pr-6 md:pl-[12%] lg:pl-[10%] flex flex-col justify-center">
+          <h2 className="text-[24px] sm:text-[28px] md:text-[34px] lg:text-[40px] font-medium text-[#722F27] mb-4 md:whitespace-nowrap" style={{ fontFamily: "var(--font-display)" }}>
             Menopause Is Not The End Of Vitality
           </h2>
           <p className="text-[#333] text-[15px] md:text-[16px] lg:text-[17px] font-medium leading-[1.6] mb-10 max-w-xl">

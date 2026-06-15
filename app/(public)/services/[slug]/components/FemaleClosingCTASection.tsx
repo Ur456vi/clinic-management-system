@@ -112,7 +112,7 @@ export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
 
             {/* CTA Button */}
             <button
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[12px] font-semibold tracking-[0.16em] uppercase text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 md:px-8 md:py-3.5 text-[11px] md:text-[12px] font-semibold tracking-[0.16em] uppercase text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
               style={{ background: "#722F27" }}
             >
               Request a Consultation

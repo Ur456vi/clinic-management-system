@@ -154,8 +154,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Nav Header */}
-        <div className="flex md:hidden items-center justify-between px-6 py-2.5">
-          <span className="text-xs font-bold uppercase tracking-widest text-white/90" style={{ letterSpacing: "0.12em" }}>{currentLabel}</span>
+        <div className="flex md:hidden items-center justify-end px-6 py-2.5">
           <button
             onClick={() => setIsOpen(prev => !prev)}
             className="text-white hover:text-white/80 p-1 cursor-pointer focus:outline-none"

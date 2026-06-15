@@ -1,25 +1,12 @@
 "use client";
 
-/**
- * Patient-side lab management page.
- *
- * Visual rewrite (2026-05) to match the dashboard's light theme — the
- * previous version used `dark:` Tailwind variants but the patient
- * dashboard layout itself has a hard-coded light background, so any time
- * the user toggled the theme switch the cards turned dark while the
- * shell stayed white. The result was an invisible heading and mismatched
- * stat cards.
- *
- * This rewrite keeps the existing behaviour — fetch the patient's own
- * lab results from `/api/patient/me/lab-results`, render a filterable
- * paginated table, gracefully handle loading + error — and aligns the
- * styling with the dashboard / appointments pages (colorful stat tiles,
- * white cards, indigo accents, lucide icons).
- */
+import { FlaskConical } from "lucide-react";
+
+/*
+// Original patient-side lab management implementation (commented out as requested):
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  FlaskConical,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -137,7 +124,6 @@ export default function LaboratoryManagementPage() {
     (o) => o.priority === "urgent" || o.priority === "stat",
   ).length;
 
-  // Stat tile config — mirrors the dashboard's colorful tile pattern.
   const statCards = [
     {
       label: "TOTAL TESTS",
@@ -173,7 +159,6 @@ export default function LaboratoryManagementPage() {
 
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-[1200px] mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
@@ -185,7 +170,6 @@ export default function LaboratoryManagementPage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => (
           <div
@@ -223,7 +207,6 @@ export default function LaboratoryManagementPage() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-4">
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex-1 min-w-[220px] relative">
@@ -269,7 +252,6 @@ export default function LaboratoryManagementPage() {
         </div>
       </div>
 
-      {/* Body */}
       {loading ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
           <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
@@ -364,7 +346,6 @@ export default function LaboratoryManagementPage() {
         </div>
       )}
 
-      {/* Pagination */}
       {!loading && !error && totalPages > 1 ? (
         <div className="flex justify-between items-center bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm px-4 py-3">
           <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
@@ -394,8 +375,6 @@ export default function LaboratoryManagementPage() {
     </div>
   );
 }
-
-// ─── pills ────────────────────────────────────────────────────────────
 
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string }> = {
@@ -433,5 +412,29 @@ function PriorityPill({ priority }: { priority: Priority }) {
     >
       {priority}
     </span>
+  );
+}
+*/
+
+export default function LaboratoryManagementPage() {
+  return (
+    <div className="p-6 lg:p-8 space-y-6 max-w-[1200px] mx-auto flex flex-col items-center justify-center min-h-[500px]">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center justify-center gap-3 text-center w-full max-w-md">
+        <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
+          <FlaskConical className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">
+            Laboratory Management
+          </h1>
+          <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] mt-2 font-bold uppercase tracking-wider">
+            Coming Soon
+          </p>
+          <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-2 leading-relaxed">
+            We are working to bring your lab results and medical reports online. Please check back later.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

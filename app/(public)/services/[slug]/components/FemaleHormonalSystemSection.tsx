@@ -39,7 +39,7 @@ export function FemaleHormonalSystemSection({ svc }: { svc: ServiceContent }) {
 
         {/* Center Column (Grid of 8 Icons) */}
         <div className="lg:w-[45%] shrink-0 z-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-6">
+          <div className="grid grid-cols-4 gap-x-2 gap-y-6">
             {items.map((item, idx) => (
               <div key={idx} className="flex flex-col items-center text-center">
                 <div className="flex items-center justify-center w-[56px] h-[56px] rounded-full border border-[#889A6A]/60 mb-2 bg-white/30 shadow-[0_2px_10px_rgba(136,154,106,0.05)]">
