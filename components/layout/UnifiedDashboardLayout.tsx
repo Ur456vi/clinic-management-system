@@ -21,7 +21,6 @@ import {
   FileSignature,
   ClipboardCheck,
   Receipt,
-  Gauge,
   User,
   CalendarCheck2,
   ChevronsLeft,
@@ -37,7 +36,6 @@ const adminSidebarItems = [
   { name: "Staff", icon: UserSquare2, href: "/admin/staff" },
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
-  { name: "Ops Tracker", icon: Gauge, href: "/admin/ops" },
   { name: "Reports", icon: BarChart3, href: "/admin/reports" },
 ]
 
