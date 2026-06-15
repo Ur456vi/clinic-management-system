@@ -187,6 +187,11 @@ model User {
   treatmentPlansSigned  TreatmentPlan[] @relation("PlanSigner")
   treatmentPlansRevoked TreatmentPlan[] @relation("PlanRevoker")
 
+  /// Refill requests this user raised (self-service patient, or staff on
+  /// a patient's behalf) and decided (approved / fulfilled / declined).
+  refillRequestsRaised  RefillRequest[] @relation("RefillRequester")
+  refillRequestsDecided RefillRequest[] @relation("RefillDecider")
+
   passwordResetOtps PasswordResetOtp[]
 
   /// In-app notification feed (BE-45). One row per delivered event.
@@ -308,13 +313,14 @@ model Patient {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  consultations  Consultation[]
-  appointments   Appointment[]
-  labResults     LabResult[]
-  treatmentPlans TreatmentPlan[]
-  invoices       Invoice[]
-  infusionLogs   InfusionLog[]
-  vitals         Vital[]
+  consultations         Consultation[]
+  appointments          Appointment[]
+  labResults            LabResult[]
+  treatmentPlans        TreatmentPlan[]
+  invoices              Invoice[]
+  infusionLogs          InfusionLog[]
+  refillRequests        RefillRequest[]
+  vitals                Vital[]
   /// Every completed public-site Health Assessment quiz is captured here.
   /// One row per attempt — retakes are stored as fresh rows so the doctor
   /// can compare scores over time.
@@ -346,10 +352,10 @@ model Vital {
 
   systolic     Int? // mmHg
   diastolic    Int? // mmHg
-  heartRate    Int?   @map("heart_rate") // bpm
-  weightKg     Float? @map("weight_kg")
-  heightCm     Float? @map("height_cm")
-  temperatureF Float? @map("temperature_f")
+  heartRate    Int?    @map("heart_rate") // bpm
+  weightKg     Float?  @map("weight_kg")
+  heightCm     Float?  @map("height_cm")
+  temperatureF Float?  @map("temperature_f")
   spo2         Int? // %
   notes        String?
 
@@ -611,8 +617,75 @@ model TreatmentPlanItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  refillRequests RefillRequest[]
+
   @@index([planId, sequence])
   @@map("treatment_plan_items")
+}
+
+/// Lifecycle for a medication / supplement refill request.
+///
+///   PENDING  -> APPROVED | DECLINED
+///   APPROVED -> FULFILLED | DECLINED
+///   FULFILLED / DECLINED are terminal.
+///
+/// Transitions are enforced in the service layer
+/// (`lib/services/refill-request.ts`); the route layer is a thin wrapper
+/// that calls `transitionRefillRequest`.
+enum RefillRequestStatus {
+  PENDING
+  APPROVED
+  FULFILLED
+  DECLINED
+}
+
+/// A request to refill a prescribed item. Raised by a patient (self-service
+/// from the portal) or by staff on the patient's behalf. Optionally links
+/// to the originating `TreatmentPlanItem`; the name / dose / frequency are
+/// snapshotted onto the row so the request survives later plan edits or a
+/// SetNull on the linked item.
+model RefillRequest {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Optional back-link to the prescribed item this refill is for. SetNull
+  /// so pruning a plan item does not delete the request history.
+  planItemId String?            @map("plan_item_id") @db.Uuid
+  planItem   TreatmentPlanItem? @relation(fields: [planItemId], references: [id], onDelete: SetNull)
+
+  /// Snapshot of the requested item (survives plan edits / unlinked items).
+  itemName  String  @map("item_name")
+  dose      String?
+  frequency String?
+  /// Free-text note from the requester (patient or staff).
+  note      String?
+
+  status RefillRequestStatus @default(PENDING)
+
+  /// Who raised the request — a PATIENT login (self-service) or a staff
+  /// User (on the patient's behalf). SetNull keeps history if the user row
+  /// is later removed.
+  requestedById String? @map("requested_by_id") @db.Uuid
+  requestedBy   User?   @relation("RefillRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+
+  /// Last staff actor to approve / fulfil / decline, plus the optional
+  /// decision note surfaced back to the patient.
+  decidedById  String? @map("decided_by_id") @db.Uuid
+  decidedBy    User?   @relation("RefillDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decisionNote String? @map("decision_note")
+
+  /// Lifecycle stamps for display + reporting.
+  approvedAt  DateTime? @map("approved_at")
+  fulfilledAt DateTime? @map("fulfilled_at")
+  declinedAt  DateTime? @map("declined_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, status])
+  @@index([status, createdAt])
+  @@map("refill_requests")
 }
 
 // ===========================================================================
@@ -743,11 +816,11 @@ model LabResult {
 
   /// S3 object key for the attached PDF/image. Populated by BE-19 once the
   /// presigned-upload flow lands; nullable until then.
-  attachmentKey  String?  @map("attachment_key")
-  attachmentMime String?  @map("attachment_mime")
+  attachmentKey        String?   @map("attachment_key")
+  attachmentMime       String?   @map("attachment_mime")
   attachmentUploadedAt DateTime? @map("attachment_uploaded_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
 
   @@index([patientId, collectedAt])
   @@index([consultationId])

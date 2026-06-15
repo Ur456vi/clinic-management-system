@@ -26,6 +26,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Stethoscope,
+  RefreshCw,
 } from "lucide-react"
 
 const adminSidebarItems = [
@@ -36,6 +37,7 @@ const adminSidebarItems = [
   { name: "Staff", icon: UserSquare2, href: "/admin/staff" },
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
+  { name: "Refills", icon: RefreshCw, href: "/admin/refills" },
   { name: "Reports", icon: BarChart3, href: "/admin/reports" },
 ]
 

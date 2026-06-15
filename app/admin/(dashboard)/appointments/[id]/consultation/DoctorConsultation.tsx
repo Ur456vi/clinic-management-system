@@ -28,6 +28,7 @@ import RxLibraryPicker from "@/components/admin/RxLibraryPicker"
 import {
   INFUSION_PROTOCOLS,
   RX_LIBRARY,
+  RX_SUPPLEMENTS,
   RX_SUFFIXES,
   type RxCategory,
 } from "@/lib/rx-library"
@@ -510,7 +511,7 @@ function TableControl({
   addLabel?: string
   value: string
   onChange: (v: string) => void
-  library?: "rx" | "infusion"
+  library?: "rx" | "infusion" | "supplements"
 }) {
   const rows = parseRows(value)
   const firstKey = columns[0]?.key
@@ -606,10 +607,22 @@ function TableControl({
         </button>
         {library ? (
           <RxLibraryPicker
-            categories={library === "infusion" ? INFUSION_CATEGORIES : RX_LIBRARY}
+            categories={
+              library === "infusion"
+                ? INFUSION_CATEGORIES
+                : library === "supplements"
+                  ? RX_SUPPLEMENTS
+                  : RX_LIBRARY
+            }
             onPick={addFromLibrary}
             label={library === "infusion" ? "Add from infusion library" : "Add from library"}
-            searchPlaceholder={library === "infusion" ? "Search protocol…" : "Search medication / supplement…"}
+            searchPlaceholder={
+              library === "infusion"
+                ? "Search protocol…"
+                : library === "supplements"
+                  ? "Search supplement…"
+                  : "Search medication / supplement…"
+            }
           />
         ) : null}
       </div>

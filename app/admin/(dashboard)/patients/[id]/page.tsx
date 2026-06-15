@@ -41,6 +41,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
+import RefillManager from "@/components/admin/RefillManager"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -555,22 +556,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               </div>
             )}
           </Panel>
-          <Panel title="Subscription & Refill Schedule" icon={RefreshCw} aside="Auto-ship enabled" full>
-            <table className="w-full text-sm">
-              <thead><tr className="text-xs text-[#8A9A92]"><th className="text-left font-semibold py-2">Product / Hormone</th><th className="text-left font-semibold py-2">Dose &amp; Frequency</th><th className="text-left font-semibold py-2">Next Refill Due</th><th className="text-left font-semibold py-2">Status</th><th className="text-right font-semibold py-2">Action</th></tr></thead>
-              <tbody>
-                {[["Testosterone Cream 50 mg", "1 pump daily", "Due in 8 days", "due"], ["DHEA Capsule 25 mg", "1 cap daily", "22 Jan 2025", "due"], ["Vitamin D3 + K2", "1 cap after food", "05 Feb 2025", "ok"]].map(([p, d, due, st]) => (
-                  <tr key={p} style={{ borderTop: "1px solid #EFE8D8" }}>
-                    <td className="py-2.5 font-medium text-[#101828] dark:text-[#F9FAFB]">{p}</td>
-                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{d}</td>
-                    <td className="py-2.5 text-[#101828] dark:text-[#F9FAFB]">{due}</td>
-                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={st === "due" ? { background: "#FDEFE4", color: "#C2691E" } : { background: "#E4F3EC", color: "#0E8C6A" }}>{st === "due" ? "Due soon" : "On Track"}</span></td>
-                    <td className="py-2.5 text-right"><button className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: GREEN }}>Request Refill</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="text-[11px] mt-2" style={{ color: "#A08A52" }}>Representative — needs a Subscription/Refill model to go live.</p>
+          <Panel title="Refill Requests" icon={RefreshCw} full>
+            <RefillManager patientId={id} />
           </Panel>
         </div>
       ) : tab === "Consultations" ? (

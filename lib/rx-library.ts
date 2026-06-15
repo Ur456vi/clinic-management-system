@@ -1,24 +1,51 @@
-export type RxGroup = { name: string; items: string[] }
+/**
+ * One catalog entry. A plain string is a supplement / nutraceutical (the
+ * default, OTC). A tagged object marks a *prescription medication* (`med:
+ * true`) — Rx drugs, injectable hormones, GLP-1s, antibiotics, PPIs, etc.
+ *
+ * The distinction matters because the Final Prescription has two separate
+ * pickers: "Supplements & Nutraceuticals" must NOT offer prescription drugs
+ * (they would then print under the supplements heading), while "Medications"
+ * draws from the full list. See `RX_SUPPLEMENTS` below.
+ */
+export type RxItem = string | { label: string; med?: boolean }
+export type RxGroup = { name: string; items: RxItem[] }
 export type RxCategory = { id: string; name: string; groups: RxGroup[] }
 export type InfusionProtocol = { id: string; name: string; components: string[] }
 
-/** Oral meds + supplements, grouped Category -> Subcategory -> item. */
+/** The visible text of an item, regardless of whether it's tagged. */
+export const rxItemLabel = (it: RxItem): string =>
+  typeof it === "string" ? it : it.label
+/** True only for items explicitly tagged as a prescription medication. */
+export const rxItemIsMed = (it: RxItem): boolean =>
+  typeof it !== "string" && it.med === true
+
+/** Compact helper to tag a prescription medication. */
+const m = (label: string): RxItem => ({ label, med: true })
+
+/**
+ * Oral meds + supplements, grouped Category -> Subcategory -> item.
+ *
+ * Plain strings are supplements; `m("…")` entries are prescription drugs.
+ * This is the FULL catalog used by the "Medications" picker. The Supplements
+ * picker uses the filtered `RX_SUPPLEMENTS` view derived from it.
+ */
 export const RX_LIBRARY: RxCategory[] = [
   { id: "hormonal-therapies", name: "HORMONAL THERAPIES", groups: [
-    { name: "THYROID", items: ["Levothyroxine 25 mcg OD empty stomach morning", "Levothyroxine 50 mcg OD empty stomach morning", "Levothyroxine 75 mcg OD empty stomach morning", "Levothyroxine 100 mcg OD empty stomach morning", "Liothyronine (T3) 5 mcg OD morning", "Liothyronine (T3) 10 mcg OD morning", "Combination T4/T3 compounded capsule OD morning", "Desiccated Thyroid Extract 30 mg OD morning", "Desiccated Thyroid Extract 60 mg OD morning"] },
-    { name: "TESTOSTERONE", items: ["Testosterone Enanthate 100 mg IM weekly", "Testosterone Enanthate 125 mg IM weekly", "Testosterone Cypionate 100 mg IM weekly", "Testosterone Cypionate 150 mg IM weekly", "Testosterone Undecanoate 1000 mg IM every 10–12 weeks", "Testosterone Gel 1% 5 g topical OD morning", "Testosterone Gel 1% 10 g topical OD morning", "Testosterone Cream compounded topical OD", "Clomiphene Citrate 25 mg OD", "Clomiphene Citrate 50 mg alternate day", "hCG 1000 IU SC twice weekly", "hCG 2000 IU SC twice weekly", "Anastrozole 0.5 mg twice weekly", "Anastrozole 1 mg weekly"] },
-    { name: "WOMEN'S HORMONAL THERAPY", items: ["Micronized Progesterone 100 mg HS", "Micronized Progesterone 200 mg HS", "Estradiol Patch 25 mcg twice weekly", "Estradiol Patch 50 mcg twice weekly", "Estradiol Gel 1 pump topical OD", "Estradiol Gel 2 pumps topical OD", "Vaginal Estriol Cream HS", "DHEA 25 mg OD morning", "DHEA 50 mg OD morning", "Pregnenolone 25 mg OD morning", "Pregnenolone 50 mg OD morning"] },
+    { name: "THYROID", items: [m("Levothyroxine 25 mcg OD empty stomach morning"), m("Levothyroxine 50 mcg OD empty stomach morning"), m("Levothyroxine 75 mcg OD empty stomach morning"), m("Levothyroxine 100 mcg OD empty stomach morning"), m("Liothyronine (T3) 5 mcg OD morning"), m("Liothyronine (T3) 10 mcg OD morning"), m("Combination T4/T3 compounded capsule OD morning"), m("Desiccated Thyroid Extract 30 mg OD morning"), m("Desiccated Thyroid Extract 60 mg OD morning")] },
+    { name: "TESTOSTERONE", items: [m("Testosterone Enanthate 100 mg IM weekly"), m("Testosterone Enanthate 125 mg IM weekly"), m("Testosterone Cypionate 100 mg IM weekly"), m("Testosterone Cypionate 150 mg IM weekly"), m("Testosterone Undecanoate 1000 mg IM every 10–12 weeks"), m("Testosterone Gel 1% 5 g topical OD morning"), m("Testosterone Gel 1% 10 g topical OD morning"), m("Testosterone Cream compounded topical OD"), m("Clomiphene Citrate 25 mg OD"), m("Clomiphene Citrate 50 mg alternate day"), m("hCG 1000 IU SC twice weekly"), m("hCG 2000 IU SC twice weekly"), m("Anastrozole 0.5 mg twice weekly"), m("Anastrozole 1 mg weekly")] },
+    { name: "WOMEN'S HORMONAL THERAPY", items: [m("Micronized Progesterone 100 mg HS"), m("Micronized Progesterone 200 mg HS"), m("Estradiol Patch 25 mcg twice weekly"), m("Estradiol Patch 50 mcg twice weekly"), m("Estradiol Gel 1 pump topical OD"), m("Estradiol Gel 2 pumps topical OD"), m("Vaginal Estriol Cream HS"), "DHEA 25 mg OD morning", "DHEA 50 mg OD morning", "Pregnenolone 25 mg OD morning", "Pregnenolone 50 mg OD morning"] },
     { name: "ADRENAL / STRESS SUPPORT", items: ["Ashwagandha Extract 300 mg BD after meals", "Rhodiola Rosea 250 mg OD morning", "Phosphatidylserine 100 mg HS", "Magnesium Glycinate 200 mg HS", "Magnesium Glycinate 400 mg HS"] },
   ] },
   { id: "metabolic-health", name: "METABOLIC HEALTH", groups: [
-    { name: "INSULIN RESISTANCE / GLP-1", items: ["Metformin XR 500 mg OD after dinner", "Metformin XR 500 mg BD after meals", "Metformin XR 1000 mg HS", "Berberine 500 mg BD before meals", "Myo-Inositol 2 g BD", "Semaglutide 0.25 mg SC weekly", "Semaglutide 0.5 mg SC weekly", "Semaglutide 1 mg SC weekly", "Tirzepatide 2.5 mg SC weekly", "Tirzepatide 5 mg SC weekly", "Tirzepatide 7.5 mg SC weekly", "Alpha Lipoic Acid 300 mg BD", "Alpha Lipoic Acid 600 mg OD"] },
+    { name: "INSULIN RESISTANCE / GLP-1", items: [m("Metformin XR 500 mg OD after dinner"), m("Metformin XR 500 mg BD after meals"), m("Metformin XR 1000 mg HS"), "Berberine 500 mg BD before meals", "Myo-Inositol 2 g BD", m("Semaglutide 0.25 mg SC weekly"), m("Semaglutide 0.5 mg SC weekly"), m("Semaglutide 1 mg SC weekly"), m("Tirzepatide 2.5 mg SC weekly"), m("Tirzepatide 5 mg SC weekly"), m("Tirzepatide 7.5 mg SC weekly"), "Alpha Lipoic Acid 300 mg BD", "Alpha Lipoic Acid 600 mg OD"] },
     { name: "LIPID / CARDIOMETABOLIC SUPPORT", items: ["Omega-3 EPA/DHA 1000 mg OD after meals", "Omega-3 EPA/DHA 2000 mg OD after meals", "CoQ10 100 mg OD after breakfast", "CoQ10 200 mg OD after breakfast", "Red Yeast Rice 600 mg HS", "Citrus Bergamot 500 mg BD", "Curcumin BCM-95 500 mg BD"] },
   ] },
   { id: "gi-gut-restoration", name: "GI / GUT RESTORATION", groups: [
-    { name: "ACID / REFLUX", items: ["Esomeprazole 40 mg OD empty stomach", "Pantoprazole 40 mg OD empty stomach", "Sodium Alginate suspension 10 mL TDS after meals", "Deglycyrrhizinated Licorice (DGL) chewable before meals"] },
+    { name: "ACID / REFLUX", items: [m("Esomeprazole 40 mg OD empty stomach"), m("Pantoprazole 40 mg OD empty stomach"), "Sodium Alginate suspension 10 mL TDS after meals", "Deglycyrrhizinated Licorice (DGL) chewable before meals"] },
     { name: "GUT HEALING", items: ["Zinc Carnosine 75 mg BD after meals", "L-Glutamine 5 g BD empty stomach", "L-Glutamine 10 g OD empty stomach", "Saccharomyces boulardii 250 mg BD", "Spore Probiotic 2 caps OD", "Multi-strain Probiotic 50 billion CFU OD", "Tributyrin 300 mg BD", "Sodium Butyrate 600 mg BD", "Aloe Vera Extract capsule BD", "Slippery Elm powder HS"] },
     { name: "DIGESTIVE SUPPORT", items: ["Pancreatic Enzymes 1 cap TDS with meals", "Ox Bile Extract 125 mg with meals", "Betaine HCl with Pepsin 1 cap with meals", "Digestive Enzyme Blend 1 cap TDS with meals"] },
-    { name: "IBS / SIBO SUPPORT", items: ["Peppermint Oil Enteric Capsule BD", "Partially Hydrolyzed Guar Gum 5 g OD", "Rifaximin 550 mg TDS", "Neem Extract 500 mg BD", "Oregano Oil Softgel BD"] },
+    { name: "IBS / SIBO SUPPORT", items: ["Peppermint Oil Enteric Capsule BD", "Partially Hydrolyzed Guar Gum 5 g OD", m("Rifaximin 550 mg TDS"), "Neem Extract 500 mg BD", "Oregano Oil Softgel BD"] },
   ] },
   { id: "brain-mitochondrial-support", name: "BRAIN / MITOCHONDRIAL SUPPORT", groups: [
     { name: "", items: ["Acetyl L-Carnitine 500 mg BD", "NAC 600 mg BD", "NAC 1200 mg OD", "Citicoline 500 mg OD morning", "Citicoline 1000 mg OD morning", "Lion's Mane Extract 500 mg BD", "Magnesium L-Threonate HS", "Glycine 3 g HS", "Melatonin 1 mg HS", "Melatonin 3 mg HS", "Melatonin SR 5 mg HS", "Creatine Monohydrate 3 g OD", "Creatine Monohydrate 5 g OD", "NAD precursor capsule OD", "Resveratrol 250 mg OD", "PQQ 20 mg OD"] },
@@ -38,12 +65,27 @@ export const RX_LIBRARY: RxCategory[] = [
     { name: "", items: ["NAC 600 mg BD", "Milk Thistle 140 mg BD", "TUDCA 250 mg BD", "Glutathione 500 mg OD", "Curcumin 500 mg BD"] },
   ] },
   { id: "aesthetic-hair-support", name: "AESTHETIC / HAIR SUPPORT", groups: [
-    { name: "", items: ["Marine Collagen 10 g OD", "Biotin 5 mg OD", "Oral Hyaluronic Acid OD", "Saw Palmetto 320 mg OD", "Minoxidil topical HS", "Oral Minoxidil 1.25 mg HS", "Oral Minoxidil 2.5 mg HS"] },
+    { name: "", items: ["Marine Collagen 10 g OD", "Biotin 5 mg OD", "Oral Hyaluronic Acid OD", "Saw Palmetto 320 mg OD", "Minoxidil topical HS", m("Oral Minoxidil 1.25 mg HS"), m("Oral Minoxidil 2.5 mg HS")] },
   ] },
   { id: "cardiovascular-support", name: "CARDIOVASCULAR SUPPORT", groups: [
     { name: "", items: ["L-Arginine 3 g OD", "L-Citrulline 3 g OD", "Beetroot Extract OD", "CoQ10 200 mg OD", "Magnesium Taurate HS"] },
   ] },
 ]
+
+/**
+ * Supplements-only view of the catalog — every prescription medication
+ * (`m(…)`) filtered out, and any group / category left empty dropped. This
+ * is what the Final Prescription "Supplements & Nutraceuticals" picker uses
+ * so Rx drugs can never be entered as a supplement.
+ */
+export const RX_SUPPLEMENTS: RxCategory[] = RX_LIBRARY
+  .map((c) => ({
+    ...c,
+    groups: c.groups
+      .map((g) => ({ ...g, items: g.items.filter((it) => !rxItemIsMed(it)) }))
+      .filter((g) => g.items.length > 0),
+  }))
+  .filter((c) => c.groups.length > 0)
 
 /** IV infusion protocols (component ingredients, no dose). */
 export const INFUSION_PROTOCOLS: InfusionProtocol[] = [
@@ -76,7 +118,9 @@ export function searchRx(query: string): { category: string; item: string }[] {
   const out: { category: string; item: string }[] = []
   for (const c of RX_LIBRARY)
     for (const g of c.groups)
-      for (const it of g.items)
-        if (it.toLowerCase().includes(q)) out.push({ category: g.name || c.name, item: it })
+      for (const it of g.items) {
+        const label = rxItemLabel(it)
+        if (label.toLowerCase().includes(q)) out.push({ category: g.name || c.name, item: label })
+      }
   return out
 }

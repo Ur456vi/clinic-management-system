@@ -13,7 +13,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, Plus, Search } from "lucide-react"
 
-import type { RxCategory } from "@/lib/rx-library"
+import { rxItemLabel, type RxCategory } from "@/lib/rx-library"
 
 export default function RxLibraryPicker({
   categories,
@@ -46,8 +46,10 @@ export default function RxLibraryPicker({
     const out: { label: string; item: string }[] = []
     for (const c of categories)
       for (const g of c.groups)
-        for (const it of g.items)
-          if (it.toLowerCase().includes(q)) out.push({ label: g.name || c.name, item: it })
+        for (const it of g.items) {
+          const itemLabel = rxItemLabel(it)
+          if (itemLabel.toLowerCase().includes(q)) out.push({ label: g.name || c.name, item: itemLabel })
+        }
     return out.slice(0, 50)
   }, [q, categories])
 
@@ -121,16 +123,19 @@ export default function RxLibraryPicker({
                                 {g.name}
                               </p>
                             ) : null}
-                            {g.items.map((it, ii) => (
-                              <button
-                                key={ii}
-                                type="button"
-                                onClick={() => pick(it)}
-                                className="w-full text-left px-4 py-1.5 text-sm text-[#344054] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] dark:hover:bg-[#111827]"
-                              >
-                                {it}
-                              </button>
-                            ))}
+                            {g.items.map((it, ii) => {
+                              const itemLabel = rxItemLabel(it)
+                              return (
+                                <button
+                                  key={ii}
+                                  type="button"
+                                  onClick={() => pick(itemLabel)}
+                                  className="w-full text-left px-4 py-1.5 text-sm text-[#344054] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] dark:hover:bg-[#111827]"
+                                >
+                                  {itemLabel}
+                                </button>
+                              )
+                            })}
                           </div>
                         ))
                       : null}

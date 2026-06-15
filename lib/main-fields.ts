@@ -57,11 +57,14 @@ export type MainControl =
       full?: boolean
       /**
        * Adds an "Add from library" picker next to "Add row".
-       *  - "rx": meds/supplements catalog → fills the FIRST column with the item.
+       *  - "rx": full meds + supplements catalog → fills the FIRST column.
+       *  - "supplements": supplements / nutraceuticals only (no Rx drugs) →
+       *    fills the FIRST column. Use for the Supplements section so a
+       *    prescription drug can't be entered as a supplement.
        *  - "infusion": IV protocol catalog → adds one row per component in the
        *    FIRST column.
        */
-      library?: "rx" | "infusion"
+      library?: "rx" | "infusion" | "supplements"
     }
   | {
       kind: "testPanels"
@@ -268,7 +271,7 @@ export const MAIN_SECTIONS: MainSection[] = [
             n: "finalPrescription__supplements_rows",
             l: "Supplements",
             addLabel: "Add supplement",
-            library: "rx",
+            library: "supplements",
             full: true,
             columns: [
               { key: "product", label: "Product / Supplement", placeholder: "e.g., IHMH Omega-3 (TG form)" },
