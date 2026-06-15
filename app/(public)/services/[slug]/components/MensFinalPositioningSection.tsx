@@ -1,5 +1,6 @@
 import { type ServiceContent } from "@/components/public/services-config";
 import Link from "next/link";
+import { EcgLine } from "@/components/public/ui";
 
 export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "mens-hormonal") return null;
@@ -27,10 +28,8 @@ export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
             </p>
             
             {/* ECG Line Graphic */}
-            <div className="relative lg:absolute bottom-0 lg:bottom-6 left-0 w-[calc(100%+64px)] lg:w-full opacity-60 z-0 -mx-8 -mb-8 lg:mx-0 lg:mb-0 mt-8 lg:mt-0">
-              <svg width="100%" height="80" viewBox="0 0 400 80" fill="none" preserveAspectRatio="none">
-                <path d="M0 40 H 80 L 90 60 L 110 10 L 130 70 L 150 20 L 170 50 L 180 30 L 190 70 L 200 40 H 400" stroke="#8B9C7A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            <div className="mt-6">
+              <EcgLine />
             </div>
           </div>
           

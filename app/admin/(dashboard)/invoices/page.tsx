@@ -25,7 +25,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 
-type Status = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type Status = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
 interface InvoiceRow {
   id: string
@@ -48,7 +48,7 @@ interface InvoiceRow {
 const STATUS_FILTERS: { label: string; value: Status | "ALL" }[] = [
   { label: "All statuses", value: "ALL" },
   { label: "Draft", value: "DRAFT" },
-  { label: "Open", value: "OPEN" },
+  { label: "Issued", value: "ISSUED" },
   { label: "Partially paid", value: "PARTIALLY_PAID" },
   { label: "Paid", value: "PAID" },
   { label: "Void", value: "VOID" },
@@ -155,8 +155,8 @@ export default function InvoicesPage() {
         ) : null}
       </div>
 
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm">
+        <div className="">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
@@ -340,12 +340,12 @@ function InvoiceRowItem({
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; label: string; Icon?: typeof CheckCircle2 }> = {
     DRAFT: { bg: "#F2F4F7", fg: "#344054", label: "Draft" },
-    OPEN: { bg: "#EFF8FF", fg: "#175CD3", label: "Open" },
+    ISSUED: { bg: "#EFF8FF", fg: "#175CD3", label: "Issued" },
     PARTIALLY_PAID: { bg: "#FFF1D6", fg: "#B5642A", label: "Partially Paid" },
     PAID: { bg: "#ECFDF3", fg: "#027A48", label: "Paid", Icon: CheckCircle2 },
     VOID: { bg: "#FEF3F2", fg: "#B42318", label: "Void" },
   }
-  const c = map[status] ?? map.OPEN
+  const c = map[status] ?? map.ISSUED
   const Icon = c.Icon
   return (
     <span

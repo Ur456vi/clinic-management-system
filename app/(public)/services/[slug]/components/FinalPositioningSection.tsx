@@ -1,5 +1,6 @@
 import { type ServiceContent } from "@/components/public/services-config";
 import Link from "next/link";
+import { EcgLine } from "@/components/public/ui";
 
 export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
@@ -65,11 +66,9 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 </div>
                 
                 {/* ECG Waveform Image at the bottom */}
-                <img 
-                  src="/images/landing/A3B18A 1.png" 
-                  alt="ECG Waveform"
-                  className="relative md:absolute bottom-0 left-0 w-[calc(100%+64px)] md:w-full h-auto pointer-events-none select-none opacity-80 z-0 -mx-8 -mb-8 md:mx-0 md:mb-0 mt-8 md:mt-0"
-                />
+                <div className="mt-6">
+                  <EcgLine />
+                </div>
               </div>
 
               {/* Right Column: Begin assessment call to action */}
@@ -115,11 +114,9 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
             </div>
             
             {/* ECG Waveform Image at the bottom */}
-            <img 
-              src="/images/landing/A3B18A 1.png" 
-              alt="ECG Waveform"
-              className="relative md:absolute bottom-0 left-0 w-[calc(100%+64px)] md:w-full h-auto pointer-events-none select-none opacity-80 z-0 -mx-8 -mb-10 md:mx-0 md:mb-0 mt-8 md:mt-0"
-            />
+            <div className="mt-6">
+              <EcgLine />
+            </div>
           </div>
 
           {/* Right Column */}

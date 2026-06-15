@@ -11,6 +11,7 @@
  */
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { use, useCallback, useEffect, useState } from "react"
 import {
   ArrowLeft,
@@ -19,12 +20,13 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 
-type Status = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type Status = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
 interface InvoiceApi {
   id: string
@@ -44,17 +46,19 @@ interface InvoiceApi {
     status: string
   } | null
   appointment: { id: string; startsAt: string } | null
+  department: { id: string; name: string } | null
   items: {
     id: string
     description: string
     quantity: number
     unitPriceCents: number
-    totalCents: number
+    lineTotalCents: number
   }[]
   payments: {
     id: string
     amountCents: number
     method: string
+    status?: string
     receivedAt: string
     note: string | null
   }[]
@@ -68,10 +72,12 @@ export default function InvoiceDetailsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const router = useRouter()
   const [invoice, setInvoice] = useState<InvoiceApi | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchOne = useCallback(async () => {
     setError(null)
@@ -94,26 +100,61 @@ export default function InvoiceDetailsPage({
   }, [fetchOne])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // Payment is collected at the desk via UPI QR; reception confirms it here.
+  // We RECORD a real CAPTURED payment for the outstanding balance (method
+  // UPI) rather than just flipping status — the service recomputes the
+  // invoice status from captured payments, so revenue/Balance Due stay
+  // consistent everywhere they're derived.
   const markPaid = async () => {
     if (!invoice || updating) return
+    const balanceCents = Math.max(0, invoice.totalCents - paidCents)
+    if (balanceCents <= 0) return
     setUpdating(true)
     try {
-      const res = await fetch(`/api/invoices/${id}`, {
-        method: "PATCH",
+      const res = await fetch(`/api/invoices/${id}/payments`, {
+        method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status: "PAID" }),
+        body: JSON.stringify({ amountCents: balanceCents, method: "UPI" }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json?.error?.message ?? "Update failed")
-      notify.success("Invoice marked paid")
+      if (!res.ok) throw new Error(json?.error?.message ?? "Couldn't record payment")
+      notify.success("Payment recorded — invoice paid")
       await fetchOne()
     } catch (err) {
-      notify.error("Couldn't mark paid", {
+      notify.error("Couldn't record payment", {
         description: err instanceof Error ? err.message : "Unknown error",
       })
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const deleteInvoice = async () => {
+    if (!invoice || deleting) return
+    if (
+      !window.confirm(
+        `Permanently delete invoice ${invoice.invoiceNumber}?\n\nIts line items and any recorded payments are deleted too — if it was paid, that amount is removed from revenue. This cannot be undone.`,
+      )
+    )
+      return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/invoices/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Invoice deleted")
+      router.push("/admin/invoices")
+    } catch (err) {
+      notify.error("Couldn't delete invoice", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+      setDeleting(false)
     }
   }
 
@@ -145,6 +186,12 @@ export default function InvoiceDetailsPage({
     )
   }
 
+  // `paidCents` isn't a column on Invoice — derive it from CAPTURED payments
+  // so "Paid"/"Balance Due" don't render ₹NaN on an unpaid invoice.
+  const paidCents = invoice.payments
+    .filter((p) => !p.status || p.status === "CAPTURED")
+    .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
+
   const issuedLabel = invoice.issuedAt
     ? new Date(invoice.issuedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -156,7 +203,7 @@ export default function InvoiceDetailsPage({
   return (
     <div className="flex flex-col gap-6 pb-12">
       {/* Header actions */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="no-print flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Invoice Details</h1>
           <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1 font-mono">{invoice.id}</p>
@@ -169,7 +216,7 @@ export default function InvoiceDetailsPage({
           >
             <Printer className="h-4 w-4" /> Print
           </Button>
-          {invoice.status === "OPEN" || invoice.status === "PARTIALLY_PAID" ? (
+          {invoice.status === "ISSUED" || invoice.status === "PARTIALLY_PAID" ? (
             <Button
               className="bg-[#12B76A] hover:bg-[#0E9A57] text-white px-4 h-10 rounded-lg flex items-center gap-2"
               disabled={updating}
@@ -180,13 +227,22 @@ export default function InvoiceDetailsPage({
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              Mark Paid
+              Mark UPI payment received
             </Button>
           ) : null}
+          <Button
+            variant="outline"
+            className="px-4 h-10 border-[#FDA29B] text-[#B42318] hover:bg-[#FEF3F2] font-semibold rounded-lg flex items-center gap-2"
+            disabled={deleting}
+            onClick={() => void deleteInvoice()}
+          >
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Delete
+          </Button>
         </div>
       </div>
 
-      <div>
+      <div className="no-print">
         <Link
           href="/admin/invoices"
           className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium"
@@ -195,6 +251,8 @@ export default function InvoiceDetailsPage({
         </Link>
       </div>
 
+      {/* Printable region — only this prints (invoice + payment history) */}
+      <div className="inv-print flex flex-col gap-6">
       {/* Main invoice card */}
       <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         <div className="p-8 border-b border-[#EAECF0] dark:border-[#374151] flex justify-between items-start flex-wrap gap-4">
@@ -240,6 +298,7 @@ export default function InvoiceDetailsPage({
               </KV>
               <KV label="Patient #">{invoice.patient.patientNumber}</KV>
               <KV label="Status">{invoice.patient.status}</KV>
+              {invoice.department ? <KV label="Department">{invoice.department.name}</KV> : null}
             </div>
           ) : (
             <p className="text-sm text-[#98A2B3] dark:text-[#94A3B8]">
@@ -275,7 +334,7 @@ export default function InvoiceDetailsPage({
                         {formatMoney(it.unitPriceCents, invoice.currency)}
                       </td>
                       <td className="px-4 py-4 text-sm font-bold text-[#101828] dark:text-[#F9FAFB] text-right">
-                        {formatMoney(it.totalCents, invoice.currency)}
+                        {formatMoney(it.lineTotalCents, invoice.currency)}
                       </td>
                     </tr>
                   ))}
@@ -302,14 +361,14 @@ export default function InvoiceDetailsPage({
               <div className="flex justify-between text-sm">
                 <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Paid</span>
                 <span className="font-semibold text-[#12B76A]">
-                  {formatMoney(invoice.paidCents, invoice.currency)}
+                  {formatMoney(paidCents, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="font-semibold text-[#667085] dark:text-[#94A3B8]">Balance Due</span>
                 <span className="font-semibold text-[#B42318]">
                   {formatMoney(
-                    Math.max(0, invoice.totalCents - invoice.paidCents),
+                    Math.max(0, invoice.totalCents - paidCents),
                     invoice.currency,
                   )}
                 </span>
@@ -319,8 +378,8 @@ export default function InvoiceDetailsPage({
         </div>
       </div>
 
-      {/* Payment history */}
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+      {/* Payment history — screen only, excluded from print */}
+      <div className="no-print bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         <div className="p-6 border-b border-[#EAECF0] dark:border-[#374151]">
           <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Payment History</h3>
         </div>
@@ -361,6 +420,19 @@ export default function InvoiceDetailsPage({
           </div>
         )}
       </div>
+      </div>
+
+      {/* Print rules: only the invoice region prints; hide app chrome + toolbar */}
+      <style>{`
+        .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        @media print {
+          @page { size: A4; margin: 12mm; }
+          body * { visibility: hidden; }
+          .inv-print, .inv-print * { visibility: visible; }
+          .inv-print { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+        }
+      `}</style>
     </div>
   )
 }
@@ -377,12 +449,12 @@ function KV({ label, children }: { label: string; children: React.ReactNode }) {
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; label: string }> = {
     DRAFT: { bg: "#F2F4F7", fg: "#344054", label: "Draft" },
-    OPEN: { bg: "#EFF8FF", fg: "#175CD3", label: "Open" },
+    ISSUED: { bg: "#EFF8FF", fg: "#175CD3", label: "Issued" },
     PARTIALLY_PAID: { bg: "#FFF1D6", fg: "#B5642A", label: "Partially Paid" },
     PAID: { bg: "#ECFDF3", fg: "#027A48", label: "Paid" },
     VOID: { bg: "#FEF3F2", fg: "#B42318", label: "Void" },
   }
-  const c = map[status] ?? map.OPEN
+  const c = map[status] ?? map.ISSUED
   return (
     <span
       className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"

@@ -12,18 +12,22 @@ import { Role } from "@prisma/client"
 
 import { defineHandler, NotFoundError, ok, requireRole } from "@/lib/api"
 import { db } from "@/lib/db"
+import { assertAppointmentAccess } from "@/lib/services/appointment"
 
 type Params = { id: string }
 
 export const GET = defineHandler<Params>(async ({ params }) => {
-  await requireRole(Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION)
+  const session = await requireRole(Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION)
   const { id } = await params
 
   const appt = await db.appointment.findUnique({
     where: { id },
-    select: { patientId: true },
+    select: { patientId: true, staffId: true },
   })
   if (!appt) throw new NotFoundError("Appointment not found")
+
+  // Non-admin staff may only read quizzes for their own appointments.
+  await assertAppointmentAccess(appt.staffId, session)
 
   const row = await db.assessmentSubmission.findFirst({
     where: { patientId: appt.patientId },

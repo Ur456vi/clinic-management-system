@@ -117,7 +117,7 @@ export const SERVICES: ServiceContent[] = [
         { icon: "bone-bottle", label: "Calcium\ntablets for\nbone loss" },
         { icon: "torso", label: "Diet plans\nfor weight\ngain" },
       ],
-      footer: "But the body does not function in disconnected parts.",
+      // footer: "But the body does not function in disconnected parts.",
       callout: {
         title: "The Body Does Not Function\nIn Disconnected Parts",
         subtitle: "We address the root. We restore the system.",

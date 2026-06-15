@@ -274,6 +274,30 @@ export type AvailabilityQuery = z.infer<typeof availabilityQuerySchema>
  * Wire format mirrors the staff-side create schema in field names so the
  * patient-portal booking widget can share the same form types.
  */
+/**
+ * Optional scored Health Assessment, attached when the patient takes the
+ * quiz as part of booking (portal quiz-first flow). Client-scored — same
+ * shape the public booking + in-clinic kiosk submit use.
+ */
+export const bookAssessmentSchema = z.object({
+  totalScore: z.number().int().min(0).max(100),
+  scoreOutOf: z.number().int().positive(),
+  band: z.enum(["optimal", "mild", "moderate", "significant"]),
+  topRisks: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        severity: z.enum(["High", "Moderate", "Low"]),
+      }),
+    )
+    .max(6),
+  suggestedFocus: z.array(z.object({ key: z.string(), label: z.string() })).max(6),
+  byCategory: z.record(z.string(), z.number().int().min(0)),
+  answers: z.record(z.string(), z.unknown()),
+  sex: z.enum(["male", "female", "other"]).nullable(),
+})
+
 export const bookAppointmentSchema = z
   .object({
     patientId: uuid.optional(),
@@ -282,6 +306,7 @@ export const bookAppointmentSchema = z
     durationMins: z.number().int().positive().max(240).default(30),
     reason: trimmedOptional(500),
     notes: trimmedOptional(2000),
+    assessment: bookAssessmentSchema.optional(),
   })
 
 export type BookAppointmentInput = z.infer<typeof bookAppointmentSchema>

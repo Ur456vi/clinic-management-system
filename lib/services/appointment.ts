@@ -16,7 +16,13 @@
  */
 
 import type { Appointment, Prisma } from "@prisma/client"
-import { AppointmentStatus, Role } from "@prisma/client"
+import {
+  AppointmentStatus,
+  AssessmentBand,
+  AssessmentSubmissionStatus,
+  Role,
+} from "@prisma/client"
+import { randomUUID } from "node:crypto"
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
@@ -60,11 +66,47 @@ const VIEW_ROLES: readonly Role[] = [
   Role.AESTHETICS_SPECIALIST,
 ]
 
+/**
+ * Roles that see the whole appointment book. Everyone else is scoped to
+ * appointments assigned to their own staff profile — both in lists and on
+ * single records (`assertAppointmentAccess`).
+ */
+const FULL_BOOK_ROLES: readonly Role[] = [Role.ADMIN, Role.RECEPTION]
+
+/**
+ * Ownership gate for single-appointment access (detail, transition,
+ * consultation, RMO summary, quiz…). ADMIN/RECEPTION pass; any other role
+ * must be the staff member the appointment is assigned to.
+ */
+export async function assertAppointmentAccess(
+  appointmentStaffId: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (FULL_BOOK_ROLES.includes(actor.role)) return
+  const staff = await db.staff.findUnique({
+    where: { userId: actor.userId },
+    select: { id: true },
+  })
+  if (!staff || staff.id !== appointmentStaffId) {
+    throw new ForbiddenError(
+      "You can only access appointments assigned to you",
+    )
+  }
+}
+
 /** Statuses that "hold" a staff slot for conflict-check purposes. */
 const SLOT_HOLDING_STATUSES: readonly AppointmentStatus[] = [
   AppointmentStatus.REQUESTED,
   AppointmentStatus.CONFIRMED,
 ]
+
+/** Client band string → AssessmentBand enum (booking-attached quiz). */
+const ASSESSMENT_BAND_MAP: Record<"optimal" | "mild" | "moderate" | "significant", AssessmentBand> = {
+  optimal: AssessmentBand.OPTIMAL,
+  mild: AssessmentBand.MILD,
+  moderate: AssessmentBand.MODERATE,
+  significant: AssessmentBand.SIGNIFICANT,
+}
 
 // ---------------------------------------------------------------------------
 // Include shape
@@ -299,6 +341,19 @@ export async function listAppointments(
     if (input.to) (where.startsAt as Prisma.DateTimeFilter).lt = input.to
   }
 
+  // Account scoping: ADMIN and RECEPTION (front desk manages the whole
+  // book) see everything; every other role only sees appointments assigned
+  // to their own staff profile. This also overrides any caller-supplied
+  // staffId so a non-admin can't list someone else's schedule.
+  if (!FULL_BOOK_ROLES.includes(actor.role)) {
+    const staff = await db.staff.findUnique({
+      where: { userId: actor.userId },
+      select: { id: true },
+    })
+    if (!staff) return { items: [], nextCursor: null }
+    where.staffId = staff.id
+  }
+
   const rows = await db.appointment.findMany({
     where,
     take: take + 1,
@@ -339,6 +394,8 @@ export async function getAppointment(
     include: APPOINTMENT_INCLUDE,
   })
   if (!appointment) throw new NotFoundError("Appointment not found")
+
+  await assertAppointmentAccess(appointment.staffId, actor)
 
   await recordAudit({
     actorUserId: actor.userId,
@@ -485,6 +542,8 @@ export async function transitionAppointment(
   return db.$transaction(async (tx) => {
     const before = await tx.appointment.findUnique({ where: { id } })
     if (!before) throw new NotFoundError("Appointment not found")
+
+    await assertAppointmentAccess(before.staffId, actor)
 
     if (before.status === input.to) {
       throw new ValidationError(
@@ -652,9 +711,19 @@ async function bookCore(
 
   const staff = await tx.staff.findUnique({
     where: { id: input.staffId },
-    select: { id: true, departmentId: true },
+    select: { id: true, departmentId: true, user: { select: { role: true } } },
   })
   if (!staff) throw new NotFoundError("Staff not found")
+
+  // Triage rule: a patient self-booking always sees a Medical Officer
+  // (RMO) first — they cannot book a doctor (e.g. Dr. Yuvraaj) directly.
+  // Enforced here so a tampered request can't bypass the UI restriction.
+  // Reception/on-behalf bookings are unaffected.
+  if (channel === "SELF" && staff.user?.role !== Role.RMO) {
+    throw new ForbiddenError(
+      "Patients can only book a Medical Officer (RMO) for the first visit. They will route you to a specialist if needed.",
+    )
+  }
 
   const conflict = await hasSlotConflict({
     staffId: input.staffId,
@@ -689,6 +758,44 @@ async function bookCore(
     include: APPOINTMENT_INCLUDE,
   })
 
+  // Quiz-first portal booking: persist the scored Health Assessment for the
+  // same patient, stamped to the booked slot, so the RMO/Doctor see it on
+  // this visit (the quiz view resolves the patient's latest submission).
+  if (input.assessment) {
+    const a = input.assessment
+    const p = await tx.patient.findUnique({
+      where: { id: input.patientId },
+      select: { fullName: true, email: true, phone: true },
+    })
+    const preferredTime = `${String(startsAt.getHours()).padStart(2, "0")}:${String(
+      startsAt.getMinutes(),
+    ).padStart(2, "0")}`
+    await tx.assessmentSubmission.create({
+      data: {
+        patientId: input.patientId,
+        contactName: p?.fullName ?? "",
+        contactEmail: p?.email ?? "",
+        contactPhone: p?.phone ?? "",
+        contactSex: a.sex,
+        preferredAt: startsAt,
+        preferredTime,
+        notes:
+          channel === "SELF"
+            ? "Patient portal self-assessment"
+            : "Assessment captured at booking",
+        totalScore: a.totalScore,
+        scoreOutOf: a.scoreOutOf,
+        band: ASSESSMENT_BAND_MAP[a.band],
+        byCategory: a.byCategory as unknown as Prisma.InputJsonValue,
+        topRisks: a.topRisks as unknown as Prisma.InputJsonValue,
+        suggestedFocus: a.suggestedFocus as unknown as Prisma.InputJsonValue,
+        answers: a.answers as Prisma.InputJsonValue,
+        bookingRef: `BOOK-${randomUUID().slice(0, 8).toUpperCase()}`,
+        status: AssessmentSubmissionStatus.COMPLETED,
+      },
+    })
+  }
+
   await recordAudit(
     {
       actorUserId: actor.userId,
@@ -707,6 +814,46 @@ async function bookCore(
   )
 
   return created
+}
+
+// ---------------------------------------------------------------------------
+// Hard delete (permanent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Permanently delete an appointment. Irreversible. ADMIN-only.
+ *
+ * `Invoice.appointmentId` and `Appointment.consultationId` are `SetNull`, so a
+ * linked invoice or consultation is detached — not deleted. Writes a DELETE
+ * audit row with the deleted appointment snapshot.
+ */
+export async function deleteAppointment(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (actor.role !== Role.ADMIN) {
+    throw new ForbiddenError("Only ADMIN may delete appointments")
+  }
+  await db.$transaction(async (tx) => {
+    const before = await tx.appointment.findUnique({ where: { id } })
+    if (!before) throw new NotFoundError("Appointment not found")
+
+    await tx.appointment.delete({ where: { id } })
+
+    await recordAudit(
+      {
+        actorUserId: actor.userId,
+        action: "DELETE",
+        entityType: "Appointment",
+        entityId: id,
+        detail: {
+          before: before as unknown as Prisma.InputJsonValue,
+          method: "hard-delete (permanent)",
+        },
+      },
+      { tx },
+    )
+  })
 }
 
 // ---------------------------------------------------------------------------

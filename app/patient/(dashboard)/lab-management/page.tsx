@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical } from "lucide-react";
+import ComingSoon from "@/components/patient/ComingSoon";
 
 /*
 // Original patient-side lab management implementation (commented out as requested):
@@ -13,6 +13,7 @@ import {
   Search,
   Loader2,
   RotateCcw,
+  FlaskConical,
 } from "lucide-react";
 
 type Status = "completed" | "pending" | "inprogress" | "cancelled";
@@ -416,25 +417,11 @@ function PriorityPill({ priority }: { priority: Priority }) {
 }
 */
 
-export default function LaboratoryManagementPage() {
+export default function PatientLabManagementPage() {
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1200px] mx-auto flex flex-col items-center justify-center min-h-[500px]">
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center justify-center gap-3 text-center w-full max-w-md">
-        <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-          <FlaskConical className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">
-            Laboratory Management
-          </h1>
-          <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] mt-2 font-bold uppercase tracking-wider">
-            Coming Soon
-          </p>
-          <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-2 leading-relaxed">
-            We are working to bring your lab results and medical reports online. Please check back later.
-          </p>
-        </div>
-      </div>
-    </div>
+    <ComingSoon
+      title="Lab Management"
+      description="Your lab orders, sample status, and results will live here. This feature is coming soon."
+    />
   );
 }

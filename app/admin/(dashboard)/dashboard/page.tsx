@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 
 type ApptStatus = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
-type InvStatus = "DRAFT" | "OPEN" | "PARTIALLY_PAID" | "PAID" | "VOID"
+type InvStatus = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
 interface ApptRow {
   id: string
@@ -43,11 +43,24 @@ interface InvRow {
   invoiceNumber: string
   status: InvStatus
   totalCents: number
-  paidCents: number
+  /** Not serialized by the list endpoint — derive from `payments` instead. */
+  paidCents?: number
+  payments?: { amountCents?: number; status?: string }[]
   currency: string
   issuedAt: string
   dueAt: string | null
   patient: { id: string; fullName: string } | null
+}
+
+/** Paid total for an invoice row: trust `paidCents` when present, otherwise
+ * sum the CAPTURED payments the API includes. Always a finite number. */
+function paidCentsOf(inv: InvRow): number {
+  const direct = Number(inv.paidCents)
+  if (Number.isFinite(direct)) return direct
+  if (!Array.isArray(inv.payments)) return 0
+  return inv.payments
+    .filter((p) => p.status === "CAPTURED")
+    .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
 }
 
 interface DashboardData {
@@ -118,9 +131,13 @@ export default function DashboardPage() {
       const overdue: InvRow[] = []
       const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000
       for (const inv of invList) {
-        revenue += inv.paidCents
-        if (inv.status === "OPEN" || inv.status === "PARTIALLY_PAID") {
-          outstanding += Math.max(0, inv.totalCents - inv.paidCents)
+        // The list endpoint doesn't serialize `paidCents` — derive it from
+        // the included payments so the sum can't collapse into NaN ("₹NaN").
+        const paid = paidCentsOf(inv)
+        const total = Number(inv.totalCents ?? 0) || 0
+        revenue += paid
+        if (inv.status === "ISSUED" || inv.status === "PARTIALLY_PAID") {
+          outstanding += Math.max(0, total - paid)
           const issued = new Date(inv.issuedAt).getTime()
           if (issued < thirtyDaysAgo) overdue.push(inv)
         }

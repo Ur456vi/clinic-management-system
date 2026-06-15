@@ -9,6 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
+// import { EcgLine } from "@/components/public/ui";
 
 // Custom SVGs & Line-Art Icons for Clinical Elegance
 
@@ -380,12 +381,43 @@ function PersonIcon() {
 // 33. ECG / Pulse heartbeat wave line
 function EcgLine({ className = "", color = "#6D7956" }: { className?: string; color?: string }) {
   return (
-    <svg className={className} viewBox="0 0 480 60" width="100%" height="60" aria-hidden="true">
+    <svg
+      className={className}
+      viewBox="0 0 600 120"
+      width="100%"
+      height="120"
+      aria-hidden="true"
+    >
       <path
-        d="M0 30 L80 30 L100 30 L110 10 L130 50 L150 5 L165 30 L260 30 L275 18 L290 42 L305 30 L480 30"
+        d="
+          M0 60
+          L80 60
+
+          C90 60, 100 40, 115 40
+          C125 40, 135 60, 145 60
+
+          L190 60
+
+          L205 75
+          L215 90
+
+          L240 10
+          L265 95
+          L280 60
+
+          L340 60
+
+          C360 60, 380 20, 420 20
+          C450 20, 470 60, 495 60
+
+          C510 60, 525 50, 540 50
+          C555 50, 565 60, 575 60
+
+          L600 60
+        "
         fill="none"
         stroke={color}
-        strokeWidth="1.4"
+        strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -862,8 +894,8 @@ export default function BrainMitochondrialPage() {
             <div className="lg:col-span-7 bg-[#F9F7F3] p-8 md:p-10 flex flex-col justify-between">
               <div>
                 <h3 className="font-sans text-[26px] sm:text-[30px] font-bold leading-[1.15] text-[var(--color-text-primary)] tracking-tight text-left">
-                  We Are Not A Recreational Wellness Therapy Center.
-                  <span className="block mt-1 font-bold">It Is Structured Restorative Medicine.</span>
+                  We Are Not A Recreational Wellness Center.
+                  <span className="block mt-1 font-bold">We Practice Structured Medicine.</span>
                 </h3>
                 
                 <p className="mt-4 text-[14px] leading-relaxed text-[var(--color-text-body)] font-medium">
@@ -956,7 +988,7 @@ export default function BrainMitochondrialPage() {
                       <div className="w-[42px] h-[42px] rounded-full border border-[var(--color-border-light)] bg-[#F5F2EC] flex items-center justify-center shadow-sm transition-colors group-hover:bg-white relative">
                         <NeuroSupportIcon />
                       </div>
-                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Neuro-Supportive</span>
+                      <span className="text-[10px] font-bold leading-tight text-[var(--color-text-body)] mt-1">Neuro-Supportive Bio Molecules</span>
                     </div>
 
                   </div>
@@ -1082,7 +1114,7 @@ export default function BrainMitochondrialPage() {
                 <div className="w-11 h-11 rounded-full border border-white/25 flex items-center justify-center bg-white/5 transition-colors group-hover:bg-white/15">
                   <BatteryIcon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-[10px] font-semibold leading-tight text-white/90 mt-1">Sustained Energy</span>
+                <span className="text-[10px] font-semibold leading-tight text-white/90 mt-1">Sustained <br />Energy</span>
               </div>
 
               <div className="flex flex-col items-center text-center gap-2.5 group w-[75px] sm:w-[90px]">
@@ -1254,9 +1286,9 @@ export default function BrainMitochondrialPage() {
                 "The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration."
               </p>
             </div>
-            <div className="mt-8">
-              <EcgLine color="#6D7956" />
-            </div>
+            <div className="mt-6">
+                      <EcgLine />
+                    </div>
           </div>
 
           {/* Right Content Block: Clinical Assessment */}

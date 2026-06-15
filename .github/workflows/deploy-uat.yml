@@ -81,7 +81,7 @@ jobs:
             cd $APP_DIR
 
             # Write .env from GitHub secrets + hardcoded UAT domain
-            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.alogborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.alogborne.com\n" \
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.algoborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.algoborne.com\n" \
               "${DATABASE_URL}" "${NEXTAUTH_SECRET}" > .env
             chmod 600 .env
 
@@ -95,7 +95,16 @@ jobs:
             sudo tee /etc/nginx/conf.d/vyara-uat.conf > /dev/null <<'NGINXCONF'
             server {
                 listen 80;
-                server_name vyara.alogborne.com;
+                server_name vyara.algoborne.com;
+                return 301 https://$host$request_uri;
+            }
+
+            server {
+                listen 443 ssl;
+                server_name vyara.algoborne.com;
+
+                ssl_certificate /etc/letsencrypt/live/vyara.algoborne.com/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/vyara.algoborne.com/privkey.pem;
 
                 location / {
                     proxy_pass http://127.0.0.1:3000;

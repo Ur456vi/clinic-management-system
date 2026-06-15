@@ -76,11 +76,10 @@ export default function AssessmentIntroPage() {
               className="mt-5 text-base leading-relaxed max-w-xl"
               style={{ color: "var(--brand-ink-soft)" }}
             >
-              Sixteen physician-designed questions across six clinical
+              Up to sixteen physician-designed questions across six clinical
               areas — energy, metabolism, hormones, stress, inflammation
               and lifestyle. At the end you&apos;ll receive a personalised
-              report you can share with the institute to begin a deeper
-              evaluation.
+              report.
             </p>
 
             <ul className="mt-7 grid grid-cols-2 gap-3 max-w-md text-sm" style={{ color: "var(--brand-ink-soft)" }}>
