@@ -5,7 +5,7 @@
  * Contents (BE-09):
  *   - 1 ADMIN user
  *   - 3 doctors (incl. dr.yuvraaj@example.com — the demo doctor login)
- *   - 2 RMOs, 1 reception
+ *   - 1 RMO, 1 reception
  *   - 3 departments (Integrative Medicine, Aesthetics, Rehabilitation)
  *   - 10 patients (incl. priya.patient@example.com — the demo patient login)
  *
@@ -164,10 +164,12 @@ const STAFF: StaffSeed[] = [
     biography: "Lead physiatrist for rehab and post-procedure recovery.",
   },
 
-  // --- RMOs (2) ------------------------------------------------------------
+  // --- RMO (1) -------------------------------------------------------------
+  // Sole RMO. Email kept as rmo.kavita@example.com so reseed upserts the
+  // existing live row (the display name was changed to Dr. Yashika Kalyani).
   {
     email: "rmo.kavita@example.com",
-    fullName: "Dr. Kavita Iyer",
+    fullName: "Dr. Yashika Kalyani",
     role: "RMO",
     departmentSlug: "integrative-medicine",
     phone: "+91-9000000020",
@@ -175,19 +177,7 @@ const STAFF: StaffSeed[] = [
     licenseNumber: "MCI-2021-09980",
     experienceYrs: 3,
     qualifications: ["MBBS"],
-    biography: "RMO covering daytime intake on the integrative ward.",
-  },
-  {
-    email: "rmo.arjun@example.com",
-    fullName: "Dr. Arjun Verma",
-    role: "RMO",
-    departmentSlug: "integrative-medicine",
-    phone: "+91-9000000021",
-    specialization: "Resident Medical Officer",
-    licenseNumber: "MCI-2022-11203",
-    experienceYrs: 2,
-    qualifications: ["MBBS"],
-    biography: "RMO covering evening intake on the integrative ward.",
+    biography: "RMO covering intake on the integrative ward.",
   },
 
   // --- Reception (1) -------------------------------------------------------
@@ -748,7 +738,7 @@ const CLINICAL_LOOP: ClinicalLoopSeed[] = [
   {
     patientNumber: "PAT-100002",
     doctorEmail: "dr.yuvraaj@example.com",
-    infusionStaffEmail: "rmo.arjun@example.com",
+    infusionStaffEmail: "rmo.kavita@example.com",
     labs: [
       {
         panel: "Vitamin B12",

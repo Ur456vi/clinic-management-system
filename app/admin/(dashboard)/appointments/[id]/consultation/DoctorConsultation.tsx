@@ -18,18 +18,71 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Save, Trash2, User } from "lucide-react"
+import { ArrowLeft, CalendarPlus, ChevronDown, FileText, Loader2, Plus, Printer, Save, Trash2, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { MAIN_FIELDS, MAIN_SECTIONS, type MainControl, type TableColumn } from "@/lib/main-fields"
+import TestPanelSelector from "@/components/admin/TestPanelSelector"
+import RxLibraryPicker from "@/components/admin/RxLibraryPicker"
+import {
+  INFUSION_PROTOCOLS,
+  RX_LIBRARY,
+  RX_SUFFIXES,
+  parseRxItem,
+  type RxCategory,
+} from "@/lib/rx-library"
+
+/** Infusion protocols presented to RxLibraryPicker as a single category. */
+const INFUSION_CATEGORIES: RxCategory[] = [
+  {
+    id: "infusion-protocols",
+    name: "Infusion Protocols",
+    groups: [{ name: "", items: INFUSION_PROTOCOLS.map((p) => p.name) }],
+  },
+]
 
 export interface DoctorConsult {
   id: string
   type: "RMO" | "MAIN"
   status: string
   sections?: Record<string, Record<string, unknown>> | null
-  patient: { id: string; fullName: string; patientNumber: string } | null
+  patient:
+    | {
+        id: string
+        fullName: string
+        patientNumber: string
+        /** Master-record demographics, used to pre-fill the Patient Detail tab. */
+        phone?: string | null
+        email?: string | null
+        sex?: string | null
+        dateOfBirth?: string | null
+        occupation?: string | null
+        referralSource?: string | null
+      }
+    | null
+  /** Latest RMO intake (attached by the consultation endpoint) — used to
+   * pre-fill matching doctor fields so they aren't re-typed. */
+  rmoSummary?: {
+    sections?: Record<string, Record<string, unknown>> | null
+  } | null
+  /** Appointment slot info — pre-fills the Consultation Details date + duration. */
+  appointment?: {
+    date?: string | null
+    durationMinutes?: number | null
+  } | null
+}
+
+/**
+ * Doctor Patient-Detail field ← RMO intake field, for fields that share an
+ * identical value format (so the prefill round-trips cleanly). Referral /
+ * vitals are intentionally excluded — their RMO option values differ.
+ */
+const RMO_PREFILL: Record<string, { key: string; n: string }> = {
+  patientDetail__dob: { key: "demographics", n: "demographics__date_of_birth" },
+  patientDetail__gender: { key: "demographics", n: "demographics__sex" },
+  patientDetail__occupation: { key: "demographics", n: "demographics__occupation" },
+  patientDetail__consultation_date: { key: "demographics", n: "demographics__date_of_consultation" },
 }
 
 interface Props {
@@ -46,6 +99,8 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState(MAIN_SECTIONS[0].slug)
   const [saving, setSaving] = useState(false)
+  // Session-local guard so we only fire the COMPLETED transition once.
+  const [markedCompleted, setMarkedCompleted] = useState(false)
 
   // Flatten previously-saved MAIN sections back into the flat form map.
   const [form, setForm] = useState<Record<string, string>>(() => {
@@ -55,6 +110,49 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       const v = secs?.[f.key]?.[f.n]
       if (v != null) flat[f.n] = String(v)
     }
+    // Seed still-empty doctor fields from the RMO intake so demographics and
+    // history aren't re-keyed. Saved doctor values always win (only fill blanks).
+    const rmo = (consult.rmoSummary?.sections ?? {}) as Record<string, Record<string, unknown>>
+    for (const [target, src] of Object.entries(RMO_PREFILL)) {
+      if (flat[target]) continue
+      const v = rmo?.[src.key]?.[src.n]
+      if (v != null && String(v) !== "") flat[target] = String(v)
+    }
+
+    // Backfill any still-blank demographics from the patient master record
+    // (Contact / Email come only from here; the rest fall back to it when no
+    // RMO intake exists). Saved doctor values + RMO prefill always win.
+    const p = consult.patient
+    if (p) {
+      const seed = (n: string, v: string | null | undefined) => {
+        if (!flat[n] && v != null && String(v).trim() !== "") flat[n] = String(v).trim()
+      }
+      seed("patientDetail__contact", p.phone)
+      seed("patientDetail__email", p.email)
+      seed("patientDetail__occupation", p.occupation)
+      if (p.dateOfBirth) seed("patientDetail__dob", String(p.dateOfBirth).slice(0, 10))
+      const genderMap: Record<string, string> = { MALE: "Male", FEMALE: "Female", OTHER: "Other" }
+      if (p.sex && genderMap[p.sex]) seed("patientDetail__gender", genderMap[p.sex])
+      if (p.referralSource) {
+        const ref = ["Self", "Doctor", "Relative", "Friend", "Other"].find(
+          (o) => o.toLowerCase() === String(p.referralSource).toLowerCase(),
+        )
+        if (ref) seed("patientDetail__referred_by", ref)
+      }
+    }
+
+    // Consultation Details — date + booked duration from the appointment slot
+    // (still-blank only; saved doctor values + RMO prefill win).
+    const appt = consult.appointment
+    if (appt) {
+      if (!flat["patientDetail__consultation_duration"] && appt.durationMinutes != null) {
+        flat["patientDetail__consultation_duration"] = String(appt.durationMinutes)
+      }
+      if (!flat["patientDetail__consultation_date"] && appt.date) {
+        flat["patientDetail__consultation_date"] = String(appt.date).slice(0, 10)
+      }
+    }
+
     return flat
   })
 
@@ -77,6 +175,49 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       notify.success("Consultation saved")
+
+      // Prescription ready -> the visit is done: move the appointment to
+      // COMPLETED. "Ready" is deliberately strict — a diagnosis plus at
+      // least one treatment line (supplement / medication / infusion) — so
+      // a stray advice note can't complete the visit. If the appointment
+      // was never accepted (still REQUESTED), step it through CONFIRMED
+      // first; the doctor running the consult implies acceptance.
+      const hasRows = (n: string) => {
+        try {
+          const rows = JSON.parse(form[n] ?? "[]")
+          return Array.isArray(rows) && rows.length > 0
+        } catch {
+          return false
+        }
+      }
+      const prescriptionReady =
+        (form["finalPrescription__diagnosis"] ?? "").trim() !== "" &&
+        (hasRows("finalPrescription__supplements_rows") ||
+          hasRows("infusionRehabAesthetic__infusion_rows") ||
+          (form["finalPrescription__medications"] ?? "").trim() !== "")
+      if (prescriptionReady && !markedCompleted) {
+        try {
+          const transition = (to: "CONFIRMED" | "COMPLETED") =>
+            fetch(`/api/appointments/${appointmentId}/transition`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ to }),
+            })
+          let t = await transition("COMPLETED")
+          if (!t.ok) {
+            // Possibly still REQUESTED — accept, then complete.
+            const accepted = await transition("CONFIRMED")
+            if (accepted.ok) t = await transition("COMPLETED")
+          }
+          if (t.ok) {
+            setMarkedCompleted(true)
+            notify.success("Appointment marked completed")
+          }
+        } catch {
+          /* status transition is best-effort; the consultation is saved */
+        }
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Save failed"
       notify.error("Couldn't save consultation", { description: message })
@@ -87,17 +228,136 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
 
   const patientId = consult.patient?.id
 
+  // Push the Vitals fields into the patient's Vitals record (the canonical
+  // store the "Latest Vitals" cards read), instead of leaving them stranded
+  // in the consultation blob. Explicit button → one reading per click, no
+  // duplicate rows on repeated consult saves.
+  const [vitalsSaving, setVitalsSaving] = useState(false)
+  const recordVitals = async () => {
+    if (!patientId || vitalsSaving) return
+    const num = (v?: string) => {
+      const s = (v ?? "").trim()
+      if (s === "") return undefined
+      const n = Number(s)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const bp = (form["patientDetail__vitals_bp"] ?? "").trim()
+    const m = bp.match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/)
+    const payload = {
+      systolic: m ? Number(m[1]) : undefined,
+      diastolic: m ? Number(m[2]) : undefined,
+      heartRate: num(form["patientDetail__vitals_pulse"]),
+      weightKg: num(form["patientDetail__vitals_weight"]),
+      heightCm: num(form["patientDetail__vitals_height"]),
+      temperatureF: num(form["patientDetail__vitals_temp"]),
+      spo2: num(form["patientDetail__vitals_spo2"]),
+    }
+    if (
+      ![payload.systolic, payload.diastolic, payload.heartRate, payload.weightKg, payload.heightCm, payload.temperatureF, payload.spo2].some(
+        (x) => x !== undefined,
+      )
+    ) {
+      notify.error("Enter at least one vital", {
+        description: "BP (e.g. 120/80), pulse, weight, height, SpO₂, or temperature.",
+      })
+      return
+    }
+    setVitalsSaving(true)
+    try {
+      const res = await fetch(`/api/patients/${patientId}/vitals`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const j = await res.json().catch(() => null)
+      if (!res.ok) throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      notify.success("Vitals saved to patient record")
+    } catch (err) {
+      notify.error("Couldn't save vitals", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setVitalsSaving(false)
+    }
+  }
+
   const bookFollowUp = async () => {
     await save()
     const q = new URLSearchParams({ role: "DOCTOR", doctor: "Yuvraaj" })
     if (patientId) q.set("patientId", patientId)
+    // Carry the follow-up date + notes the doctor set in the prescription so
+    // the booking opens pre-dated instead of blank.
+    const fuDate = form["finalPrescription__follow_up_date"]
+    if (fuDate) q.set("date", fuDate)
+    const fuNotes = form["finalPrescription__follow_up_notes"]?.trim()
+    if (fuNotes) q.set("reason", `Follow-up: ${fuNotes}`)
     router.push(`/admin/appointments/add?${q.toString()}`)
   }
 
   const section = MAIN_SECTIONS.find((s) => s.slug === activeSection) ?? MAIN_SECTIONS[0]
 
+  // Append a library item as a new line in a textarea-backed field.
+  const appendLine = (n: string, text: string) =>
+    setForm((p) => {
+      const cur = (p[n] ?? "").replace(/\s+$/, "")
+      return { ...p, [n]: cur ? `${cur}\n${text}` : text }
+    })
+
+  // Append an instruction suffix to the last line (or start one).
+  const appendSuffix = (n: string, suffix: string) =>
+    setForm((p) => {
+      const cur = p[n] ?? ""
+      if (!cur.trim()) return { ...p, [n]: suffix }
+      const lines = cur.split("\n")
+      lines[lines.length - 1] = `${lines[lines.length - 1].replace(/\s+$/, "")} — ${suffix}`
+      return { ...p, [n]: lines.join("\n") }
+    })
+
   const renderControl = (c: MainControl) => {
     const value = form[c.n] ?? ""
+    if (c.kind === "testPanels") {
+      return (
+        <div key={c.n} className="col-span-2">
+          <TestPanelSelector value={value} onChange={(v) => setField(c.n, v)} />
+        </div>
+      )
+    }
+    if (c.kind === "medicationsLibrary") {
+      return (
+        <div key={c.n} className="flex flex-col gap-1.5 col-span-2">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{c.l}</label>
+            <RxLibraryPicker
+              categories={RX_LIBRARY}
+              onPick={(item) => appendLine(c.n, item)}
+              label="Add from library"
+              searchPlaceholder="Search medication / supplement…"
+            />
+          </div>
+          <textarea
+            value={value}
+            onChange={(e) => setField(c.n, e.target.value)}
+            placeholder={c.placeholder}
+            rows={c.rows ?? 5}
+            className={areaCls}
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {RX_SUFFIXES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => appendSuffix(c.n, s)}
+                className="text-[11px] px-2 py-1 rounded-full border border-[#EAECF0] dark:border-[#374151] text-[#475467] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] dark:hover:bg-[#111827]"
+              >
+                + {s}
+              </button>
+            ))}
+          </div>
+          {c.hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{c.hint}</p> : null}
+        </div>
+      )
+    }
     if (c.kind === "table") {
       return (
         <div key={c.n} className="flex flex-col gap-1.5 col-span-2">
@@ -107,6 +367,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
             addLabel={c.addLabel}
             value={value}
             onChange={(v) => setField(c.n, v)}
+            library={c.library}
           />
           {c.hint ? <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{c.hint}</p> : null}
         </div>
@@ -154,7 +415,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1200px] pb-28">
+    <div className="flex flex-col gap-6 max-w-[1200px]">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
@@ -180,11 +441,18 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
             {consult.patient ? <span className="text-[#98A2B3] dark:text-[#94A3B8]">#{consult.patient.patientNumber}</span> : null}
           </div>
         </div>
-        <Link href={`/admin/appointments/${appointmentId}/rmo-summary`}>
-          <Button variant="outline" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" /> View RMO Summary
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/appointments/${appointmentId}/rmo-summary`}>
+            <Button variant="outline" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" /> View RMO Summary
+            </Button>
+          </Link>
+          <Link href={`/admin/appointments/${appointmentId}/prescription`}>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Printer className="h-4 w-4" /> Print prescription
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Body */}
@@ -221,6 +489,23 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
                   <div key={gi} className={gi > 0 ? "pt-8 border-t border-[#EAECF0] dark:border-[#374151]" : ""}>
                     {g.title ? <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">{g.title}</h3> : null}
                     <div className="grid grid-cols-2 gap-x-6 gap-y-6">{g.controls.map(renderControl)}</div>
+                    {g.action === "recordVitals" ? (
+                      <div className="mt-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void recordVitals()}
+                          disabled={vitalsSaving}
+                          className="flex items-center gap-2"
+                        >
+                          {vitalsSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                          Save vitals to patient record
+                        </Button>
+                        <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1.5">
+                          Records BP, pulse, weight, height, SpO₂ and temperature to the patient&apos;s Vitals so they appear in “Latest Vitals”.
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -229,8 +514,10 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
         </div>
       </div>
 
-      {/* Sticky action footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#EAECF0] dark:border-[#374151] bg-white dark:bg-[#1F2937]/95 backdrop-blur px-8 py-4 flex items-center justify-end gap-3 ml-[84px] lg:ml-[280px]">
+      {/* Action footer — sticks to the bottom of the content column (the
+          scrolling <main>), so it never reaches over the sidebar. The
+          negative margins cancel <main>'s p-8 padding so it spans full width. */}
+      <div className="sticky bottom-0 z-30 -mx-8 -mb-8 mt-2 border-t border-[#EAECF0] dark:border-[#374151] bg-white/95 dark:bg-[#1F2937]/95 backdrop-blur px-8 py-4 flex items-center justify-end gap-3">
         <Button
           onClick={() => void save()}
           disabled={saving}
@@ -277,17 +564,39 @@ function TableControl({
   addLabel,
   value,
   onChange,
+  library,
 }: {
   columns: TableColumn[]
   addLabel?: string
   value: string
   onChange: (v: string) => void
+  library?: "rx" | "infusion" | "supplements"
 }) {
   const rows = parseRows(value)
+  const firstKey = columns[0]?.key
 
   const commit = (next: TableRow[]) => {
     // Store "" when empty so save() skips the field entirely.
     onChange(next.length === 0 ? "" : JSON.stringify(next))
+  }
+
+  // Library pick → new row(s). An infusion protocol expands into one row
+  // per component ingredient. A medication / supplement is parsed so the
+  // dose + timing columns auto-fill from the catalog entry.
+  const hasCol = (key: string) => columns.some((c) => c.key === key)
+  const addFromLibrary = (picked: string) => {
+    if (!firstKey) return
+    if (library === "infusion") {
+      const proto = INFUSION_PROTOCOLS.find((p) => p.name === picked)
+      const comps = proto ? proto.components : [picked]
+      commit([...rows, ...comps.map((c) => ({ [firstKey]: c }))])
+    } else {
+      const { product, dose, timing } = parseRxItem(picked)
+      const row: TableRow = { [firstKey]: product }
+      if (hasCol("dose")) row.dose = dose
+      if (hasCol("timing")) row.timing = timing
+      commit([...rows, row])
+    }
   }
 
   const setCell = (ri: number, key: string, v: string) => {
@@ -353,7 +662,7 @@ function TableControl({
           No entries yet.
         </p>
       )}
-      <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2">
+      <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2 flex items-center gap-4">
         <button
           type="button"
           onClick={addRow}
@@ -361,6 +670,17 @@ function TableControl({
         >
           <Plus className="h-3.5 w-3.5" /> {addLabel ?? "Add row"}
         </button>
+        {library ? (
+          <RxLibraryPicker
+            categories={library === "infusion" ? INFUSION_CATEGORIES : RX_LIBRARY}
+            onPick={addFromLibrary}
+            label={library === "infusion" ? "Add from infusion library" : "Add from library"}
+            searchPlaceholder={
+              library === "infusion" ? "Search protocol…" : "Search medication / supplement…"
+            }
+            variant="modal"
+          />
+        ) : null}
       </div>
     </div>
   )

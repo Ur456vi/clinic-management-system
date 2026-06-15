@@ -55,9 +55,44 @@ export type MainControl =
       addLabel?: string
       hint?: string
       full?: boolean
+      /**
+       * Adds an "Add from library" picker next to "Add row".
+       *  - "rx": full meds + supplements catalog → fills the FIRST column.
+       *  - "supplements": supplements / nutraceuticals only (no Rx drugs) →
+       *    fills the FIRST column. Use for the Supplements section so a
+       *    prescription drug can't be entered as a supplement.
+       *  - "infusion": IV protocol catalog → adds one row per component in the
+       *    FIRST column.
+       */
+      library?: "rx" | "infusion" | "supplements"
+    }
+  | {
+      kind: "testPanels"
+      n: string
+      l: string
+      hint?: string
+      full?: boolean
+    }
+  | {
+      kind: "medicationsLibrary"
+      n: string
+      l: string
+      placeholder?: string
+      rows?: number
+      hint?: string
+      full?: boolean
     }
 
-export type MainGroup = { title?: string; controls: MainControl[] }
+export type MainGroup = {
+  title?: string
+  controls: MainControl[]
+  /**
+   * Optional inline action rendered after the group's controls.
+   * `recordVitals` posts the Vitals fields to the patient's Vitals record
+   * (so they show up in "Latest Vitals"), de-duped by an explicit button.
+   */
+  action?: "recordVitals"
+}
 
 export type MainSection = {
   /** Left-nav slug (also the React key). */
@@ -78,32 +113,75 @@ export const MAIN_SECTIONS: MainSection[] = [
   {
     slug: "Patient Detail",
     label: "Patient Detail",
-    description: "Presenting complaint, history, and bedside vitals",
+    description: "Demographics, history, vitals, and examination",
     key: "patientDetail",
     groups: [
+      {
+        title: "Demographics",
+        controls: [
+          { kind: "date", n: "patientDetail__dob", l: "Date of Birth" },
+          { kind: "select", n: "patientDetail__gender", l: "Gender", options: ["Male", "Female", "Other"], placeholder: "Select gender" },
+          { kind: "text", n: "patientDetail__contact", l: "Contact Number", placeholder: "e.g., +91 98XXXXXXXX" },
+          { kind: "text", n: "patientDetail__email", l: "Email", placeholder: "e.g., patient@example.com" },
+          { kind: "text", n: "patientDetail__occupation", l: "Occupation", placeholder: "e.g., Corporate – Finance" },
+          { kind: "select", n: "patientDetail__referred_by", l: "Referred By", options: ["Self", "Doctor", "Relative", "Friend", "Other"], placeholder: "Select referral" },
+        ],
+      },
+      {
+        title: "Consultation Details",
+        controls: [
+          { kind: "date", n: "patientDetail__consultation_date", l: "Consultation Date" },
+          { kind: "text", n: "patientDetail__consultation_duration", l: "Duration (minutes)", placeholder: "e.g., 42" },
+        ],
+      },
+      // The RMO intake (chief concerns, history, family history, background,
+      // anthropometrics, registration date) is captured in the RMO consultation
+      // and reviewed via "View RMO Summary" — not re-entered here.
       {
         title: "Presentation",
         controls: [
           { kind: "textarea", n: "patientDetail__chief_complaint", l: "Chief Complaint", placeholder: "Primary reason for this visit", rows: 3, full: true },
           { kind: "textarea", n: "patientDetail__history_presenting", l: "History of Presenting Illness", placeholder: "Onset, duration, progression, aggravating / relieving factors", rows: 4, full: true },
-        ],
-      },
-      {
-        title: "Background",
-        controls: [
-          { kind: "textarea", n: "patientDetail__known_allergies", l: "Known Allergies", placeholder: "Drug / food / environmental", rows: 2 },
-          { kind: "textarea", n: "patientDetail__current_medications", l: "Current Medications", placeholder: "Names, doses, frequency", rows: 2 },
+          { kind: "textarea", n: "patientDetail__additional_clinical_notes", l: "Additional History & Clinical Notes", placeholder: "Work stress, meals, sleep pattern, sexual health, habits — one per line", rows: 4, full: true },
         ],
       },
       {
         title: "Vitals",
+        action: "recordVitals",
         controls: [
           { kind: "text", n: "patientDetail__vitals_bp", l: "Blood Pressure (mmHg)", placeholder: "e.g., 120/80" },
           { kind: "text", n: "patientDetail__vitals_pulse", l: "Pulse (bpm)", placeholder: "e.g., 72" },
+          { kind: "text", n: "patientDetail__vitals_rr", l: "Respiratory Rate (/min)", placeholder: "e.g., 16" },
           { kind: "text", n: "patientDetail__vitals_weight", l: "Weight (kg)", placeholder: "e.g., 70" },
           { kind: "text", n: "patientDetail__vitals_height", l: "Height (cm)", placeholder: "e.g., 170" },
           { kind: "text", n: "patientDetail__vitals_spo2", l: "SpO2 (%)", placeholder: "e.g., 98" },
           { kind: "text", n: "patientDetail__vitals_temp", l: "Temperature (°F)", placeholder: "e.g., 98.6" },
+        ],
+      },
+      {
+        title: "General Physical Examination (GPE)",
+        controls: [
+          { kind: "select", n: "patientDetail__gpe_general_appearance", l: "General Appearance", options: ["Well-looking", "Ill-looking", "Cachectic", "Obese", "Distressed"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_build_nutrition", l: "Build & Nutrition", options: ["Well-built & nourished", "Average", "Poorly nourished", "Overweight"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_pallor", l: "Pallor", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_icterus", l: "Icterus", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_cyanosis", l: "Cyanosis", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_clubbing", l: "Clubbing", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_lymphadenopathy", l: "Lymphadenopathy", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_edema", l: "Pedal Edema", options: ["Absent", "Present"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_dehydration", l: "Dehydration", options: ["Absent", "Mild", "Moderate", "Severe"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_jvp", l: "JVP", options: ["Normal", "Raised"], placeholder: "Select" },
+          { kind: "select", n: "patientDetail__gpe_thyroid", l: "Thyroid", options: ["Normal", "Enlarged"], placeholder: "Select" },
+          { kind: "textarea", n: "patientDetail__gpe_other_findings", l: "Other Findings", placeholder: "Skin, nails, ENT, lymph nodes, any other general findings", rows: 3, full: true },
+        ],
+      },
+      {
+        title: "Systemic Exam",
+        controls: [
+          { kind: "text", n: "patientDetail__exam_cvs", l: "CVS", placeholder: "e.g., S1S2 normal, no murmurs" },
+          { kind: "text", n: "patientDetail__exam_rs", l: "RS", placeholder: "e.g., Clear" },
+          { kind: "text", n: "patientDetail__exam_pa", l: "P/A", placeholder: "e.g., Soft, non-tender" },
+          { kind: "text", n: "patientDetail__exam_cns", l: "CNS", placeholder: "e.g., NAD" },
         ],
       },
     ],
@@ -122,6 +200,7 @@ export const MAIN_SECTIONS: MainSection[] = [
             n: "infusionRehabAesthetic__infusion_rows",
             l: "Scheduled Therapies",
             addLabel: "Add therapy",
+            library: "infusion",
             full: true,
             columns: [
               { key: "therapy", label: "Therapy", placeholder: "e.g., NAD+ Support Infusion" },
@@ -154,15 +233,8 @@ export const MAIN_SECTIONS: MainSection[] = [
     key: "test",
     groups: [
       {
-        title: "Hormonal Profile",
         controls: [
-          { kind: "textarea", n: "test__hormonal_profile", l: "Tests Ordered", placeholder: "One per line — e.g., Total Testosterone, Free Testosterone, SHBG, LH, FSH, Estradiol (E2), Prolactin, Cortisol – AM, DHEA-S", rows: 4, full: true },
-        ],
-      },
-      {
-        title: "Metabolic & General Profile",
-        controls: [
-          { kind: "textarea", n: "test__metabolic_general_profile", l: "Tests Ordered", placeholder: "One per line — e.g., CBC, ESR, Fasting Glucose, Insulin & HOMA-IR, HbA1c, Lipid Profile, LFT, KFT, Vitamin D (25-OH), Vitamin B12, Ferritin, hs-CRP, TSH, Free T3, Free T4", rows: 4, full: true },
+          { kind: "testPanels", n: "test__selected_tests", l: "Select Test Panels", full: true },
         ],
       },
       {
@@ -186,39 +258,29 @@ export const MAIN_SECTIONS: MainSection[] = [
       {
         title: "Diagnosis",
         controls: [
+          { kind: "textarea", n: "finalPrescription__clinical_impression", l: "Clinical Impression", placeholder: "e.g., Male with features of androgen deficiency with metabolic dysregulation.", rows: 3, full: true },
           { kind: "textarea", n: "finalPrescription__diagnosis", l: "Diagnosis", placeholder: "Provisional / final diagnosis", rows: 3, full: true },
         ],
       },
       {
-        title: "Supplements & Nutraceuticals",
+        title: "Medications & Supplements",
         controls: [
           {
             kind: "table",
             n: "finalPrescription__supplements_rows",
-            l: "Supplements",
-            addLabel: "Add supplement",
+            l: "Medications & Supplements",
+            addLabel: "Add item",
+            // Full meds + supplements catalog. Picking from the library
+            // auto-fills product / dose / timing (parsed from the entry).
+            library: "rx",
             full: true,
             columns: [
-              { key: "product", label: "Product / Supplement", placeholder: "e.g., IHMH Omega-3 (TG form)" },
-              { key: "dose", label: "Dose", placeholder: "e.g., 1 Capsule" },
+              { key: "product", label: "Medication / Supplement", placeholder: "e.g., Magnesium Glycinate" },
+              { key: "dose", label: "Dose", placeholder: "e.g., 200 mg" },
               { key: "timing", label: "Timing", placeholder: "e.g., After Breakfast" },
               { key: "duration", label: "Duration", placeholder: "e.g., 12 Weeks" },
             ],
           },
-        ],
-      },
-      {
-        title: "Medications",
-        controls: [
-          { kind: "textarea", n: "finalPrescription__medications", l: "Medications", placeholder: "Drug — dose — frequency — duration (one per line)", rows: 5, full: true },
-        ],
-      },
-      {
-        title: "Lifestyle & Therapeutic Advice",
-        controls: [
-          { kind: "textarea", n: "finalPrescription__advice_nutrition", l: "Nutrition", placeholder: "e.g., High-protein whole-food diet. Reduce refined carbs & sugar.", rows: 2, full: true },
-          { kind: "textarea", n: "finalPrescription__advice_training", l: "Training", placeholder: "e.g., Resistance training 3×/week. Daily 8–10k steps / movement.", rows: 2, full: true },
-          { kind: "textarea", n: "finalPrescription__advice_sleep", l: "Sleep & Recovery", placeholder: "e.g., Aim 7–8 hrs sleep. Sleep before 11 PM. Avoid screens 60 min prior.", rows: 2, full: true },
         ],
       },
       {

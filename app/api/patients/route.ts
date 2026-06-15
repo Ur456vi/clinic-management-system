@@ -21,10 +21,12 @@
  */
 
 import { NextResponse } from "next/server"
+import { Role } from "@prisma/client"
 
 import {
   created,
   defineHandler,
+  requireRole,
   requireSession,
 } from "@/lib/api"
 import {
@@ -32,6 +34,9 @@ import {
   listPatientsQuerySchema,
 } from "@/lib/validation/patient"
 import { createPatient, listPatients } from "@/lib/services/patient"
+
+/** Front-desk + clinical staff may register a patient (not PATIENT/specialists). */
+const PATIENT_WRITE: Role[] = [Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION]
 
 export const GET = defineHandler(async ({ req }) => {
   await requireSession()
@@ -61,7 +66,7 @@ export const GET = defineHandler(async ({ req }) => {
 })
 
 export const POST = defineHandler(async ({ req }) => {
-  const session = await requireSession()
+  const session = await requireRole(...PATIENT_WRITE)
   const body = createPatientSchema.parse(await req.json())
   const patient = await createPatient(body, session.userId)
   return created(patient, `/api/patients/${patient.id}`)

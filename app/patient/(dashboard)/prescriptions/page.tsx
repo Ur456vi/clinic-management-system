@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Search, 
   Filter, 
@@ -17,6 +18,7 @@ import {
   FileDown,
   Download
 } from "lucide-react";
+import RefillRequests from "@/components/patient/RefillRequests";
 
 type PlanItem = {
   id: string;
@@ -76,414 +78,6 @@ const KIND_LABEL: Record<string, string> = {
 
 
 
-// High-fidelity Figma Mock Data
-const MOCK_PLANS: Plan[] = [
-  {
-    id: "mock-1",
-    customId: "#APRE0025",
-    title: "Cardiology Prescription",
-    summary: "Routine lipid control, vascular tone support and cardiovascular optimization protocol.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-01-25T09:00:00.000Z",
-    signedBy: {
-      id: "doc-1",
-      staff: {
-        fullName: "Dr. Mick Thompson",
-        avatarUrl: null,
-        specialization: "Cardiologist"
-      }
-    },
-    createdBy: {
-      id: "doc-1",
-      staff: {
-        fullName: "Dr. Mick Thompson",
-        avatarUrl: null,
-        specialization: "Cardiologist"
-      }
-    },
-    items: [
-      {
-        id: "item-1-1",
-        kind: "RX",
-        name: "Gener***********",
-        dose: "Ecosprin 75MG",
-        frequency: "1-0-1",
-        durationDays: 30,
-        instructions: "Before meal"
-      },
-      {
-        id: "item-1-2",
-        kind: "RX",
-        name: "Axer 90MG Tab",
-        dose: "90 mg",
-        frequency: "1-1-1",
-        durationDays: 30,
-        instructions: "After meal"
-      },
-      {
-        id: "item-1-3",
-        kind: "RX",
-        name: "Ramistar XL 2.5",
-        dose: "75 ml",
-        frequency: "1-0-1",
-        durationDays: 30,
-        instructions: "After meal"
-      },
-      {
-        id: "item-1-4",
-        kind: "RX",
-        name: "General Medicine",
-        dose: "Ecosprin 75MG",
-        frequency: "1-0-1",
-        durationDays: 30,
-        instructions: "Before meal"
-      }
-    ]
-  },
-  {
-    id: "mock-2",
-    title: "Orthopedic Rehabilitation Course",
-    summary: "Management plan for post-traumatic joint stiffness, synovial support and minor cartilage inflammation.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-04-15T10:00:00.000Z",
-    signedBy: {
-      id: "doc-2",
-      staff: {
-        fullName: "Dr. Akanksha Jain",
-        avatarUrl: null,
-        specialization: "Orthopedic Surgeon"
-      }
-    },
-    createdBy: {
-      id: "doc-2",
-      staff: {
-        fullName: "Dr. Akanksha Jain",
-        avatarUrl: null,
-        specialization: "Orthopedic Surgeon"
-      }
-    },
-    items: [
-      {
-        id: "item-2-1",
-        kind: "RX",
-        name: "Ibuprofen 400mg",
-        dose: "1 tablet",
-        frequency: "1-0-1",
-        durationDays: 14,
-        instructions: "After meal"
-      },
-      {
-        id: "item-2-2",
-        kind: "SUPPLEMENT",
-        name: "Glucosamine Complex",
-        dose: "1500 mg",
-        frequency: "1-0-0",
-        durationDays: 60,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-3",
-    title: "Pediatric Wellness Plan",
-    summary: "Routine developmental supplement course for pediatric support.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-04-02T10:00:00.000Z",
-    signedBy: {
-      id: "doc-3",
-      staff: {
-        fullName: "Dr. Sonali Mittal",
-        avatarUrl: null,
-        specialization: "Pediatrician"
-      }
-    },
-    createdBy: {
-      id: "doc-3",
-      staff: {
-        fullName: "Dr. Sonali Mittal",
-        avatarUrl: null,
-        specialization: "Pediatrician"
-      }
-    },
-    items: [
-      {
-        id: "item-3-1",
-        kind: "SUPPLEMENT",
-        name: "Multivitamin Liquid with Zinc",
-        dose: "1 ml",
-        frequency: "1-0-0",
-        durationDays: 30,
-        instructions: "Before meal"
-      }
-    ]
-  },
-  {
-    id: "mock-4",
-    title: "Prenatal Maternal Supplement Protocol",
-    summary: "Essential iron, calcium, and vitamin supplementation for maternal health.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-03-27T10:00:00.000Z",
-    signedBy: {
-      id: "doc-4",
-      staff: {
-        fullName: "Dr. Tarun Gupta",
-        avatarUrl: null,
-        specialization: "Gynecologist"
-      }
-    },
-    createdBy: {
-      id: "doc-4",
-      staff: {
-        fullName: "Dr. Tarun Gupta",
-        avatarUrl: null,
-        specialization: "Gynecologist"
-      }
-    },
-    items: [
-      {
-        id: "item-4-1",
-        kind: "SUPPLEMENT",
-        name: "Prenatal Folate + DHA",
-        dose: "1 softgel",
-        frequency: "1-0-0",
-        durationDays: 180,
-        instructions: "After meal"
-      },
-      {
-        id: "item-4-2",
-        kind: "SUPPLEMENT",
-        name: "Calcium Citrate 500mg",
-        dose: "1 tablet",
-        frequency: "1-0-1",
-        durationDays: 180,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-5",
-    title: "Cognitive Well-being Support Program",
-    summary: "Stress management and insomnia alleviation therapy plan.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-03-12T10:00:00.000Z",
-    signedBy: {
-      id: "doc-5",
-      staff: {
-        fullName: "Dr. Sarita Jain",
-        avatarUrl: null,
-        specialization: "Psychiatrist"
-      }
-    },
-    createdBy: {
-      id: "doc-5",
-      staff: {
-        fullName: "Dr. Sarita Jain",
-        avatarUrl: null,
-        specialization: "Psychiatrist"
-      }
-    },
-    items: [
-      {
-        id: "item-5-1",
-        kind: "RX",
-        name: "Melatonin 3mg",
-        dose: "1 tablet",
-        frequency: "0-0-1",
-        durationDays: 30,
-        instructions: "Before sleep"
-      },
-      {
-        id: "item-5-2",
-        kind: "SUPPLEMENT",
-        name: "Ashwagandha Extract 500mg",
-        dose: "1 capsule",
-        frequency: "1-0-1",
-        durationDays: 60,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-6",
-    title: "Post-Stroke Neurological Restoration",
-    summary: "Neuroprotective support and recovery pathway.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-03-05T10:00:00.000Z",
-    signedBy: {
-      id: "doc-6",
-      staff: {
-        fullName: "Dr. Nilesh Arora",
-        avatarUrl: null,
-        specialization: "Neurosurgeon"
-      }
-    },
-    createdBy: {
-      id: "doc-6",
-      staff: {
-        fullName: "Dr. Nilesh Arora",
-        avatarUrl: null,
-        specialization: "Neurosurgeon"
-      }
-    },
-    items: [
-      {
-        id: "item-6-1",
-        kind: "RX",
-        name: "Methylcobalamin 1500 mcg",
-        dose: "1 tablet",
-        frequency: "1-0-0",
-        durationDays: 90,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-7",
-    title: "Supportive Oncotherapy Care Plan",
-    summary: "Nutritional and general wellness management during oncological procedures.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-02-24T10:00:00.000Z",
-    signedBy: {
-      id: "doc-7",
-      staff: {
-        fullName: "Dr. Rakshita Gupta",
-        avatarUrl: null,
-        specialization: "Oncologist"
-      }
-    },
-    createdBy: {
-      id: "doc-7",
-      staff: {
-        fullName: "Dr. Rakshita Gupta",
-        avatarUrl: null,
-        specialization: "Oncologist"
-      }
-    },
-    items: [
-      {
-        id: "item-7-1",
-        kind: "SUPPLEMENT",
-        name: "High-Dose Vitamin D3 60,000 IU",
-        dose: "1 capsule",
-        frequency: "1-0-0",
-        durationDays: 56,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-8",
-    title: "Chronic Asthma Maintenance Program",
-    summary: "Long-term respiratory protection and airway management.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-02-16T10:00:00.000Z",
-    signedBy: {
-      id: "doc-8",
-      staff: {
-        fullName: "Dr. Amit Singh",
-        avatarUrl: null,
-        specialization: "Pulmonologist"
-      }
-    },
-    createdBy: {
-      id: "doc-8",
-      staff: {
-        fullName: "Dr. Amit Singh",
-        avatarUrl: null,
-        specialization: "Pulmonologist"
-      }
-    },
-    items: [
-      {
-        id: "item-8-1",
-        kind: "RX",
-        name: "Montelukast 10mg",
-        dose: "1 tablet",
-        frequency: "0-0-1",
-        durationDays: 60,
-        instructions: "After meal"
-      }
-    ]
-  },
-  {
-    id: "mock-9",
-    title: "Urinary Tract Optimization Course",
-    summary: "Antibacterial support and ph control for urinary tract issues.",
-    status: "REVOKED",
-    version: 1,
-    createdAt: "2025-02-01T10:00:00.000Z",
-    signedBy: {
-      id: "doc-9",
-      staff: {
-        fullName: "Dr. Suresh Gupta",
-        avatarUrl: null,
-        specialization: "Urologist"
-      }
-    },
-    createdBy: {
-      id: "doc-9",
-      staff: {
-        fullName: "Dr. Suresh Gupta",
-        avatarUrl: null,
-        specialization: "Urologist"
-      }
-    },
-    items: [
-      {
-        id: "item-9-1",
-        kind: "RX",
-        name: "Nitrofurantoin 100mg SR",
-        dose: "1 capsule",
-        frequency: "1-0-1",
-        durationDays: 7,
-        instructions: "Before meal"
-      }
-    ]
-  },
-  {
-    id: "mock-10",
-    title: "Hypertension Control & Hydration Protocol",
-    summary: "Blood pressure regulation and electrolyte optimization.",
-    status: "SIGNED",
-    version: 1,
-    createdAt: "2025-01-25T10:00:00.000Z",
-    signedBy: {
-      id: "doc-10",
-      staff: {
-        fullName: "Dr. Saurabh Jain",
-        avatarUrl: null,
-        specialization: "Cardiologist"
-      }
-    },
-    createdBy: {
-      id: "doc-10",
-      staff: {
-        fullName: "Dr. Saurabh Jain",
-        avatarUrl: null,
-        specialization: "Cardiologist"
-      }
-    },
-    items: [
-      {
-        id: "item-10-1",
-        kind: "RX",
-        name: "Amlodipine 5mg",
-        dose: "1 tablet",
-        frequency: "1-0-0",
-        durationDays: 90,
-        instructions: "After meal"
-      }
-    ]
-  }
-];
 
 export default function PatientPrescriptionsPage() {
   const [plans, setPlans] = useState<Plan[] | null>(null);
@@ -502,6 +96,8 @@ export default function PatientPrescriptionsPage() {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [activeActionMenuId, setActiveActionMenuId] = useState<string | null>(null);
   const [selectedPlanForDetail, setSelectedPlanForDetail] = useState<Plan | null>(null);
+  const router = useRouter();
+  const openPrescription = useCallback((id: string) => router.push(`/patient/prescriptions/${id}`), [router]);
   const [printPlan, setPrintPlan] = useState<Plan | null>(null);
   const [printAllMode, setPrintAllMode] = useState(false);
 
@@ -517,16 +113,21 @@ export default function PatientPrescriptionsPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // Load plans
-      const res = await fetch("/api/patient/me/treatment-plans?limit=100", { credentials: "include" });
-      let fetchedList: Plan[] = [];
-      if (res.ok) {
-        const json = await res.json();
-        fetchedList = Array.isArray(json?.data) ? json.data : [];
-      }
-      const combinedList = [...fetchedList, ...MOCK_PLANS];
-      setPlans(combinedList);
+
+      // Real prescriptions come from two sources: signed TreatmentPlans and
+      // the doctor's MAIN consultation Final Prescriptions. Merge + sort.
+      const [planRes, rxRes] = await Promise.all([
+        fetch("/api/patient/me/treatment-plans?limit=100", { credentials: "include" }),
+        fetch("/api/patient/me/prescriptions?limit=100", { credentials: "include" }),
+      ]);
+      const planJson = planRes.ok ? await planRes.json() : null;
+      const rxJson = rxRes.ok ? await rxRes.json() : null;
+      const plansList: Plan[] = Array.isArray(planJson?.data) ? planJson.data : [];
+      const rxList: Plan[] = Array.isArray(rxJson?.data) ? rxJson.data : [];
+      const combined = [...plansList, ...rxList].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+      setPlans(combined);
 
       // Load patient profile
       const profRes = await fetch("/api/patient/me", { credentials: "include" });
@@ -537,7 +138,7 @@ export default function PatientPrescriptionsPage() {
         }
       }
     } catch {
-      setPlans(MOCK_PLANS);
+      setPlans([]);
     } finally {
       setLoading(false);
     }
@@ -1063,6 +664,11 @@ export default function PatientPrescriptionsPage() {
       })() : (
         /* RENDER VIEW: LIST VIEW */
         <>
+          {/* Refill requests — patient self-service */}
+          <div className="no-print mb-6">
+            <RefillRequests />
+          </div>
+
           {/* Prescription Header */}
           <div className="flex justify-between items-center no-print mb-6">
             <div>
@@ -1325,7 +931,7 @@ export default function PatientPrescriptionsPage() {
                       return (
                         <tr
                           key={plan.id}
-                          onClick={() => setSelectedPlanForDetail(plan)}
+                          onClick={() => openPrescription(plan.id)}
                           className="group cursor-pointer hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-colors align-middle"
                         >
                           {/* ID Column */}
@@ -1394,7 +1000,7 @@ export default function PatientPrescriptionsPage() {
                               >
                                 <button
                                   onClick={() => {
-                                    setSelectedPlanForDetail(plan);
+                                    openPrescription(plan.id);
                                     setActiveActionMenuId(null);
                                   }}
                                   className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

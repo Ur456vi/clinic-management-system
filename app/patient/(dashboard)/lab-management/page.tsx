@@ -1,4 +1,4 @@
-"use client";
+import ComingSoon from "@/components/patient/ComingSoon"
 
 import { FlaskConical } from "lucide-react";
 
@@ -406,13 +406,11 @@ function PriorityPill({ priority }: { priority: Priority }) {
   };
   const colors = map[priority] ?? map.routine;
   return (
-    <span
-      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize"
-      style={{ background: colors.bg, color: colors.fg }}
-    >
-      {priority}
-    </span>
-  );
+    <ComingSoon
+      title="Lab Management"
+      description="Your lab orders, sample status, and results will live here. This feature is coming soon."
+    />
+  )
 }
 */
 

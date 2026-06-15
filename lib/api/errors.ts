@@ -155,6 +155,44 @@ function buildBody(
 }
 
 /**
+ * The service layer (`lib/errors.ts`) ships its own AppError hierarchy —
+ * a different class than the one in this module, so `instanceof` misses
+ * it. Duck-type on the shared shape so Forbidden/NotFound/Validation
+ * throws from services map to their real status instead of 500.
+ */
+function isServiceAppError(
+  err: unknown,
+): err is { statusCode: number; code: string; message: string; details?: unknown } {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    err instanceof Error &&
+    typeof (err as { statusCode?: unknown }).statusCode === "number" &&
+    typeof (err as { code?: unknown }).code === "string"
+  )
+}
+
+/** Map service-layer codes onto the wire enum (best-effort, safe fallback). */
+function normalizeServiceCode(code: string): ApiErrorCode {
+  switch (code) {
+    case "UNAUTHORIZED":
+      return "UNAUTHORIZED"
+    case "FORBIDDEN":
+      return "FORBIDDEN"
+    case "NOT_FOUND":
+      return "NOT_FOUND"
+    case "CONFLICT":
+    case "SLOT_CONFLICT":
+      return "CONFLICT"
+    case "VALIDATION_FAILED":
+    case "VALIDATION_ERROR":
+      return "VALIDATION_ERROR"
+    default:
+      return "INTERNAL_ERROR"
+  }
+}
+
+/**
  * Convert any thrown value into a `NextResponse` carrying the error envelope.
  *
  * Logging policy (BE-10):
@@ -184,6 +222,21 @@ export function errorResponse(
     }
     return NextResponse.json<ApiErrorBody>(
       buildBody(err.code, err.message, err.details),
+      { status: err.statusCode },
+    )
+  }
+
+  if (isServiceAppError(err)) {
+    if (err.statusCode >= 500) {
+      log.error({ err, code: err.code, status: err.statusCode }, "app_error")
+    } else {
+      log.warn(
+        { code: err.code, status: err.statusCode, message: err.message },
+        "app_error",
+      )
+    }
+    return NextResponse.json<ApiErrorBody>(
+      buildBody(normalizeServiceCode(err.code), err.message, err.details),
       { status: err.statusCode },
     )
   }

@@ -1,5 +1,6 @@
 import { type ServiceContent } from "@/components/public/services-config";
 import Link from "next/link";
+import { EcgLine } from "@/components/public/ui";
 
 export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "mens-hormonal") return null;
