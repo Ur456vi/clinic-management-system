@@ -611,7 +611,33 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           )}
         </Panel>
       ) : tab === "Billing" ? (
-        <ListPanel title="Billing & Payments" icon={CreditCard} items={byType.invoice} empty="No invoices yet." />
+        <Panel
+          title="Billing & Payments"
+          icon={CreditCard}
+          aside="+ Create invoice"
+          asideOnClick={() => router.push(`/admin/invoices/add?patientId=${id}`)}
+          full
+        >
+          {byType.invoice.length === 0 ? (
+            <Empty text="No invoices yet." />
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "#EFE8D8" }}>
+              {byType.invoice.map((e) => (
+                <li key={e.id} className="py-3 flex items-center justify-between gap-3">
+                  <Link href={`/admin/invoices/${e.ref.id}`} className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] hover:underline truncate">
+                    {e.summary}
+                  </Link>
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    <span className="text-xs text-[#8A9A92]">{fmtDate(e.occurredAt, true)}</span>
+                    <Link href={`/admin/invoices/${e.ref.id}`} className="text-xs font-semibold hover:underline" style={{ color: GREEN }}>
+                      View
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       ) : (
         // Vitals
         <Panel title="Vitals" icon={Activity} aside={vitalOpen ? "Cancel" : "Record reading"} asideOnClick={() => setVitalOpen((v) => !v)} full>
