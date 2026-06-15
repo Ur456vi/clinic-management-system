@@ -30,30 +30,35 @@ type Patient = {
 function PatientActionMenu({
   patientId,
   patientName,
+  isOpen,
+  onToggle,
+  onClose,
   onDeleted,
 }: {
   patientId: string
   patientName: string
+  isOpen: boolean
+  onToggle: () => void
+  onClose: () => void
   onDeleted: () => void
 }) {
-  const [isOpen, setIsOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   // Close dropdown when clicking outside
   useEffect(() => {
     if (!isOpen) return
 
-    const handleClose = () => setIsOpen(false)
+    const handleClose = () => onClose()
 
     window.addEventListener("click", handleClose)
 
     return () => {
       window.removeEventListener("click", handleClose)
     }
-  }, [isOpen])
+  }, [isOpen, onClose])
 
   const handleDelete = async () => {
-    setIsOpen(false)
+    onClose()
     if (
       !window.confirm(
         `Permanently delete ${patientName}?\n\nThis removes the patient and ALL their records — appointments, invoices, payments, vitals, consultations, lab results and prescriptions. This cannot be undone.`,
@@ -86,7 +91,7 @@ function PatientActionMenu({
       <button
         onClick={(e) => {
           e.stopPropagation()
-          setIsOpen(!isOpen)
+          onToggle()
         }}
         disabled={deleting}
         className="p-1.5 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] rounded-md hover:bg-gray-100 transition-colors disabled:opacity-50"
@@ -132,6 +137,7 @@ export default function PatientsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   const fetchPatients = async () => {
     setIsLoading(true)
@@ -236,8 +242,8 @@ export default function PatientsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm">
+        <div className="">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
@@ -406,6 +412,9 @@ export default function PatientsPage() {
                       <PatientActionMenu
                         patientId={patient.id}
                         patientName={patient.fullName}
+                        isOpen={openMenuId === patient.id}
+                        onToggle={() => setOpenMenuId(openMenuId === patient.id ? null : patient.id)}
+                        onClose={() => setOpenMenuId(null)}
                         onDeleted={fetchPatients}
                       />
                     </td>

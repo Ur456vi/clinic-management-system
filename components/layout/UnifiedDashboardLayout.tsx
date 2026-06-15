@@ -49,7 +49,7 @@ const adminOnlySidebarItems = [
 const adminBottomItems = [
   { name: "Profile", icon: User, href: "/admin/profile" },
   { name: "Settings", icon: Settings, href: "/admin/settings" },
-  { name: "Help & Support", icon: HelpCircle, href: "/admin/help" },
+  // { name: "Help & Support", icon: HelpCircle, href: "/admin/help" },
 ]
 
 const patientSidebarItems = [
@@ -70,9 +70,9 @@ const patientBottomItems = [
 // sidebar items so we can expose role-appropriate shortcuts (e.g. patients
 // land on /patient/profile, staff land on /admin/settings).
 const adminMenuItems: UserMenuItem[] = [
-  { label: "My profile", href: "/admin/profile", icon: User },
+  // { label: "My profile", href: "/admin/profile", icon: User },
   { label: "Settings", href: "/admin/settings", icon: Settings },
-  { label: "Help & Support", href: "/admin/help", icon: HelpCircle },
+  // { label: "Help & Support", href: "/admin/help", icon: HelpCircle },
 ]
 
 const patientMenuItems: UserMenuItem[] = [
@@ -209,10 +209,10 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 border-r border-[#EAECF0] dark:border-[#374151] pr-4 mr-2">
               <ThemeToggle className="p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 rounded-lg transition-colors" />
-              <NotificationBell
+              {/* <NotificationBell
                 buttonClassName="p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 rounded-lg transition-colors relative"
                 iconClassName="h-5 w-5"
-              />
+              /> */}
             </div>
 
             <UserMenu items={menuItems} signOutRedirect="/login" />

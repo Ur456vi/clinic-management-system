@@ -206,8 +206,8 @@ export default function StaffPage() {
       </div>
 
       {/* Body */}
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm">
+        <div className="">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">

@@ -101,6 +101,7 @@ export default function AppointmentsList({
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL")
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   const fetchAppointments = useCallback(async () => {
     setError(null)
@@ -266,6 +267,9 @@ export default function AppointmentsList({
                     row={row}
                     showRmoSummary={showRmoSummary}
                     onChanged={() => void fetchAppointments()}
+                    isOpen={openMenuId === row.id}
+                    onToggle={() => setOpenMenuId(openMenuId === row.id ? null : row.id)}
+                    onClose={() => setOpenMenuId(null)}
                   />
                 ))
               )}
@@ -283,10 +287,16 @@ function AppointmentRow({
   row,
   showRmoSummary,
   onChanged,
+  isOpen,
+  onToggle,
+  onClose,
 }: {
   row: AppointmentApi
   showRmoSummary: boolean
   onChanged: () => void
+  isOpen: boolean
+  onToggle: () => void
+  onClose: (val?: boolean) => void
 }) {
   const starts = new Date(row.startsAt)
   const dateLabel = starts.toLocaleDateString("en-GB", {
@@ -361,7 +371,14 @@ function AppointmentRow({
 
       {/* Actions — sticky so the kebab stays reachable under horizontal scroll. */}
       <td className="px-6 py-4 sticky right-0 bg-white dark:bg-[#1F2937]">
-        <AppointmentActionMenu row={row} showRmoSummary={showRmoSummary} onChanged={onChanged} />
+        <AppointmentActionMenu 
+          row={row} 
+          showRmoSummary={showRmoSummary} 
+          onChanged={onChanged} 
+          isOpen={isOpen}
+          onToggle={onToggle}
+          onClose={onClose}
+        />
       </td>
     </tr>
   )
@@ -373,13 +390,18 @@ function AppointmentActionMenu({
   row,
   showRmoSummary,
   onChanged,
+  isOpen: open,
+  onToggle,
+  onClose: setOpen,
 }: {
   row: AppointmentApi
   showRmoSummary: boolean
   onChanged: () => void
+  isOpen: boolean
+  onToggle: () => void
+  onClose: (val?: boolean) => void
 }) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
@@ -389,7 +411,7 @@ function AppointmentActionMenu({
   const toggle = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (open) {
-      setOpen(false)
+      onToggle()
       return
     }
     const r = btnRef.current?.getBoundingClientRect()
@@ -410,17 +432,19 @@ function AppointmentActionMenu({
         (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0) +
         (billable ? 1 : 0)
       const menuH = itemCount * 38 + 20 // +divider
-      const top =
-        r.bottom + 4 + menuH > window.innerHeight ? Math.max(8, r.top - menuH - 4) : r.bottom + 4
+      let top = r.bottom + 4
+      if (top + menuH > window.innerHeight && r.top > menuH + 4) {
+        top = r.top - menuH - 4
+      }
       setCoords({ top, left: r.right - MENU_W })
     }
-    setOpen(true)
+    onToggle()
   }
 
   // Close on any outside click, scroll, or resize.
   useEffect(() => {
     if (!open) return
-    const close = () => setOpen(false)
+    const close = () => setOpen()
     window.addEventListener("click", close)
     window.addEventListener("scroll", close, true)
     window.addEventListener("resize", close)
@@ -429,7 +453,7 @@ function AppointmentActionMenu({
       window.removeEventListener("scroll", close, true)
       window.removeEventListener("resize", close)
     }
-  }, [open])
+  }, [open, setOpen])
 
   const accept = async () => {
     setBusy(true)
