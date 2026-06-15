@@ -97,14 +97,8 @@ export default function QuizStepPage({
       <div className="mx-auto max-w-[1200px] px-6 pt-8 pb-16 md:px-12 md:pt-10 md:pb-20">
         {/* <QuizHeader /> */}
 
-        {/* Prev/Next + progress */}
+        {/* Progress */}
         <div className="mt-8 space-y-3">
-          <PrevNextBar
-            onPrev={onPrev}
-            onNext={onNext}
-            nextDisabled={!isAnswered}
-            nextLabel={step === totalSteps ? "See Results" : "Next"}
-          />
           <LevelProgressBar activeLevel={category.level} />
         </div>
 
@@ -141,6 +135,15 @@ export default function QuizStepPage({
               sex={state.sex ?? "other"}
               onAnswer={onAnswer}
             />
+
+            <div className="mt-4 border-t pt-6" style={{ borderColor: "var(--brand-olive-soft)" }}>
+              <PrevNextBar
+                onPrev={onPrev}
+                onNext={onNext}
+                nextDisabled={!isAnswered}
+                nextLabel={step === totalSteps ? "See Results" : "Next"}
+              />
+            </div>
           </div>
         </div>
       </div>
