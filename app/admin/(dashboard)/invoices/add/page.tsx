@@ -218,7 +218,7 @@ function CreateInvoiceForm() {
   }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, items, router])
 
   return (
-    <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-3xl">
+    <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-6xl">
       <div className="flex items-center gap-3">
         <Link
           href="/admin/invoices"
@@ -240,7 +240,10 @@ function CreateInvoiceForm() {
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm p-6 flex flex-col gap-5">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* ── Left: form ── */}
+        <div className="flex-1 min-w-0 w-full bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm p-6 flex flex-col gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Patient */}
           <div className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">Patient</span>
@@ -281,6 +284,7 @@ function CreateInvoiceForm() {
                 </option>
               ))}
             </select>
+          </div>
           </div>
 
           {/* Line items */}
@@ -332,28 +336,38 @@ function CreateInvoiceForm() {
             </p>
           </div>
 
-          {/* Totals */}
-          <div className="self-end w-full sm:w-64 text-sm">
-            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>Subtotal</span><span>{fmt(totals.subtotal)}</span></div>
-            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>GST</span><span>{fmt(totals.tax)}</span></div>
-            <div className="flex justify-between py-1.5 mt-1 border-t border-[#EAECF0] dark:border-[#374151] font-bold text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
-          </div>
-
           {/* Notes */}
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">Notes (optional)</span>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Anything to print on the invoice" className="px-3 py-2.5 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] resize-none" />
           </label>
+        </div>
 
+        {/* ── Right: summary (sticky) ── */}
+        <div className="w-full lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-6 bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm p-5 flex flex-col gap-4">
+          <h3 className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">Summary</h3>
+          {patient ? (
+            <div className="text-xs text-[#667085] dark:text-[#94A3B8] flex flex-col gap-1 pb-3 border-b border-[#EAECF0] dark:border-[#374151]">
+              <span><span className="text-[#98A2B3]">Patient:</span> {patient.fullName}</span>
+              {departmentId ? <span><span className="text-[#98A2B3]">Department:</span> {departments.find((d) => d.id === departmentId)?.name ?? "—"}</span> : null}
+              <span><span className="text-[#98A2B3]">Lines:</span> {items.length}</span>
+            </div>
+          ) : null}
+          <div className="text-sm">
+            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>Subtotal</span><span>{fmt(totals.subtotal)}</span></div>
+            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>GST</span><span>{fmt(totals.tax)}</span></div>
+            <div className="flex justify-between py-1.5 mt-1 border-t border-[#EAECF0] dark:border-[#374151] font-bold text-base text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
+          </div>
           <button
             type="button"
             onClick={() => void save()}
             disabled={!canSubmit || submitting}
-            className="h-11 rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
+            className="h-11 w-full rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Create &amp; issue invoice
           </button>
+        </div>
         </div>
       )}
     </div>
