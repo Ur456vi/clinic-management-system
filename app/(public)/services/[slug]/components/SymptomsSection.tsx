@@ -797,7 +797,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                <p className="text-[#1F1F1F] font-medium text-[15px] md:text-[16px] leading-[1.6] relative z-10">
                  What has been{" "}
                  <br className="hidden lg:inline" />
-                 normalized through generation is{" "}
+                 normalized through generations is{" "}
                  <br className="hidden lg:inline" />
                  often physiological{" "}
                  <br className="hidden lg:inline" />
