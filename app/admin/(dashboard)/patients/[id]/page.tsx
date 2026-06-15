@@ -423,7 +423,6 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     { icon: CalendarClock, label: "FOLLOW-UPS", value: (activity ?? []).length, sub: "Bookings", bg: "#EFF4FF", fg: "#2E5AAC" },
     { icon: Syringe, label: "INFUSIONS", value: 0, sub: "Done", bg: "#E9F6F2", fg: "#0E8C6A" },
     { icon: FlaskConical, label: "LAB REPORTS", value: byType.labResult.length, sub: "Ordered", bg: "#F1EEFB", fg: "#6A4FB0" },
-    { icon: Pill, label: "PROGRAM", value: byType.treatmentPlan.length > 0 ? "Active" : "—", sub: "Plan", bg: "#FBF3E2", fg: GOLD, gold: true },
     { icon: RefreshCw, label: "REFILLS DUE", value: 2, sub: "Next 7 days", bg: "#FDEFE4", fg: "#C2691E" },
   ]
 
@@ -463,9 +462,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3.5">
         {kpis.map((k) => (
-          <div key={k.label} className="rounded-2xl bg-white dark:bg-[#1F2937] p-4" style={{ border: `1px solid ${k.gold ? "#EAD9A8" : "#E7DFCD"}` }}>
+          <div key={k.label} className="rounded-2xl bg-white dark:bg-[#1F2937] p-4" style={{ border: "1px solid #E7DFCD" }}>
             <span className="h-9 w-9 rounded-xl flex items-center justify-center" style={{ background: k.bg }}>
               <k.icon style={{ width: 18, height: 18, color: k.fg }} />
             </span>
