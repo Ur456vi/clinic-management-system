@@ -132,7 +132,6 @@ export const MAIN_SECTIONS: MainSection[] = [
         controls: [
           { kind: "date", n: "patientDetail__consultation_date", l: "Consultation Date" },
           { kind: "text", n: "patientDetail__consultation_duration", l: "Duration (minutes)", placeholder: "e.g., 42" },
-          { kind: "select", n: "patientDetail__consultation_mode", l: "Mode", options: ["In-Clinic", "Online"], placeholder: "Select mode" },
         ],
       },
       // The RMO intake (chief concerns, history, family history, background,
@@ -264,28 +263,24 @@ export const MAIN_SECTIONS: MainSection[] = [
         ],
       },
       {
-        title: "Supplements & Nutraceuticals",
+        title: "Medications & Supplements",
         controls: [
           {
             kind: "table",
             n: "finalPrescription__supplements_rows",
-            l: "Supplements",
-            addLabel: "Add supplement",
-            library: "supplements",
+            l: "Medications & Supplements",
+            addLabel: "Add item",
+            // Full meds + supplements catalog. Picking from the library
+            // auto-fills product / dose / timing (parsed from the entry).
+            library: "rx",
             full: true,
             columns: [
-              { key: "product", label: "Product / Supplement", placeholder: "e.g., IHMH Omega-3 (TG form)" },
-              { key: "dose", label: "Dose", placeholder: "e.g., 1 Capsule" },
+              { key: "product", label: "Medication / Supplement", placeholder: "e.g., Magnesium Glycinate" },
+              { key: "dose", label: "Dose", placeholder: "e.g., 200 mg" },
               { key: "timing", label: "Timing", placeholder: "e.g., After Breakfast" },
               { key: "duration", label: "Duration", placeholder: "e.g., 12 Weeks" },
             ],
           },
-        ],
-      },
-      {
-        title: "Medications",
-        controls: [
-          { kind: "medicationsLibrary", n: "finalPrescription__medications", l: "Medications", placeholder: "Drug — dose — frequency — duration (one per line)", rows: 5, full: true },
         ],
       },
       {

@@ -111,6 +111,50 @@ export const RX_SUFFIXES: string[] = [
   "Stop and report adverse effects immediately",
 ]
 
+/**
+ * Split a library item label into prescription columns. Best-effort: the
+ * catalog strings follow "<Name> <dose> <freq/route>", e.g.
+ * "Levothyroxine 25 mcg OD empty stomach morning" or "Magnesium Glycinate
+ * 200 mg HS". Returns the medication/supplement name, the dose token, and
+ * the remaining timing/route text. Duration is NOT encoded in the catalog,
+ * so it is left blank for the clinician to fill.
+ *
+ *   "Magnesium Glycinate 200 mg HS"
+ *      -> { product: "Magnesium Glycinate", dose: "200 mg", timing: "HS" }
+ *   "Pancreatic Enzymes 1 cap TDS with meals"
+ *      -> { product: "Pancreatic Enzymes", dose: "1 cap", timing: "TDS with meals" }
+ *   "Activated B Complex OD"
+ *      -> { product: "Activated B Complex", dose: "", timing: "OD" }
+ */
+export function parseRxItem(label: string): {
+  product: string
+  dose: string
+  timing: string
+} {
+  const s = label.trim()
+
+  // A "strong" dose (mass / volume / units) is preferred over a form or a
+  // concentration like "1%" so e.g. "Testosterone Gel 1% 5 g …" -> "5 g".
+  const strong = s.match(/\b\d[\d.,/]*\s?(?:mcg|mg|g|IU|mL|ml|billion\s+CFU|million\s+CFU)\b/i)
+  const form = s.match(/\b\d[\d.,/]*\s?(?:caps?|capsules?|tabs?|tablets?|pumps?|softgels?|sachets?|drops?|puffs?|%)\b/i)
+  const dm = strong ?? form
+  if (dm && dm.index !== undefined) {
+    return {
+      product: s.slice(0, dm.index).trim() || s,
+      dose: dm[0].trim(),
+      timing: s.slice(dm.index + dm[0].length).trim(),
+    }
+  }
+
+  // No numeric dose — split at the first frequency / route keyword.
+  const tm = s.match(/\b(?:OD|BD|TDS|QID|QDS|HS|SC|IM|IV|SL|PO|PRN|once|twice|weekly|daily|alternate|topical|after|before|empty|with|every|morning|night|bedtime)\b/i)
+  if (tm && tm.index !== undefined && tm.index > 0) {
+    return { product: s.slice(0, tm.index).trim(), dose: "", timing: s.slice(tm.index).trim() }
+  }
+
+  return { product: s, dose: "", timing: "" }
+}
+
 /** Flat search across the med/supplement library; returns matching items. */
 export function searchRx(query: string): { category: string; item: string }[] {
   const q = query.trim().toLowerCase()

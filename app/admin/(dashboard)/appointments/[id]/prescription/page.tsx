@@ -279,7 +279,6 @@ export default function PrescriptionPage() {
 
   const patient = consult.patient
   const consultDate = pd("consultation_date")
-  const mode = pd("consultation_mode")
   const supplements = parseRows(fp("supplements_rows"))
   const infusions = parseRows(ira("infusion_rows"))
 
@@ -366,21 +365,6 @@ export default function PrescriptionPage() {
                 {generated
                   ? `${fmtDate(generated.toISOString())} | ${generated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
                   : "—"}
-              </span>
-            </p>
-            <p className="px-2.5 py-1.5 flex items-center gap-3 border-t" style={{ borderColor: "#E5DFD0" }}>
-              <span className="font-bold" style={{ color: GOLD }}>MODE :</span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 border text-center leading-3" style={{ borderColor: "#98A2B3" }}>
-                  {mode === "In-Clinic" || mode === "In-Person" ? "✓" : ""}
-                </span>
-                In-Clinic
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 border text-center leading-3" style={{ borderColor: "#98A2B3" }}>
-                  {mode === "Online" ? "✓" : ""}
-                </span>
-                Online
               </span>
             </p>
           </div>
@@ -529,7 +513,6 @@ export default function PrescriptionPage() {
                 >
                   <span>📅 Consultation Date: {fmtDate(consultDate)}</span>
                   <span>🕐 Duration: {pd("consultation_duration") ? `${pd("consultation_duration")} minutes` : "—"}</span>
-                  <span>🧭 Mode: {mode || "—"}</span>
                 </div>
                 <div className="p-4 space-y-3">
                   <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
@@ -597,11 +580,11 @@ export default function PrescriptionPage() {
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. SUPPLEMENTS &amp; NUTRACEUTICALS
+                    A. MEDICATIONS &amp; SUPPLEMENTS
                   </p>
                   <RxTable
                     columns={[
-                      { key: "product", label: "Product / Supplement" },
+                      { key: "product", label: "Medication / Supplement" },
                       { key: "dose", label: "Dose" },
                       { key: "timing", label: "Timing" },
                       { key: "duration", label: "Duration" },
@@ -609,14 +592,6 @@ export default function PrescriptionPage() {
                     rows={supplements}
                   />
                 </div>
-                {fp("medications") ? (
-                  <div>
-                    <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
-                      MEDICATIONS
-                    </p>
-                    <Bullets text={fp("medications")} />
-                  </div>
-                ) : null}
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
                     B. INFUSION / INJECTABLE <span className="font-normal">(Scheduled at Clinic)</span>

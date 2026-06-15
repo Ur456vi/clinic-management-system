@@ -28,8 +28,8 @@ import RxLibraryPicker from "@/components/admin/RxLibraryPicker"
 import {
   INFUSION_PROTOCOLS,
   RX_LIBRARY,
-  RX_SUPPLEMENTS,
   RX_SUFFIXES,
+  parseRxItem,
   type RxCategory,
 } from "@/lib/rx-library"
 
@@ -47,11 +47,29 @@ export interface DoctorConsult {
   type: "RMO" | "MAIN"
   status: string
   sections?: Record<string, Record<string, unknown>> | null
-  patient: { id: string; fullName: string; patientNumber: string } | null
+  patient:
+    | {
+        id: string
+        fullName: string
+        patientNumber: string
+        /** Master-record demographics, used to pre-fill the Patient Detail tab. */
+        phone?: string | null
+        email?: string | null
+        sex?: string | null
+        dateOfBirth?: string | null
+        occupation?: string | null
+        referralSource?: string | null
+      }
+    | null
   /** Latest RMO intake (attached by the consultation endpoint) — used to
    * pre-fill matching doctor fields so they aren't re-typed. */
   rmoSummary?: {
     sections?: Record<string, Record<string, unknown>> | null
+  } | null
+  /** Appointment slot info — pre-fills the Consultation Details date + duration. */
+  appointment?: {
+    date?: string | null
+    durationMinutes?: number | null
   } | null
 }
 
@@ -100,6 +118,41 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       const v = rmo?.[src.key]?.[src.n]
       if (v != null && String(v) !== "") flat[target] = String(v)
     }
+
+    // Backfill any still-blank demographics from the patient master record
+    // (Contact / Email come only from here; the rest fall back to it when no
+    // RMO intake exists). Saved doctor values + RMO prefill always win.
+    const p = consult.patient
+    if (p) {
+      const seed = (n: string, v: string | null | undefined) => {
+        if (!flat[n] && v != null && String(v).trim() !== "") flat[n] = String(v).trim()
+      }
+      seed("patientDetail__contact", p.phone)
+      seed("patientDetail__email", p.email)
+      seed("patientDetail__occupation", p.occupation)
+      if (p.dateOfBirth) seed("patientDetail__dob", String(p.dateOfBirth).slice(0, 10))
+      const genderMap: Record<string, string> = { MALE: "Male", FEMALE: "Female", OTHER: "Other" }
+      if (p.sex && genderMap[p.sex]) seed("patientDetail__gender", genderMap[p.sex])
+      if (p.referralSource) {
+        const ref = ["Self", "Doctor", "Relative", "Friend", "Other"].find(
+          (o) => o.toLowerCase() === String(p.referralSource).toLowerCase(),
+        )
+        if (ref) seed("patientDetail__referred_by", ref)
+      }
+    }
+
+    // Consultation Details — date + booked duration from the appointment slot
+    // (still-blank only; saved doctor values + RMO prefill win).
+    const appt = consult.appointment
+    if (appt) {
+      if (!flat["patientDetail__consultation_duration"] && appt.durationMinutes != null) {
+        flat["patientDetail__consultation_duration"] = String(appt.durationMinutes)
+      }
+      if (!flat["patientDetail__consultation_date"] && appt.date) {
+        flat["patientDetail__consultation_date"] = String(appt.date).slice(0, 10)
+      }
+    }
+
     return flat
   })
 
@@ -233,6 +286,12 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
     await save()
     const q = new URLSearchParams({ role: "DOCTOR", doctor: "Yuvraaj" })
     if (patientId) q.set("patientId", patientId)
+    // Carry the follow-up date + notes the doctor set in the prescription so
+    // the booking opens pre-dated instead of blank.
+    const fuDate = form["finalPrescription__follow_up_date"]
+    if (fuDate) q.set("date", fuDate)
+    const fuNotes = form["finalPrescription__follow_up_notes"]?.trim()
+    if (fuNotes) q.set("reason", `Follow-up: ${fuNotes}`)
     router.push(`/admin/appointments/add?${q.toString()}`)
   }
 
@@ -521,8 +580,10 @@ function TableControl({
     onChange(next.length === 0 ? "" : JSON.stringify(next))
   }
 
-  // Library pick → new row(s) with the first column prefilled. An infusion
-  // protocol expands into one row per component ingredient.
+  // Library pick → new row(s). An infusion protocol expands into one row
+  // per component ingredient. A medication / supplement is parsed so the
+  // dose + timing columns auto-fill from the catalog entry.
+  const hasCol = (key: string) => columns.some((c) => c.key === key)
   const addFromLibrary = (picked: string) => {
     if (!firstKey) return
     if (library === "infusion") {
@@ -530,7 +591,11 @@ function TableControl({
       const comps = proto ? proto.components : [picked]
       commit([...rows, ...comps.map((c) => ({ [firstKey]: c }))])
     } else {
-      commit([...rows, { [firstKey]: picked }])
+      const { product, dose, timing } = parseRxItem(picked)
+      const row: TableRow = { [firstKey]: product }
+      if (hasCol("dose")) row.dose = dose
+      if (hasCol("timing")) row.timing = timing
+      commit([...rows, row])
     }
   }
 
@@ -607,23 +672,13 @@ function TableControl({
         </button>
         {library ? (
           <RxLibraryPicker
-            categories={
-              library === "infusion"
-                ? INFUSION_CATEGORIES
-                : library === "supplements"
-                  ? RX_SUPPLEMENTS
-                  : RX_LIBRARY
-            }
+            categories={library === "infusion" ? INFUSION_CATEGORIES : RX_LIBRARY}
             onPick={addFromLibrary}
             label={library === "infusion" ? "Add from infusion library" : "Add from library"}
             searchPlaceholder={
-              library === "infusion"
-                ? "Search protocol…"
-                : library === "supplements"
-                  ? "Search supplement…"
-                  : "Search medication / supplement…"
+              library === "infusion" ? "Search protocol…" : "Search medication / supplement…"
             }
-            variant={library === "infusion" ? "modal" : "dropdown"}
+            variant="modal"
           />
         ) : null}
       </div>
