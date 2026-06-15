@@ -26,6 +26,10 @@ import {
   PlayCircle,
   ClipboardList,
   FileText,
+  Printer,
+  Tablet,
+  Receipt,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -97,6 +101,7 @@ export default function AppointmentsList({
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL")
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   const fetchAppointments = useCallback(async () => {
     setError(null)
@@ -206,7 +211,8 @@ export default function AppointmentsList({
                 <th className="px-6 py-3 font-semibold">Date / Time</th>
                 <th className="px-6 py-3 font-semibold">Reason</th>
                 <th className="px-6 py-3 font-semibold">Status</th>
-                <th className="px-6 py-3 font-semibold">Actions</th>
+                {/* Sticky so the kebab stays reachable when the table scrolls sideways. */}
+                <th className="px-6 py-3 font-semibold sticky right-0 bg-[#F9FAFB] dark:bg-[#111827]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
@@ -261,6 +267,9 @@ export default function AppointmentsList({
                     row={row}
                     showRmoSummary={showRmoSummary}
                     onChanged={() => void fetchAppointments()}
+                    isOpen={openMenuId === row.id}
+                    onToggle={() => setOpenMenuId(openMenuId === row.id ? null : row.id)}
+                    onClose={() => setOpenMenuId(null)}
                   />
                 ))
               )}
@@ -278,10 +287,16 @@ function AppointmentRow({
   row,
   showRmoSummary,
   onChanged,
+  isOpen,
+  onToggle,
+  onClose,
 }: {
   row: AppointmentApi
   showRmoSummary: boolean
   onChanged: () => void
+  isOpen: boolean
+  onToggle: () => void
+  onClose: (val?: boolean) => void
 }) {
   const starts = new Date(row.startsAt)
   const dateLabel = starts.toLocaleDateString("en-GB", {
@@ -354,9 +369,16 @@ function AppointmentRow({
         <StatusPill status={row.status} />
       </td>
 
-      {/* Actions */}
-      <td className="px-6 py-4">
-        <AppointmentActionMenu row={row} showRmoSummary={showRmoSummary} onChanged={onChanged} />
+      {/* Actions — sticky so the kebab stays reachable under horizontal scroll. */}
+      <td className="px-6 py-4 sticky right-0 bg-white dark:bg-[#1F2937]">
+        <AppointmentActionMenu 
+          row={row} 
+          showRmoSummary={showRmoSummary} 
+          onChanged={onChanged} 
+          isOpen={isOpen}
+          onToggle={onToggle}
+          onClose={onClose}
+        />
       </td>
     </tr>
   )
@@ -368,13 +390,18 @@ function AppointmentActionMenu({
   row,
   showRmoSummary,
   onChanged,
+  isOpen: open,
+  onToggle,
+  onClose: setOpen,
 }: {
   row: AppointmentApi
   showRmoSummary: boolean
   onChanged: () => void
+  isOpen: boolean
+  onToggle: () => void
+  onClose: (val?: boolean) => void
 }) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const btnRef = useRef<HTMLButtonElement>(null)
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
@@ -384,22 +411,40 @@ function AppointmentActionMenu({
   const toggle = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (open) {
-      setOpen(false)
+      onToggle()
       return
     }
     const r = btnRef.current?.getBoundingClientRect()
     if (r) {
       // Anchor below the button, right-aligned, in viewport (fixed) coords so
       // the menu escapes the table's overflow-hidden / overflow-x-auto clip.
-      setCoords({ top: r.bottom + 4, left: r.right - MENU_W })
+      // If the menu would spill past the bottom of the viewport, flip it above
+      // the button instead — otherwise the lowest items ("View quiz
+      // Assessment", "View prescription") end up off-screen and unreachable
+      // (the menu closes on scroll).
+      const billable = row.status !== "CANCELLED" && row.status !== "NO_SHOW"
+      const itemCount =
+        3 +
+        1 + // Delete (always shown)
+        (row.status === "REQUESTED" ? 1 : 0) +
+        (showRmoSummary ? 1 : 0) +
+        (row.status === "COMPLETED" ? 1 : 0) +
+        (row.status === "REQUESTED" || row.status === "CONFIRMED" ? 1 : 0) +
+        (billable ? 1 : 0)
+      const menuH = itemCount * 38 + 20 // +divider
+      let top = r.bottom + 4
+      if (top + menuH > window.innerHeight && r.top > menuH + 4) {
+        top = r.top - menuH - 4
+      }
+      setCoords({ top, left: r.right - MENU_W })
     }
-    setOpen(true)
+    onToggle()
   }
 
   // Close on any outside click, scroll, or resize.
   useEffect(() => {
     if (!open) return
-    const close = () => setOpen(false)
+    const close = () => setOpen()
     window.addEventListener("click", close)
     window.addEventListener("scroll", close, true)
     window.addEventListener("resize", close)
@@ -408,7 +453,7 @@ function AppointmentActionMenu({
       window.removeEventListener("scroll", close, true)
       window.removeEventListener("resize", close)
     }
-  }, [open])
+  }, [open, setOpen])
 
   const accept = async () => {
     setBusy(true)
@@ -434,6 +479,41 @@ function AppointmentActionMenu({
   const viewQuiz = () => {
     setOpen(false)
     router.push(`/admin/appointments/${row.id}/quiz`)
+  }
+
+  const deleteAppt = async () => {
+    setOpen(false)
+    const who = row.patient?.fullName ?? "this patient"
+    const when = new Date(row.startsAt).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    if (
+      !window.confirm(
+        `Permanently delete the appointment for ${who} on ${when}?\n\nThis cannot be undone. A linked invoice or consultation is detached, not deleted.`,
+      )
+    )
+      return
+    setBusy(true)
+    try {
+      const res = await fetch(`/api/appointments/${row.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) {
+        const j = await res.json().catch(() => null)
+        throw new Error(j?.error?.message ?? `HTTP ${res.status}`)
+      }
+      notify.success("Appointment deleted")
+      onChanged()
+    } catch (err) {
+      notify.error("Couldn't delete appointment", {
+        description: err instanceof Error ? err.message : "Unknown error",
+      })
+    } finally {
+      setBusy(false)
+    }
   }
 
   const item =
@@ -478,6 +558,20 @@ function AppointmentActionMenu({
               </button>
             ) : null}
 
+            {/* Check-in billing — reception creates + issues an invoice for
+                this visit, then prints a copy for the patient. */}
+            {row.status !== "CANCELLED" && row.status !== "NO_SHOW" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/invoices/add?appointmentId=${row.id}`)
+                }}
+              >
+                <Receipt className="h-4 w-4 text-[#027A48]" /> Create invoice
+              </button>
+            ) : null}
+
             {showRmoSummary ? (
               <button
                 className={item}
@@ -502,6 +596,40 @@ function AppointmentActionMenu({
 
             <button className={item} onClick={() => void viewQuiz()}>
               <ClipboardList className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View quiz Assessment
+            </button>
+
+            {/* Walk-in tablet quiz — only meaningful before the visit is done. */}
+            {row.status === "REQUESTED" || row.status === "CONFIRMED" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/kiosk/${row.id}`)
+                }}
+              >
+                <Tablet className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" /> Start tablet assessment
+              </button>
+            ) : null}
+
+            {row.status === "COMPLETED" ? (
+              <button
+                className={item}
+                onClick={() => {
+                  setOpen(false)
+                  router.push(`/admin/appointments/${row.id}/prescription`)
+                }}
+              >
+                <Printer className="h-4 w-4 text-[#667085] dark:text-[#94A3B8]" /> View prescription
+              </button>
+            ) : null}
+
+            <div className="my-1 border-t border-[#EAECF0] dark:border-[#374151]" />
+
+            <button
+              onClick={() => void deleteAppt()}
+              className="w-full text-left px-4 py-2 text-sm font-medium text-[#B42318] hover:bg-[#FEF3F2] transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" /> Delete
             </button>
           </div>
         </div>

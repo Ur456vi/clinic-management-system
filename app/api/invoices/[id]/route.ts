@@ -11,12 +11,13 @@
  * live in `lib/services/invoice.ts`.
  */
 
-import { defineHandler, ok, requireSession } from "@/lib/api"
+import { defineHandler, noContent, ok, requireSession } from "@/lib/api"
 import {
   invoiceIdParamSchema,
   updateInvoiceSchema,
 } from "@/lib/validation/invoice"
 import {
+  deleteInvoice,
   getInvoice,
   updateInvoiceStatus,
 } from "@/lib/services/invoice"
@@ -42,4 +43,11 @@ export const PATCH = defineHandler<Params>(async ({ req, params }) => {
     role: session.role,
   })
   return ok(invoice)
+})
+
+export const DELETE = defineHandler<Params>(async ({ params }) => {
+  const session = await requireSession()
+  const { id } = invoiceIdParamSchema.parse(await params)
+  await deleteInvoice(id, { userId: session.userId, role: session.role })
+  return noContent()
 })

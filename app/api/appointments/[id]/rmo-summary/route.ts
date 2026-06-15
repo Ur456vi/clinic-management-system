@@ -14,20 +14,25 @@ import { defineHandler, ok, requireRole } from "@/lib/api"
 import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/errors"
 import { appointmentIdParamSchema } from "@/lib/validation/appointment"
+import { assertAppointmentAccess } from "@/lib/services/appointment"
 
 type Params = { id: string }
 
 export const GET = defineHandler<Params>(async ({ params }) => {
-  await requireRole(Role.ADMIN, Role.DOCTOR, Role.RMO)
+  const session = await requireRole(Role.ADMIN, Role.DOCTOR, Role.RMO)
   const { id } = appointmentIdParamSchema.parse(await params)
 
   const appt = await db.appointment.findUnique({
     where: { id },
     select: {
+      staffId: true,
       patient: { select: { id: true, fullName: true, patientNumber: true } },
     },
   })
   if (!appt) throw new NotFoundError("Appointment not found")
+
+  // Non-admin staff may only read summaries for their own appointments.
+  await assertAppointmentAccess(appt.staffId, session)
 
   const rmoSummary = appt.patient
     ? await db.consultation.findFirst({
