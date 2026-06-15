@@ -251,7 +251,7 @@ export default function HomeContent() {
               {/* <HeroPattern className="h-full w-full" opacity={0.15} /> */}
             </div>
             <Image
-              src="/images/landing/home-hero-doctor.png"
+              src="/images/landing/home-hero-doctor1.png"
               alt="Dr. Yuvraaj Singh"
               fill
               priority

@@ -11,6 +11,7 @@
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   HeroPattern,
@@ -176,18 +177,24 @@ export default function ContactPage() {
           </div>
 
           <div className="relative">
-            <div
-              className="absolute inset-0 -z-0"
-              style={{ color: "var(--brand-burgundy)" }}
-            >
-              <HeroPattern className="h-full w-full" opacity={0.12} />
-            </div>
-            <PortraitPlaceholder
-              label="Clinic reception with INSTITUTE OF PRECISION METABOLIC & HORMONAL HEALTH wall signage"
-              aspect="landscape"
-              className="relative z-10 mx-auto h-full max-w-xl"
-            />
-          </div>
+  <div
+    className="absolute inset-0 -z-0"
+    style={{ color: "var(--brand-burgundy)" }}
+  >
+    <HeroPattern className="h-full w-full" opacity={0.12} />
+  </div>
+
+  <div className="relative z-10 mx-auto max-w-xl overflow-hidden rounded-xl">
+    <Image
+      src="/images/landing/dr-yuvraj-banner-img.png"
+      alt="Clinic Reception"
+      width={1200}
+      height={800}
+      className="h-full w-full object-cover"
+      priority
+    />
+  </div>
+</div>
         </div>
       </section>
 
@@ -361,11 +368,14 @@ export default function ContactPage() {
 
               {/* Image column with floating quote card */}
               <div className="relative min-h-[420px]">
-                <PortraitPlaceholder
-                  label="Dr. Singh reviewing patient chart"
-                  aspect="portrait"
-                  className="h-full w-full"
-                />
+                <Image
+      src="/images/landing/dr-yuvraj-contact-us-img.jpg"
+      alt="Clinic Reception"
+      width={1200}
+      height={800}
+      className="h-full w-full object-cover"
+      priority
+    />
 
                 {/* Leaf watermark, bottom-right */}
                 <span
@@ -466,25 +476,25 @@ export default function ContactPage() {
 
           {/* Map */}
           <div
-            className="relative overflow-hidden rounded-xl border bg-white"
-            style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
-          >
-            <iframe
-              title="Institute location map"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=77.0566%2C28.4452%2C77.0966%2C28.4652&layer=mapnik&marker=28.4552%2C77.0766"
-              className="h-full min-h-[420px] w-full"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-            {/* Floating location label */}
-            <div className="pointer-events-none absolute left-1/2 top-10 z-10 -translate-x-1/2 rounded-md bg-white px-4 py-3 text-center text-sm font-medium shadow-lg">
-              <span style={{ color: "var(--brand-ink)" }}>
-                Institute of Precision
-                <br />
-                Metabolic &amp; Hormonal Health
-              </span>
-            </div>
-          </div>
+  className="relative overflow-hidden rounded-xl border bg-white"
+  style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
+>
+  <Image
+    src="/images/landing/contact-map.png"
+    alt="Institute of Precision Metabolic & Hormonal Health Location"
+    fill
+    className="object-cover"
+  />
+
+  {/* Floating location label */}
+  <div className="pointer-events-none absolute left-1/2 top-10 z-10 -translate-x-1/2 rounded-md bg-white px-4 py-3 text-center text-sm font-medium shadow-lg">
+    <span style={{ color: "var(--brand-ink)" }}>
+      Institute of Precision
+      <br />
+      Hormonal &amp; Metabolic Health
+    </span>
+  </div>
+</div>
         </div>
       </section>
 
