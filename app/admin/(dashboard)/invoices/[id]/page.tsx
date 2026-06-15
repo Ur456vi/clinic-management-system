@@ -378,8 +378,8 @@ export default function InvoiceDetailsPage({
         </div>
       </div>
 
-      {/* Payment history */}
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+      {/* Payment history — screen only, excluded from print */}
+      <div className="no-print bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         <div className="p-6 border-b border-[#EAECF0] dark:border-[#374151]">
           <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Payment History</h3>
         </div>
