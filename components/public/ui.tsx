@@ -25,7 +25,7 @@ export function CTAButton({
   size = "md",
   showArrow = true,
 }: ButtonProps) {
-  const pad = size === "lg" ? "px-7 py-3.5 text-base" : "px-6 py-3 text-sm";
+  const pad = size === "lg" ? "px-5 py-3 md:px-7 md:py-3.5 text-sm md:text-base" : "px-4 py-2.5 md:px-6 md:py-3 text-xs md:text-sm";
   const style: React.CSSProperties =
     variant === "olive"
       ? { background: "var(--brand-olive)", color: "white" }
@@ -46,7 +46,7 @@ export function CTAButton({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold shadow-sm transition-all hover:opacity-95 min-w-[240px] ${pad}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold shadow-sm transition-all hover:opacity-95 w-full max-w-[240px] md:max-w-none md:w-auto md:min-w-[240px] whitespace-nowrap ${pad}`}
       style={{ ...style }}
     >
       {children}

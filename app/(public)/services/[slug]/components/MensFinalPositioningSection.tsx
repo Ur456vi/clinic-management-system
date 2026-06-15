@@ -28,9 +28,11 @@ export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
             </p>
             
             {/* ECG Line Graphic */}
-            <div className="mt-6">
-                          <EcgLine />
-                        </div>
+            <div className="relative lg:absolute bottom-0 lg:bottom-6 left-0 w-[calc(100%+64px)] lg:w-full opacity-60 z-0 -mx-8 -mb-8 lg:mx-0 lg:mb-0 mt-8 lg:mt-0">
+              <svg width="100%" height="80" viewBox="0 0 400 80" fill="none" preserveAspectRatio="none">
+                <path d="M0 40 H 80 L 90 60 L 110 10 L 130 70 L 150 20 L 170 50 L 180 30 L 190 70 L 200 40 H 400" stroke="#8B9C7A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
           </div>
           
           {/* Right Panel */}
@@ -52,7 +54,7 @@ export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
             
             <Link 
               href="/consultation"
-              className="inline-flex items-center justify-center bg-[#5E1F1A] hover:bg-[#4A1814] transition-colors text-[#FAF8F3] font-bold text-[12px] tracking-wider px-8 py-4 rounded-[12px]"
+              className="inline-flex items-center justify-center bg-[#5E1F1A] hover:bg-[#4A1814] transition-colors text-[#FAF8F3] font-bold text-[11px] md:text-[12px] tracking-wider px-4 py-2.5 md:px-8 md:py-4 rounded-[12px] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
               style={{ fontFamily: "var(--font-display)" }}
             >
               REQUEST A CONSULTATION

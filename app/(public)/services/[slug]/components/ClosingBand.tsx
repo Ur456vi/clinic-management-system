@@ -51,7 +51,7 @@ export function ClosingBand() {
             Complete our initial clinical intake to begin your structured
             evaluation and see if you qualify for care.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-5">
+          <div className="mt-8 flex flex-col md:flex-row items-center md:items-start gap-5 w-full md:w-auto">
             <CTAButton href="/assessment" variant="olive">
               Start Assessment
             </CTAButton>

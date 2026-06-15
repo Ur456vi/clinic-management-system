@@ -1,5 +1,5 @@
 import { type ServiceContent } from "@/components/public/services-config";
-import { EcgLine } from "@/components/public/ui";
+import Link from "next/link";
 
 export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
@@ -31,18 +31,18 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
 
             {/* Right: Two buttons side by side */}
             <div className="flex flex-wrap items-center justify-center gap-4 shrink-0 w-full lg:w-auto">
-              <a 
+              <Link 
                 href="/assessment" 
                 className="bg-[#FAF8F5] hover:bg-[#FAF8F5]/90 text-[#4E5C46] border border-[#FAF8F5] transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
               >
                 Request Consultation &rarr;
-              </a>
-              <a 
+              </Link>
+              <Link 
                 href="/services" 
                 className="bg-transparent hover:bg-white/5 text-[#FAF8F5] border border-[#FAF8F5]/80 transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
               >
                 Explore Our Programs &rarr;
-              </a>
+              </Link>
             </div>
 
           </div>
@@ -54,20 +54,22 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
             <div className="w-full flex flex-col md:flex-row rounded-[24px] overflow-hidden border border-[#EAE6DF] shadow-sm bg-[#FAF8F5]">
               
               {/* Left Column: Final Positioning text */}
-              <div className="w-full md:w-[48%] bg-[#EAECE3] pt-8 pb-20 px-8 md:pt-12 md:pb-28 relative flex flex-col justify-between overflow-hidden">
+              <div className="w-full md:w-[48%] bg-[#EAECE3] pt-8 pb-8 md:pb-28 px-8 md:pt-12 relative flex flex-col justify-between overflow-hidden">
                 <div className="relative z-10">
                   <h3 className="text-[var(--brand-burgundy)] font-semibold uppercase mb-8 font-serif text-[24px] md:text-[32px] leading-[1.3] md:leading-[55px] tracking-[0.5px]">
                     FINAL POSITIONING
                   </h3>
                   <p className="text-neutral-950 font-sans font-medium text-[14px] md:text-[16px] lg:text-[17px] xl:text-[18px] leading-relaxed lg:leading-[30px] tracking-normal">
-                    "The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration."
+                    &ldquo;The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration.&rdquo;
                   </p>
                 </div>
                 
                 {/* ECG Waveform Image at the bottom */}
-                <div className="mt-6">
-                              <EcgLine />
-                            </div>
+                <img 
+                  src="/images/landing/A3B18A 1.png" 
+                  alt="ECG Waveform"
+                  className="relative md:absolute bottom-0 left-0 w-[calc(100%+64px)] md:w-full h-auto pointer-events-none select-none opacity-80 z-0 -mx-8 -mb-8 md:mx-0 md:mb-0 mt-8 md:mt-0"
+                />
               </div>
 
               {/* Right Column: Begin assessment call to action */}
@@ -78,12 +80,12 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 <p className="text-neutral-900 text-[15px] md:text-[16px] mb-8 font-medium">
                   Start your physician-led biological evaluation
                 </p>
-                <a 
+                <Link 
                   href="/assessment"
                   className="bg-[#722F27] hover:bg-[#5E241E] text-white transition-colors py-3.5 px-8 md:px-10 rounded-full text-[12px] md:text-[13px] font-semibold tracking-widest uppercase"
                 >
                   Request A Consultation
-                </a>
+                </Link>
               </div>
 
             </div>
@@ -100,7 +102,7 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
         <div className="w-full flex flex-col md:flex-row rounded-[16px] overflow-hidden border border-[#E8DDD0] shadow-sm">
           
           {/* Left Column */}
-          <div className="w-full md:w-[45%] bg-[#EAECE3] pt-10 pb-28 px-8 md:px-12 relative flex flex-col overflow-hidden">
+          <div className="w-full md:w-[45%] bg-[#EAECE3] pt-10 pb-10 md:pb-28 px-8 md:px-12 relative flex flex-col overflow-hidden">
             <div className="relative z-10">
               <h3 
                 className="text-[#722F27] font-semibold uppercase mb-8 font-serif text-[24px] md:text-[32px] leading-[1.3] md:leading-[55px] tracking-[0.5px]"
@@ -108,14 +110,16 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 FINAL POSITIONING
               </h3>
               <p className="text-[#1F1F1F]/90 font-sans font-medium text-[14px] md:text-[16px] lg:text-[17px] xl:text-[18px] leading-relaxed lg:leading-[30px] tracking-normal">
-                "The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration."
+                &ldquo;The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration.&rdquo;
               </p>
             </div>
             
             {/* ECG Waveform Image at the bottom */}
-            <div className="mt-6">
-              <EcgLine />
-            </div>
+            <img 
+              src="/images/landing/A3B18A 1.png" 
+              alt="ECG Waveform"
+              className="relative md:absolute bottom-0 left-0 w-[calc(100%+64px)] md:w-full h-auto pointer-events-none select-none opacity-80 z-0 -mx-8 -mb-10 md:mx-0 md:mb-0 mt-8 md:mt-0"
+            />
           </div>
 
           {/* Right Column */}
