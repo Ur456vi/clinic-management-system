@@ -623,6 +623,7 @@ function TableControl({
                   ? "Search supplement…"
                   : "Search medication / supplement…"
             }
+            variant={library === "infusion" ? "modal" : "dropdown"}
           />
         ) : null}
       </div>
