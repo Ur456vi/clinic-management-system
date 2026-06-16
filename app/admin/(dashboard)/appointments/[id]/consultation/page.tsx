@@ -127,6 +127,14 @@ export default function StartAppointmentConsultationPage() {
   const formStateRef = useRef(form)
   formStateRef.current = form
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0
+    }
+  }, [activeSection, activeMainStep])
+
   useEffect(() => {
     let cancelled = false
     async function start() {
@@ -398,9 +406,9 @@ export default function StartAppointmentConsultationPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1200px] pb-28">
+    <div className="flex flex-col gap-6 max-w-[1200px] h-[calc(100vh-136px)]">
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
+      <div className="flex-shrink-0 flex items-start justify-between flex-wrap gap-3">
         <div>
           <Link
             href="/admin/appointments"
@@ -429,7 +437,7 @@ export default function StartAppointmentConsultationPage() {
       </div>
 
       {/* Top tabs */}
-      <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-2 flex gap-2 overflow-x-auto">
+      <div className="flex-shrink-0 bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-2 flex gap-2 overflow-x-auto">
         {mainTabs.map((step) => (
           <button
             key={step}
@@ -445,9 +453,9 @@ export default function StartAppointmentConsultationPage() {
       </div>
 
       {/* Body */}
-      <div className="flex gap-6 items-start">
+      <div className="flex gap-6 items-start flex-1 min-h-0">
         {activeMainStep === "RMO Consultation" && (
-          <aside className="w-[240px] flex-shrink-0 sticky top-24">
+          <aside className="w-[240px] flex-shrink-0 h-full overflow-y-auto pb-4">
             <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
               {formSections.map((section) => (
                 <button
@@ -465,7 +473,7 @@ export default function StartAppointmentConsultationPage() {
           </aside>
         )}
 
-        <div className="flex-1 min-w-0">
+        <div ref={scrollContainerRef} className="flex-1 min-w-0 h-full overflow-y-auto pb-28 pr-2">
           <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-8">
             <div className="max-w-[800px]">
               {activeMainStep === "RMO Consultation" ? (
@@ -1004,6 +1012,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="relative">
                                 <select name="social_history__variety" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                   <option value="">Select type</option>
+                                  <option value="none">None</option>
                                   <option value="cigarettes">Cigarettes</option>
                                   <option value="cigars">Cigars</option>
                                   <option value="chewing">Chewing Tobacco</option>
@@ -1648,40 +1657,198 @@ export default function StartAppointmentConsultationPage() {
                                 </label>
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Motivation</label>
+                              <div className="relative">
+                                <select name="personal_history__motivation" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select motivation</option>
+                                  <option value="motivated">Motivated</option>
+                                  <option value="hopeless">Hopeless</option>
+                                  <option value="none">None</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Diet, Exercise & Hygiene Accordion */}
+                        {/* Dietary Considerations Accordion */}
                         <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
                           <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
-                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Diet, Exercise & Hygiene</h3>
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Dietary Considerations</h3>
                             <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
                           </div>
                           <div className="p-6 space-y-6">
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dietary Considerations</label>
-                              <textarea name="personal_history__dietary_considerations"
-                                placeholder="Dietary patterns, restrictions, preferences"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Meal Time</label>
+                              <div className="relative">
+                                <select name="personal_history__meal_time" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select meal time</option>
+                                  <option value="3 meals">3 Meals</option>
+                                  <option value="2 meals">2 Meals</option>
+                                  <option value="1 meal">1 Meal</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Exercise Regimen</label>
-                              <textarea name="personal_history__exercise_regimen"
-                                placeholder="Type, frequency, duration of exercise"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Portions</label>
+                              <div className="relative">
+                                <select name="personal_history__portions" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select portions</option>
+                                  <option value="100-300gms">100-300gms</option>
+                                  <option value="500gms to >500gms">500gms to &gt;500gms</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Hygiene</label>
-                              <textarea name="personal_history__personal_hygiene"
-                                placeholder="Bathing / Brushing / Change of underclothes / Nail care"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">In Betweens</label>
+                              <div className="relative">
+                                <select name="personal_history__in_betweens" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select frequency</option>
+                                  <option value="never to very rare">Never to very rare</option>
+                                  <option value="intermittently">Intermittently</option>
+                                  <option value="regularly">Regularly</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
                             </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Major component of diet</label>
+                              <div className="relative">
+                                <select name="personal_history__major_component_of_diet" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select component</option>
+                                  <option value="protein">Protein</option>
+                                  <option value="fats">Fats</option>
+                                  <option value="carbs">Carbs</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Intake of Fruits and Vegetables</label>
+                              <div className="relative">
+                                <select name="personal_history__intake_of_fruits_and_vegetables" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select intake</option>
+                                  <option value="staple to regularly">Staple to Regularly</option>
+                                  <option value="intermittently">Intermittently</option>
+                                  <option value="never to very rare">Never to Very rare</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Oils used for cooking</label>
+                              <div className="relative">
+                                <select name="personal_history__oils_used_for_cooking" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select oil</option>
+                                  <option value="olive oil">Olive oil</option>
+                                  <option value="coconut oil">Coconut oil</option>
+                                  <option value="seed oils">Seed Oils (Sunflower / Mustard / Sesame etc)</option>
+                                  <option value="vegetable oils">Vegetable oils</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking</label>
+                              <div className="relative">
+                                <select name="personal_history__snacking" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select</option>
+                                  <option value="yes">Yes</option>
+                                  <option value="no">No</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__snacking"] === "yes" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking Type</label>
+                                <div className="flex items-center gap-6 h-11">
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="personal_history__snacking_type" value="Frequency" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Frequency</span>
+                                  </label>
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                    <input type="radio" name="personal_history__snacking_type" value="Midnight snacking" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Midnight snacking</span>
+                                  </label>
+                                </div>
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hot Beverages</label>
+                              <div className="relative">
+                                <select name="personal_history__hot_beverages" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select beverage</option>
+                                  <option value="tea">Tea</option>
+                                  <option value="coffee">Coffee</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {(form["personal_history__hot_beverages"] === "tea" || form["personal_history__hot_beverages"] === "coffee") && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. Of cups per day</label>
+                                <input name="personal_history__hot_beverages_cups" type="text" placeholder="No. Of cups per day" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting</label>
+                              <div className="relative">
+                                <select name="personal_history__fasting" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select fasting</option>
+                                  <option value="never to very rare">Never to Very Rare</option>
+                                  <option value="regular">Regular</option>
+                                  <option value="intermittent">Intermittent</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__fasting"] === "intermittent" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting (No. Of Hours)</label>
+                                <input name="personal_history__fasting_hours" type="text" placeholder="No. Of Hours" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time to first oral intake of the day after waking up</label>
+                              <div className="relative">
+                                <select name="personal_history__time_to_first_oral_intake" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select time</option>
+                                  <option value="immediate">Immediate</option>
+                                  <option value="15-20 mins">15-20 mins</option>
+                                  <option value="30 mins to > 30 mins">30 mins to &gt; 30 mins</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__time_to_first_oral_intake"] === "30 mins to > 30 mins" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time</label>
+                                <input name="personal_history__time_to_first_oral_intake_specify" type="text" placeholder="specify time" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time between last oral intake of the day and sleep</label>
+                              <div className="relative">
+                                <select name="personal_history__time_between_last_oral_intake_and_sleep" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select time</option>
+                                  <option value="immediate">Immediate</option>
+                                  <option value="30 mins - 1hr">30 mins - 1hr</option>
+                                  <option value="1-2 hrs">1-2 hrs</option>
+                                  <option value=">2 hrs">&gt;2 hrs</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__time_between_last_oral_intake_and_sleep"] === ">2 hrs" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time duration</label>
+                                <input name="personal_history__time_between_last_oral_intake_and_sleep_specify" type="text" placeholder="specify time duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Habits</label>
                               <input name="personal_history__personal_habits"
@@ -1690,6 +1857,658 @@ export default function StartAppointmentConsultationPage() {
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
                               />
                             </div>
+                          </div>
+                        </div>
+
+                        {/* Exercise Regimen Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Exercise Regimen</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Never to Sedantary</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_sedentary" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="irregular">Irregular</option>
+                                  <option value="regular">Regular</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. Of Days per week</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_days_per_week" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="2-3 days">2 - 3 days</option>
+                                  <option value="4-5 days">4 - 5 days</option>
+                                  <option value=">5 days">&gt; 5 days</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Duration of exercises</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_duration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="20 mins">20 mins</option>
+                                  <option value="30 mins">30 mins</option>
+                                  <option value="45 mins">45 mins</option>
+                                  <option value="1 hr">1 hr</option>
+                                  <option value=">1 hr">&gt;1 hr</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__exercise_duration"] === ">1 hr" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time</label>
+                                <input name="personal_history__exercise_duration_specify" type="text" placeholder="specify time" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Trainer</label>
+                              <div className="flex items-center gap-6 h-11">
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <input type="radio" name="personal_history__exercise_trainer" value="Self" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Self</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                  <input type="radio" name="personal_history__exercise_trainer" value="Professional Trainer" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Professional Trainer</span>
+                                </label>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Types of exercises</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_types" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="indoor">Indoor</option>
+                                  <option value="outdoor">Outdoor</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__exercise_types"] === "outdoor" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Outdoor exercises</label>
+                                <div className="relative">
+                                  <select name="personal_history__exercise_outdoor_type" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="walk">Walk</option>
+                                    <option value="brisk walk">Brisk Walk</option>
+                                    <option value="jogging">Jogging</option>
+                                    <option value="running">Running</option>
+                                    <option value="trekking">Trekking</option>
+                                    <option value="sport(s)">Sport(s)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            )}
+                            {form["personal_history__exercise_types"] === "indoor" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Indoor exercises</label>
+                                <div className="relative">
+                                  <select name="personal_history__exercise_indoor_type" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="stretches">Stretches</option>
+                                    <option value="yoga">Yoga</option>
+                                    <option value="pilates">Pilates</option>
+                                    <option value="calisthenics">Calisthenics</option>
+                                    <option value="weight training">Weight Training</option>
+                                    <option value="martial arts">Martial Arts - Grappling etc</option>
+                                    <option value="hiit">HIIT</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time to recovery</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_time_to_recovery" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="30-45 mins">30-45 mins</option>
+                                  <option value="1 hr">1 hr</option>
+                                  <option value="> 1 hr">&gt; 1 hr</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            {form["personal_history__exercise_time_to_recovery"] === "> 1 hr" && (
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time</label>
+                                <input name="personal_history__exercise_recovery_specify" type="text" placeholder="specify time" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Joint pains / Back pain after exercise</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_joint_pains" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="present">Present</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Perspiration</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="none">None</option>
+                                  <option value="profuse">Profuse</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">HR Variability</label>
+                              <div className="relative">
+                                <select name="personal_history__exercise_hr_variability" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="45 - 100ms">45 - 100ms</option>
+                                  <option value="< 45ms">&lt; 45ms</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Body Weight Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Body Weight</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Weight Increase</label>
+                              <div className="relative">
+                                <select name="personal_history__body_weight_increase" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="stable">Stable</option>
+                                  <option value="fluctuating < 1-2kgs">Fluctuating &lt; 1-2kgs</option>
+                                  <option value="fluctuating > 1-2 kgs">Fluctuating &gt;1-2 kgs</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Personal Hygiene Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Personal Hygiene</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            
+                            <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Bathing</h4>
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. Of times a day in summers</label>
+                                <input name="personal_history__hygiene_bathing_summers" type="text" placeholder="No. of times" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No of times a day in Winters</label>
+                                <input name="personal_history__hygiene_bathing_winters" type="text" placeholder="No. of times" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            </div>
+
+                            <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Any deviation from Normal</h4>
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Heart Rate variability with Cold and Hot Showers</label>
+                                <input name="personal_history__hygiene_hr_variability_showers" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Rash or Allergy after showers</label>
+                                <input name="personal_history__hygiene_rash_allergy_showers" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Giddiness or suffocation during showers</label>
+                                <input name="personal_history__hygiene_giddiness_showers" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Any H/o Loss of consciousness or seizures during or immediately post shower</label>
+                                <input name="personal_history__hygiene_loc_seizures_showers" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Flushing after a hot shower ?</label>
+                                <input name="personal_history__hygiene_flushing_hot_shower" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">H/o Falls in the bathroom ?</label>
+                                <input name="personal_history__hygiene_falls_bathroom" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            </div>
+
+                            <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Brushing and Oral Hygiene</h4>
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. of times a day - 1-2 times</label>
+                                <input name="personal_history__hygiene_brushing_frequency" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Duration</label>
+                                <input name="personal_history__hygiene_brushing_duration" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">H/o Dental Caries</label>
+                                <input name="personal_history__hygiene_dental_caries" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingival swelling</label>
+                                <input name="personal_history__hygiene_gingival_swelling" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingival bleeds</label>
+                                <input name="personal_history__hygiene_gingival_bleeds" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Loose tooth or Teeth ?</label>
+                                <input name="personal_history__hygiene_loose_tooth" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Signs of Bone resorption from the jaws or alveoli</label>
+                                <input name="personal_history__hygiene_bone_resorption" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Sensitivity (to Hot or Cold)</label>
+                                <input name="personal_history__hygiene_teeth_sensitivity" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Change of underclothes</label>
+                                <div className="relative">
+                                  <select name="personal_history__hygiene_change_underclothes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="daily">Daily or even multiple times a day- 10 points</option>
+                                    <option value="once in few days">Once in few days</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cutting of Nails</label>
+                                <div className="relative">
+                                  <select name="personal_history__hygiene_cutting_nails" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="periodically">Periodically</option>
+                                    <option value="irregular">Irregular</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Towels</label>
+                                <div className="relative">
+                                  <select name="personal_history__hygiene_towels" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="common">Common</option>
+                                    <option value="separate">Separate from household and/or Fresh daily</option>
+                                    <option value="same used">Same used</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        {/* Body Temperature & Temperature Tolerance Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Body Temperature & Temperature Tolerance</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Exteremities</label>
+                              <div className="relative">
+                                <select name="personal_history__temperature_extremities" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="generally cold">Generally cold</option>
+                                  <option value="warm and flushed">Warm and flushed</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Tolerance</label>
+                              <div className="relative">
+                                <select name="personal_history__temperature_tolerance" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="heat intolerance">Heat Intolerance</option>
+                                  <option value="cold intolerance">Cold Intolerance</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Discernibility</label>
+                              <div className="relative">
+                                <select name="personal_history__temperature_discernibility" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="cannot discern">Any area of the skin or extremities (Palms and soles) that cannot discern hot or cold ?</option>
+                                  <option value="numbness">Numbness ?</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Stress - PSS-10 Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Stress - The Percieved Stress Scale (PSS-10)</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            {[
+                              { id: "q1", text: "(1) How often are you upset because of an unexpected occurrence" },
+                              { id: "q2", text: "(2) How often have you felt that you were unable to control the important things in your life" },
+                              { id: "q3", text: "(3) How often do you feel nervous and stressed" },
+                              { id: "q4", text: "(4) How often do you feel confident in being able to handle your personal problems" },
+                              { id: "q5", text: "(5) How often do you feel things have gone your way" },
+                              { id: "q6", text: "(6) How often have you felt that you could not cope with all the things you had to do" },
+                              { id: "q7", text: "(7) How often have you been able to control irritations in your life" },
+                              { id: "q8", text: "(8) How often have you felt you were on top of things" },
+                              { id: "q9", text: "(9) How often have you been angered because of things that were outside of your control" },
+                              { id: "q10", text: "(10) How often have you felt difficulties were piling up so high that you could not overcome or deal with them" }
+                            ].map((q) => (
+                              <div key={q.id} className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">{q.text}</label>
+                                <div className="flex flex-wrap items-center gap-6">
+                                  {["Never", "very rare", "seldom", "often", "very often"].map((opt) => (
+                                    <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                                      <input type="radio" name={"personal_history__pss10_" + q.id} value={opt} className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828] capitalize">{opt}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Women's Health & Menstrual History Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Women's Health & Menstrual History</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Age of menarche</label>
+                              <div className="relative">
+                                <select name="personal_history__womens_health_age_of_menarche" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="12-13yrs">12-13yrs</option>
+                                  <option value="<12yrs">&lt;12yrs</option>
+                                  <option value=">13yrs">&gt;13yrs</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Current menstrual status</label>
+                              <div className="relative">
+                                <select name="personal_history__womens_health_current_menstrual_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="regular">Regular</option>
+                                  <option value="irregular">Irregular</option>
+                                  <option value="stopped">Stopped</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Last menstrual period (LMP)</label>
+                              <input name="personal_history__womens_health_lmp" type="text" placeholder="Specify LMP" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cycle changes in last 1–3 years - specify</label>
+                              <input name="personal_history__womens_health_cycle_changes" type="text" placeholder="Specify changes" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Number of pregnancies</label>
+                              <div className="relative">
+                                <select name="personal_history__womens_health_pregnancies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="NVD">NVD</option>
+                                  <option value="LSCS">LSCS</option>
+                                  <option value="Any Complications Prepartum, partum, postpartum">Any Complications Prepartum, partum, postpartum</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Any Miscarriages / MTP ?</label>
+                              <div className="relative">
+                                <select name="personal_history__womens_health_miscarriages" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="No">No</option>
+                                  <option value="Miscarriages (Spontaneous Abortions)">Miscarriages (Spontaneous Abortions)</option>
+                                  <option value="Medical Termination of Pregnancy (MTP)">Medical Termination of Pregnancy (MTP)</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">History of PCOS</label>
+                              <div className="relative">
+                                <select name="personal_history__womens_health_pcos" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="No">No</option>
+                                  <option value="Yes">Yes</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Men's Sexual Health History Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Men's Sexual Health History</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Morning erections present?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_morning_erections" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="Weak and Intermittent">Weak and Intermittent</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Libido vs erection (differentiate)</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_libido_vs_erection" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Normal - 10 points">Normal - 10 points</option>
+                                    <option value="onset (sudden vs gradual) - Erectile difficulty">onset (sudden vs gradual) - Erectile difficulty</option>
+                                    <option value="Low libido">Low libido</option>
+                                    <option value="Premature ejaculation">Premature ejaculation</option>
+                                    <option value="Delayed ejaculation">Delayed ejaculation</option>
+                                    <option value="Infertility">Infertility</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Has your sexual desire reduced?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_sexual_desire" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="Frequency of sexual thoughts?">Frequency of sexual thoughts?</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Interest in intimacy?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_intimacy_interest" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Declined">Declined</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Ability to get erection?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_ability_to_get_erection" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Difficulty">Difficulty</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Ability to maintain erection?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_ability_to_maintain_erection" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Rigidity sufficient for penetration?</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_rigidity_for_penetration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Relationship satisfaction</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_relationship_satisfaction" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Performance anxiety</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_performance_anxiety" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Stress levels</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_stress_levels" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Low">Low</option>
+                                    <option value="High">High</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pornography use</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_pornography_use" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Masturbation habits</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_masturbation_habits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Children?</label>
+                                <input name="personal_history__mens_health_children" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Attempts at conception?</label>
+                                <input name="personal_history__mens_health_conception_attempts" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Prior semen analysis?</label>
+                                <input name="personal_history__mens_health_prior_semen_analysis" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Urinary symptoms</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_urinary_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">(l) prostate issues</label>
+                                <div className="relative">
+                                  <select name="personal_history__mens_health_prostate_issues" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes - Frequency / Urgency / Hesitancy / Poor Flow / Dribble">Yes - Frequency / Urgency / Hesitancy / Poor Flow / Dribble</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            </div>
+
                           </div>
                         </div>
 
