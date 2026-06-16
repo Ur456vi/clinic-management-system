@@ -412,7 +412,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
           <div className="lg:col-span-3 relative flex flex-col justify-between min-h-[220px]">
             <div>
               <h3
-                className="font-semibold leading-tight text-[#1F1F1F] mb-4"
+                className="font-semibold leading-tight text-[#1F1F1F] mb-4 text-center lg:text-left"
                 style={{
                   fontFamily: "var(--font-display)",
                   fontSize: "clamp(18px, 1.6vw, 24px)",
@@ -422,7 +422,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                 This Is Not A Generic<br />Weight-Loss Program.
               </h3>
               <p
-                className="text-[14px] leading-relaxed"
+                className="text-[14px] leading-relaxed text-center lg:text-left mx-auto lg:mx-0"
                 style={{ color: "var(--brand-ink-soft)", maxWidth: "340px" }}
               >
                 This is a structured clinical<br />
@@ -433,7 +433,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
             </div>
 
             {/* Decorative botanical leaf */}
-            <div className="mt-6 opacity-50" aria-hidden="true">
+            <div className="mt-6 opacity-50 flex justify-center lg:justify-start" aria-hidden="true">
               <svg
                 width="120"
                 height="73"
@@ -503,8 +503,13 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                   { icon: "chart" as const,             label: "Non-GLP-1\nmetabolic\nstrategies" },
                   { icon: "stethoscope" as const,       label: "GLP-1 based\ninterventions\n(when appropriate)" },
                   { icon: "clock" as const,             label: "Continuous\ntracking &\nrefinement" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center gap-3 text-left">
+                ].map((item, i) => (
+                  <div
+                    key={item.label}
+                    className={`flex items-center gap-3 text-left ${
+                      i === 10 ? "col-span-2 justify-self-center sm:col-span-1 sm:justify-self-start" : ""
+                    }`}
+                  >
                     <div
                       className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border"
                       style={{ borderColor: "var(--brand-rule)", background: "transparent" }}

@@ -356,10 +356,10 @@ export default function AssessmentResultPage() {
                   profile.
                 </p>
               </div>
-              <div>
+              <div className="w-full md:w-auto flex justify-center md:justify-start">
                 <Link
                   href="/assessment/book"
-                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95 w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
                   style={{
                     background: "var(--brand-warning)",
                     letterSpacing: "0.1em",
@@ -400,7 +400,7 @@ export default function AssessmentResultPage() {
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center w-full md:w-auto">
           <CTAButton href="/assessment" variant="burgundy-outline">
             Restart the Assessment
           </CTAButton>

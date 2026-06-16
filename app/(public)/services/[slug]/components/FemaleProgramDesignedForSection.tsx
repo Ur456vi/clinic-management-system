@@ -61,7 +61,7 @@ export function FemaleProgramDesignedForSection({ svc }: { svc: ServiceContent }
               These Changes Affect Far More<br />Than Hormones Alone
             </h3>
             
-            <div className="flex justify-between items-start w-full relative z-10 px-2 lg:px-6 mb-8">
+            <div className="flex justify-between items-start w-full relative z-10 px-0 sm:px-2 lg:px-6 mb-8">
               {[
                 { label: "Marriages &\nRelationships", icon: "path1" },
                 { label: "Confidence &\nSelf-Esteem", icon: "path2" },
@@ -70,10 +70,10 @@ export function FemaleProgramDesignedForSection({ svc }: { svc: ServiceContent }
                 { label: "Identity\nItself", icon: "path5" }
               ].map((item, i, arr) => (
                 <React.Fragment key={i}>
-                  <div className="flex flex-col items-center flex-1">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border border-white/20 bg-black/10 flex items-center justify-center mb-4">
+                  <div className="flex flex-col items-center flex-1 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full border border-white/20 bg-black/10 flex items-center justify-center mb-3 md:mb-4 shrink-0">
                       {/* Temporary placeholder icons - can replace with exact SVGs later */}
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white opacity-80">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white opacity-80 sm:w-5 sm:h-5 md:w-6 md:h-6">
                          {i === 0 && <path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 20v-2a6 6 0 1 1 12 0v2"></path>}
                          {i === 1 && <circle cx="12" cy="12" r="10"></circle>}
                          {i === 2 && <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>}
@@ -81,10 +81,10 @@ export function FemaleProgramDesignedForSection({ svc }: { svc: ServiceContent }
                          {i === 4 && <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path>}
                       </svg>
                     </div>
-                    <span className="text-white text-[12px] md:text-[13px] font-medium leading-tight whitespace-pre-wrap">{item.label}</span>
+                    <span className="text-white text-[9px] sm:text-[11px] md:text-[13px] font-medium leading-tight whitespace-pre-line text-center w-full break-words px-0.5">{item.label}</span>
                   </div>
                   {i < arr.length - 1 && (
-                    <div className="text-white/40 text-sm mt-5 mx-1">+</div>
+                    <div className="text-white/40 text-[10px] sm:text-xs md:text-sm mt-3 sm:mt-4 md:mt-5 mx-0.5 sm:mx-1 shrink-0">+</div>
                   )}
                 </React.Fragment>
               ))}
