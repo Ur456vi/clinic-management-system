@@ -2663,6 +2663,506 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                         </div>
 
+                        {/* General Physical Examination Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">General Physical Examination</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Appearance / Attitude</label>
+                                <div className="relative">
+                                  <select name="personal_history__gpe_appearance_attitude" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Any deviation from Normal">Any deviation from Normal</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Attention Span</label>
+                                <div className="relative">
+                                  <select name="personal_history__gpe_attention_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Distracted">Distracted</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Short Term Memory Span</label>
+                                <div className="relative">
+                                  <select name="personal_history__gpe_short_term_memory_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Good and Sharp">Good and Sharp</option>
+                                    <option value="Poor">Poor</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Face and other Head and Neck Features */}
+                            <div className="pt-4 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Face and other Head and Neck Features</h4>
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Facies</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_facies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Facial expressions">Facial expressions</option>
+                                      <option value="Myasthenic Facies - drooping of eyelids, angles of the mouth">Myasthenic Facies - drooping of eyelids, angles of the mouth</option>
+                                      <option value="Mask Facies">Mask Facies</option>
+                                      <option value="Hypothyroid Facies">Hypothyroid Facies</option>
+                                      <option value="Diabetic Facies">Diabetic Facies</option>
+                                      <option value="Cushingoid Facies">Cushingoid Facies</option>
+                                      <option value="Trisomy 21 Facies">Trisomy 21 Facies</option>
+                                      <option value="Acromegalic Facies">Acromegalic Facies</option>
+                                      <option value="Thyrotoxic Facies">Thyrotoxic Facies</option>
+                                      <option value="Leonine">Leonine</option>
+                                      <option value="Adenoid">Adenoid</option>
+                                      <option value="Mitral">Mitral</option>
+                                      <option value="Facial Tics">Facial Tics</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lips</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_lips" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Pursed">Pursed</option>
+                                      <option value="Pinched">Pinched</option>
+                                      <option value="Cheilitis">Cheilitis</option>
+                                      <option value="Cleft Lip and Palate">Cleft Lip and Palate</option>
+                                      <option value="Xerochilia">Xerochilia</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5 col-span-2">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Scars / Bruises / Naevi / Facial Puffiness</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_scars_bruises_naevi" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Scars">Scars</option>
+                                      <option value="Bruises">Bruises</option>
+                                      <option value="Naevi">Naevi</option>
+                                      <option value="Facial Puffiness">Facial Puffiness</option>
+                                      <option value="Infraorbital Puffiness">Infraorbital Puffiness</option>
+                                      <option value="Periorbital Puffiness">Periorbital Puffiness</option>
+                                      <option value="Nasal Allergic Crease">Nasal Allergic Crease</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Buccopharyngeal Mucosa</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_buccopharyngeal_mucosa" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Thrush">Thrush</option>
+                                      <option value="Aphthous Ulcers">Aphthous Ulcers</option>
+                                      <option value="Glossitis">Glossitis</option>
+                                      <option value="Leukoplakia">Leukoplakia</option>
+                                      <option value="Hyperpigmentation">Hyperpigmentation</option>
+                                      <option value="Geographic Tongue">Geographic Tongue</option>
+                                      <option value="Fissured Tongue">Fissured Tongue</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dental Formula</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_dental_formula" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Teeth and Gums Findings</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_teeth_gums_findings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Dental Caries">Dental Caries</option>
+                                      <option value="Gingivitis">Gingivitis</option>
+                                      <option value="Gingival Hypertrophy">Gingival Hypertrophy</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingival Hypertrophy Duration</label>
+                                  <input name="personal_history__gpe_gingival_hypertrophy_duration" type="text" placeholder="Specify duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Gait */}
+                            <div className="pt-4 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Gait</h4>
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Normal Stance and Swing Phases</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_gait_stance_swing" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Present">Present</option>
+                                      <option value="Not Present">Not Present</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* Pallor */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pallor</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_pallor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Present">Present</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pallor — Degree</label>
+                                  <input name="personal_history__gpe_pallor_degree" type="text" placeholder="Specify degree" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Icterus */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Icterus</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_icterus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Present">Present</option>
+                                      <option value="Deep Jaundice">Deep Jaundice</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Icterus — Degree</label>
+                                  <input name="personal_history__gpe_icterus_degree" type="text" placeholder="Specify degree" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Icterus — Duration</label>
+                                  <input name="personal_history__gpe_icterus_duration" type="text" placeholder="Specify duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Cyanosis */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cyanosis</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_cyanosis" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Present — Central">Present — Central</option>
+                                      <option value="Present — Peripheral">Present — Peripheral</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cyanosis — Degree</label>
+                                  <input name="personal_history__gpe_cyanosis_degree" type="text" placeholder="Specify degree" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Lymphadenopathy */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lymphadenopathy</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_lymphadenopathy" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Present (Solitary)">Present (Solitary)</option>
+                                      <option value="Present (Multiple)">Present (Multiple)</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lymphadenopathy — Descriptive Details</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_lymphadenopathy_description" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Anatomical Area">Anatomical Area</option>
+                                      <option value="Tender">Tender</option>
+                                      <option value="Non-Tender">Non-Tender</option>
+                                      <option value="Erythematous">Erythematous</option>
+                                      <option value="Non-Erythematous">Non-Erythematous</option>
+                                      <option value="Single Node">Single Node</option>
+                                      <option value="Multiple Nodes">Multiple Nodes</option>
+                                      <option value="Small (less than 1 cm)">Small (less than 1 cm)</option>
+                                      <option value="Large (greater than 1 cm)">Large (greater than 1 cm)</option>
+                                      <option value="Soft">Soft</option>
+                                      <option value="Firm">Firm</option>
+                                      <option value="Hard">Hard</option>
+                                      <option value="Fluctuant">Fluctuant</option>
+                                      <option value="Non-Fluctuant">Non-Fluctuant</option>
+                                      <option value="Mobile">Mobile</option>
+                                      <option value="Fixed">Fixed</option>
+                                      <option value="Matted">Matted</option>
+                                      <option value="Non-Matted">Non-Matted</option>
+                                      <option value="Overlying Skin Changes Present">Overlying Skin Changes Present</option>
+                                      <option value="No Overlying Skin Changes">No Overlying Skin Changes</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lymphadenopathy — Duration</label>
+                                  <input name="personal_history__gpe_lymphadenopathy_duration" type="text" placeholder="Specify duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Edema */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Edema</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_edema" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Not Present">Not Present</option>
+                                      <option value="Present — Pitting">Present — Pitting</option>
+                                      <option value="Present — Non-Pitting">Present — Non-Pitting</option>
+                                      <option value="Present — Waxing-waning">Present — Waxing-waning</option>
+                                      <option value="Present — Progressive">Present — Progressive</option>
+                                      <option value="Anasarca">Anasarca</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Edema — Details</label>
+                                  <input name="personal_history__gpe_edema_details" type="text" placeholder="Location / Extent / Degree" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Edema — Duration</label>
+                                  <input name="personal_history__gpe_edema_duration" type="text" placeholder="Specify duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Nail Changes */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Nail Changes</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_nail_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="None">None</option>
+                                      <option value="Digital Clubbing">Digital Clubbing</option>
+                                      <option value="Platynychia">Platynychia</option>
+                                      <option value="Horizontal Ridges">Horizontal Ridges</option>
+                                      <option value="Vertical Ridges">Vertical Ridges</option>
+                                      <option value="Colour Changes">Colour Changes</option>
+                                      <option value="White Spots">White Spots</option>
+                                      <option value="Pitting">Pitting</option>
+                                      <option value="Other findings — Any deviation from Normal">Other findings — Any deviation from Normal</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Nail Changes — Details</label>
+                                  <input name="personal_history__gpe_nail_changes_details" type="text" placeholder="Grade, Distribution and other details" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Skin Hyperpigmentation */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Skin Hyperpigmentation</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_skin_hyperpigmentation" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="None">None</option>
+                                      <option value="Present">Present</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Skin Hyperpigmentation — Details</label>
+                                  <input name="personal_history__gpe_skin_hyperpigmentation_details" type="text" placeholder="Location / Extent / Margins / Distribution / Appearance" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Abnormal Gait Pattern</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_gait_abnormal_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Antalgic">Antalgic</option>
+                                      <option value="Scissors">Scissors</option>
+                                      <option value="Shuffling">Shuffling</option>
+                                      <option value="Ataxic">Ataxic</option>
+                                      <option value="Festinating">Festinating</option>
+                                      <option value="Steppage">Steppage</option>
+                                      <option value="Trendelenburg">Trendelenburg</option>
+                                      <option value="Choreiform">Choreiform</option>
+                                      <option value="Magnetic">Magnetic</option>
+                                      <option value="Stooping">Stooping</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* Hair Changes */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hair Changes</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_hair_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="None">None</option>
+                                      <option value="Alopecia">Alopecia</option>
+                                      <option value="Thinning">Thinning</option>
+                                      <option value="Hyper-Mineralization Changes">Hyper-Mineralization Changes</option>
+                                      <option value="Hypo-Mineralization Changes">Hypo-Mineralization Changes</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* Pulse */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pulse</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_pulse" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Atrial Fibrillation">Atrial Fibrillation</option>
+                                      <option value="Unintended Bradycardia">Unintended Bradycardia</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pulse — Details</label>
+                                  <input name="personal_history__gpe_pulse_details" type="text" placeholder="Rate / Rhythm / Volume / Character / Peripheral pulses / Delays / HRV / ABI / Bruits" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* BP */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">BP</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_bp" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal for age and gender">Normal for age and gender</option>
+                                      <option value="Fluctuations">Fluctuations</option>
+                                      <option value="Accelerated HTN">Accelerated HTN</option>
+                                      <option value="Hypotension">Hypotension</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">BP — Details</label>
+                                  <input name="personal_history__gpe_bp_details" type="text" placeholder="Systolic / Diastolic / Auscultation Gap / Pulse Pressure / MAP" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Body Temperature */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Temperature (°F)</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_body_temperature" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Abnormal">Abnormal</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Temperature — Value (°F)</label>
+                                  <input name="personal_history__gpe_body_temperature_value" type="text" placeholder="Enter temperature value" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+
+                                {/* Hydration Status */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hydration Status</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_hydration_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Adequate">Adequate</option>
+                                      <option value="Dehydration">Dehydration</option>
+                                      <option value="Severe Dehydration">Severe Dehydration</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* Respiratory Rate */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Respiratory Rate</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_respiratory_rate" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Signs of COPD">Signs of COPD</option>
+                                      <option value="Signs of Failure">Signs of Failure</option>
+                                      <option value="Abnormal Pattern">Abnormal Pattern</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* SpO2 */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">SpO2</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_spo2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value=">90%">&gt;90%</option>
+                                      <option value="<90%">&lt;90%</option>
+                                      <option value="<85%">&lt;85%</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* Tongue */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Tongue</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_tongue" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal Pattern">Normal Pattern</option>
+                                      <option value="Coated">Coated</option>
+                                      <option value="Glossitis">Glossitis</option>
+                                      <option value="Leukoplakia">Leukoplakia</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                                {/* ENT Examination */}
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">ENT Examination</label>
+                                  <div className="relative">
+                                    <select name="personal_history__gpe_ent_examination" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
+                                      <option value="Abnormalities Present">Abnormalities Present</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
                         {/* Miscellaneous Accordion */}
                         <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
                           <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
