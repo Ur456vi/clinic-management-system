@@ -123,52 +123,105 @@ export function can(role: RbacRole | null | undefined, action: Permission): bool
 }
 
 // ---------------------------------------------------------------------------
-// Admin area / route access (page + nav layer)
+// Admin areas (page + nav layer, with per-staff overrides)
 // ---------------------------------------------------------------------------
 //
-// Maps each admin nav area (by href prefix) to the roles allowed to OPEN it.
-// Clinical/front-desk areas mirror their resource's view gate; management and
-// configuration areas are ADMIN-only. Edit a single line here to widen/narrow
-// who can reach a page — both the route guard and the sidebar read from it.
+// One entry per admin nav area. `roles` is the DEFAULT access for a role,
+// used when a staff member has no custom per-staff set. `alwaysOn` areas
+// (dashboard, profile) can never be switched off. Access is enforced in
+// `proxy.ts` (route) + the sidebar (nav); API action gates above remain the
+// real data enforcement. Admin overrides access per staff via Staff → Access;
+// edit a `roles` line here to change a role's defaults for everyone.
 
-export const ADMIN_AREA_ACCESS = {
-  "/admin/dashboard": ALL_STAFF,
-  "/admin/patients": PERMISSIONS["patient:view"],
-  "/admin/appointments": PERMISSIONS["appointment:view"],
-  "/admin/assessments": PERMISSIONS["assessment:view"],
-  "/admin/invoices": PERMISSIONS["invoice:view"],
-  "/admin/refills": PERMISSIONS["refill:read"],
-  "/admin/staff": ADMIN_ONLY,
-  "/admin/departments": ADMIN_ONLY,
-  "/admin/reports": ["ADMIN", "DOCTOR"],
-  "/admin/settings": PERMISSIONS["settings:manage"],
-  "/admin/yuvraaj-appointments": ADMIN_ONLY,
-  "/admin/profile": ALL_STAFF,
-} as const satisfies Record<string, readonly RbacRole[]>
+export type AdminArea = {
+  key: string
+  path: string
+  label: string
+  roles: readonly RbacRole[]
+  alwaysOn?: boolean
+}
+
+export const ADMIN_AREAS: readonly AdminArea[] = [
+  { key: "dashboard", path: "/admin/dashboard", label: "Dashboard", roles: ALL_STAFF, alwaysOn: true },
+  { key: "patients", path: "/admin/patients", label: "Patients", roles: PERMISSIONS["patient:view"] },
+  { key: "appointments", path: "/admin/appointments", label: "Appointments", roles: PERMISSIONS["appointment:view"] },
+  { key: "assessments", path: "/admin/assessments", label: "Assessments", roles: PERMISSIONS["assessment:view"] },
+  { key: "invoices", path: "/admin/invoices", label: "Invoices", roles: PERMISSIONS["invoice:view"] },
+  { key: "refills", path: "/admin/refills", label: "Refills", roles: PERMISSIONS["refill:read"] },
+  { key: "reports", path: "/admin/reports", label: "Reports", roles: ["ADMIN", "DOCTOR"] },
+  { key: "staff", path: "/admin/staff", label: "Staff", roles: ADMIN_ONLY },
+  { key: "departments", path: "/admin/departments", label: "Departments", roles: ADMIN_ONLY },
+  { key: "yuvraaj", path: "/admin/yuvraaj-appointments", label: "Dr Yuvraaj Appointment", roles: ADMIN_ONLY },
+  { key: "settings", path: "/admin/settings", label: "Settings", roles: ADMIN_ONLY },
+  { key: "profile", path: "/admin/profile", label: "Profile", roles: ALL_STAFF, alwaysOn: true },
+]
+
+/** Areas an admin can toggle per staff (everything except the always-on ones). */
+export const ASSIGNABLE_AREAS: readonly AdminArea[] = ADMIN_AREAS.filter((a) => !a.alwaysOn)
+const ASSIGNABLE_AREA_KEYS: readonly string[] = ASSIGNABLE_AREAS.map((a) => a.key)
+const ALL_AREA_KEYS: readonly string[] = ADMIN_AREAS.map((a) => a.key)
+const ALWAYS_ON_KEYS: readonly string[] = ADMIN_AREAS.filter((a) => a.alwaysOn).map((a) => a.key)
+
+/** Keep only valid, assignable, de-duped area keys (drops unknown/always-on). */
+export function sanitizeAreaKeys(keys: readonly string[] | null | undefined): string[] {
+  return Array.from(new Set((keys ?? []).filter((k) => ASSIGNABLE_AREA_KEYS.includes(k))))
+}
+
+/** The admin area key owning a pathname (longest path-prefix match), or null. */
+export function areaForPath(pathname: string): string | null {
+  let key: string | null = null
+  let len = -1
+  for (const a of ADMIN_AREAS) {
+    if ((pathname === a.path || pathname.startsWith(a.path + "/")) && a.path.length > len) {
+      key = a.key
+      len = a.path.length
+    }
+  }
+  return key
+}
+
+/** Area keys a role can access by default (its role template). */
+export function roleDefaultAreas(role: RbacRole): string[] {
+  return ADMIN_AREAS.filter((a) => a.roles.includes(role)).map((a) => a.key)
+}
 
 /**
- * Can `role` open the given admin pathname?
- *
- * Matches the longest configured area prefix. Unmapped `/admin/*` paths
- * (e.g. /admin/help) default to ALL_STAFF — we only ever ADD restrictions
- * explicitly, never lock out a page by omission. PATIENT is never allowed on
- * /admin (the proxy lane guard handles that separately too).
+ * The effective area set for a staff member, baked into the JWT at login:
+ *   - ADMIN → everything; PATIENT → nothing (patient lane).
+ *   - custom (non-empty) `allowedAreas` → that set (always-on forced in).
+ *   - otherwise → the role's defaults.
+ */
+export function effectiveAreasFor(
+  role: RbacRole,
+  allowedAreas?: readonly string[] | null,
+): string[] {
+  if (role === "ADMIN") return [...ALL_AREA_KEYS]
+  if (role === "PATIENT") return []
+  const custom = (allowedAreas ?? []).filter((k) => ALL_AREA_KEYS.includes(k))
+  if (custom.length === 0) return roleDefaultAreas(role)
+  return Array.from(new Set([...ALWAYS_ON_KEYS, ...custom]))
+}
+
+/** Can someone with this explicit area set open the given admin pathname? */
+export function canAccessAreaList(
+  areas: readonly string[] | null | undefined,
+  pathname: string,
+): boolean {
+  const key = areaForPath(pathname)
+  if (!key) return true // unmapped /admin path → allowed
+  if (ALWAYS_ON_KEYS.includes(key)) return true
+  return (areas ?? []).includes(key)
+}
+
+/**
+ * Role-only fallback when no per-staff set is available (e.g. an older JWT):
+ * can this role open the pathname per its role defaults? PATIENT never on /admin.
  */
 export function canAccessAdminPath(
   role: RbacRole | null | undefined,
   pathname: string,
 ): boolean {
-  if (!role) return false
-  if (role === "PATIENT") return false
-
-  let matched: readonly RbacRole[] | null = null
-  let matchedLen = -1
-  for (const [prefix, roles] of Object.entries(ADMIN_AREA_ACCESS)) {
-    if ((pathname === prefix || pathname.startsWith(prefix + "/")) && prefix.length > matchedLen) {
-      matched = roles
-      matchedLen = prefix.length
-    }
-  }
-  if (!matched) return true // unmapped admin path → any staff
-  return matched.includes(role)
+  if (!role || role === "PATIENT") return false
+  if (role === "ADMIN") return true
+  return canAccessAreaList(roleDefaultAreas(role), pathname)
 }

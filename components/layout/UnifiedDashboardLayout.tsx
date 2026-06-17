@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react"
 import { UserMenu, type UserMenuItem } from "@/components/ui/UserMenu"
 import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { NotificationBell } from "@/components/ui/NotificationBell"
-import { canAccessAdminPath, type RbacRole } from "@/lib/rbac"
+import { canAccessAdminPath, canAccessAreaList, type RbacRole } from "@/lib/rbac"
 import {
   LayoutDashboard,
   Users,
@@ -90,11 +90,18 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
 
   const isPatient = rawRole === "PATIENT"
   const role = rawRole as RbacRole | undefined
+  const areas = session?.user?.areas
   // Build the full staff nav (Dr Yuvraaj slotted after Appointments), then
-  // filter every entry through the central RBAC area matrix so each role
-  // sees only the areas it can open. While the session is still loading
-  // (role undefined) we don't filter, to avoid a flash of an empty sidebar.
-  const visibleForStaff = (href: string) => !role || canAccessAdminPath(role, href)
+  // filter every entry by the user's effective area set (admin-managed,
+  // per-staff) — falling back to role defaults when the session carries no
+  // area list. While the session is still loading (role undefined) we don't
+  // filter, to avoid a flash of an empty sidebar.
+  const visibleForStaff = (href: string) =>
+    !role
+      ? true
+      : areas
+        ? canAccessAreaList(areas, href)
+        : canAccessAdminPath(role, href)
   const adminItems = adminSidebarItems
     .flatMap((item) =>
       item.href === "/admin/appointments" ? [item, ...adminOnlySidebarItems] : [item],

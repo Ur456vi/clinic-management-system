@@ -245,6 +245,10 @@ model Staff {
   qualifications String[]  @default([])
   biography      String?
   avatarUrl      String?   @map("avatar_url")
+  /// Admin-managed per-staff page access (RBAC, feature/area level). Holds
+  /// area keys from `lib/rbac.ts` (ADMIN_AREAS). Empty = fall back to the
+  /// staff member's role defaults; non-empty = the explicit custom set.
+  allowedAreas   String[]  @default([]) @map("allowed_areas")
   address        String?
   isActive       Boolean   @default(true) @map("is_active")
   joinedAt       DateTime? @map("joined_at") @db.Date

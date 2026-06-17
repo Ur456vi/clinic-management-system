@@ -17,7 +17,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
 
-import { canAccessAdminPath, type RbacRole } from "@/lib/rbac"
+import { canAccessAdminPath, canAccessAreaList, type RbacRole } from "@/lib/rbac"
 
 const STAFF_ROLES = new Set([
   "ADMIN",
@@ -96,6 +96,7 @@ export async function proxy(req: NextRequest) {
   })
 
   const role = typeof token?.role === "string" ? token.role : null
+  const areas = Array.isArray(token?.areas) ? (token.areas as string[]) : null
   const mustReset = Boolean(token?.mustResetPassword)
   const onReset = pathname === "/reset-password"
 
@@ -139,11 +140,17 @@ export async function proxy(req: NextRequest) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url))
     }
 
-    // 4. Staff in their lane but on an /admin area their role can't open
-    //    (per the central RBAC matrix) → send to the dashboard. /admin/dashboard
-    //    is allowed for every staff role, so this can't loop.
-    if (onAdmin && STAFF_ROLES.has(role) && !canAccessAdminPath(role as RbacRole, pathname)) {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url))
+    // 4. Staff in their lane but on an /admin area they may not open → send
+    //    to the dashboard. Uses the per-staff area set baked into the JWT
+    //    (admin-managed), falling back to role defaults for older tokens.
+    //    /admin/dashboard is always allowed, so this can't loop.
+    if (onAdmin && STAFF_ROLES.has(role)) {
+      const allowed = areas
+        ? canAccessAreaList(areas, pathname)
+        : canAccessAdminPath(role as RbacRole, pathname)
+      if (!allowed) {
+        return NextResponse.redirect(new URL("/admin/dashboard", req.url))
+      }
     }
   }
 
