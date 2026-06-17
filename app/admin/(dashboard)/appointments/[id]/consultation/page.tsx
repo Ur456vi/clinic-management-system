@@ -2323,6 +2323,157 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+
+                            <div className="pt-4 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Core symptoms</h4>
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Vasomotor</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_vasomotor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Hot flashes">Hot flashes</option>
+                                      <option value="Night sweats - Frequency, severity">Night sweats - Frequency, severity</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Neuropsychological</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_neuropsychological" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Mood swings">Mood swings</option>
+                                      <option value="Anxiety">Anxiety</option>
+                                      <option value="Irritability">Irritability</option>
+                                      <option value="Brain fog">Brain fog</option>
+                                      <option value="Memory issues">Memory issues</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Sleep Related</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_sleep_related" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Difficulty falling asleep">Difficulty falling asleep</option>
+                                      <option value="Night awakenings">Night awakenings</option>
+                                      <option value="Non-restorative sleep">Non-restorative sleep</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Sexual Health</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_sexual_health" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Libido">Libido</option>
+                                      <option value="Vaginal dryness">Vaginal dryness</option>
+                                      <option value="Pain during intercourse">Pain during intercourse</option>
+                                      <option value="Arousal difficulty">Arousal difficulty</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Energy</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_energy" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Fatigue">Fatigue</option>
+                                      <option value="Afternoon crashes">Afternoon crashes</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Composition</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_body_composition" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Weight gain (especially abdominal)">Weight gain (especially abdominal)</option>
+                                      <option value="Loss of muscle">Loss of muscle</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Related Past Medical History</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_related_past_medical_history" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="History of breast cancer">History of breast cancer</option>
+                                      <option value="Family history (breast / ovarian / Endometrial cancer)">Family history (breast / ovarian / Endometrial cancer)</option>
+                                      <option value="History of DVT / Clotting / Stroke / Cardiovascular disease">History of DVT / Clotting / Stroke / Cardiovascular disease</option>
+                                      <option value="Unexplained bleeding PV">Unexplained bleeding PV</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Medication history</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_medication_history" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="HRT use (past or current)">HRT use (past or current)</option>
+                                      <option value="OCP consumption">OCP consumption</option>
+                                      <option value="Antidepressants">Antidepressants</option>
+                                      <option value="Steroids">Steroids</option>
+                                      <option value="PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)">PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Bone Health</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_bone_health" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="History of fractures">History of fractures</option>
+                                      <option value="Back pain">Back pain</option>
+                                      <option value="Height loss">Height loss</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Urogenital Health</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_urogenital_health" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Urinary urgency">Urinary urgency</option>
+                                      <option value="Recurrent UTIs">Recurrent UTIs</option>
+                                      <option value="Incontinence">Incontinence</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cancer Screening Status</label>
+                                  <div className="relative">
+                                    <select name="personal_history__womens_health_cancer_screening_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                      <option value="">Select option</option>
+                                      <option value="Last mammogram">Last mammogram</option>
+                                      <option value="Pap smear">Pap smear</option>
+                                      <option value="Pelvic exam">Pelvic exam</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Quality Of Life</h4>
+                              <div className="grid grid-cols-1 gap-6">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">How much are these symptoms affecting your daily life?</label>
+                                  <input name="personal_history__womens_health_quality_of_life_impact" type="text" placeholder="Specify impact" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
