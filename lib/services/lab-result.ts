@@ -37,6 +37,8 @@ import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError } from "@/lib/errors"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import { getDownloadUrl } from "@/lib/services/storage"
+import { lookupTest, parseSelectedTests } from "@/lib/test-catalog"
+import { rolesFor } from "@/lib/rbac"
 import type {
   AnalyteInput,
   AttachLabResultBody,
@@ -50,21 +52,21 @@ import type {
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create or modify a lab result. */
-const WRITE_ROLES: readonly Role[] = [Role.ADMIN, Role.DOCTOR, Role.RMO]
+const WRITE_ROLES: readonly Role[] = rolesFor("labResult:write")
+
+/**
+ * Roles allowed to attach a report to an existing lab result. Reception is
+ * included on top of WRITE_ROLES because the front desk routinely uploads
+ * the diagnostic-centre report on the patient's behalf at the follow-up
+ * visit — but reception still may NOT create rows or edit analytes.
+ */
+const ATTACH_ROLES: readonly Role[] = rolesFor("labResult:attach")
 
 /**
  * Roles allowed to read a lab result. Any authenticated clinic role may
  * read — the patient-portal scope is not surfaced through these routes.
  */
-const READ_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const READ_ROLES: readonly Role[] = rolesFor("labResult:read")
 
 // ---------------------------------------------------------------------------
 // Flag computation
@@ -94,6 +96,96 @@ export function computeAnalyteFlags(
     else if (numericValue > (a.refHigh as number)) flag = LabFlag.HIGH
     return { ...a, flag }
   })
+}
+
+// ---------------------------------------------------------------------------
+// Materialize lab orders from a signed consultation
+// ---------------------------------------------------------------------------
+
+/** Safely read a top-level object section out of a `sections` JSONB blob. */
+function readSection(
+  sections: Prisma.JsonValue,
+  key: string,
+): Record<string, unknown> | null {
+  if (!sections || typeof sections !== "object" || Array.isArray(sections)) {
+    return null
+  }
+  const v = (sections as Record<string, unknown>)[key]
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null
+  return v as Record<string, unknown>
+}
+
+/**
+ * Turn the tests a doctor selected in the consultation "Test" section into
+ * real `LabResult` rows so they surface in the patient's Labs & Diagnostics
+ * tab the moment the consultation is signed.
+ *
+ *   - Order date  → `collectedAt = orderedAt` (the sign time).
+ *   - Status      → "active" (derived: `reportedAt = null`).
+ *   - One row per distinct test name; the report PDF is attached later.
+ *
+ * Idempotent: tests already materialized for this consultation (matched on
+ * `panelName`) are skipped, so a re-run never duplicates rows. Returns the
+ * number of new orders created. Runs inside the caller's transaction.
+ */
+export async function materializeLabOrdersFromConsultation(
+  tx: Prisma.TransactionClient,
+  args: {
+    consultationId: string
+    patientId: string
+    sections: Prisma.JsonValue
+    orderedAt: Date
+    orderingDoctorId: string | null
+  },
+): Promise<number> {
+  const test = readSection(args.sections, "test")
+  if (!test) return 0
+
+  const raw =
+    typeof test["test__selected_tests"] === "string"
+      ? (test["test__selected_tests"] as string)
+      : ""
+  const keys = parseSelectedTests(raw)
+  if (keys.length === 0) return 0
+
+  const preferredLab = test["test__preferred_lab"]
+  const labName =
+    typeof preferredLab === "string" && preferredLab.trim()
+      ? preferredLab.trim().slice(0, 200)
+      : null
+
+  // Resolve each test key to a clean display name; dedupe.
+  const names = new Set<string>()
+  for (const k of keys) {
+    const name = (lookupTest(k)?.name ?? k.split("::").pop() ?? k).trim()
+    if (name) names.add(name.slice(0, 200))
+  }
+  if (names.size === 0) return 0
+
+  // Skip anything already ordered for this consultation (idempotent re-sign).
+  const existing = await tx.labResult.findMany({
+    where: { consultationId: args.consultationId },
+    select: { panelName: true },
+  })
+  const have = new Set(existing.map((r) => r.panelName))
+  const toCreate = [...names].filter((n) => !have.has(n))
+  if (toCreate.length === 0) return 0
+
+  await tx.labResult.createMany({
+    data: toCreate.map((name) => ({
+      patientId: args.patientId,
+      consultationId: args.consultationId,
+      panelName: name,
+      summary: name,
+      collectedAt: args.orderedAt,
+      reportedAt: null,
+      orderingDoctorId: args.orderingDoctorId,
+      labName,
+      analytes: [],
+    })),
+  })
+
+  return toCreate.length
 }
 
 // ---------------------------------------------------------------------------
@@ -468,9 +560,13 @@ export type LabResultAttachmentDownload = {
 /**
  * Attach an uploaded S3 object to an existing lab result.
  *
- *  - Restricted to `WRITE_ROLES`.
+ *  - Restricted to `ATTACH_ROLES` (WRITE_ROLES + RECEPTION).
  *  - Persists `attachmentKey`, optionally `attachmentMime`, and stamps
  *    `attachmentUploadedAt = now()` in a single transaction.
+ *  - Stamps `reportedAt = now()` when it was still null, so the row flips
+ *    from "active" (ordered) to "completed" the moment a report lands —
+ *    no separate PATCH needed, which is what lets RECEPTION finish the
+ *    upload without the (WRITE_ROLES-only) update endpoint.
  *  - Writes an UPDATE audit row with `{ before, after }` describing the
  *    attachment fields (not the whole row).
  */
@@ -479,9 +575,9 @@ export async function attachToLabResult(
   payload: AttachLabResultBody,
   actor: { userId: string; role: Role },
 ): Promise<LabResultWithRelations> {
-  if (!WRITE_ROLES.includes(actor.role)) {
+  if (!ATTACH_ROLES.includes(actor.role)) {
     throw new ForbiddenError(
-      `Role ${actor.role} cannot modify a lab result`,
+      `Role ${actor.role} cannot attach a lab report`,
     )
   }
 
@@ -493,6 +589,7 @@ export async function attachToLabResult(
         attachmentKey: true,
         attachmentMime: true,
         attachmentUploadedAt: true,
+        reportedAt: true,
       },
     })
     if (!before) throw new NotFoundError("Lab result not found")
@@ -506,6 +603,8 @@ export async function attachToLabResult(
           ? { attachmentMime: payload.contentType }
           : {}),
         attachmentUploadedAt: now,
+        // First report in → mark it reported (status active → completed).
+        ...(before.reportedAt == null ? { reportedAt: now } : {}),
       },
       include: LAB_RESULT_INCLUDE,
     })

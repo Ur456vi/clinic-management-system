@@ -17,6 +17,8 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
 
+import { canAccessAdminPath, type RbacRole } from "@/lib/rbac"
+
 const STAFF_ROLES = new Set([
   "ADMIN",
   "DOCTOR",
@@ -134,6 +136,13 @@ export async function proxy(req: NextRequest) {
       return NextResponse.redirect(new URL("/patient/dashboard", req.url))
     }
     if (onPatient && !PATIENT_ROLES.has(role)) {
+      return NextResponse.redirect(new URL("/admin/dashboard", req.url))
+    }
+
+    // 4. Staff in their lane but on an /admin area their role can't open
+    //    (per the central RBAC matrix) → send to the dashboard. /admin/dashboard
+    //    is allowed for every staff role, so this can't loop.
+    if (onAdmin && STAFF_ROLES.has(role) && !canAccessAdminPath(role as RbacRole, pathname)) {
       return NextResponse.redirect(new URL("/admin/dashboard", req.url))
     }
   }

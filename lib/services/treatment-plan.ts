@@ -42,24 +42,20 @@ import {
   materializeAppointmentsForPlan,
   type MaterializationResult,
 } from "@/lib/services/plan-materialization"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create / mutate / sign a treatment plan. */
-const WRITE_ROLES: readonly Role[] = [Role.ADMIN, Role.DOCTOR]
+const WRITE_ROLES: readonly Role[] = rolesFor("treatmentPlan:write")
 
 /**
  * Roles allowed to read plans. Wider than write — RECEPTION needs
  * visibility for billing prep; RMO sees plans alongside intake.
  */
-const VIEW_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-]
+const VIEW_ROLES: readonly Role[] = rolesFor("treatmentPlan:view")
 
 // ---------------------------------------------------------------------------
 // Include shape
