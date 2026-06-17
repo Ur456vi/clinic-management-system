@@ -8,7 +8,7 @@
  * Invoices list "New Invoice" button (bare — pick a patient).
  *
  * Prefills one editable "Consultation — <clinician>" line at a default
- * amount the receptionist can adjust (GST 18%), allows extra lines, then
+ * amount the receptionist can adjust, allows extra lines, then
  * POSTs to /api/invoices and immediately issues it (DRAFT → ISSUED) so the
  * patient can be handed a printed copy from the invoice detail page. After
  * save it redirects there, where reception clicks Print.
@@ -21,14 +21,9 @@ import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react"
 
 import { notify } from "@/lib/notify"
 
-type LineItem = { description: string; quantity: string; unitPriceRupees: string; taxPct: string }
+type LineItem = { description: string; quantity: string; unitPriceRupees: string }
 type PatientLite = { id: string; fullName: string; patientNumber: string }
 
-// Doctor consultation is a core healthcare service → GST-exempt (0%) in
-// India. Manually-added lines (supplements, products, aesthetic procedures)
-// can be taxable, so they default to the standard 18% — reception adjusts.
-const CONSULT_TAX_PCT = "0"
-const DEFAULT_TAX_PCT = "18"
 const DEFAULT_CONSULT_RUPEES = "1000.00"
 
 const inputCls =
@@ -64,7 +59,7 @@ function CreateInvoiceForm() {
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([])
   const [departmentId, setDepartmentId] = useState("")
   const [items, setItems] = useState<LineItem[]>([
-    { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES, taxPct: CONSULT_TAX_PCT },
+    { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES },
   ])
   const [notes, setNotes] = useState("")
   const [loading, setLoading] = useState(true)
@@ -94,7 +89,6 @@ function CreateInvoiceForm() {
                   description: `Consultation${clinician}`,
                   quantity: "1",
                   unitPriceRupees: DEFAULT_CONSULT_RUPEES,
-                  taxPct: CONSULT_TAX_PCT,
                 },
               ])
             }
@@ -151,20 +145,16 @@ function CreateInvoiceForm() {
   const setItem = (i: number, patch: Partial<LineItem>) =>
     setItems((prev) => prev.map((it, j) => (j === i ? { ...it, ...patch } : it)))
   const addItem = () =>
-    setItems((prev) => [...prev, { description: "", quantity: "1", unitPriceRupees: "0.00", taxPct: DEFAULT_TAX_PCT }])
+    setItems((prev) => [...prev, { description: "", quantity: "1", unitPriceRupees: "0.00" }])
   const removeItem = (i: number) => setItems((prev) => (prev.length > 1 ? prev.filter((_, j) => j !== i) : prev))
 
   const totals = useMemo(() => {
     let subtotal = 0
-    let tax = 0
     for (const it of items) {
       const qty = Number.parseFloat(it.quantity) || 0
-      const lineSub = Math.round(rupeesToCents(it.unitPriceRupees) * qty)
-      const bps = Math.round((Number.parseFloat(it.taxPct) || 0) * 100)
-      subtotal += lineSub
-      tax += Math.round((lineSub * bps) / 10_000)
+      subtotal += Math.round(rupeesToCents(it.unitPriceRupees) * qty)
     }
-    return { subtotal, tax, total: subtotal + tax }
+    return { total: subtotal }
   }, [items])
 
   const canSubmit =
@@ -186,7 +176,6 @@ function CreateInvoiceForm() {
           description: it.description.trim(),
           quantity: it.quantity.trim() || "1",
           unitPriceCents: rupeesToCents(it.unitPriceRupees),
-          taxRateBps: Math.round((Number.parseFloat(it.taxPct) || 0) * 100),
         })),
       }
       const res = await fetch("/api/invoices", {
@@ -297,7 +286,6 @@ function CreateInvoiceForm() {
                     <th className="text-left px-3 py-2 font-semibold">Description</th>
                     <th className="text-left px-2 py-2 font-semibold w-16">Qty</th>
                     <th className="text-left px-2 py-2 font-semibold w-28">Unit (₹)</th>
-                    <th className="text-left px-2 py-2 font-semibold w-20">GST %</th>
                     <th className="w-10" />
                   </tr>
                 </thead>
@@ -312,9 +300,6 @@ function CreateInvoiceForm() {
                       </td>
                       <td className="px-2 py-1.5">
                         <input className={inputCls + " w-full"} value={it.unitPriceRupees} onChange={(e) => setItem(i, { unitPriceRupees: e.target.value })} inputMode="decimal" />
-                      </td>
-                      <td className="px-2 py-1.5">
-                        <input className={inputCls + " w-full"} value={it.taxPct} onChange={(e) => setItem(i, { taxPct: e.target.value })} inputMode="decimal" />
                       </td>
                       <td className="px-1.5 py-1.5 align-middle">
                         <button type="button" onClick={() => removeItem(i)} aria-label="Remove line" className="p-2 text-[#98A2B3] hover:text-[#B42318] rounded-md hover:bg-[#FEF3F2]">
@@ -331,9 +316,6 @@ function CreateInvoiceForm() {
                 </button>
               </div>
             </div>
-            <p className="text-xs text-[#6C7688] dark:text-[#94A3B8]">
-              Doctor consultation is GST-exempt (0%). Apply GST only to taxable items such as supplements or products.
-            </p>
           </div>
 
           {/* Notes */}
@@ -354,9 +336,7 @@ function CreateInvoiceForm() {
             </div>
           ) : null}
           <div className="text-sm">
-            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>Subtotal</span><span>{fmt(totals.subtotal)}</span></div>
-            <div className="flex justify-between py-1 text-[#475467] dark:text-[#CBD5E1]"><span>GST</span><span>{fmt(totals.tax)}</span></div>
-            <div className="flex justify-between py-1.5 mt-1 border-t border-[#EAECF0] dark:border-[#374151] font-bold text-base text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
+            <div className="flex justify-between py-1.5 font-bold text-base text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
           </div>
           <button
             type="button"
