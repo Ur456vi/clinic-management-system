@@ -46,8 +46,8 @@ const KIND_STYLES: Record<
   },
   info: {
     Icon: Info,
-    iconClass: "text-[#2E37A4] dark:text-[#818CF8]",
-    barClass: "bg-[#2E37A4] dark:bg-[#818CF8]",
+    iconClass: "text-[#6B2B26] dark:text-[#818CF8]",
+    barClass: "bg-[#6B2B26] dark:bg-[#818CF8]",
   },
   loading: {
     Icon: Loader2,

@@ -135,7 +135,7 @@ export function UserMenu({
                 <div className="text-xs text-[#667085] truncate">{session.user.email}</div>
               ) : null}
               {displayRole ? (
-                <div className="text-[10px] font-semibold uppercase tracking-wide text-[#2E37A4] mt-0.5">
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-[#6B2B26] mt-0.5">
                   {displayRole}
                 </div>
               ) : null}

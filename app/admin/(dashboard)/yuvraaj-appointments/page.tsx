@@ -61,7 +61,7 @@ export default function YuvraajAppointmentsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading Dr. Yuvraaj&apos;s appointments…</p>
       </div>
     )

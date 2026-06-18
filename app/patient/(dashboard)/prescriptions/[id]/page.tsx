@@ -53,7 +53,7 @@ export default function PatientPrescriptionDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] mb-3" />
         <p className="text-sm font-medium">Preparing prescription…</p>
       </div>
     )
@@ -78,11 +78,11 @@ export default function PatientPrescriptionDetailPage() {
       <div className="no-print flex items-center justify-between">
         <Link
           href="/patient/prescriptions"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] hover:text-[#2E37A4]"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] hover:text-[#6B2B26]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to prescriptions
         </Link>
-        <Button onClick={() => window.print()} className="bg-[#1F3D33] hover:bg-[#15291F] text-white flex items-center gap-2">
+        <Button onClick={() => window.print()} className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2">
           <Printer className="h-4 w-4" /> Print prescription
         </Button>
       </div>

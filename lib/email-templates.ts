@@ -14,7 +14,7 @@ import { RMO_FIELDS, SECTION_LABEL, SECTION_ORDER, SECTION_KEY } from "@/lib/rmo
 import { QUESTIONS } from "@/components/public/assessment/questions"
 import { CATEGORIES, type CategoryKey } from "@/components/public/assessment/types"
 
-const BRAND = "#2E37A4"
+const BRAND = "#6B2B26"
 const GOLD = "#C9A227"
 const INK = "#101828"
 const MUTE = "#667085"
@@ -328,7 +328,7 @@ function quizSummaryHtml(quiz: QuizInfo | null): string {
 
   return `
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
-      <div style="background:#F4F5FF;border-radius:10px;padding:10px 16px">
+      <div style="background:#F9ECEB;border-radius:10px;padding:10px 16px">
         <div style="font-size:22px;font-weight:800;color:${INK}">${esc(quiz.totalScore)}<span style="font-size:13px;color:${MUTE};font-weight:500"> / ${esc(
           quiz.scoreOutOf,
         )}</span></div>

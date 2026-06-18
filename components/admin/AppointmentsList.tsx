@@ -30,6 +30,8 @@ import {
   Tablet,
   Receipt,
   Trash2,
+  ChevronDown,
+  Check,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -102,6 +104,8 @@ export default function AppointmentsList({
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<Status | "ALL">("ALL")
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false)
+  const statusDropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchAppointments = useCallback(async () => {
     setError(null)
@@ -134,6 +138,17 @@ export default function AppointmentsList({
   }, [fetchAppointments])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  useEffect(() => {
+    if (!showStatusDropdown) return
+    const close = (e: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
+        setShowStatusDropdown(false)
+      }
+    }
+    window.addEventListener("click", close)
+    return () => window.removeEventListener("click", close)
+  }, [showStatusDropdown])
+
   const filtered = useMemo(() => {
     if (!search) return rows
     const q = search.toLowerCase()
@@ -162,7 +177,7 @@ export default function AppointmentsList({
         </div>
         {showAdd ? (
           <Link href="/admin/appointments/add">
-            <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
+            <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
               <Plus className="h-4 w-4" />
               <span>Add Appointment</span>
             </Button>
@@ -179,20 +194,48 @@ export default function AppointmentsList({
             placeholder="Search by patient, doctor, department, or reason…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
-          className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
-        >
-          {STATUS_FILTERS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        
+        {/* Custom Status Dropdown */}
+        <div className="relative" ref={statusDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setShowStatusDropdown((prev) => !prev)}
+            className="flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26] transition-all cursor-pointer min-w-[150px]"
+          >
+            <span>{STATUS_FILTERS.find((o) => o.value === statusFilter)?.label}</span>
+            <ChevronDown className={`h-4 w-4 text-[#667085] dark:text-[#94A3B8] transition-transform duration-150 ${showStatusDropdown ? "rotate-180" : ""}`} />
+          </button>
+
+          {showStatusDropdown && (
+            <div className="absolute right-0 mt-1.5 w-48 bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-lg shadow-lg z-20 py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+              {STATUS_FILTERS.map((o) => {
+                const isSelected = statusFilter === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(o.value as Status | "ALL")
+                      setShowStatusDropdown(false)
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left text-sm font-medium transition-colors ${
+                      isSelected
+                        ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
+                        : "text-[#344054] dark:text-[#CBD5E1] hover:bg-gray-50 dark:hover:bg-gray-800/80"
+                    }`}
+                  >
+                    <span>{o.label}</span>
+                    {isSelected && <Check className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
         {!loading && !error ? (
           <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
             {filtered.length} appointment{filtered.length === 1 ? "" : "s"}
@@ -220,7 +263,7 @@ export default function AppointmentsList({
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
-                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+                      <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
                       <p className="text-sm font-medium">Loading appointments…</p>
                     </div>
                   </td>
@@ -247,8 +290,8 @@ export default function AppointmentsList({
                 <tr>
                   <td colSpan={6} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center text-[#667085] dark:text-[#94A3B8] gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-                        <Calendar className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                      <div className="w-12 h-12 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
                       </div>
                       <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
                         No appointments found
@@ -315,13 +358,13 @@ function AppointmentRow({
       <td className="px-6 py-4">
         {row.patient ? (
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center text-xs font-bold text-[#2E37A4] dark:text-[#A5B4FC]">
+            <div className="h-10 w-10 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center text-xs font-bold text-[#6B2B26] dark:text-[#A5B4FC]">
               {initials(row.patient.fullName)}
             </div>
             <div>
               <Link
                 href={`/admin/patients/${row.patient.id}`}
-                className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+                className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
               >
                 {row.patient.fullName}
               </Link>
@@ -341,7 +384,7 @@ function AppointmentRow({
           <div>
             <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">{row.staff.fullName}</p>
             {row.staff.specialization ? (
-              <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC]">{row.staff.specialization}</p>
+              <p className="text-xs text-[#6B2B26] dark:text-[#A5B4FC]">{row.staff.specialization}</p>
             ) : row.department ? (
               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">{row.department.name}</p>
             ) : null}
@@ -591,7 +634,7 @@ function AppointmentActionMenu({
                 router.push(`/admin/appointments/${row.id}/consultation`)
               }}
             >
-              <PlayCircle className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" /> Start appointment
+              <PlayCircle className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" /> Start appointment
             </button>
 
             <button className={item} onClick={() => void viewQuiz()}>
@@ -607,7 +650,7 @@ function AppointmentActionMenu({
                   router.push(`/admin/kiosk/${row.id}`)
                 }}
               >
-                <Tablet className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" /> Start tablet assessment
+                <Tablet className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" /> Start tablet assessment
               </button>
             ) : null}
 
@@ -642,7 +685,7 @@ function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; label: string }> = {
     REQUESTED: { bg: "#EFF8FF", fg: "#175CD3", label: "Requested" },
     CONFIRMED: { bg: "#ECFDF3", fg: "#027A48", label: "Confirmed" },
-    COMPLETED: { bg: "#F4F5FF", fg: "#3538CD", label: "Completed" },
+    COMPLETED: { bg: "#F9ECEB", fg: "#3538CD", label: "Completed" },
     CANCELLED: { bg: "#FEF3F2", fg: "#B42318", label: "Cancelled" },
     NO_SHOW: { bg: "#FFF4ED", fg: "#B93815", label: "No-show" },
   }

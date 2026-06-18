@@ -103,7 +103,7 @@ export default function AppointmentQuizPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading quiz assessment…</p>
       </div>
     )
@@ -122,7 +122,7 @@ export default function AppointmentQuizPage() {
   if (empty || !quiz) {
     return (
       <CenteredState
-        icon={<ClipboardList className="h-7 w-7 text-[#2E37A4] dark:text-[#A5B4FC]" />}
+        icon={<ClipboardList className="h-7 w-7 text-[#6B2B26] dark:text-[#A5B4FC]" />}
         title="No quiz assessment on file"
         body="This patient hasn't completed the Health Assessment quiz yet."
       />
@@ -136,7 +136,7 @@ export default function AppointmentQuizPage() {
         <div>
           <Link
             href="/admin/appointments"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4] mb-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#6B2B26] mb-2"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Appointments
           </Link>
@@ -147,7 +147,7 @@ export default function AppointmentQuizPage() {
               {quiz.patient ? (
                 <Link
                   href={`/admin/patients/${quiz.patient.id}`}
-                  className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+                  className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
                 >
                   {quiz.patient.fullName}
                 </Link>
@@ -164,7 +164,7 @@ export default function AppointmentQuizPage() {
         </div>
         <Link
           href={`/admin/assessments/${quiz.id}`}
-          className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline mt-1"
+          className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline mt-1"
         >
           Open full submission →
         </Link>
@@ -217,7 +217,7 @@ export default function AppointmentQuizPage() {
                 {quiz.suggestedFocus.map((f) => (
                   <span
                     key={f.key}
-                    className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] dark:bg-[#312E81] text-[#3538CD]"
+                    className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F9ECEB] dark:bg-[#312E81] text-[#3538CD]"
                   >
                     {f.label}
                   </span>
@@ -263,7 +263,7 @@ export default function AppointmentQuizPage() {
               <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] mt-0.5">
                 {promptFor(q, quiz.contactSex)}
               </p>
-              <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] font-semibold mt-1">
+              <p className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] font-semibold mt-1">
                 {renderAnswer(q, quiz.answers[q.id])}
               </p>
             </li>

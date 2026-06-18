@@ -123,7 +123,7 @@ export default function PatientInvoicesPage() {
   if (invoices === null) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" /> Loading your invoices…
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" /> Loading your invoices…
       </div>
     );
   }
@@ -152,8 +152,8 @@ export default function PatientInvoicesPage() {
       <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
         {invoices.length === 0 ? (
           <div className="p-10 flex flex-col items-center gap-2 text-center">
-            <span className="h-11 w-11 rounded-xl bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <span className="h-11 w-11 rounded-xl bg-[#6B2B26]/10 dark:bg-[#6B2B26]/20 flex items-center justify-center">
+              <Receipt className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
             </span>
             <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No invoices yet</p>
             <p className="text-xs text-[#667085] dark:text-[#94A3B8]">Invoices appear here after a clinic visit.</p>

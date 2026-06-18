@@ -42,7 +42,7 @@ type Plan = { status: string; items: PlanItem[] }
 
 const STATUS_STYLE: Record<Status, { bg: string; fg: string; label: string }> = {
   PENDING: { bg: "#FEF3E2", fg: "#B7791F", label: "Pending review" },
-  APPROVED: { bg: "#E8EEFB", fg: "#2E37A4", label: "Approved" },
+  APPROVED: { bg: "#E8EEFB", fg: "#6B2B26", label: "Approved" },
   FULFILLED: { bg: "#E4F3EC", fg: "#0E8C6A", label: "Fulfilled" },
   DECLINED: { bg: "#FDECEC", fg: "#B4322B", label: "Declined" },
 }
@@ -123,7 +123,7 @@ export default function RefillRequests() {
     <div className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col gap-5">
       <div className="flex items-center gap-2.5">
         <span className="h-9 w-9 rounded-lg flex items-center justify-center" style={{ background: "#E8EEFB" }}>
-          <RefreshCw className="h-4.5 w-4.5" style={{ color: "#2E37A4" }} />
+          <RefreshCw className="h-4.5 w-4.5" style={{ color: "#6B2B26" }} />
         </span>
         <div>
           <h2 className="text-base font-bold text-[#101828]">Refill Requests</h2>
@@ -161,7 +161,7 @@ export default function RefillRequests() {
                         onClick={() => void request(it)}
                         disabled={open || busyItemId === it.id}
                         className="h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 flex-shrink-0 text-white disabled:opacity-50"
-                        style={{ background: open ? "#98A2B3" : "#2E37A4" }}
+                        style={{ background: open ? "#98A2B3" : "#6B2B26" }}
                       >
                         {busyItemId === it.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                         {open ? "Requested" : "Request refill"}

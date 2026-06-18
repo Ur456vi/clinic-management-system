@@ -118,7 +118,7 @@ export default function RmoSummaryPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading RMO summary…</p>
       </div>
     )
@@ -178,7 +178,7 @@ export default function RmoSummaryPage() {
       <div className="no-print flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/admin/yuvraaj-appointments"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4]"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#6B2B26]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Appointments
         </Link>
@@ -187,7 +187,7 @@ export default function RmoSummaryPage() {
             <Printer className="h-4 w-4" /> Print summary
           </Button>
           <Link href={`/admin/appointments/${appointmentId}/consultation`}>
-            <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2">
+            <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2">
               <PlayCircle className="h-4 w-4" /> Start appointment
             </Button>
           </Link>
@@ -204,7 +204,7 @@ export default function RmoSummaryPage() {
             {data.patient ? (
               <Link
                 href={`/admin/patients/${data.patient.id}`}
-                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
               >
                 {data.patient.fullName}
               </Link>
@@ -250,7 +250,7 @@ export default function RmoSummaryPage() {
           <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Latest Vitals</h2>
           {latestVital === undefined ? (
             <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
-              <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+              <Loader2 className="h-4 w-4 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
               Loading…
             </div>
           ) : !v ? (
@@ -287,7 +287,7 @@ export default function RmoSummaryPage() {
                     onClick={() => setActiveTab(s)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       current === s
-                        ? "bg-[#2E37A4] text-white"
+                        ? "bg-[#6B2B26] text-white"
                         : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
                     }`}
                   >

@@ -135,13 +135,13 @@ export default function AdminAssessmentsPage() {
             placeholder="Search by name, email, phone, booking ref, patient #…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
-          className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          className="px-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -154,7 +154,7 @@ export default function AdminAssessmentsPage() {
       {/* Body */}
       {loading ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
           Loading submissions…
         </div>
       ) : error ? (
@@ -167,8 +167,8 @@ export default function AdminAssessmentsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-            <FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <div className="w-12 h-12 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+            <FileText className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
           </div>
           <div>
             <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No submissions found</p>
@@ -198,7 +198,7 @@ export default function AdminAssessmentsPage() {
                     <div className="flex flex-col">
                       <Link
                         href={`/admin/assessments/${r.id}`}
-                        className="font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                        className="font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                       >
                         {r.contactName}
                       </Link>
@@ -245,7 +245,7 @@ export default function AdminAssessmentsPage() {
                     <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/admin/assessments/${r.id}`}
-                        className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:bg-[#F4F5FF] transition-colors"
+                        className="px-3 py-1.5 rounded-md text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:bg-[#F9ECEB] transition-colors"
                       >
                         View
                       </Link>
@@ -304,7 +304,7 @@ function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; Icon: typeof Clock; label: string }> = {
     REQUESTED: { bg: "#EFF8FF", fg: "#175CD3", Icon: Clock, label: "Requested" },
     CONFIRMED: { bg: "#ECFDF3", fg: "#027A48", Icon: CheckCircle2, label: "Confirmed" },
-    COMPLETED: { bg: "#F4F5FF", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
+    COMPLETED: { bg: "#F9ECEB", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
     CANCELLED: { bg: "#FEF3F2", fg: "#B42318", Icon: XCircle, label: "Cancelled" },
   }
   const { bg, fg, Icon, label } = map[status]

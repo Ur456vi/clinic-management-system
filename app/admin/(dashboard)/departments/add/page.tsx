@@ -112,7 +112,7 @@ export default function AddDepartmentPage() {
           <Button
             type="submit"
             disabled={!canSubmit || submitting}
-            className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg inline-flex items-center gap-2"
+            className="px-6 h-11 bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white font-semibold rounded-lg inline-flex items-center gap-2"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Create Department
@@ -124,7 +124,7 @@ export default function AddDepartmentPage() {
         <ArrowLeft className="h-4 w-4" /> Back to Departments
       </Link>
 
-      <div className="bg-[#2E37A4] rounded-xl p-6 text-white flex items-center gap-4 shadow-sm">
+      <div className="bg-[#6B2B26] rounded-xl p-6 text-white flex items-center gap-4 shadow-sm">
         <div className="h-12 w-12 rounded-lg bg-white dark:bg-[#1F2937]/20 flex items-center justify-center">
           <Building2 className="h-6 w-6 text-white" />
         </div>
@@ -244,7 +244,7 @@ export function PricingEditor({
 }
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
 
 function Field({
   label,

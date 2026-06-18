@@ -138,7 +138,7 @@ export default function EmailSettingsPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading email settings…</p>
       </div>
     )
@@ -147,8 +147,8 @@ export default function EmailSettingsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-[720px]">
       <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-xl bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-          <Mail className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+        <div className="h-11 w-11 rounded-xl bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+          <Mail className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Email (SMTP)</h1>
@@ -171,7 +171,7 @@ export default function EmailSettingsPage() {
             type="checkbox"
             checked={form.enabled}
             onChange={(e) => setForm({ ...form, enabled: e.target.checked })}
-            className="h-5 w-9 appearance-none rounded-full bg-[#D0D5DD] checked:bg-[#2E37A4] relative cursor-pointer transition-colors before:content-[''] before:absolute before:top-0.5 before:left-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-transform checked:before:translate-x-4"
+            className="h-5 w-9 appearance-none rounded-full bg-[#D0D5DD] checked:bg-[#6B2B26] relative cursor-pointer transition-colors before:content-[''] before:absolute before:top-0.5 before:left-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition-transform checked:before:translate-x-4"
           />
         </label>
 
@@ -199,7 +199,7 @@ export default function EmailSettingsPage() {
             type="checkbox"
             checked={form.secure}
             onChange={(e) => setForm({ ...form, secure: e.target.checked })}
-            className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC]"
+            className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC]"
           />
           Use TLS (secure) — typically on for port 465, off for 587
         </label>
@@ -253,7 +253,7 @@ export default function EmailSettingsPage() {
           <Button
             onClick={() => void save()}
             disabled={saving}
-            className="bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2"
+            className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save settings
@@ -279,7 +279,7 @@ export default function EmailSettingsPage() {
         <Button
           onClick={() => void sendTest()}
           disabled={testing}
-          className="mt-4 bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2"
+          className="mt-4 bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2"
         >
           {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           Send test email
@@ -290,7 +290,7 @@ export default function EmailSettingsPage() {
 }
 
 const inputCls =
-  "w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
 
 function Field({
   label,

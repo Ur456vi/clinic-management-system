@@ -247,7 +247,7 @@ export default function ForgotPassword() {
                     placeholder="Email Address"
                     value={email || ""}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#B3B5E2] focus:outline-none focus:ring-2 focus:ring-[#B3B5E2]/20"
+                    className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
                     style={{
                       width: '476px',
                       height: '48px',
@@ -265,7 +265,7 @@ export default function ForgotPassword() {
                 className="w-full transition-all duration-300"
                 style={{
                   height: '48px',
-                  backgroundColor: isFormValid && !isLoading ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: isFormValid && !isLoading ? '#6B2B26' : '#D5ABAB',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
@@ -290,7 +290,7 @@ export default function ForgotPassword() {
               <div className="flex justify-center">
                 <Link
                   href="/"
-                  className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b] transition-colors"
+                  className="text-sm font-semibold text-[#6B2B26] hover:text-[#54201D] transition-colors"
                   style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
                 >
                   Back to Login
@@ -354,7 +354,7 @@ export default function ForgotPassword() {
                 className="w-full"
                 style={{
                   height: '56px',
-                  backgroundColor: '#2E37A4',
+                  backgroundColor: '#6B2B26',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
@@ -433,7 +433,7 @@ export default function ForgotPassword() {
                     e.target.select()
                   }}
                   onBlur={() => setFocusedIndex(null)}
-                  className="otp-input w-[56px] h-[56px] border border-[#DDDDDD] rounded-[8px] bg-transparent text-center text-xl font-semibold text-[#101828] focus:border-[#2E37A4] focus:outline-none focus:ring-1 focus:ring-[#2E37A4]"
+                  className="otp-input w-[56px] h-[56px] border border-[#DDDDDD] rounded-[8px] bg-transparent text-center text-xl font-semibold text-[#101828] focus:border-[#6B2B26] focus:outline-none focus:ring-1 focus:ring-[#6B2B26]"
                   style={{ padding: '16px' }}
                 />
               ))}
@@ -450,7 +450,7 @@ export default function ForgotPassword() {
                   fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '11.96px',
-                  color: '#2E37A4',
+                  color: '#6B2B26',
                   textAlign: 'center'
                 }}
               >
@@ -471,7 +471,7 @@ export default function ForgotPassword() {
                   className="hover:underline"
                   style={{
                     fontWeight: 600,
-                    color: timeLeft === 0 && !isLoading ? '#2E37A4' : '#667085',
+                    color: timeLeft === 0 && !isLoading ? '#6B2B26' : '#667085',
                     cursor: timeLeft === 0 && !isLoading ? 'pointer' : 'default'
                   }}
                   onClick={handleResendOtp}
@@ -488,7 +488,7 @@ export default function ForgotPassword() {
                 className="w-full"
                 style={{
                   height: '56px',
-                  backgroundColor: otp.join("").length === 6 && !isLoading ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: otp.join("").length === 6 && !isLoading ? '#6B2B26' : '#D5ABAB',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
@@ -577,7 +577,7 @@ export default function ForgotPassword() {
                     placeholder="********************"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="flex w-full border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#2E37A4] focus:outline-none focus:ring-1 focus:ring-[#2E37A4]"
+                    className="flex w-full border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#6B2B26] focus:outline-none focus:ring-1 focus:ring-[#6B2B26]"
                     style={{
                       height: '48px',
                       borderRadius: '8px',
@@ -616,7 +616,7 @@ export default function ForgotPassword() {
                     placeholder="********************"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="flex w-full border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#2E37A4] focus:outline-none focus:ring-1 focus:ring-[#2E37A4]"
+                    className="flex w-full border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#6B2B26] focus:outline-none focus:ring-1 focus:ring-[#6B2B26]"
                     style={{
                       height: '48px',
                       borderRadius: '8px',
@@ -638,7 +638,7 @@ export default function ForgotPassword() {
                 className="w-full mt-2"
                 style={{
                   height: '48px',
-                  backgroundColor: isResetValid && !isLoading ? '#2E37A4' : '#B3B5E2',
+                  backgroundColor: isResetValid && !isLoading ? '#6B2B26' : '#D5ABAB',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,
@@ -662,7 +662,7 @@ export default function ForgotPassword() {
               <div className="flex justify-center">
                 <Link
                   href="/"
-                  className="text-sm font-semibold text-[#2E37A4] hover:text-[#1d246b] transition-colors"
+                  className="text-sm font-semibold text-[#6B2B26] hover:text-[#54201D] transition-colors"
                   style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}
                 >
                   Back to Login
@@ -727,7 +727,7 @@ export default function ForgotPassword() {
                 asChild
                 style={{
                   height: '56px',
-                  backgroundColor: '#2E37A4',
+                  backgroundColor: '#6B2B26',
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 600,

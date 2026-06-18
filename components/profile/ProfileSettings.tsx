@@ -447,7 +447,7 @@ function ProfileTab({
         {/* Avatar */}
         <div className="flex items-center gap-6">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-[#EEF0FB] shadow-sm bg-gradient-to-br from-[#2E37A4] to-[#4BA461] flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-[#F5E5E3] shadow-sm bg-gradient-to-br from-[#6B2B26] to-[#4BA461] flex items-center justify-center">
               <UserAvatar
                 name={profile.fullName}
                 src={profile.avatarUrl}
@@ -459,7 +459,7 @@ function ProfileTab({
               onClick={onPickFile}
               disabled={uploading}
               aria-label="Change photo"
-              className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] border-2 border-white cursor-pointer flex items-center justify-center text-white shadow-md transition-colors"
+              className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] border-2 border-white cursor-pointer flex items-center justify-center text-white shadow-md transition-colors"
             >
               {uploading ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -622,7 +622,7 @@ function ProfileTab({
                 value={(form as StaffForm).biography}
                 onChange={(e) => set("biography" as never, e.target.value as never)}
                 placeholder="Short professional bio shown on the public site."
-                className="rounded-md border border-[#D0D0D0] p-3 text-sm w-full resize-y bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#2E37A4] focus:ring-2 focus:ring-[#2E37A4]/10"
+                className="rounded-md border border-[#D0D0D0] p-3 text-sm w-full resize-y bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#6B2B26] focus:ring-2 focus:ring-[#6B2B26]/10"
               />
             </Field>
           </div>
@@ -650,7 +650,7 @@ function ProfileTab({
               value={form.address}
               onChange={(e) => set("address", e.target.value)}
               placeholder="Street, locality, city, postal code"
-              className="rounded-md border border-[#D0D0D0] p-3 text-sm w-full resize-y bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#2E37A4] focus:ring-2 focus:ring-[#2E37A4]/10"
+              className="rounded-md border border-[#D0D0D0] p-3 text-sm w-full resize-y bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#6B2B26] focus:ring-2 focus:ring-[#6B2B26]/10"
             />
           </Field>
         </div>
@@ -670,7 +670,7 @@ function ProfileTab({
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="px-6 py-2.5 border-none rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-sm font-bold text-white inline-flex items-center gap-2"
+          className="px-6 py-2.5 border-none rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-sm font-bold text-white inline-flex items-center gap-2"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? "Saving…" : "Save Changes"}
@@ -784,7 +784,7 @@ function ChangePasswordTab() {
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-2.5 border-none rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-sm font-bold text-white inline-flex items-center gap-2"
+          className="px-6 py-2.5 border-none rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-sm font-bold text-white inline-flex items-center gap-2"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
           {saving ? "Saving…" : "Update password"}
@@ -888,7 +888,7 @@ function NotificationsTab() {
         </p>
       ) : prefs === null ? (
         <div className="flex items-center gap-2 text-[#667085] dark:text-[#94A3B8]">
-          <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" /> Loading…
+          <Loader2 className="h-4 w-4 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" /> Loading…
         </div>
       ) : (
         <ul className="flex flex-col divide-y divide-[#EAECF0] dark:divide-[#374151] border border-[#EAECF0] dark:border-[#374151] rounded-xl">
@@ -914,7 +914,7 @@ function NotificationsTab() {
                   disabled={savingKey === ch.key}
                   onClick={() => void toggle(ch.key)}
                   className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors disabled:opacity-60 ${
-                    on ? "bg-[#2E37A4]" : "bg-[#D0D5DD]"
+                    on ? "bg-[#6B2B26]" : "bg-[#D0D5DD]"
                   }`}
                 >
                   <span
@@ -935,7 +935,7 @@ function NotificationsTab() {
 /* ── Atoms ─────────────────────────────────────────────────────────── */
 
 const inputCls =
-  "h-10 rounded-md border border-[#D0D0D0] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#2E37A4] focus:ring-2 focus:ring-[#2E37A4]/10";
+  "h-10 rounded-md border border-[#D0D0D0] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#141414] dark:text-[#F9FAFB] focus:outline-none focus:border-[#6B2B26] focus:ring-2 focus:ring-[#6B2B26]/10";
 
 function Field({
   label,
@@ -982,7 +982,7 @@ function TabButton({
       onClick={onClick}
       className={`flex items-center gap-2 px-6 py-4 text-sm whitespace-nowrap transition-all border-b-2 ${
         active
-          ? "text-[#2E37A4] dark:text-[#A5B4FC] font-bold border-[#2E37A4]"
+          ? "text-[#6B2B26] dark:text-[#A5B4FC] font-bold border-[#6B2B26]"
           : "text-[#667085] dark:text-[#94A3B8] font-medium border-transparent hover:text-[#141414]"
       }`}
     >

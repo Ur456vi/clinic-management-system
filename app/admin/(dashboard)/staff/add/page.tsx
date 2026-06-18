@@ -179,7 +179,7 @@ export default function AddStaffPage() {
           <Button
             type="submit"
             disabled={!canSubmit || submitting}
-            className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg shadow-sm inline-flex items-center gap-2"
+            className="px-6 h-11 bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white font-semibold rounded-lg shadow-sm inline-flex items-center gap-2"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -351,7 +351,7 @@ export default function AddStaffPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] shadow-sm"
 
 function Field({
   label,

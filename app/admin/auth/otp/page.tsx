@@ -19,7 +19,7 @@ export default function AdminOtpPage() {
         </p>
         <Link
           href="/"
-          className="inline-block mt-2 text-sm font-semibold text-[#2E37A4] hover:underline"
+          className="inline-block mt-2 text-sm font-semibold text-[#6B2B26] hover:underline"
         >
           Back to login
         </Link>

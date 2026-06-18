@@ -87,7 +87,7 @@ export default function PatientReportsPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[400px] text-sm text-gray-500 dark:text-gray-400">
-        <Loader2 className="h-5 w-5 animate-spin mr-2 text-[#2E37A4]" />
+        <Loader2 className="h-5 w-5 animate-spin mr-2 text-[#6B2B26]" />
         Loading reports...
       </div>
     );
