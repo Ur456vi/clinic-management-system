@@ -203,31 +203,11 @@ function NewAppointmentPageInner() {
         }
         throw new Error(json?.error?.message ?? "Booking failed")
       }
-      // Fire the patient + doctor confirmation emails (best-effort; the
-      // booking already succeeded so we never block on this). Surface the
-      // real result so the toast doesn't claim "sent" when there was no
-      // email on file or the provider rejected it.
-      const createdId = json?.data?.id
-      let emailedTo = 0
-      if (createdId) {
-        try {
-          const er = await fetch(`/api/appointments/${createdId}/send-confirmation`, {
-            method: "POST",
-            credentials: "include",
-          })
-          const ej = await er.json().catch(() => null)
-          const sent = ej?.data?.sent ?? {}
-          emailedTo = (sent?.patient?.ok === true ? 1 : 0) + (sent?.doctor?.ok === true ? 1 : 0)
-        } catch {
-          /* email is best-effort */
-        }
-      }
-      notify.success(
-        emailedTo > 0 ? "Appointment booked — confirmation email sent" : "Appointment booked",
-        emailedTo > 0
-          ? undefined
-          : { description: "No confirmation email sent — patient/doctor has no email on file." },
-      )
+      // The patient + doctor confirmation emails are sent when the
+      // appointment is ACCEPTED (REQUESTED → CONFIRMED), not at booking time.
+      notify.success("Appointment booked", {
+        description: "A confirmation email is sent once the appointment is accepted.",
+      })
       router.push("/admin/appointments")
     } catch (err) {
       notify.error("Couldn't create appointment", {

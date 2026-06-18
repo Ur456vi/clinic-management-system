@@ -308,7 +308,7 @@ export const POST = defineHandler(async ({ req, requestId }) => {
     "assessment-booking: persisted",
   );
 
-  // ── 4. Send email via Brevo/Resend (best-effort async) ────────────────
+  // ── 4. Send email via SMTP/Brevo (best-effort async) ──────────────────
   const dateStr = preferredAt.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",

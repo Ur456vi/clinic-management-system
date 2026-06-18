@@ -29,8 +29,8 @@ export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
             
             {/* ECG Line Graphic */}
             <div className="mt-6">
-                          <EcgLine />
-                        </div>
+              <EcgLine />
+            </div>
           </div>
           
           {/* Right Panel */}
@@ -52,7 +52,7 @@ export function MensFinalPositioningSection({ svc }: { svc: ServiceContent }) {
             
             <Link 
               href="/consultation"
-              className="inline-flex items-center justify-center bg-[#5E1F1A] hover:bg-[#4A1814] transition-colors text-[#FAF8F3] font-bold text-[12px] tracking-wider px-8 py-4 rounded-[12px]"
+              className="inline-flex items-center justify-center bg-[#5E1F1A] hover:bg-[#4A1814] transition-colors text-[#FAF8F3] font-bold text-[11px] md:text-[12px] tracking-wider px-4 py-2.5 md:px-8 md:py-4 rounded-[12px] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
               style={{ fontFamily: "var(--font-display)" }}
             >
               REQUEST A CONSULTATION

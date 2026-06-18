@@ -28,9 +28,15 @@ type EnvShape = {
   OTP_LENGTH: number
 
   // Email
-  RESEND_API_KEY: string | undefined
   BREVO_API_KEY: string | undefined
   EMAIL_FROM: string
+  // Fallback SMTP — used when no DB-stored SMTP config (admin Settings) exists.
+  SMTP_HOST: string | undefined
+  SMTP_PORT: number
+  SMTP_USER: string | undefined
+  SMTP_PASSWORD: string | undefined
+  SMTP_FROM_NAME: string | undefined
+  SMTP_FROM_EMAIL: string | undefined
 
   // WhatsApp (all optional — feature can be off)
   WHATSAPP_PHONE_NUMBER_ID: string | undefined
@@ -156,9 +162,14 @@ const env: EnvShape = {
   OTP_TTL_SECONDS: intOpt("OTP_TTL_SECONDS", 300),
   OTP_LENGTH: intOpt("OTP_LENGTH", 5),
 
-  RESEND_API_KEY: optional("RESEND_API_KEY"),
   BREVO_API_KEY: optional("BREVO_API_KEY"),
   EMAIL_FROM: optional("EMAIL_FROM", "Vyara <no-reply@vyara.local>")!,
+  SMTP_HOST: optional("SMTP_HOST"),
+  SMTP_PORT: intOpt("SMTP_PORT", 587),
+  SMTP_USER: optional("SMTP_USER"),
+  SMTP_PASSWORD: optional("SMTP_PASSWORD"),
+  SMTP_FROM_NAME: optional("SMTP_FROM_NAME"),
+  SMTP_FROM_EMAIL: optional("SMTP_FROM_EMAIL"),
 
   WHATSAPP_PHONE_NUMBER_ID: optional("WHATSAPP_PHONE_NUMBER_ID"),
   WHATSAPP_ACCESS_TOKEN: optional("WHATSAPP_ACCESS_TOKEN"),

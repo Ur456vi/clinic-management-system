@@ -199,6 +199,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
+  const [openRefills, setOpenRefills] = useState(0)
   const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
   const [vitalOpen, setVitalOpen] = useState(false)
@@ -300,13 +301,29 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  // Open refill requests = those still awaiting fulfilment (PENDING/APPROVED).
+  // There's no per-refill due-date model yet, so the KPI counts open requests
+  // rather than a date window.
+  const fetchRefills = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/refills?patientId=${id}&limit=100`, { credentials: "include" })
+      if (!res.ok) return setOpenRefills(0)
+      const json = await res.json()
+      const rows: { status: string }[] = Array.isArray(json?.data) ? json.data : []
+      setOpenRefills(rows.filter((r) => r.status === "PENDING" || r.status === "APPROVED").length)
+    } catch {
+      setOpenRefills(0)
+    }
+  }, [id])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchOne()
     void fetchActivity()
     void fetchVitals()
     void fetchTimeline()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline])
+    void fetchRefills()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -424,7 +441,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     { icon: CalendarClock, label: "FOLLOW-UPS", value: (activity ?? []).length, sub: "Bookings", bg: "#EFF4FF", fg: "#2E5AAC" },
     { icon: Syringe, label: "INFUSIONS", value: 0, sub: "Done", bg: "#E9F6F2", fg: "#0E8C6A" },
     { icon: FlaskConical, label: "LAB REPORTS", value: byType.labResult.length, sub: "Ordered", bg: "#F1EEFB", fg: "#6A4FB0" },
-    { icon: RefreshCw, label: "REFILLS DUE", value: 2, sub: "Next 7 days", bg: "#FDEFE4", fg: "#C2691E" },
+    { icon: RefreshCw, label: "REFILLS DUE", value: openRefills, sub: "Open requests", bg: "#FDEFE4", fg: "#C2691E" },
   ]
 
   return (

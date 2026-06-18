@@ -195,7 +195,7 @@ export function ConventionalSection({ svc }: { svc: ServiceContent }) {
               {c.body}
             </p>
 
-            <div className="mt-12 flex w-full flex-wrap items-start justify-center gap-x-4 gap-y-8 md:flex-nowrap md:gap-x-6">
+            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-8 justify-items-center w-full max-w-[280px] mx-auto md:flex md:max-w-none md:flex-nowrap md:gap-x-6 md:justify-center md:items-start">
               {c.failures.map((f, i) => (
                 <React.Fragment key={f.label}>
                   <div className="flex w-24 flex-col items-center">
@@ -233,11 +233,11 @@ export function ConventionalSection({ svc }: { svc: ServiceContent }) {
               </p>
             )}
 
-            <div className="mt-12 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-6 md:flex-nowrap md:gap-x-4">
+            <div className="mt-12 flex flex-row items-center justify-center gap-x-2 md:gap-x-4 w-full">
               {c.callout.items?.map((item, i) => (
                 <React.Fragment key={i}>
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/40 text-white">
-                    <ResolvedIcon name={item.icon} size={28} />
+                  <div className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full border border-white/40 text-white shrink-0">
+                    <ResolvedIcon name={item.icon} size={22} />
                   </div>
                   {i < (c.callout.items?.length ?? 0) - 1 && (
                     <div className="hidden text-white/50 md:block">
