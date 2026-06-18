@@ -32,7 +32,6 @@ type Invoice = {
   invoiceNumber: string;
   status: "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID";
   subtotalCents: number;
-  taxCents: number;
   totalCents: number;
   issuedAt: string | null;
   createdAt: string;
@@ -225,8 +224,6 @@ export default function PatientInvoicesPage() {
                         </table>
                       </div>
                       <div className="mt-3 ml-auto w-full sm:w-64 text-sm">
-                        <Row label="Subtotal" value={fmt(inv.subtotalCents)} />
-                        <Row label="GST" value={fmt(inv.taxCents)} />
                         <Row label="Total" value={fmt(inv.totalCents)} bold />
                         <Row label="Paid" value={fmt(paid)} />
                         <Row label="Balance" value={fmt(balance)} bold tone={balance > 0 ? "amber" : "green"} />

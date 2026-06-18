@@ -508,6 +508,16 @@ function AppointmentActionMenu({
         body: JSON.stringify({ to: "CONFIRMED" }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      // Now that the appointment is accepted, send the patient + doctor
+      // confirmation emails. Best-effort — never block acceptance on delivery.
+      try {
+        await fetch(`/api/appointments/${row.id}/send-confirmation`, {
+          method: "POST",
+          credentials: "include",
+        })
+      } catch {
+        /* email is best-effort */
+      }
       notify.success("Appointment accepted")
       onChanged()
     } catch (err) {

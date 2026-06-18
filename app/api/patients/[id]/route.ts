@@ -18,21 +18,14 @@ import {
   hardDeletePatient,
   updatePatient,
 } from "@/lib/services/patient"
+import { rolesFor } from "@/lib/rbac"
 
 type Params = { id: string }
 
 /** Any staff member may view a chart; only clinical/front-desk staff may
  *  edit; archiving is ADMIN-only. */
-const STAFF_VIEW: Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
-const PATIENT_WRITE: Role[] = [Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION]
+const STAFF_VIEW: readonly Role[] = rolesFor("patient:view")
+const PATIENT_WRITE: readonly Role[] = rolesFor("patient:update")
 
 export const GET = defineHandler<Params>(async ({ params }) => {
   const session = await requireRole(...STAFF_VIEW)

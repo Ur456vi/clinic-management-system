@@ -10,18 +10,11 @@ import { Role } from "@prisma/client"
 import { created, defineHandler, ok, requireRole, requireSession } from "@/lib/api"
 import { createVital, listVitals } from "@/lib/services/vitals"
 import { createVitalSchema, listVitalsQuerySchema } from "@/lib/validation/vital"
+import { rolesFor } from "@/lib/rbac"
 
 type Params = { id: string }
 
-const STAFF_ROLES: Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const STAFF_ROLES: readonly Role[] = rolesFor("vitals:write")
 
 export const GET = defineHandler<Params>(async ({ req, params }) => {
   await requireSession()

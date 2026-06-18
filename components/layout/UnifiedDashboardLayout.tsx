@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react"
 import { UserMenu, type UserMenuItem } from "@/components/ui/UserMenu"
 import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { NotificationBell } from "@/components/ui/NotificationBell"
+import { canAccessAdminPath, canAccessAreaList, type RbacRole } from "@/lib/rbac"
 import {
   LayoutDashboard,
   Users,
@@ -88,19 +89,31 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   const [collapsed, setCollapsed] = useState(false)
 
   const isPatient = rawRole === "PATIENT"
-  const isAdmin = rawRole === "ADMIN"
-  // Admins get the "Dr Yuvraaj Appointment" entry slotted in right after
-  // "Appointments"; everyone else sees the base list unchanged.
-  const adminItems = isAdmin
-    ? adminSidebarItems.flatMap((item) =>
-        item.href === "/admin/appointments"
-          ? [item, ...adminOnlySidebarItems]
-          : [item],
-      )
-    : adminSidebarItems
+  const role = rawRole as RbacRole | undefined
+  const areas = session?.user?.areas
+  // Build the full staff nav (Dr Yuvraaj slotted after Appointments), then
+  // filter every entry by the user's effective area set (admin-managed,
+  // per-staff) — falling back to role defaults when the session carries no
+  // area list. While the session is still loading (role undefined) we don't
+  // filter, to avoid a flash of an empty sidebar.
+  const visibleForStaff = (href: string) =>
+    !role
+      ? true
+      : areas
+        ? canAccessAreaList(areas, href)
+        : canAccessAdminPath(role, href)
+  const adminItems = adminSidebarItems
+    .flatMap((item) =>
+      item.href === "/admin/appointments" ? [item, ...adminOnlySidebarItems] : [item],
+    )
+    .filter((item) => visibleForStaff(item.href))
   const sidebarItems = isPatient ? patientSidebarItems : adminItems
-  const bottomItems = isPatient ? patientBottomItems : adminBottomItems
-  const menuItems = isPatient ? patientMenuItems : adminMenuItems
+  const bottomItems = isPatient
+    ? patientBottomItems
+    : adminBottomItems.filter((item) => visibleForStaff(item.href))
+  const menuItems = isPatient
+    ? patientMenuItems
+    : adminMenuItems.filter((item) => visibleForStaff(item.href))
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] dark:bg-[#111827] font-sans">

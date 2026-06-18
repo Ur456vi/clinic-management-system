@@ -4,7 +4,7 @@
  * Owns the revenue surface for the May-28 demo:
  *
  *   - `createInvoice`        — inserts an Invoice + N InvoiceItems and
- *     computes the cached totals (subtotalCents / taxCents / totalCents).
+ *     computes the cached totals (subtotalCents / totalCents).
  *   - `listInvoices`         — cursor-paginated list with status filter.
  *   - `getInvoice`           — single invoice with items + payments
  *     eager-loaded.
@@ -13,13 +13,12 @@
  *   - `recordPayment`        — appends a Payment row and re-derives the
  *     invoice's status from the sum of CAPTURED payments.
  *
- * Money is integer cents and tax rate is basis points (1800 == 18%). All
- * writes are wrapped in `db.$transaction` so the AuditLog row commits (or
- * rolls back) atomically with the mutation — matches the appointment /
- * consultation pattern.
+ * Money is integer cents. All writes are wrapped in `db.$transaction` so
+ * the AuditLog row commits (or rolls back) atomically with the mutation —
+ * matches the appointment / consultation pattern.
  *
- * Out of scope here: Razorpay webhook ingestion (BE-41) and GST-compliant
- * PDF rendering. Those land later in Sprint 1 Day 11.
+ * Out of scope here: Razorpay webhook ingestion (BE-41). That lands later
+ * in Sprint 1 Day 11.
  */
 
 import type { Prisma } from "@prisma/client"
@@ -48,25 +47,17 @@ import {
   type RecordPaymentInput,
   type UpdateInvoiceInput,
 } from "@/lib/validation/invoice"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create / mutate invoices and record payments. */
-const WRITE_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RECEPTION,
-]
+const WRITE_ROLES: readonly Role[] = rolesFor("invoice:write")
 
 /** Roles allowed to read invoices. */
-const VIEW_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-]
+const VIEW_ROLES: readonly Role[] = rolesFor("invoice:view")
 
 // ---------------------------------------------------------------------------
 // Include shape
@@ -125,12 +116,9 @@ async function nextInvoiceNumber(tx: Prisma.TransactionClient): Promise<string> 
 
 type ComputedItem = {
   description: string
-  hsnSac: string | null
   quantity: string
   unitPriceCents: number
-  taxRateBps: number
   lineSubtotalCents: number
-  lineTaxCents: number
   lineTotalCents: number
   sourceType: NonNullable<InvoiceItemInput["sourceType"]>
   sourceRefId: string | null
@@ -140,11 +128,9 @@ type ComputedItem = {
  * Compute the line totals for a single item.
  *
  *   lineSubtotal = round(quantity * unitPriceCents)
- *   lineTax      = round(lineSubtotal * taxRateBps / 10000)
- *   lineTotal    = lineSubtotal + lineTax
+ *   lineTotal    = lineSubtotal       (no tax applied)
  *
- * Rounding is banker's-friendly `Math.round` — half-up on .5 — matching
- * what the GST invoice rules expect.
+ * Rounding is `Math.round` — half-up on .5.
  */
 function computeItem(it: InvoiceItemInput): ComputedItem {
   const qty = Number(it.quantity)
@@ -152,19 +138,12 @@ function computeItem(it: InvoiceItemInput): ComputedItem {
     throw new ValidationError("Item quantity must be > 0")
   }
   const lineSubtotalCents = Math.round(qty * it.unitPriceCents)
-  const lineTaxCents = Math.round(
-    (lineSubtotalCents * it.taxRateBps) / 10_000,
-  )
-  const lineTotalCents = lineSubtotalCents + lineTaxCents
   return {
     description: it.description,
-    hsnSac: it.hsnSac ?? null,
     quantity: it.quantity,
     unitPriceCents: it.unitPriceCents,
-    taxRateBps: it.taxRateBps,
     lineSubtotalCents,
-    lineTaxCents,
-    lineTotalCents,
+    lineTotalCents: lineSubtotalCents,
     sourceType: it.sourceType ?? "MANUAL",
     sourceRefId: it.sourceRefId ?? null,
   }
@@ -196,8 +175,7 @@ export async function createInvoice(
     (acc, it) => acc + it.lineSubtotalCents,
     0,
   )
-  const taxCents = computed.reduce((acc, it) => acc + it.lineTaxCents, 0)
-  const totalCents = subtotalCents + taxCents
+  const totalCents = subtotalCents
 
   const tryCreate = async (): Promise<InvoiceWithRelations> => {
     return db.$transaction(async (tx) => {
@@ -229,10 +207,7 @@ export async function createInvoice(
           appointmentId: input.appointmentId,
           departmentId: input.departmentId,
           subtotalCents,
-          taxCents,
           totalCents,
-          gstNumber: input.gstNumber,
-          placeOfSupply: input.placeOfSupply,
           status: InvoiceStatus.DRAFT,
           notes: input.notes,
           dueAt: input.dueAt,

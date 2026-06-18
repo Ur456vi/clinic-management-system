@@ -36,6 +36,7 @@ import {
 import { hashPassword } from "@/lib/passwords"
 import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
+import { effectiveAreasFor, sanitizeAreaKeys } from "@/lib/rbac"
 import type {
   CreateStaffInput,
   ListStaffQuery,
@@ -64,6 +65,10 @@ export type StaffDTO = {
   departmentId: string | null
   department: { id: string; name: string; slug: string } | null
   isActive: boolean
+  /** Raw per-staff area override (empty = using role defaults). */
+  allowedAreas: string[]
+  /** Resolved areas this staff member can open (override or role default). */
+  effectiveAreas: string[]
   createdAt: Date
   updatedAt: Date
 }
@@ -108,6 +113,8 @@ function toDTO(row: StaffWithRels): StaffDTO {
     // Treat the staff member as active only when BOTH flags are set —
     // see the soft-delete note in the file header.
     isActive: row.isActive && row.user.isActive,
+    allowedAreas: row.allowedAreas,
+    effectiveAreas: effectiveAreasFor(row.user.role, row.allowedAreas),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }
@@ -254,6 +261,7 @@ export async function createStaff(
         fullName,
         phone: input.phone ?? null,
         departmentId: input.departmentId ?? null,
+        allowedAreas: sanitizeAreaKeys(input.allowedAreas),
       },
       include: STAFF_INCLUDE,
     })
@@ -329,10 +337,14 @@ export async function updateStaff(
       throw new NotFoundError("Staff not found")
     }
     if (!isAdmin && isSelf) {
-      // Self-edit: forbid role / department changes.
-      if (input.role !== undefined || input.departmentId !== undefined) {
+      // Self-edit: forbid role / department / access changes.
+      if (
+        input.role !== undefined ||
+        input.departmentId !== undefined ||
+        input.allowedAreas !== undefined
+      ) {
         throw new ValidationError(
-          "You may not change your own role or department",
+          "You may not change your own role, department, or access",
           { code: "SELF_ROLE_CHANGE" },
         )
       }
@@ -350,6 +362,9 @@ export async function updateStaff(
     const staffData: Prisma.StaffUpdateInput = {}
     if (newFullName !== undefined) staffData.fullName = newFullName
     if (input.phone !== undefined) staffData.phone = input.phone ?? null
+    if (input.allowedAreas !== undefined) {
+      staffData.allowedAreas = sanitizeAreaKeys(input.allowedAreas)
+    }
     if (input.departmentId !== undefined) {
       staffData.department =
         input.departmentId === null

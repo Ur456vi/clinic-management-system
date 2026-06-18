@@ -4,7 +4,7 @@
  *   GET  — list invoices (cursor-paginated, filterable by patient /
  *          appointment / status).
  *   POST — create a new DRAFT invoice with its items; totals are
- *          computed server-side from `unitPriceCents` + `taxRateBps`.
+ *          computed server-side from `unitPriceCents` × quantity.
  *
  * Both require an authenticated session. The service layer enforces the
  * role gates (WRITE_ROLES for POST, VIEW_ROLES for GET) and the

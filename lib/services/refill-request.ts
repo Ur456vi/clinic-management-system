@@ -28,29 +28,17 @@ import {
   type ListRefillRequestsQuery,
   type TransitionRefillRequestInput,
 } from "@/lib/validation/refill-request"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create-on-behalf and to decide (approve/fulfil/decline). */
-const WRITE_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-]
+const WRITE_ROLES: readonly Role[] = rolesFor("refill:write")
 
 /** Roles allowed to read the staff-facing refill queue. */
-const READ_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const READ_ROLES: readonly Role[] = rolesFor("refill:read")
 
 // ---------------------------------------------------------------------------
 // Include shape

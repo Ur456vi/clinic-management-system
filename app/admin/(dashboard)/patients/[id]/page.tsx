@@ -37,11 +37,13 @@ import {
   Activity,
   CreditCard,
   ClipboardList,
+  MoreVertical,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import RefillManager from "@/components/admin/RefillManager"
+import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -199,6 +201,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
+  const [openRefills, setOpenRefills] = useState(0)
+  const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean } | null>(null)
   const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
   const [vitalOpen, setVitalOpen] = useState(false)
@@ -300,13 +304,43 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  // Open the lab report PDF in a new tab via a short-lived presigned URL.
+  const viewLabReport = useCallback(async (labId: string) => {
+    try {
+      const res = await fetch(`/api/lab-results/${labId}/attachment`, { credentials: "include" })
+      if (!res.ok) throw new Error()
+      const json = await res.json()
+      const url = json?.data?.downloadUrl ?? json?.data?.url
+      if (!url) throw new Error()
+      window.open(url, "_blank", "noopener")
+    } catch {
+      notify.error("Couldn't open the report")
+    }
+  }, [])
+
+  // Open refill requests = those still awaiting fulfilment (PENDING/APPROVED).
+  // There's no per-refill due-date model yet, so the KPI counts open requests
+  // rather than a date window.
+  const fetchRefills = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/refills?patientId=${id}&limit=100`, { credentials: "include" })
+      if (!res.ok) return setOpenRefills(0)
+      const json = await res.json()
+      const rows: { status: string }[] = Array.isArray(json?.data) ? json.data : []
+      setOpenRefills(rows.filter((r) => r.status === "PENDING" || r.status === "APPROVED").length)
+    } catch {
+      setOpenRefills(0)
+    }
+  }, [id])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchOne()
     void fetchActivity()
     void fetchVitals()
     void fetchTimeline()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline])
+    void fetchRefills()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -424,7 +458,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     { icon: CalendarClock, label: "FOLLOW-UPS", value: (activity ?? []).length, sub: "Bookings", bg: "#EFF4FF", fg: "#2E5AAC" },
     { icon: Syringe, label: "INFUSIONS", value: 0, sub: "Done", bg: "#E9F6F2", fg: "#0E8C6A" },
     { icon: FlaskConical, label: "LAB REPORTS", value: byType.labResult.length, sub: "Ordered", bg: "#F1EEFB", fg: "#6A4FB0" },
-    { icon: RefreshCw, label: "REFILLS DUE", value: 2, sub: "Next 7 days", bg: "#FDEFE4", fg: "#C2691E" },
+    { icon: RefreshCw, label: "REFILLS DUE", value: openRefills, sub: "Open requests", bg: "#FDEFE4", fg: "#C2691E" },
   ]
 
   return (
@@ -568,13 +602,23 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             <thead><tr className="text-xs text-[#8A9A92]"><th className="text-left font-semibold py-2">Test</th><th className="text-left font-semibold py-2">Ordered On</th><th className="text-left font-semibold py-2">Status</th><th className="text-right font-semibold py-2">Report</th></tr></thead>
             <tbody>
               {byType.labResult.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : byType.labResult.map((l) => {
-                const ready = !!l.ref.reportedAt || /generated|ready|reported/i.test(l.summary)
+                const hasReport = l.ref.hasAttachment === true || !!l.ref.reportedAt
+                const orderedOn = (typeof l.ref.collectedAt === "string" ? l.ref.collectedAt : null) ?? l.occurredAt
                 return (
                   <tr key={l.id} style={{ borderTop: "1px solid #EFE8D8" }}>
                     <td className="py-2.5 font-medium text-[#101828] dark:text-[#F9FAFB]">{l.summary}</td>
-                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(l.occurredAt)}</td>
-                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={ready ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#FBF1E0", color: GOLD }}>{ready ? "Generated" : "Processing"}</span></td>
-                    <td className="py-2.5 text-right text-xs font-semibold" style={{ color: ready ? GREEN : "#B0B0B0" }}>{ready ? "View" : "ETA: soon"}</td>
+                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(orderedOn)}</td>
+                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={hasReport ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{hasReport ? "Completed" : "Active"}</span></td>
+                    <td className="py-2.5">
+                      <div className="flex items-center justify-end gap-1">
+                        {hasReport ? (
+                          <button type="button" onClick={() => void viewLabReport(l.ref.id as string)} className="text-xs font-semibold hover:underline px-1.5" style={{ color: GREEN }}>View</button>
+                        ) : null}
+                        <button type="button" onClick={() => setUploadLab({ id: l.ref.id as string, name: l.summary, hasReport })} aria-label="Report actions" className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#6B7B73] hover:bg-gray-100 dark:hover:bg-[#111827]">
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )
               })}
@@ -660,6 +704,16 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           ) : null}
         </Panel>
       )}
+
+      {uploadLab ? (
+        <LabReportUploadModal
+          labResultId={uploadLab.id}
+          labName={uploadLab.name}
+          hasReport={uploadLab.hasReport}
+          onClose={() => setUploadLab(null)}
+          onUploaded={() => { void fetchTimeline() }}
+        />
+      ) : null}
     </div>
   )
 }

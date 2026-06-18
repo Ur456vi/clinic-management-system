@@ -595,15 +595,12 @@ type ClinicalLoopSeed = {
   }
   invoice: {
     invoiceNumber: string
-    placeOfSupply: string
     issuedDaysAgo: number
     paymentMethod: "CASH" | "CARD" | "UPI" | "BANK_TRANSFER" | "RAZORPAY"
     items: Array<{
       description: string
-      hsnSac?: string
       quantity: number
       unitPriceCents: number
-      taxRateBps: number
     }>
   }
 }
@@ -712,25 +709,20 @@ const CLINICAL_LOOP: ClinicalLoopSeed[] = [
     },
     invoice: {
       invoiceNumber: "INV-2026-100001",
-      placeOfSupply: "KA",
       issuedDaysAgo: 7,
       paymentMethod: "UPI",
       items: [
         {
           description: "Iron + Vit-D IV infusion (session 1 of 3)",
-          hsnSac: "999316",
           quantity: 1,
           // 3500 rupees -> paise (cents) = 350000
           unitPriceCents: 350000,
-          taxRateBps: 1800,
         },
         {
           description: "Consultation — Integrative Medicine",
-          hsnSac: "999312",
           quantity: 1,
           // 1000 rupees -> 100000
           unitPriceCents: 100000,
-          taxRateBps: 1800,
         },
       ],
     },
@@ -796,17 +788,14 @@ const CLINICAL_LOOP: ClinicalLoopSeed[] = [
     },
     invoice: {
       invoiceNumber: "INV-2026-100002",
-      placeOfSupply: "MH",
       issuedDaysAgo: 5,
       paymentMethod: "CARD",
       items: [
         {
           description: "Glutathione + B-complex IV push",
-          hsnSac: "999316",
           quantity: 1,
           // 4500 rupees -> 450000
           unitPriceCents: 450000,
-          taxRateBps: 1800,
         },
       ],
     },
@@ -905,25 +894,20 @@ const CLINICAL_LOOP: ClinicalLoopSeed[] = [
     },
     invoice: {
       invoiceNumber: "INV-2026-100003",
-      placeOfSupply: "KL",
       issuedDaysAgo: 12,
       paymentMethod: "CASH",
       items: [
         {
           description: "PRP scalp session 1",
-          hsnSac: "999722",
           quantity: 1,
           // 6000 rupees -> 600000
           unitPriceCents: 600000,
-          taxRateBps: 1800,
         },
         {
           description: "Vit-C + Vit-D IV drip",
-          hsnSac: "999316",
           quantity: 1,
           // 3500 rupees -> 350000
           unitPriceCents: 350000,
-          taxRateBps: 1800,
         },
       ],
     },
@@ -1116,25 +1100,19 @@ async function seedClinicalLoop(
     const issuedAt = daysAgo(bundle.invoice.issuedDaysAgo)
     // Compute totals from items (mirrors what the service layer does).
     let subtotalCents = 0
-    let taxCents = 0
     const itemRows = bundle.invoice.items.map((it, idx) => {
       const lineSubtotal = Math.round(it.unitPriceCents * it.quantity)
-      const lineTax = Math.round((lineSubtotal * it.taxRateBps) / 10000)
       subtotalCents += lineSubtotal
-      taxCents += lineTax
       return {
         id: detUuid("invoice-item", bundle.patientNumber, String(idx)),
         description: it.description,
-        hsnSac: it.hsnSac ?? null,
         quantity: it.quantity,
         unitPriceCents: it.unitPriceCents,
-        taxRateBps: it.taxRateBps,
         lineSubtotalCents: lineSubtotal,
-        lineTaxCents: lineTax,
-        lineTotalCents: lineSubtotal + lineTax,
+        lineTotalCents: lineSubtotal,
       }
     })
-    const totalCents = subtotalCents + taxCents
+    const totalCents = subtotalCents
 
     await db.invoice.upsert({
       where: { invoiceNumber: bundle.invoice.invoiceNumber },
@@ -1142,10 +1120,7 @@ async function seedClinicalLoop(
         patientId: patient.id,
         status: "PAID",
         subtotalCents,
-        taxCents,
         totalCents,
-        gstNumber: "29ABCDE1234F2Z5",
-        placeOfSupply: bundle.invoice.placeOfSupply,
         issuedAt,
         notes: "Seeded for clinical-loop demo (BE-09 follow-up).",
       },
@@ -1155,10 +1130,7 @@ async function seedClinicalLoop(
         patientId: patient.id,
         status: "PAID",
         subtotalCents,
-        taxCents,
         totalCents,
-        gstNumber: "29ABCDE1234F2Z5",
-        placeOfSupply: bundle.invoice.placeOfSupply,
         issuedAt,
         notes: "Seeded for clinical-loop demo (BE-09 follow-up).",
       },
@@ -1170,12 +1142,9 @@ async function seedClinicalLoop(
         where: { id: row.id },
         update: {
           description: row.description,
-          hsnSac: row.hsnSac,
           quantity: row.quantity,
           unitPriceCents: row.unitPriceCents,
-          taxRateBps: row.taxRateBps,
           lineSubtotalCents: row.lineSubtotalCents,
-          lineTaxCents: row.lineTaxCents,
           lineTotalCents: row.lineTotalCents,
           sourceType: "MANUAL",
         },
@@ -1183,12 +1152,9 @@ async function seedClinicalLoop(
           id: row.id,
           invoiceId,
           description: row.description,
-          hsnSac: row.hsnSac,
           quantity: row.quantity,
           unitPriceCents: row.unitPriceCents,
-          taxRateBps: row.taxRateBps,
           lineSubtotalCents: row.lineSubtotalCents,
-          lineTaxCents: row.lineTaxCents,
           lineTotalCents: row.lineTotalCents,
           sourceType: "MANUAL",
         },

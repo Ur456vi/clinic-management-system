@@ -8,10 +8,9 @@
  *   - `invoiceIdParamSchema`       — :id path param
  *   - `recordPaymentSchema`        — POST  /api/invoices/:id/payments
  *
- * Money is in cents (integer). Tax rate is in basis points
- * (`1800` == 18.00%) so we never store floats. The service layer is the
- * sole writer for cached totals (`subtotalCents`/`taxCents`/`totalCents`
- * on the Invoice, and the `line*Cents` columns on each item).
+ * Money is in cents (integer). The service layer is the sole writer for
+ * cached totals (`subtotalCents`/`totalCents` on the Invoice, and the
+ * `line*Cents` columns on each item).
  */
 
 import { z } from "zod"
@@ -97,7 +96,6 @@ export const ALLOWED_INVOICE_TRANSITIONS: Record<
 
 export const invoiceItemInputSchema = z.object({
   description: z.string().trim().min(1).max(500),
-  hsnSac: trimmedOptional(20),
   /**
    * Quantity is a Decimal column server-side but accepted as either a
    * number or string here (Prisma Decimal accepts both). We coerce to
@@ -110,8 +108,6 @@ export const invoiceItemInputSchema = z.object({
       message: "quantity must be a positive decimal",
     }),
   unitPriceCents: z.number().int().nonnegative(),
-  /** Tax rate in basis points; 0..10000 (0%..100%). */
-  taxRateBps: z.number().int().min(0).max(10_000),
   sourceType: z.nativeEnum(InvoiceItemSourceType).optional(),
   sourceRefId: uuid.optional(),
 })
@@ -126,8 +122,6 @@ export const createInvoiceSchema = z.object({
   patientId: uuid,
   appointmentId: uuid.optional(),
   departmentId: uuid.optional(),
-  gstNumber: trimmedOptional(20),
-  placeOfSupply: trimmedOptional(2),
   notes: trimmedOptional(2000),
   dueAt: isoDateTime.optional(),
   items: z.array(invoiceItemInputSchema).min(1, "At least one item required"),

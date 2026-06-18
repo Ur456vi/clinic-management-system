@@ -57,11 +57,14 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          # Fallback SMTP credentials (Brevo relay). Add these as repo secrets.
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          envs: DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL,NEXT_PUBLIC_APP_URL
+          envs: DATABASE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL,NEXT_PUBLIC_APP_URL,SMTP_USER,SMTP_PASSWORD
           script: |
             set -e
             APP_DIR=/home/ec2-user/vyara
@@ -76,9 +79,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Overwrite .env from GH secrets — single source of truth
-            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=%s\nNEXT_PUBLIC_APP_URL=%s\n" \
-              "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${NEXTAUTH_URL}" "${NEXT_PUBLIC_APP_URL}" > .env
+            # Overwrite .env from GH secrets — single source of truth.
+            # SMTP host/port/from are non-secret config; user + password come
+            # from repo secrets (SMTP_USER / SMTP_PASSWORD).
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=%s\nNEXT_PUBLIC_APP_URL=%s\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
+              "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${NEXTAUTH_URL}" "${NEXT_PUBLIC_APP_URL}" "${SMTP_USER}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
 
             if [ ! -f /home/ec2-user/.vyara_seeded ]; then
