@@ -27,7 +27,7 @@ type PatientLite = { id: string; fullName: string; patientNumber: string }
 const DEFAULT_CONSULT_RUPEES = "1000.00"
 
 const inputCls =
-  "h-10 px-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4]"
+  "h-10 px-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26]"
 
 function rupeesToCents(r: string): number {
   const n = Number.parseFloat(r)
@@ -311,7 +311,7 @@ function CreateInvoiceForm() {
                 </tbody>
               </table>
               <div className="border-t border-[#EAECF0] dark:border-[#374151] bg-[#F9FAFB] dark:bg-[#111827] px-3 py-2">
-                <button type="button" onClick={addItem} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline">
+                <button type="button" onClick={addItem} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline">
                   <Plus className="h-3.5 w-3.5" /> Add line
                 </button>
               </div>
@@ -342,7 +342,7 @@ function CreateInvoiceForm() {
             type="button"
             onClick={() => void save()}
             disabled={!canSubmit || submitting}
-            className="h-11 w-full rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
+            className="h-11 w-full rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Create &amp; issue invoice

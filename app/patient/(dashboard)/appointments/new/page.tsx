@@ -205,7 +205,7 @@ export default function PatientBookAppointmentPage() {
           <div className="flex items-center justify-center gap-3 mt-5">
             <button
               onClick={() => router.push("/patient/appointments")}
-              className="bg-[#2E37A4] hover:bg-[#1d246b] text-white rounded-lg px-4 py-2.5 text-sm font-semibold"
+              className="bg-[#6B2B26] hover:bg-[#54201D] text-white rounded-lg px-4 py-2.5 text-sm font-semibold"
             >
               View my appointments
             </button>
@@ -223,9 +223,9 @@ export default function PatientBookAppointmentPage() {
                     key={c.sex}
                     onClick={() => setSex(c.sex)}
                     className="rounded-xl px-5 py-6 text-left transition-transform active:scale-[0.98]"
-                    style={{ background: "white", border: "2px solid var(--brand-burgundy, #7A2329)" }}
+                    style={{ background: "white", border: "2px solid #6B2B26" }}
                   >
-                    <span className="block text-lg font-bold" style={{ color: "var(--brand-burgundy, #7A2329)" }}>
+                    <span className="block text-lg font-bold" style={{ color: "#6B2B26" }}>
                       {c.label}
                     </span>
                     <span className="block text-xs mt-1" style={{ color: "var(--brand-ink-soft, #5A4A48)" }}>
@@ -245,7 +245,7 @@ export default function PatientBookAppointmentPage() {
                 <button
                   onClick={() => setStep("booking")}
                   disabled={!quizDone}
-                  className="h-11 rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2 px-6"
+                  className="h-11 rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white text-sm font-semibold inline-flex items-center justify-center gap-2 px-6"
                 >
                   Continue to booking <ArrowRight className="h-4 w-4" />
                 </button>
@@ -316,8 +316,8 @@ export default function PatientBookAppointmentPage() {
                       onClick={() => setSelectedSlot(s)}
                       className={`h-10 rounded-lg border text-sm font-medium transition-colors ${
                         active
-                          ? "bg-[#2E37A4] border-[#2E37A4] text-white"
-                          : "bg-white dark:bg-[#111827] border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:border-[#2E37A4]"
+                          ? "bg-[#6B2B26] border-[#6B2B26] text-white"
+                          : "bg-white dark:bg-[#111827] border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:border-[#6B2B26]"
                       }`}
                     >
                       {new Date(s.start).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
@@ -342,7 +342,7 @@ export default function PatientBookAppointmentPage() {
           <button
             type="submit"
             disabled={!selectedSlot || submitting}
-            className="h-11 rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
+            className="h-11 rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
             {submitting ? "Booking…" : "Request appointment"}

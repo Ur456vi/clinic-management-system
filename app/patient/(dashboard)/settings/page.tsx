@@ -27,8 +27,8 @@ export default function PatientSettingsPage() {
 
       <section className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-2xl shadow-sm">
         <header className="px-6 py-4 border-b border-[#EAECF0] dark:border-[#374151] flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-[#EEF0FF] flex items-center justify-center">
-            <Bell className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <div className="h-9 w-9 rounded-lg bg-[#6B2B26]/10 flex items-center justify-center">
+            <Bell className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
           </div>
           <div>
             <h2 className="text-base font-bold text-[#141414] dark:text-[#F9FAFB]">
@@ -89,7 +89,7 @@ export default function PatientSettingsPage() {
               description: "Your preferences have been updated.",
             })
           }
-          className="bg-[#2E37A4] hover:bg-[#1e2570] text-white rounded-lg px-4 py-2.5 text-sm font-semibold cursor-pointer flex items-center gap-2"
+          className="bg-[#6B2B26] hover:bg-[#54201D] text-white rounded-lg px-4 py-2.5 text-sm font-semibold cursor-pointer flex items-center gap-2"
         >
           <Save className="h-4 w-4" />
           Save changes
@@ -127,7 +127,7 @@ function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-          checked ? "bg-[#2E37A4]" : "bg-[#D0D0D0]"
+          checked ? "bg-[#6B2B26]" : "bg-[#D0D0D0]"
         }`}
       >
         <span

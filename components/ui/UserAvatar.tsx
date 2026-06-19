@@ -10,13 +10,13 @@ import Image from "next/image"
  */
 
 const PALETTE = [
-  "#2E37A4", // brand indigo
+  "#6B2B26", // brand burgundy
   "#B53A8C",
   "#0E9384",
   "#B54708",
-  "#3538CD",
-  "#1570EF",
-  "#7A4ED9",
+  "#6B2B26", // changed blue to burgundy
+  "#6B2B26", // changed blue to burgundy
+  "#6B2B26", // changed purple to burgundy
   "#079455",
 ]
 

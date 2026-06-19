@@ -165,7 +165,7 @@ export default function DepartmentDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading department…</p>
       </div>
     )
@@ -217,7 +217,7 @@ export default function DepartmentDetailPage() {
               <Power className="h-4 w-4" /> {dept.isActive ? "Deactivate" : "Reactivate"}
             </Button>
             <Link href={`/admin/departments/${id}?edit=1`}>
-              <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
+              <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
                 <Pencil className="h-4 w-4" /> <span>Edit</span>
               </Button>
             </Link>
@@ -253,7 +253,7 @@ export default function DepartmentDetailPage() {
                 type="checkbox"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC]"
+                className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC]"
               />
               Active
             </label>
@@ -267,7 +267,7 @@ export default function DepartmentDetailPage() {
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2"
+              className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save changes
@@ -325,7 +325,7 @@ export default function DepartmentDetailPage() {
 }
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
 
 function StatusPill({ active }: { active: boolean }) {
   return (

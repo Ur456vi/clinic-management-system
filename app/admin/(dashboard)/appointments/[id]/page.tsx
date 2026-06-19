@@ -158,7 +158,7 @@ export default function AppointmentDetailPage({
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
         Loading appointment…
       </div>
     )
@@ -174,7 +174,7 @@ export default function AppointmentDetailPage({
           </p>
           <Link
             href="/admin/appointments"
-            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
+            className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all appointments
           </Link>
@@ -225,7 +225,7 @@ export default function AppointmentDetailPage({
           ) : null}
           {appt.status === "CONFIRMED" ? (
             <Button
-              className="bg-[#2E37A4] hover:bg-[#1d246b] text-white h-9 px-3 text-xs"
+              className="bg-[#6B2B26] hover:bg-[#54201D] text-white h-9 px-3 text-xs"
               disabled={saving}
               onClick={() => void handleStatus("COMPLETED")}
             >
@@ -262,18 +262,18 @@ export default function AppointmentDetailPage({
               type="date"
               value={draft.date}
               onChange={(e) => setDraft({ ...draft, date: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
             />
             <input
               type="time"
               value={draft.time}
               onChange={(e) => setDraft({ ...draft, time: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
             />
             <select
               value={draft.duration}
               onChange={(e) => setDraft({ ...draft, duration: e.target.value })}
-              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-10 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
             >
               <option value="15">15 minutes</option>
               <option value="30">30 minutes</option>
@@ -289,7 +289,7 @@ export default function AppointmentDetailPage({
             <Button
               onClick={() => void handleReschedule()}
               disabled={saving || !draft.date || !draft.time}
-              className="bg-[#2E37A4] hover:bg-[#1d246b] text-white inline-flex items-center gap-2"
+              className="bg-[#6B2B26] hover:bg-[#54201D] text-white inline-flex items-center gap-2"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -310,7 +310,7 @@ export default function AppointmentDetailPage({
               {appt.patient ? (
                 <Link
                   href={`/admin/patients/${appt.patient.id}`}
-                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
+                  className="text-[#6B2B26] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   {appt.patient.fullName}
                 </Link>
@@ -326,7 +326,7 @@ export default function AppointmentDetailPage({
             <Item icon={<Stethoscope className="h-4 w-4" />} label="Doctor">
               {appt.staff?.fullName ?? "—"}
               {appt.staff?.specialization ? (
-                <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC] mt-0.5">
+                <p className="text-xs text-[#6B2B26] dark:text-[#A5B4FC] mt-0.5">
                   {appt.staff.specialization}
                 </p>
               ) : null}
@@ -411,7 +411,7 @@ function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; Icon: typeof CheckCircle2; label: string }> = {
     REQUESTED: { bg: "#EFF8FF", fg: "#175CD3", Icon: Clock, label: "Requested" },
     CONFIRMED: { bg: "#ECFDF3", fg: "#027A48", Icon: CheckCircle2, label: "Confirmed" },
-    COMPLETED: { bg: "#F4F5FF", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
+    COMPLETED: { bg: "#F9ECEB", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
     CANCELLED: { bg: "#FEF3F2", fg: "#B42318", Icon: XCircle, label: "Cancelled" },
     NO_SHOW: { bg: "#FFF4ED", fg: "#B93815", Icon: XCircle, label: "No-show" },
   }

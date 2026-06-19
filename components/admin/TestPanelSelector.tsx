@@ -94,7 +94,7 @@ export default function TestPanelSelector({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search test or panel"
-            className="w-full pl-9 pr-3 h-11 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 h-11 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
       </div>
@@ -120,14 +120,14 @@ export default function TestPanelSelector({
                 checked={catAllOn}
                 disabled={catKeys.length === 0}
                 onChange={() => toggleCategory(cat)}
-                className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] focus:ring-[#2E37A4]/20 disabled:opacity-40"
+                className="h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] focus:ring-[#6B2B26]/20 disabled:opacity-40"
                 aria-label={`Select all ${cat.title}`}
               />
               <span className="text-sm font-bold uppercase tracking-wide text-[#101828] dark:text-[#F9FAFB] flex-1">
                 {cat.title}
               </span>
               {catSelected > 0 ? (
-                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]">
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]">
                   {catSelected} Test{catSelected === 1 ? "" : "s"} Selected
                 </span>
               ) : null}
@@ -165,13 +165,13 @@ export default function TestPanelSelector({
                             <span
                               className={`text-xs font-bold uppercase tracking-wide ${
                                 panelAllOn
-                                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
-                                  : "text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#2E37A4]"
+                                  ? "text-[#6B2B26] dark:text-[#A5B4FC]"
+                                  : "text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#6B2B26]"
                               }`}
                             >
                               ({panel.code}) {panel.name}
                             </span>
-                            <span className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC]">
+                            <span className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC]">
                               ({panel.tests.length})
                             </span>
                           </button>
@@ -186,7 +186,7 @@ export default function TestPanelSelector({
                                       type="checkbox"
                                       checked={selected.has(key)}
                                       onChange={() => toggleTest(key)}
-                                      className="mt-0.5 h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] focus:ring-[#2E37A4]/20 flex-shrink-0"
+                                      className="mt-0.5 h-4 w-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] focus:ring-[#6B2B26]/20 flex-shrink-0"
                                     />
                                     <span>
                                       <span className="text-[#98A2B3] dark:text-[#94A3B8] mr-1">
@@ -211,7 +211,7 @@ export default function TestPanelSelector({
                                   return n
                                 })
                               }
-                              className="self-start text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                              className="self-start text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                             >
                               {expanded ? "Show less" : `+${hidden} more`}
                             </button>

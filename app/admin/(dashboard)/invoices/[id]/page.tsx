@@ -161,7 +161,7 @@ export default function InvoiceDetailsPage({
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
         Loading invoice…
       </div>
     )
@@ -177,7 +177,7 @@ export default function InvoiceDetailsPage({
           </p>
           <Link
             href="/admin/invoices"
-            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
+            className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all invoices
           </Link>
@@ -291,7 +291,7 @@ export default function InvoiceDetailsPage({
               <KV label="Patient">
                 <Link
                   href={`/admin/patients/${invoice.patient.id}`}
-                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
+                  className="text-[#6B2B26] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   {invoice.patient.fullName}
                 </Link>
@@ -354,7 +354,7 @@ export default function InvoiceDetailsPage({
               <div className="h-px bg-[#EAECF0]" />
               <div className="flex justify-between">
                 <span className="text-base font-black text-[#101828] dark:text-[#F9FAFB]">Grand Total</span>
-                <span className="text-base font-black text-[#2E37A4] dark:text-[#A5B4FC]">
+                <span className="text-base font-black text-[#6B2B26] dark:text-[#A5B4FC]">
                   {formatMoney(invoice.totalCents, invoice.currency)}
                 </span>
               </div>

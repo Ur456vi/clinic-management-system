@@ -40,7 +40,7 @@ const FILTERS: { key: string; label: string; status: string }[] = [
 
 const STATUS_STYLE: Record<Status, { bg: string; fg: string; label: string }> = {
   PENDING: { bg: "#FEF3E2", fg: "#B7791F", label: "Pending" },
-  APPROVED: { bg: "#E8EEFB", fg: "#2E37A4", label: "Approved" },
+  APPROVED: { bg: "#E8EEFB", fg: "#6B2B26", label: "Approved" },
   FULFILLED: { bg: "#E4F3EC", fg: "#0E8C6A", label: "Fulfilled" },
   DECLINED: { bg: "#FDECEC", fg: "#B4322B", label: "Declined" },
 }
@@ -115,7 +115,7 @@ export default function AdminRefillsPage() {
     <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-5xl">
       <div className="flex items-center gap-3">
         <span className="h-11 w-11 rounded-xl flex items-center justify-center" style={{ background: "#E8EEFB" }}>
-          <RefreshCw className="h-5 w-5" style={{ color: "#2E37A4" }} />
+          <RefreshCw className="h-5 w-5" style={{ color: "#6B2B26" }} />
         </span>
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Refill Queue</h1>
@@ -131,7 +131,7 @@ export default function AdminRefillsPage() {
             onClick={() => setFilter(f.key)}
             className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
               filter === f.key
-                ? "bg-[#2E37A4] text-white"
+                ? "bg-[#6B2B26] text-white"
                 : "bg-white dark:bg-[#1F2937] text-[#475467] dark:text-[#CBD5E1] border border-[#EAECF0] dark:border-[#374151] hover:bg-gray-50"
             }`}
           >
@@ -170,7 +170,7 @@ export default function AdminRefillsPage() {
                       {[r.dose, r.frequency].filter(Boolean).join(" · ") || "—"}
                     </p>
                     <p className="text-[11px] text-[#98A2B3] mt-0.5">
-                      <Link href={`/admin/patients/${r.patient.id}`} className="font-semibold hover:underline" style={{ color: "#2E37A4" }}>
+                      <Link href={`/admin/patients/${r.patient.id}`} className="font-semibold hover:underline" style={{ color: "#6B2B26" }}>
                         {r.patient.fullName}
                       </Link>
                       {" "}#{r.patient.patientNumber} · requested {fmtDate(r.createdAt)} by {requester}
@@ -179,10 +179,10 @@ export default function AdminRefillsPage() {
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {busyId === r.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4]" />
+                      <Loader2 className="h-4 w-4 animate-spin text-[#6B2B26]" />
                     ) : r.status === "PENDING" ? (
                       <>
-                        <button onClick={() => void transition(r.id, "APPROVED")} className="h-8 px-2.5 rounded-lg text-xs font-semibold text-white inline-flex items-center gap-1 bg-[#2E37A4] hover:bg-[#252c83]">
+                        <button onClick={() => void transition(r.id, "APPROVED")} className="h-8 px-2.5 rounded-lg text-xs font-semibold text-white inline-flex items-center gap-1 bg-[#6B2B26] hover:bg-[#252c83]">
                           <Check className="h-3.5 w-3.5" /> Approve
                         </button>
                         <button onClick={() => void transition(r.id, "DECLINED")} className="h-8 px-2.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1" style={{ background: "#FDECEC", color: "#B4322B" }}>

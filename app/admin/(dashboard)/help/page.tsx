@@ -12,37 +12,37 @@ export default function HelpSupportPage() {
 
       {/* Support Options */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#2E37A4] transition-colors cursor-pointer group">
-          <div className="h-10 w-10 bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#2E37A4] group-hover:text-white transition-colors">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#6B2B26] transition-colors cursor-pointer group">
+          <div className="h-10 w-10 bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#6B2B26] group-hover:text-white transition-colors">
             <FileText className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">Documentation</h3>
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] mb-4">Detailed guides on how to use all features of the system.</p>
-          <span className="text-sm font-medium text-[#2E37A4] dark:text-[#A5B4FC] flex items-center gap-1">
+          <span className="text-sm font-medium text-[#6B2B26] dark:text-[#A5B4FC] flex items-center gap-1">
             Read docs <ExternalLink className="h-3 w-3" />
           </span>
         </div>
         
-        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#2E37A4] transition-colors cursor-pointer group">
-          <div className="h-10 w-10 bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#2E37A4] group-hover:text-white transition-colors">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#6B2B26] transition-colors cursor-pointer group">
+          <div className="h-10 w-10 bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#6B2B26] group-hover:text-white transition-colors">
             <MessageCircle className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">Live Chat</h3>
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] mb-4">Chat directly with our technical support team (9 AM - 6 PM).</p>
-          <span className="text-sm font-medium text-[#2E37A4] dark:text-[#A5B4FC]">
+          <span className="text-sm font-medium text-[#6B2B26] dark:text-[#A5B4FC]">
             Start a conversation
           </span>
         </div>
 
-        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#2E37A4] transition-colors cursor-pointer group">
-          <div className="h-10 w-10 bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#2E37A4] group-hover:text-white transition-colors">
+        <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm hover:border-[#6B2B26] transition-colors cursor-pointer group">
+          <div className="h-10 w-10 bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#6B2B26] group-hover:text-white transition-colors">
             <Mail className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">Email Support</h3>
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] mb-4">Send us an email and we&apos;ll get back to you within 24 hours.</p>
           <a
             href="mailto:care@precisionhealth.in"
-            className="text-sm font-medium text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+            className="text-sm font-medium text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
           >
             care@precisionhealth.in
           </a>

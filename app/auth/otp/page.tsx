@@ -118,7 +118,7 @@ export default function OTPPage() {
                 autoFocus={i === 0}
                 style={{
                   ...styles.otpBox,
-                  borderColor: error ? "#F04438" : digit ? "#2E37A4" : "#DDDDDD",
+                  borderColor: error ? "#F04438" : digit ? "#6B2B26" : "#DDDDDD",
                 }}
               />
             ))}
@@ -134,7 +134,7 @@ export default function OTPPage() {
                 ...styles.resendText,
                 opacity: canResend ? 1 : 0.5,
                 cursor: canResend ? "pointer" : "not-allowed",
-                color: canResend ? "#2E37A4" : "#666666",
+                color: canResend ? "#6B2B26" : "#666666",
               }}
               onClick={() => {
                 if (canResend) {
@@ -156,7 +156,7 @@ export default function OTPPage() {
           style={styles.btn}
           onClick={handleVerify}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#242d8a")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#2E37A4")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#6B2B26")}
         >
           Verify
         </button>
@@ -284,8 +284,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "16px",
     width: "100%",
     height: "48px",
-    background: "#2E37A4",
-    border: "1px solid #2E37A4",
+    background: "#6B2B26",
+    border: "1px solid #6B2B26",
     borderRadius: "8px",
     color: "#FFFFFF",
     fontSize: "16px",

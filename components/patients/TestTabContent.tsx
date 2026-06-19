@@ -12,7 +12,7 @@ const InputField = ({ label, placeholder = "", className = "", subLabel = "" }: 
     <input
       type="text"
       placeholder={placeholder}
-      className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+      className="w-full h-11 px-4 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
     />
     {subLabel && <p className="text-xs text-[#667085]">{subLabel}</p>}
   </div>
@@ -24,7 +24,7 @@ const TextAreaField = ({ label, placeholder = "", className = "" }: { label: str
     <textarea
       placeholder={placeholder}
       rows={3}
-      className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+      className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#101828] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
     />
   </div>
 )

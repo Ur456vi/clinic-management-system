@@ -380,7 +380,7 @@ export default function StartAppointmentConsultationPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Starting consultation…</p>
       </div>
     )
@@ -412,7 +412,7 @@ export default function StartAppointmentConsultationPage() {
         <div>
           <Link
             href="/admin/appointments"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4] mb-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#6B2B26] mb-2"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Appointments
           </Link>
@@ -422,7 +422,7 @@ export default function StartAppointmentConsultationPage() {
             {consult.patient ? (
               <Link
                 href={`/admin/patients/${consult.patient.id}`}
-                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
               >
                 {consult.patient.fullName}
               </Link>
@@ -443,7 +443,7 @@ export default function StartAppointmentConsultationPage() {
             key={step}
             onClick={() => setActiveMainStep(step)}
             className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeMainStep === step
-              ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+              ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
               : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
               }`}
           >
@@ -462,7 +462,7 @@ export default function StartAppointmentConsultationPage() {
                   key={section}
                   onClick={() => setActiveSection(section)}
                   className={`w-full text-left px-6 py-4 text-sm font-medium transition-all border-b border-[#EAECF0] dark:border-[#374151] last:border-b-0 ${activeSection === section
-                    ? "bg-[#F9FAFB] dark:bg-[#111827] text-[#2E37A4] dark:text-[#A5B4FC] border-l-4 border-l-[#2E37A4]"
+                    ? "bg-[#F9FAFB] dark:bg-[#111827] text-[#6B2B26] dark:text-[#A5B4FC] border-l-4 border-l-[#6B2B26]"
                     : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                     }`}
                 >
@@ -498,7 +498,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="informant__relationship_to_patient"
                                 type="text"
                                 placeholder="Relationship to patient"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -508,7 +508,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="informant__informant_name"
                                 type="text"
                                 placeholder="Full name"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -522,7 +522,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="informant__attendee_names"
                                 placeholder="Names of relatives or friends present"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -530,7 +530,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="informant__relationship"
                                 type="text"
                                 placeholder="Relationship"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -557,7 +557,7 @@ export default function StartAppointmentConsultationPage() {
                               </label>
                               <input name="demographics__date_of_birth"
                                 type="date"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">System will calculate age in years and months</p>
                             </div>
@@ -569,11 +569,11 @@ export default function StartAppointmentConsultationPage() {
                               </label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="demographics__sex" value="Male" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="demographics__sex" value="Male" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Male</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="demographics__sex" value="Female" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="demographics__sex" value="Female" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Female</span>
                                 </label>
                               </div>
@@ -587,7 +587,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="demographics__occupation"
                                 type="text"
                                 placeholder="Current occupation"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">Important for identifying occupational hazards and exposures</p>
                             </div>
@@ -598,7 +598,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="demographics__place_of_residence"
                                 placeholder="Full address"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">Geography matters for geographically induced diseases</p>
                             </div>
@@ -615,20 +615,20 @@ export default function StartAppointmentConsultationPage() {
                               </label>
                               <input name="demographics__date_of_consultation"
                                 type="date"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Last Visit Date</label>
                               <input name="demographics__last_visit_date"
                                 type="date"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Referral Source</label>
                               <div className="relative">
-                                <select name="demographics__referral_source" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="demographics__referral_source" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select referral source</option>
                                   <option value="doctor">Doctor</option>
                                   <option value="walk-in">Walk-in</option>
@@ -665,7 +665,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__medical_conditions"
                                 placeholder="e.g., Type 2 DM, HTN with CAD - Post PTCA status, Hypothyroidism"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">Include known conditions with dates of diagnosis and current status</p>
                             </div>
@@ -674,7 +674,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__icu_admissions"
                                 placeholder="Indication, duration, ventilator or inotropes used"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -692,7 +692,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__surgical_procedures"
                                 placeholder="e.g., Post Cholecystectomy status - 2017, indication, outcome"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">Include procedure name, date, indication, and outcome</p>
                             </div>
@@ -710,7 +710,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Parents Status</label>
                                 <div className="relative">
-                                  <select name="medical_history__parents_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="medical_history__parents_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select status</option>
                                     <option value="living">Living</option>
                                     <option value="deceased">Deceased</option>
@@ -724,7 +724,7 @@ export default function StartAppointmentConsultationPage() {
                                 <textarea name="medical_history__parental_medical_history"
                                   placeholder="Significant conditions or causes of death"
                                   rows={2}
-                                  className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                  className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                                 />
                               </div>
                             </div>
@@ -733,7 +733,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__grandparents_medical_history"
                                 placeholder="If patient can recall"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -750,7 +750,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Current Residence</label>
                                 <div className="relative">
-                                  <select name="medical_history__current_residence" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="medical_history__current_residence" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select residence</option>
                                     <option value="india">India</option>
                                     <option value="abroad">Abroad</option>
@@ -761,7 +761,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Travel Frequency</label>
                                 <div className="relative">
-                                  <select name="medical_history__travel_frequency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="medical_history__travel_frequency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select frequency</option>
                                     <option value="frequent international">Frequent International</option>
                                     <option value="occasional international">Occasional International</option>
@@ -778,7 +778,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="medical_history__modes_of_transport"
                                 type="text"
                                 placeholder="Usual modes of transportation"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -796,7 +796,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__current_medications"
                                 placeholder="Names, compositions, dosages, duration since initiation"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -804,7 +804,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__previous_medications"
                                 placeholder="Include reason for discontinuing"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -812,7 +812,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__supplements"
                                 placeholder="Names, compositions, duration"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -820,7 +820,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__illicit_drug_use"
                                 placeholder="Any use of illicit drugs"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -838,7 +838,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="medical_history__known_allergies"
                                 placeholder="Drug / Food / Cosmetic / Plant allergies with reactions"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -861,7 +861,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Status</label>
                               <div className="relative">
-                                <select name="social_history__status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select status</option>
                                   <option value="single">Single</option>
                                   <option value="married">Married</option>
@@ -876,13 +876,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__duration"
                                 type="text"
                                 placeholder="Duration in years"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Consanguineous Marriage</label>
                               <div className="relative">
-                                <select name="social_history__consanguineous_marriage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__consanguineous_marriage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="yes">Yes</option>
                                   <option value="no">No</option>
@@ -895,7 +895,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__ethnicity"
                                 type="text"
                                 placeholder="To be filled manually"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -910,13 +910,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__work_hours"
                                 type="text"
                                 placeholder="Hours per week"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Work Location</label>
                               <div className="relative">
-                                <select name="social_history__work_location" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__work_location" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select location</option>
                                   <option value="office">Office</option>
                                   <option value="remote">Remote</option>
@@ -929,11 +929,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Physically Strenuous</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__physically_strenuous" value="Yes" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__physically_strenuous" value="Yes" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Yes</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__physically_strenuous" value="No" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__physically_strenuous" value="No" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">No</span>
                                 </label>
                               </div>
@@ -943,7 +943,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__night_shifts"
                                 type="text"
                                 placeholder="Duration and frequency"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -956,7 +956,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Frequency</label>
                               <div className="relative">
-                                <select name="social_history__frequency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__frequency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select frequency</option>
                                   <option value="daily">Daily</option>
                                   <option value="weekly">Weekly</option>
@@ -970,7 +970,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Duration</label>
                               <div className="relative">
-                                <select name="social_history__duration_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__duration_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select duration</option>
                                   <option value="< 1 year">&lt; 1 year</option>
                                   <option value="1-5 years">1-5 years</option>
@@ -984,7 +984,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5 col-span-2">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Type of Beverage</label>
                               <div className="relative">
-                                <select name="social_history__type_of_beverage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__type_of_beverage" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select type</option>
                                   <option value="malts">Malts</option>
                                   <option value="scotch">Scotch</option>
@@ -1010,7 +1010,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Variety</label>
                               <div className="relative">
-                                <select name="social_history__variety" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__variety" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select type</option>
                                   <option value="none">None</option>
                                   <option value="cigarettes">Cigarettes</option>
@@ -1026,7 +1026,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__number_per_day"
                                 type="text"
                                 placeholder="Quantity"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                               <p className="text-xs text-[#667085] dark:text-[#94A3B8]">System will calculate pack years</p>
                             </div>
@@ -1035,7 +1035,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__years_of_use"
                                 type="text"
                                 placeholder="Duration in years"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -1050,7 +1050,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__pets_at_home"
                                 type="text"
                                 placeholder="Animals / Birds (How many)"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -1058,7 +1058,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__proximity_exposure"
                                 type="text"
                                 placeholder="Duration and level of contact"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -1066,7 +1066,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="social_history__inherited_diseases"
                                 placeholder="What, how, and when detected"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -1074,7 +1074,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__under_medical_care"
                                 type="text"
                                 placeholder="Doctor name, since when"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -1089,7 +1089,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__number_of_children"
                                 type="text"
                                 placeholder="Number"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -1097,7 +1097,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__ages_years_of_birth"
                                 type="text"
                                 placeholder="e.g., 5, 8, 12"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5 col-span-2">
@@ -1105,7 +1105,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="social_history__delivery_details"
                                 placeholder="NVD / LSCS / Complications"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -1119,11 +1119,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Partners</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__partners" value="Single Partner" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__partners" value="Single Partner" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Single Partner</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__partners" value="Multiple Partners" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__partners" value="Multiple Partners" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Multiple Partners</span>
                                 </label>
                               </div>
@@ -1133,18 +1133,18 @@ export default function StartAppointmentConsultationPage() {
                               <input name="social_history__frequency_2"
                                 type="text"
                                 placeholder="Frequency"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Protection</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__protection" value="Protected" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__protection" value="Protected" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Protected</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="social_history__protection" value="Unprotected" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="social_history__protection" value="Unprotected" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Unprotected</span>
                                 </label>
                               </div>
@@ -1152,7 +1152,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Preferences</label>
                               <div className="relative">
-                                <select name="social_history__preferences" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="social_history__preferences" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select preference</option>
                                   <option value="same sex">Same sex</option>
                                   <option value="opposite sex">Opposite sex</option>
@@ -1185,7 +1185,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Appetite Level</label>
                               <div className="relative">
-                                <select name="personal_history__appetite_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__appetite_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select appetite level</option>
                                   <option value="normal">Normal</option>
                                   <option value="increased">Increased</option>
@@ -1198,7 +1198,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Food Cravings</label>
                               <div className="relative">
-                                <select name="personal_history__food_cravings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__food_cravings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select cravings</option>
                                   <option value="sweet">Sweet</option>
                                   <option value="salty">Salty</option>
@@ -1222,15 +1222,15 @@ export default function StartAppointmentConsultationPage() {
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Regularity</label>
                                 <div className="flex items-center gap-4 h-11">
                                   <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__regularity" value="Regular" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input type="radio" name="personal_history__regularity" value="Regular" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Regular</span>
                                   </label>
                                   <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__regularity" value="Constipation" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input type="radio" name="personal_history__regularity" value="Constipation" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Constipation</span>
                                   </label>
                                   <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__regularity" value="Frequent Diarrhea" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input type="radio" name="personal_history__regularity" value="Frequent Diarrhea" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Frequent Diarrhea</span>
                                   </label>
                                 </div>
@@ -1240,7 +1240,7 @@ export default function StartAppointmentConsultationPage() {
                                 <input name="personal_history__frequency_per_day"
                                   type="text"
                                   placeholder="Average number"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                                 />
                               </div>
                             </div>
@@ -1248,7 +1248,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Consistency</label>
                                 <div className="relative">
-                                  <select name="personal_history__consistency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__consistency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select consistency</option>
                                     <option value="soft">Soft</option>
                                     <option value="hard">Hard</option>
@@ -1260,7 +1260,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Color</label>
                                 <div className="relative">
-                                  <select name="personal_history__color" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__color" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select color</option>
                                     <option value="brown">Brown</option>
                                     <option value="yellow">Yellow</option>
@@ -1274,7 +1274,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Blood in Stool</label>
                               <div className="relative">
-                                <select name="personal_history__blood_in_stool" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__blood_in_stool" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">None</option>
                                   <option value="streaks (painless)">Streaks (Painless)</option>
@@ -1288,7 +1288,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Other Symptoms</label>
                               <div className="relative">
-                                <select name="personal_history__bowel_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__bowel_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select symptom</option>
                                   <option value="none">None</option>
                                   <option value="worms">Worms</option>
@@ -1411,7 +1411,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Quality of Sleep</label>
                                 <div className="relative">
-                                  <select name="personal_history__quality_of_sleep" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__quality_of_sleep" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select quality</option>
                                     <option value="good">Good</option>
                                     <option value="interrupted">Interrupted</option>
@@ -1425,7 +1425,7 @@ export default function StartAppointmentConsultationPage() {
                                 <input name="personal_history__sleep_duration_hours"
                                   type="text"
                                   placeholder="Hours per night"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                                 />
                               </div>
                             </div>
@@ -1434,21 +1434,21 @@ export default function StartAppointmentConsultationPage() {
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Sleep Time</label>
                                 <input name="personal_history__sleep_time"
                                   type="time"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                                 />
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Wake Time</label>
                                 <input name="personal_history__wake_time"
                                   type="time"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                                 />
                               </div>
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snoring</label>
                               <div className="relative">
-                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__snoring" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">None</option>
                                   <option value="light">Light</option>
@@ -1463,7 +1463,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Preferred or default Decubitus</label>
                               <div className="relative">
-                                <select name="personal_history__decubitus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__decubitus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="supine">Supine</option>
                                   <option value="prone">Prone</option>
@@ -1476,7 +1476,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Height and No. of Pillows</label>
                               <div className="relative">
-                                <select name="personal_history__pillow" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__pillow" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="no pillows">No Pillows</option>
                                   <option value="less than 3 inches">less than 3 Inches</option>
@@ -1488,7 +1488,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Mattress Quality</label>
                               <div className="relative">
-                                <select name="personal_history__mattress" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__mattress" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="floor or wood hard">Floor or wood hard</option>
                                   <option value="soft">Soft</option>
@@ -1509,7 +1509,7 @@ export default function StartAppointmentConsultationPage() {
                                   "Hypnogogic or Hypnic jerks", "Any Involuntary limb jerks during sleep",
                                 ].map((item) => (
                                   <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
-                                    <input name="personal_history__parasomnias_select_all_that_apply" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input name="personal_history__parasomnias_select_all_that_apply" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
                                   </label>
                                 ))}
@@ -1531,18 +1531,18 @@ export default function StartAppointmentConsultationPage() {
                                 <input name="personal_history__frequency_times_per_day"
                                   type="text"
                                   placeholder="Average number"
-                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                                 />
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Urgency</label>
                                 <div className="flex items-center gap-6 h-11">
                                   <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__urgency" value="Normal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input type="radio" name="personal_history__urgency" value="Normal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Normal</span>
                                   </label>
                                   <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__urgency" value="Increased" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <input type="radio" name="personal_history__urgency" value="Increased" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                     <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Increased</span>
                                   </label>
                                 </div>
@@ -1552,7 +1552,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Color & Consistency</label>
                                 <div className="relative">
-                                  <select name="personal_history__color_consistency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__color_consistency" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select appearance</option>
                                     <option value="clear">Clear</option>
                                     <option value="straw">Straw yellow</option>
@@ -1565,7 +1565,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Flow</label>
                                 <div className="relative">
-                                  <select name="personal_history__flow" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__flow" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select flow</option>
                                     <option value="normal">Normal</option>
                                     <option value="weak">Weak</option>
@@ -1578,7 +1578,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Blood in Urine</label>
                               <div className="relative">
-                                <select name="personal_history__blood_in_urine" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__blood_in_urine" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">None</option>
                                   <option value="mild">Mild</option>
@@ -1593,7 +1593,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Other Symptoms</label>
                               <div className="relative">
-                                <select name="personal_history__bladder_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__bladder_other_symptoms" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select symptom</option>
                                   <option value="none">None</option>
                                   <option value="burning">Burning</option>
@@ -1667,7 +1667,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Energy Pattern</label>
                               <div className="relative">
-                                <select name="personal_history__energy_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__energy_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select energy level</option>
                                   <option value="high">Consistently High</option>
                                   <option value="fluctuating">Fluctuating</option>
@@ -1691,7 +1691,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Libido Level</label>
                               <div className="relative">
-                                <select name="personal_history__libido_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__libido_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select level</option>
                                   <option value="normal">Normal</option>
                                   <option value="increased">Increased</option>
@@ -1705,7 +1705,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="personal_history__duration_pattern"
                                 type="text"
                                 placeholder="Duration and pattern"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -1722,7 +1722,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Mood</label>
                                 <div className="relative">
-                                  <select name="personal_history__mood" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__mood" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select mood</option>
                                     <option value="stable">Stable</option>
                                     <option value="anxious">Anxious</option>
@@ -1735,7 +1735,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Irritability</label>
                                 <div className="relative">
-                                  <select name="personal_history__irritability" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__irritability" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select frequency</option>
                                     <option value="none">None</option>
                                     <option value="rare">Rare</option>
@@ -1749,7 +1749,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Forgetfulness</label>
                                 <div className="relative">
-                                  <select name="personal_history__forgetfulness" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__forgetfulness" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select level</option>
                                     <option value="none">None</option>
                                     <option value="mild">Mild</option>
@@ -1761,7 +1761,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Concentration & Focus</label>
                                 <div className="relative">
-                                  <select name="personal_history__concentration_focus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__concentration_focus" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select level</option>
                                     <option value="good">Good</option>
                                     <option value="fair">Fair</option>
@@ -1776,13 +1776,13 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="personal_history__depression_anxiety"
                                 placeholder="Any depression, anxiety, or panic attacks"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Tendencies</label>
                               <div className="relative">
-                                <select name="personal_history__tendencies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__tendencies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select tendencies</option>
                                   <option value="none">None</option>
                                   <option value="aggression">Aggression</option>
@@ -1796,11 +1796,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Brain Fog</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="personal_history__brain_fog" value="Yes" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="personal_history__brain_fog" value="Yes" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Yes</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="personal_history__brain_fog" value="No" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="personal_history__brain_fog" value="No" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">No</span>
                                 </label>
                               </div>
@@ -1828,168 +1828,28 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                           <div className="p-6 space-y-6">
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Meal Time</label>
-                              <div className="relative">
-                                <select name="personal_history__meal_time" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select meal time</option>
-                                  <option value="3 meals">3 Meals</option>
-                                  <option value="2 meals">2 Meals</option>
-                                  <option value="1 meal">1 Meal</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dietary Considerations</label>
+                              <textarea name="personal_history__dietary_considerations"
+                                placeholder="Dietary patterns, restrictions, preferences"
+                                rows={3}
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
+                              />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Portions</label>
-                              <div className="relative">
-                                <select name="personal_history__portions" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select portions</option>
-                                  <option value="100-300gms">100-300gms</option>
-                                  <option value="500gms to >500gms">500gms to &gt;500gms</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Exercise Regimen</label>
+                              <textarea name="personal_history__exercise_regimen"
+                                placeholder="Type, frequency, duration of exercise"
+                                rows={3}
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
+                              />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">In Betweens</label>
-                              <div className="relative">
-                                <select name="personal_history__in_betweens" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select frequency</option>
-                                  <option value="never to very rare">Never to very rare</option>
-                                  <option value="intermittently">Intermittently</option>
-                                  <option value="regularly">Regularly</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Major component of diet</label>
-                              <div className="relative">
-                                <select name="personal_history__major_component_of_diet" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select component</option>
-                                  <option value="protein">Protein</option>
-                                  <option value="fats">Fats</option>
-                                  <option value="carbs">Carbs</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Intake of Fruits and Vegetables</label>
-                              <div className="relative">
-                                <select name="personal_history__intake_of_fruits_and_vegetables" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select intake</option>
-                                  <option value="staple to regularly">Staple to Regularly</option>
-                                  <option value="intermittently">Intermittently</option>
-                                  <option value="never to very rare">Never to Very rare</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Oils used for cooking</label>
-                              <div className="relative">
-                                <select name="personal_history__oils_used_for_cooking" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select oil</option>
-                                  <option value="olive oil">Olive oil</option>
-                                  <option value="coconut oil">Coconut oil</option>
-                                  <option value="seed oils">Seed Oils (Sunflower / Mustard / Sesame etc)</option>
-                                  <option value="vegetable oils">Vegetable oils</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking</label>
-                              <div className="relative">
-                                <select name="personal_history__snacking" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select</option>
-                                  <option value="yes">Yes</option>
-                                  <option value="no">No</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            {form["personal_history__snacking"] === "yes" && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking Type</label>
-                                <div className="flex items-center gap-6 h-11">
-                                  <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__snacking_type" value="Frequency" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
-                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Frequency</span>
-                                  </label>
-                                  <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="radio" name="personal_history__snacking_type" value="Midnight snacking" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
-                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Midnight snacking</span>
-                                  </label>
-                                </div>
-                              </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hot Beverages</label>
-                              <div className="relative">
-                                <select name="personal_history__hot_beverages" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select beverage</option>
-                                  <option value="tea">Tea</option>
-                                  <option value="coffee">Coffee</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            {(form["personal_history__hot_beverages"] === "tea" || form["personal_history__hot_beverages"] === "coffee") && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. Of cups per day</label>
-                                <input name="personal_history__hot_beverages_cups" type="text" placeholder="No. Of cups per day" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
-                              </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting</label>
-                              <div className="relative">
-                                <select name="personal_history__fasting" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select fasting</option>
-                                  <option value="never to very rare">Never to Very Rare</option>
-                                  <option value="regular">Regular</option>
-                                  <option value="intermittent">Intermittent</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            {form["personal_history__fasting"] === "intermittent" && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting (No. Of Hours)</label>
-                                <input name="personal_history__fasting_hours" type="text" placeholder="No. Of Hours" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
-                              </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time to first oral intake of the day after waking up</label>
-                              <div className="relative">
-                                <select name="personal_history__time_to_first_oral_intake" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select time</option>
-                                  <option value="immediate">Immediate</option>
-                                  <option value="15-20 mins">15-20 mins</option>
-                                  <option value="30 mins to > 30 mins">30 mins to &gt; 30 mins</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            {form["personal_history__time_to_first_oral_intake"] === "30 mins to > 30 mins" && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time</label>
-                                <input name="personal_history__time_to_first_oral_intake_specify" type="text" placeholder="specify time" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
-                              </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time between last oral intake of the day and sleep</label>
-                              <div className="relative">
-                                <select name="personal_history__time_between_last_oral_intake_and_sleep" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select time</option>
-                                  <option value="immediate">Immediate</option>
-                                  <option value="30 mins - 1hr">30 mins - 1hr</option>
-                                  <option value="1-2 hrs">1-2 hrs</option>
-                                  <option value=">2 hrs">&gt;2 hrs</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Hygiene</label>
+                              <textarea name="personal_history__personal_hygiene"
+                                placeholder="Bathing / Brushing / Change of underclothes / Nail care"
+                                rows={3}
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
+                              />
                             </div>
                             {form["personal_history__time_between_last_oral_intake_and_sleep"] === ">2 hrs" && (
                               <div className="flex flex-col gap-1.5">
@@ -2002,7 +1862,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="personal_history__personal_habits"
                                 type="text"
                                 placeholder="E.g. cosmetics, sunscreens, etc."
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -3380,7 +3240,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Perspiration</label>
                                 <div className="relative">
-                                  <select name="personal_history__perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select option</option>
                                     <option value="normal">Normal</option>
                                     <option value="excessive">Excessive</option>
@@ -3392,7 +3252,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Odor</label>
                                 <div className="relative">
-                                  <select name="personal_history__body_odor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <select name="personal_history__body_odor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                     <option value="">Select option</option>
                                     <option value="present">Present</option>
                                     <option value="not present">Not Present</option>
@@ -3404,7 +3264,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Halitosis (Bad Breath)</label>
                               <div className="relative">
-                                <select name="personal_history__halitosis_bad_breath" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="personal_history__halitosis_bad_breath" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="present">Present</option>
                                   <option value="not present">Not Present</option>
@@ -3433,13 +3293,13 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Appearance / Attitude</label>
                               <textarea name="examination_summary__appearance_attitude"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Attention Span</label>
                               <div className="relative">
-                                <select name="examination_summary__attention_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__attention_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="normal">Normal</option>
                                   <option value="distracted">Distracted</option>
@@ -3451,7 +3311,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Short Term Memory</label>
                               <div className="relative">
-                                <select name="examination_summary__short_term_memory" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__short_term_memory" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="intact">Intact</option>
                                   <option value="impaired">Impaired</option>
@@ -3470,11 +3330,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Stance & Swing Phases</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Normal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Normal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Normal</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Abnormal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Abnormal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Abnormal</span>
                                 </label>
                               </div>
@@ -3482,7 +3342,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gait Pattern</label>
                               <div className="relative">
-                                <select name="examination_summary__gait_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__gait_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select gait pattern</option>
                                   <option value="normal">Normal</option>
                                   <option value="antalgic">Antalgic</option>
@@ -3497,7 +3357,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__duration_if_abnormal"
                                 type="text"
                                 placeholder="Duration"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -3516,7 +3376,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Facies</label>
                               <div className="relative">
-                                <select name="examination_summary__facies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__facies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select facies type</option>
                                   <option value="normal">Normal</option>
                                   <option value="adenoid">Adenoid</option>
@@ -3530,11 +3390,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Facial Tics</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__facial_tics" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__facial_tics" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__facial_tics" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__facial_tics" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3543,13 +3403,13 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Scars / Bruises / Naevi</label>
                               <textarea name="examination_summary__scars_bruises_naevi"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Facial Puffiness</label>
                               <div className="relative">
-                                <select name="examination_summary__facial_puffiness" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__facial_puffiness" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select type</option>
                                   <option value="none">None</option>
                                   <option value="periorbital">Periorbital</option>
@@ -3568,7 +3428,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lip Findings</label>
                               <div className="relative">
-                                <select name="examination_summary__lip_findings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__lip_findings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select findings</option>
                                   <option value="normal">Normal</option>
                                   <option value="pursed">Pursed</option>
@@ -3581,7 +3441,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Buccopharyngeal Examination</label>
                               <div className="relative">
-                                <select name="examination_summary__buccopharyngeal_examination" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__buccopharyngeal_examination" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="normal">Normal</option>
                                   <option value="thrush">Thrush</option>
@@ -3593,7 +3453,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Tongue Pattern</label>
                               <div className="relative">
-                                <select name="examination_summary__tongue_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__tongue_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select tongue pattern</option>
                                   <option value="normal">Normal</option>
                                   <option value="geographic">Geographic</option>
@@ -3607,7 +3467,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__tongue_coating"
                                 type="text"
                                 placeholder="Color and thickness"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -3622,7 +3482,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__dental_formula"
                                 type="text"
                                 placeholder="e.g., 32/32"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -3630,26 +3490,26 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__dental_caries"
                                 type="text"
                                 placeholder="Location and extent"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingivitis</label>
                               <div className="flex items-center gap-4 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__gingivitis" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__gingivitis" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__gingivitis" value="Mild" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__gingivitis" value="Mild" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Mild</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__gingivitis" value="Moderate" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__gingivitis" value="Moderate" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Moderate</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__gingivitis" value="Severe" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__gingivitis" value="Severe" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Severe</span>
                                 </label>
                               </div>
@@ -3659,7 +3519,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__duration_if_present"
                                 type="text"
                                 placeholder=""
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -3673,7 +3533,7 @@ export default function StartAppointmentConsultationPage() {
                             <textarea name="examination_summary__ent_findings"
                               placeholder="Ears, nose, throat examination findings"
                               rows={3}
-                              className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                             />
                           </div>
                         </div>
@@ -3699,13 +3559,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__rate_bpm"
                                 type="text"
                                 placeholder="e.g., 72"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Rhythm</label>
                               <div className="relative">
-                                <select name="examination_summary__rhythm" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__rhythm" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select rhythm</option>
                                   <option value="regular">Regular</option>
                                   <option value="irregular">Irregularly Irregular</option>
@@ -3717,7 +3577,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Volume</label>
                               <div className="relative">
-                                <select name="examination_summary__volume" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__volume" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select volume</option>
                                   <option value="normal">Normal</option>
                                   <option value="low">Low</option>
@@ -3729,7 +3589,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Character</label>
                               <div className="relative">
-                                <select name="examination_summary__character" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__character" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select character</option>
                                   <option value="normal">Normal</option>
                                   <option value="collapsing">Collapsing</option>
@@ -3744,13 +3604,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__all_peripheral_pulses_adequately"
                                 type="text"
                                 placeholder="All present and equal"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Bruits</label>
                               <div className="relative">
-                                <select name="examination_summary__bruits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__bruits" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="not present">Not Present</option>
                                   <option value="present">Present</option>
@@ -3770,7 +3630,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__systolic_mmhg"
                                 type="text"
                                 placeholder="e.g., 120"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -3778,7 +3638,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__diastolic_mmhg"
                                 type="text"
                                 placeholder="e.g., 80"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -3786,7 +3646,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__pulse_pressure"
                                 type="text"
                                 placeholder="Calculated automatically"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -3794,18 +3654,18 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__map"
                                 type="text"
                                 placeholder="Mean Arterial Pressure"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Auscultation Gap</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__auscultation_gap" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__auscultation_gap" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__auscultation_gap" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__auscultation_gap" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3822,13 +3682,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__body_temperature_f"
                                 type="text"
                                 placeholder="98.6"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hydration Status</label>
                               <div className="relative">
-                                <select name="examination_summary__hydration_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__hydration_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select status</option>
                                   <option value="good">Good</option>
                                   <option value="fair">Fair</option>
@@ -3849,13 +3709,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__rate_per_min"
                                 type="text"
                                 placeholder="e.g., 16"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pattern</label>
                               <div className="relative">
-                                <select name="examination_summary__pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select pattern</option>
                                   <option value="normal">Normal</option>
                                   <option value="dyspneic">Dyspneic</option>
@@ -3869,18 +3729,18 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__spo2"
                                 type="text"
                                 placeholder="98"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Signs of COPD</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__signs_of_copd" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__signs_of_copd" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__signs_of_copd" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__signs_of_copd" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3889,7 +3749,7 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Respiratory Failure Signs</label>
                               <textarea name="examination_summary__respiratory_failure_signs"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -3909,11 +3769,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Pallor</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__pallor" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__pallor" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__pallor" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__pallor" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3921,7 +3781,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Degree (if present)</label>
                               <div className="relative">
-                                <select name="examination_summary__degree_if_present" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__degree_if_present" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">1*, 2*, 3*, 4*</option>
                                   <option value="1">1*</option>
                                   <option value="2">2*</option>
@@ -3942,11 +3802,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Icterus</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__icterus" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__icterus" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__icterus" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__icterus" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3954,7 +3814,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Degree (if present)</label>
                               <div className="relative">
-                                <select name="examination_summary__degree_if_present_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__degree_if_present_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">1*, 2*, 3*, 4*, Deep Jaundice</option>
                                   <option value="1">1*</option>
                                   <option value="2">2*</option>
@@ -3970,7 +3830,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__duration"
                                 type="text"
                                 placeholder="Duration In Days"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -3984,11 +3844,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Cyanosis</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__cyanosis" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__cyanosis" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__cyanosis" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__cyanosis" value="Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Present</span>
                                 </label>
                               </div>
@@ -3996,7 +3856,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Type (if present)</label>
                               <div className="relative">
-                                <select name="examination_summary__type_if_present" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__type_if_present" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select type</option>
                                   <option value="central">Central</option>
                                   <option value="peripheral">Peripheral</option>
@@ -4007,7 +3867,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Degree</label>
                               <div className="relative">
-                                <select name="examination_summary__degree" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__degree" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select degree</option>
                                   <option value="mild">Mild</option>
                                   <option value="moderate">Moderate</option>
@@ -4026,7 +3886,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Anatomical Area</label>
                               <div className="relative">
-                                <select name="examination_summary__anatomical_area" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__anatomical_area" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select area</option>
                                   <option value="none">None</option>
                                   <option value="cervical">Cervical</option>
@@ -4041,11 +3901,11 @@ export default function StartAppointmentConsultationPage() {
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Tenderness</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__tenderness" value="Tender" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__tenderness" value="Tender" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Tender</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__tenderness" value="Non-tender" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__tenderness" value="Non-tender" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Non-tender</span>
                                 </label>
                               </div>
@@ -4055,7 +3915,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__size_number"
                                 type="text"
                                 placeholder="Size and number of nodes"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4063,7 +3923,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__duration_2"
                                 type="text"
                                 placeholder=""
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -4078,18 +3938,18 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__location"
                                 type="text"
                                 placeholder="Bilateral lower limbs / Facial"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Type</label>
                               <div className="flex items-center gap-6 h-11">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__type" value="Pitting" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__type" value="Pitting" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Pitting</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__type" value="Non-pitting" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                  <input type="radio" name="examination_summary__type" value="Non-pitting" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
                                   <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Non-pitting</span>
                                 </label>
                               </div>
@@ -4097,7 +3957,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Degree</label>
                               <div className="relative">
-                                <select name="examination_summary__degree_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__degree_2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select degree</option>
                                   <option value="1">1+</option>
                                   <option value="2">2+</option>
@@ -4112,7 +3972,7 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__duration_3"
                                 type="text"
                                 placeholder=""
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                           </div>
@@ -4127,13 +3987,13 @@ export default function StartAppointmentConsultationPage() {
                               <input name="examination_summary__digital_clubbing"
                                 type="text"
                                 placeholder="Grade and distribution"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Nail Changes</label>
                               <div className="relative">
-                                <select name="examination_summary__nail_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__nail_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">None</option>
                                   <option value="ridges">Ridges</option>
@@ -4148,13 +4008,13 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__skin_hyperpigmentation"
                                 placeholder="Location / Extent / Margins"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hair Changes</label>
                               <div className="relative">
-                                <select name="examination_summary__hair_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__hair_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select option</option>
                                   <option value="none">None</option>
                                   <option value="alopecia">Alopecia</option>
@@ -4181,7 +4041,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__cvs_inspection"
                                 placeholder="Visible pulsations, chest deformities, scars"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4189,7 +4049,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__cvs_palpation"
                                 placeholder="Apical beat, thrills, heaves, parasternal impulse"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4197,7 +4057,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__cvs_percussion"
                                 placeholder="Cardiac dullness boundaries"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4205,7 +4065,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__cvs_auscultation"
                                 placeholder="Heart sounds (S1, S2), murmurs, additional sounds"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -4220,7 +4080,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__rs_inspection"
                                 placeholder="Chest shape, respiratory rate, use of accessory muscles"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4228,7 +4088,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__rs_palpation"
                                 placeholder="Chest expansion, tactile fremitus, tracheal position"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4236,7 +4096,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__rs_percussion"
                                 placeholder="Resonance, dullness, hyperresonance"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4244,7 +4104,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__rs_auscultation"
                                 placeholder="Breath sounds, crackles, wheezes, vocal resonance"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -4259,7 +4119,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__pa_inspection"
                                 placeholder="Shape, distension, scars, visible peristalsis, veins"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4267,7 +4127,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__pa_palpation"
                                 placeholder="Tenderness, guarding, rigidity, organomegaly, masses"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4275,7 +4135,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__pa_percussion"
                                 placeholder="Liver span, shifting dullness, free fluid"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4283,7 +4143,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__pa_auscultation"
                                 placeholder="Bowel sounds, bruits, friction rubs"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -4296,7 +4156,7 @@ export default function StartAppointmentConsultationPage() {
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Consciousness Level</label>
                               <div className="relative">
-                                <select name="examination_summary__consciousness_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                <select name="examination_summary__consciousness_level" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
                                   <option value="">Select level</option>
                                   <option value="alert">Alert</option>
                                   <option value="drowsy">Drowsy</option>
@@ -4311,7 +4171,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__higher_mental_functions_mmse"
                                 placeholder="Orientation (time, place, person), memory, speech"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4319,7 +4179,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__cranial_nerves"
                                 placeholder="CN I to XII examination findings"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4327,7 +4187,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__motor_system"
                                 placeholder="Tone, power (grade 0-5), reflexes, coordination"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -4335,7 +4195,7 @@ export default function StartAppointmentConsultationPage() {
                               <textarea name="examination_summary__sensory_system"
                                 placeholder="Touch, pain, temperature, vibration, proprioception"
                                 rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -4360,7 +4220,7 @@ export default function StartAppointmentConsultationPage() {
                     <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Latest reading</h3>
                     {latestVital === undefined ? (
                       <div className="flex items-center gap-2 text-sm text-[#667085] dark:text-[#94A3B8]">
-                        <Loader2 className="h-4 w-4 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+                        <Loader2 className="h-4 w-4 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
                         Loading…
                       </div>
                     ) : latestVital === null ? (
@@ -4396,7 +4256,7 @@ export default function StartAppointmentConsultationPage() {
                           value={vitalForm.notes}
                           onChange={(e) => setVitalForm({ ...vitalForm, notes: e.target.value })}
                           placeholder="Optional"
-                          className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                          className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                         />
                       </label>
                     </div>
@@ -4404,7 +4264,7 @@ export default function StartAppointmentConsultationPage() {
                       <Button
                         type="submit"
                         disabled={vitalSaving || !patientId}
-                        className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white flex items-center gap-2"
+                        className="bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white flex items-center gap-2"
                       >
                         {vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save vitals
@@ -4465,7 +4325,7 @@ export default function StartAppointmentConsultationPage() {
                               onClick={() => setSummaryTab(t.key)}
                               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                                 current === t.key
-                                  ? "bg-[#2E37A4] text-white"
+                                  ? "bg-[#6B2B26] text-white"
                                   : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
                               }`}
                             >
@@ -4484,7 +4344,7 @@ export default function StartAppointmentConsultationPage() {
                                 </h3>
                                 <button
                                   onClick={() => setActiveMainStep("Vitals")}
-                                  className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                                  className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                                 >
                                   Record new reading →
                                 </button>
@@ -4541,7 +4401,7 @@ export default function StartAppointmentConsultationPage() {
                               )}
                               <Link
                                 href={`/admin/appointments/${appointmentId}/quiz`}
-                                className="inline-block mt-3 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                                className="inline-block mt-3 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                               >
                                 View full quiz assessment →
                               </Link>
@@ -4571,10 +4431,10 @@ export default function StartAppointmentConsultationPage() {
                   <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
                       onClick={bookRmoFollowUp}
-                      className="flex items-center gap-3 rounded-xl border border-[#EAECF0] dark:border-[#374151] p-5 text-left hover:border-[#2E37A4] hover:bg-[#F4F5FF] transition-colors"
+                      className="flex items-center gap-3 rounded-xl border border-[#EAECF0] dark:border-[#374151] p-5 text-left hover:border-[#6B2B26] hover:bg-[#F9ECEB] transition-colors"
                     >
-                      <div className="h-10 w-10 rounded-lg bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-                        <CalendarPlus className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                      <div className="h-10 w-10 rounded-lg bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+                        <CalendarPlus className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Book RMO follow-up</p>
@@ -4584,7 +4444,7 @@ export default function StartAppointmentConsultationPage() {
 
                     <button
                       onClick={bookDoctorAppointment}
-                      className="flex items-center gap-3 rounded-xl border border-[#EAECF0] dark:border-[#374151] p-5 text-left hover:border-[#2E37A4] hover:bg-[#F4F5FF] transition-colors"
+                      className="flex items-center gap-3 rounded-xl border border-[#EAECF0] dark:border-[#374151] p-5 text-left hover:border-[#6B2B26] hover:bg-[#F9ECEB] transition-colors"
                     >
                       <div className="h-10 w-10 rounded-lg bg-[#FDF2E9] flex items-center justify-center">
                         <Stethoscope className="h-5 w-5 text-[#B93815]" />
@@ -4621,7 +4481,7 @@ export default function StartAppointmentConsultationPage() {
         </Button>
         <Button
           onClick={bookDoctorAppointment}
-          className="bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2"
+          className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2"
         >
           <Stethoscope className="h-4 w-4" /> Book with Dr. Yuvraaj Singh
         </Button>
@@ -4651,7 +4511,7 @@ function VitalInput({ label, value, onChange }: { label: string; value: string; 
         inputMode="decimal"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+        className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
       />
     </label>
   )

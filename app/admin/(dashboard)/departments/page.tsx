@@ -40,13 +40,13 @@ interface Department {
  *  same palette so cards don't shuffle between renders. */
 const PALETTE: { themeColor: string; lightThemeColor: string }[] = [
   { themeColor: "bg-[#475467]", lightThemeColor: "bg-[#475467]/10" }, // gray
-  { themeColor: "bg-[#2E90FA]", lightThemeColor: "bg-[#2E90FA]/10" }, // blue
+  { themeColor: "bg-[#6B2B26]", lightThemeColor: "bg-[#6B2B26]/10" }, // changed blue to burgundy
   { themeColor: "bg-[#F04438]", lightThemeColor: "bg-[#F04438]/10" }, // red
-  { themeColor: "bg-[#00A3FF]", lightThemeColor: "bg-[#00A3FF]/10" }, // cyan
+  { themeColor: "bg-[#6B2B26]", lightThemeColor: "bg-[#6B2B26]/10" }, // changed cyan to burgundy
   { themeColor: "bg-[#12B76A]", lightThemeColor: "bg-[#12B76A]/10" }, // green
-  { themeColor: "bg-[#7A5AF8]", lightThemeColor: "bg-[#7A5AF8]/10" }, // violet
+  { themeColor: "bg-[#6B2B26]", lightThemeColor: "bg-[#6B2B26]/10" }, // changed violet to burgundy
   { themeColor: "bg-[#FB6514]", lightThemeColor: "bg-[#FB6514]/10" }, // orange
-  { themeColor: "bg-[#2E37A4]", lightThemeColor: "bg-[#2E37A4]/10" }, // indigo
+  { themeColor: "bg-[#6B2B26]", lightThemeColor: "bg-[#6B2B26]/10" }, // indigo
 ]
 
 function paletteFor(slug: string) {
@@ -104,7 +104,7 @@ export default function DepartmentsPage() {
           </p>
         </div>
         <Link href="/admin/departments/add">
-          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
+          <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
             Add Department
           </Button>
         </Link>
@@ -118,7 +118,7 @@ export default function DepartmentsPage() {
             placeholder="Search by name or description…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
         {!loading && !error ? (
@@ -130,7 +130,7 @@ export default function DepartmentsPage() {
 
       {loading ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
           Loading departments…
         </div>
       ) : error ? (
@@ -146,8 +146,8 @@ export default function DepartmentsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-16 flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <div className="w-12 h-12 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+            <Building2 className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
           </div>
           <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No departments yet</p>
           <p className="text-xs text-[#667085] dark:text-[#94A3B8] max-w-sm">
@@ -246,7 +246,7 @@ function DepartmentCard({ dept, onDeleted }: { dept: Department; onDeleted: () =
             {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
             Delete
           </button>
-          <span className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] inline-flex items-center gap-1">
+          <span className="text-sm font-semibold text-[#6B2B26] dark:text-[#A5B4FC] inline-flex items-center gap-1">
             Open <ChevronRight className="h-4 w-4" />
           </span>
         </div>
@@ -266,7 +266,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-lg border border-[#EAECF0] dark:border-[#374151] p-3 bg-[#F9FAFB] dark:bg-[#111827]">
-      <div className="flex items-center gap-2 mb-1 text-[#2E37A4] dark:text-[#A5B4FC]">{icon}</div>
+      <div className="flex items-center gap-2 mb-1 text-[#6B2B26] dark:text-[#A5B4FC]">{icon}</div>
       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
         {label}
       </p>

@@ -160,7 +160,7 @@ export default function PatientDashboardPage() {
 
   const vitalCards = [
     { label: "Blood Pressure", value: bp, unit: "mmHg", icon: Heart, color: "text-[#D92D20]", bg: "bg-[#FEF3F2]" },
-    { label: "Heart Rate", value: vital?.heartRate ?? null, unit: "bpm", icon: Activity, color: "text-[#2E37A4] dark:text-[#A5B4FC]", bg: "bg-[#F4F5FF] dark:bg-[#312E81]" },
+    { label: "Heart Rate", value: vital?.heartRate ?? null, unit: "bpm", icon: Activity, color: "text-[#6B2B26] dark:text-[#A5B4FC]", bg: "bg-[#6B2B26]/10 dark:bg-[#312E81]" },
     { label: "Weight", value: vital?.weightKg ?? null, unit: "kg", icon: WeightIcon, color: "text-[#175CD3]", bg: "bg-[#EFF8FF] dark:bg-[#1E3A5F]" },
     { label: "Height", value: vital?.heightCm ?? null, unit: "cm", icon: Ruler, color: "text-[#6938EF]", bg: "bg-[#F4F3FF] dark:bg-[#312E81]" },
     { label: "SpO₂", value: vital?.spo2 ?? null, unit: "%", icon: Droplets, color: "text-[#12B76A]", bg: "bg-[#ECFDF3]" },
@@ -170,7 +170,7 @@ export default function PatientDashboardPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" /> Loading your dashboard…
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" /> Loading your dashboard…
       </div>
     );
   }
@@ -188,7 +188,7 @@ export default function PatientDashboardPage() {
         </div>
         <button
           onClick={() => router.push("/patient/appointments/new")}
-          className="bg-[#2E37A4] hover:bg-[#1d246b] text-white rounded-lg px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
+          className="bg-[#6B2B26] hover:bg-[#54201D] text-white rounded-lg px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <Plus className="h-4 w-4" /> New Appointment
         </button>
@@ -253,8 +253,8 @@ export default function PatientDashboardPage() {
             <ul className="flex flex-col divide-y divide-[#EAECF0] dark:divide-[#374151]">
               {doctors.map((d) => (
                 <li key={d.id} className="flex items-center gap-3 py-3">
-                  <span className="h-9 w-9 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-                    <Stethoscope className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" />
+              <span className="h-9 w-9 rounded-full bg-[#6B2B26]/10 dark:bg-[#312E81] flex items-center justify-center">
+                    <Stethoscope className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] truncate">{d.fullName}</p>
@@ -326,8 +326,8 @@ export default function PatientDashboardPage() {
             {upcoming.slice(0, 6).map((a) => (
               <li key={a.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="h-9 w-9 rounded-lg bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center flex-shrink-0">
-                    <Calendar className="h-4 w-4 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                  <span className="h-9 w-9 rounded-lg bg-[#6B2B26]/10 dark:bg-[#312E81] flex items-center justify-center flex-shrink-0">
+                    <Calendar className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] truncate">
@@ -367,7 +367,7 @@ function Card({
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">{title}</h2>
         {onNav ? (
-          <button onClick={onNav} className="text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4] dark:hover:text-[#A5B4FC]">
+          <button onClick={onNav} className="text-[#667085] dark:text-[#94A3B8] hover:text-[#6B2B26] dark:hover:text-[#A5B4FC]">
             <ChevronRight className="h-5 w-5" />
           </button>
         ) : null}

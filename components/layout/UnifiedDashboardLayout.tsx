@@ -122,6 +122,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
         className={`${
           collapsed ? "w-[84px]" : "w-[280px]"
         } bg-white dark:bg-[#1F2937] border-r border-[#EAECF0] dark:border-[#374151] flex flex-col transition-[width] duration-200 ease-in-out`}
+        style={isPatient ? { boxShadow: "4px 0 24px rgba(107, 43, 38, 0.15)" } : undefined}
       >
         {/* Logo Section */}
         <div
@@ -172,15 +173,15 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
                   collapsed ? "justify-center" : ""
                 } ${
                   isActive
-                    ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                    ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                     : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
                 <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
+                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
                   {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
                 </div>
-                {isActive && !collapsed && <div className="w-1 h-5 bg-[#2E37A4] rounded-full" />}
+                {isActive && !collapsed && <div className="w-1 h-5 bg-[#6B2B26] rounded-full" />}
               </Link>
             )
           })}
@@ -199,11 +200,11 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
                   collapsed ? "justify-center" : ""
                 } ${
                   isActive
-                    ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                    ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                     : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
-                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#2E37A4] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
+                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
                 {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
               </Link>
             )

@@ -240,7 +240,7 @@ function NewAppointmentPageInner() {
           {step > 0 ? (
             <Button
               variant="outline"
-              className="px-6 h-11 border-[#2E37A4] text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:bg-[#F4F5FF] rounded-lg"
+              className="px-6 h-11 border-[#6B2B26] text-[#6B2B26] dark:text-[#A5B4FC] font-semibold hover:bg-[#F9ECEB] rounded-lg"
               onClick={prev}
             >
               Previous
@@ -248,7 +248,7 @@ function NewAppointmentPageInner() {
           ) : null}
           {step < STEPS.length - 1 ? (
             <Button
-              className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg"
+              className="px-6 h-11 bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white font-semibold rounded-lg"
               disabled={!canAdvance}
               onClick={next}
             >
@@ -256,7 +256,7 @@ function NewAppointmentPageInner() {
             </Button>
           ) : (
             <Button
-              className="px-6 h-11 bg-[#12B76A] hover:bg-[#0E9A57] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg inline-flex items-center gap-2"
+              className="px-6 h-11 bg-[#12B76A] hover:bg-[#0E9A57] disabled:bg-[#D5ABAB] text-white font-semibold rounded-lg inline-flex items-center gap-2"
               disabled={submitting || !canAdvance}
               onClick={() => void submit()}
             >
@@ -293,7 +293,7 @@ function NewAppointmentPageInner() {
                 onClick={() => i <= step && setStep(i)}
                 className={`flex items-center gap-2 pb-4 px-1 relative transition-all whitespace-nowrap ${
                   isActive
-                    ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                    ? "text-[#6B2B26] dark:text-[#A5B4FC]"
                     : "text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]"
                 }`}
               >
@@ -302,7 +302,7 @@ function NewAppointmentPageInner() {
                   {s.name}
                 </span>
                 {isActive ? (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2E37A4] rounded-full" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#6B2B26] rounded-full" />
                 ) : null}
               </button>
             )
@@ -383,7 +383,7 @@ function PatientPicker({
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
-          <User className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <User className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
         </div>
         <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Select Patient</h2>
       </div>
@@ -395,7 +395,7 @@ function PatientPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name, email, phone, or patient #…"
-          className="w-full pl-10 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+          className="w-full pl-10 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
         />
       </div>
 
@@ -407,7 +407,7 @@ function PatientPicker({
         ) : items.length === 0 ? (
           <div className="p-6 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
             No patients matched.{" "}
-            <Link href="/admin/patients/add" className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline">
+            <Link href="/admin/patients/add" className="text-[#6B2B26] dark:text-[#A5B4FC] font-semibold hover:underline">
               Add a new patient
             </Link>
             .
@@ -421,7 +421,7 @@ function PatientPicker({
                 type="button"
                 onClick={() => onSelect(p)}
                 className={`w-full text-left px-4 py-3 hover:bg-[#F9FAFB] transition-colors ${
-                  isSel ? "bg-[#F4F5FF] dark:bg-[#312E81]" : ""
+                  isSel ? "bg-[#F9ECEB] dark:bg-[#312E81]" : ""
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -569,7 +569,7 @@ function SlotPicker({
                 setForm({ ...form, doctor: d, time: "" })
               }}
               disabled={loading}
-              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] disabled:bg-[#F9FAFB]"
+              className="w-full h-11 pl-10 pr-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26] disabled:bg-[#F9FAFB]"
             >
               <option value="">
                 {loading
@@ -594,7 +594,7 @@ function SlotPicker({
             onChange={(e) =>
               setForm({ ...form, durationMin: Number.parseInt(e.target.value, 10), time: "" })
             }
-            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           >
             <option value="15">15 minutes</option>
             <option value="30">30 minutes</option>
@@ -610,7 +610,7 @@ function SlotPicker({
             value={form.date}
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setForm({ ...form, date: e.target.value, time: "" })}
-            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full h-11 px-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </Field>
 
@@ -654,8 +654,8 @@ function SlotPicker({
                   onClick={() => setForm({ ...form, time: t })}
                   className={`h-10 rounded-lg border text-sm font-medium transition-colors ${
                     selected
-                      ? "bg-[#2E37A4] border-[#2E37A4] text-white"
-                      : "border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:border-[#2E37A4] hover:bg-[#F4F5FF]"
+                      ? "bg-[#6B2B26] border-[#6B2B26] text-white"
+                      : "border-[#D0D5DD] dark:border-[#374151] text-[#344054] dark:text-[#CBD5E1] hover:border-[#6B2B26] hover:bg-[#F9ECEB]"
                   }`}
                 >
                   {t}
@@ -693,7 +693,7 @@ function DetailsStep({
           value={form.reason}
           onChange={(e) => setForm({ ...form, reason: e.target.value })}
           placeholder="Chief complaint, referral context, etc."
-          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26] resize-y"
         />
       </Field>
       <Field label="Internal notes (optional)">
@@ -702,7 +702,7 @@ function DetailsStep({
           value={form.notes}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
           placeholder="Anything reception/doctor should know ahead of the visit"
-          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4] resize-y"
+          className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26] resize-y"
         />
       </Field>
     </div>
@@ -749,7 +749,7 @@ function ReviewStep({ form }: { form: FormState }) {
             <>
               <p className="font-semibold text-[#101828] dark:text-[#F9FAFB]">{form.doctor.fullName}</p>
               {form.doctor.specialization ? (
-                <p className="text-xs text-[#2E37A4] dark:text-[#A5B4FC]">{form.doctor.specialization}</p>
+                <p className="text-xs text-[#6B2B26] dark:text-[#A5B4FC]">{form.doctor.specialization}</p>
               ) : null}
             </>
           ) : (

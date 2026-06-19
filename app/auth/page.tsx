@@ -50,7 +50,7 @@ export default function SignInPage() {
             <label className="text-sm font-bold text-[#344054] leading-5">Phone Number</label>
             <div 
               className={`flex flex-row items-center p-3 gap-2 w-full h-12 border rounded-lg bg-white shadow-sm focus-within:ring-4 focus-within:ring-[#EEF0FF] transition-all duration-200 ${
-                error ? "border-[#FDA29B]" : "border-[#D0D5DD] focus-within:border-[#2E37A4]"
+                error ? "border-[#FDA29B]" : "border-[#D0D5DD] focus-within:border-[#6B2B26]"
               }`}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-[#667085]">
@@ -76,7 +76,7 @@ export default function SignInPage() {
           {/* Send OTP Button */}
           <button
             onClick={handleSendOTP}
-            className="flex flex-row justify-center items-center p-4 w-full h-12 bg-[#2E37A4] border border-[#2E37A4] rounded-lg text-white text-base font-bold cursor-pointer shadow-sm hover:bg-[#1e2570] hover:border-[#1e2570] active:scale-[0.98] transition-all duration-200"
+            className="flex flex-row justify-center items-center p-4 w-full h-12 bg-[#6B2B26] border border-[#6B2B26] rounded-lg text-white text-base font-bold cursor-pointer shadow-sm hover:bg-[#54201D] hover:border-[#54201D] active:scale-[0.98] transition-all duration-200"
           >
             Send OTP
           </button>

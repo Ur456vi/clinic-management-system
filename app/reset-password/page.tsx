@@ -78,8 +78,8 @@ export default function ResetPasswordPage() {
     <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-6">
       <div className="w-full max-w-[480px] bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-8 flex flex-col gap-6">
         <div className="flex flex-col items-center text-center gap-2">
-          <div className="h-12 w-12 rounded-full bg-[#F4F5FF] flex items-center justify-center">
-            <ShieldCheck className="h-6 w-6 text-[#2E37A4]" />
+          <div className="h-12 w-12 rounded-full bg-[#F9ECEB] flex items-center justify-center">
+            <ShieldCheck className="h-6 w-6 text-[#6B2B26]" />
           </div>
           <h1 className="text-xl font-bold text-[#101828]">Set a new password</h1>
           <p className="text-sm text-[#667085] max-w-sm">
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
               value={next}
               onChange={(e) => setNext(e.target.value)}
               placeholder="At least 8 characters"
-              className="h-11 rounded-lg border border-[#D0D5DD] px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-11 rounded-lg border border-[#D0D5DD] px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
             />
             {errors.newPassword ? (
               <span className="text-xs text-[#B42318]">{errors.newPassword}</span>
@@ -114,7 +114,7 @@ export default function ResetPasswordPage() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="h-11 rounded-lg border border-[#D0D5DD] px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+              className="h-11 rounded-lg border border-[#D0D5DD] px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
             />
             {errors.confirm ? (
               <span className="text-xs text-[#B42318]">{errors.confirm}</span>
@@ -124,7 +124,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={saving}
-            className="h-11 rounded-lg bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
+            className="h-11 rounded-lg bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white text-sm font-semibold inline-flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
             {saving ? "Saving…" : "Set password & continue"}
