@@ -128,12 +128,9 @@ jobs:
             # Test and reload Nginx
             sudo nginx -t && sudo systemctl reload nginx
 
-            # Restart or start the UAT app via PM2
-            if pm2 list | grep -q "vyara-uat"; then
-              pm2 restart vyara-uat
-            else
-              pm2 start npm --name vyara-uat -- start
-            fi
+            # Always delete and re-create PM2 process to pick up fresh .env
+            pm2 delete vyara-uat || true
+            pm2 start npm --name vyara-uat -- start
 
             pm2 save
             echo "UAT Deploy complete! Live at https://vyara.algoborne.com"
