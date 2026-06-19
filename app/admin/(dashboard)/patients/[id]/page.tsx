@@ -37,11 +37,13 @@ import {
   Activity,
   CreditCard,
   ClipboardList,
+  MoreVertical,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import RefillManager from "@/components/admin/RefillManager"
+import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -200,6 +202,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [openRefills, setOpenRefills] = useState(0)
+  const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean } | null>(null)
   const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
   const [vitalOpen, setVitalOpen] = useState(false)
@@ -301,6 +304,20 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  // Open the lab report PDF in a new tab via a short-lived presigned URL.
+  const viewLabReport = useCallback(async (labId: string) => {
+    try {
+      const res = await fetch(`/api/lab-results/${labId}/attachment`, { credentials: "include" })
+      if (!res.ok) throw new Error()
+      const json = await res.json()
+      const url = json?.data?.downloadUrl ?? json?.data?.url
+      if (!url) throw new Error()
+      window.open(url, "_blank", "noopener")
+    } catch {
+      notify.error("Couldn't open the report")
+    }
+  }, [])
+
   // Open refill requests = those still awaiting fulfilment (PENDING/APPROVED).
   // There's no per-refill due-date model yet, so the KPI counts open requests
   // rather than a date window.
@@ -374,7 +391,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" /> Loading patient…
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" /> Loading patient…
       </div>
     )
   }
@@ -385,7 +402,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         <div className="bg-white dark:bg-[#1F2937] border border-[#FECDCA] rounded-xl p-8 flex flex-col items-center gap-3 text-center">
           <AlertCircle className="h-5 w-5 text-[#F04438]" />
           <p className="text-sm font-semibold text-[#B42318]">{error ?? "Patient not found"}</p>
-          <Link href="/admin/patients" className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold">← Back to all patients</Link>
+          <Link href="/admin/patients" className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] hover:underline font-semibold">← Back to all patients</Link>
         </div>
       </div>
     )
@@ -424,7 +441,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             <Field label="Place of residence" error={fieldErrors.placeOfResidence}><input value={form.placeOfResidence} onChange={(e) => setForm({ ...form, placeOfResidence: e.target.value })} placeholder="City / region" className={inputCls} /></Field>
             <Field label="Address" wide error={fieldErrors.address}><textarea rows={2} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Street, locality, city, postal code" className="rounded-lg border border-[#D0D5DD] dark:border-[#374151] p-3 text-sm w-full bg-white dark:bg-[#1F2937]" /></Field>
             <div className="md:col-span-2 flex items-center gap-3 mt-2">
-              <Button type="submit" disabled={saving} className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
+              <Button type="submit" disabled={saving} className="bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save changes
               </Button>
               <Link href={`/admin/patients/${id}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#101828]"><X className="h-4 w-4" /> Cancel</Link>
@@ -475,7 +492,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           <p><span className="block text-xs text-[#8A9A92]">Next Visit</span>{upcoming[0] ? fmtDate(upcoming[0].startsAt, true) : "—"}</p>
         </div>
         <Link href={`/admin/patients/${id}?edit=1`}>
-          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 h-10 rounded-lg flex items-center gap-2 text-sm font-semibold"><Pencil className="h-4 w-4" /> Edit</Button>
+          <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 h-10 rounded-lg flex items-center gap-2 text-sm font-semibold"><Pencil className="h-4 w-4" /> Edit</Button>
         </Link>
       </div>
 
@@ -585,13 +602,23 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             <thead><tr className="text-xs text-[#8A9A92]"><th className="text-left font-semibold py-2">Test</th><th className="text-left font-semibold py-2">Ordered On</th><th className="text-left font-semibold py-2">Status</th><th className="text-right font-semibold py-2">Report</th></tr></thead>
             <tbody>
               {byType.labResult.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : byType.labResult.map((l) => {
-                const ready = !!l.ref.reportedAt || /generated|ready|reported/i.test(l.summary)
+                const hasReport = l.ref.hasAttachment === true || !!l.ref.reportedAt
+                const orderedOn = (typeof l.ref.collectedAt === "string" ? l.ref.collectedAt : null) ?? l.occurredAt
                 return (
                   <tr key={l.id} style={{ borderTop: "1px solid #EFE8D8" }}>
                     <td className="py-2.5 font-medium text-[#101828] dark:text-[#F9FAFB]">{l.summary}</td>
-                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(l.occurredAt)}</td>
-                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={ready ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#FBF1E0", color: GOLD }}>{ready ? "Generated" : "Processing"}</span></td>
-                    <td className="py-2.5 text-right text-xs font-semibold" style={{ color: ready ? GREEN : "#B0B0B0" }}>{ready ? "View" : "ETA: soon"}</td>
+                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(orderedOn)}</td>
+                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={hasReport ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{hasReport ? "Completed" : "Active"}</span></td>
+                    <td className="py-2.5">
+                      <div className="flex items-center justify-end gap-1">
+                        {hasReport ? (
+                          <button type="button" onClick={() => void viewLabReport(l.ref.id as string)} className="text-xs font-semibold hover:underline px-1.5" style={{ color: GREEN }}>View</button>
+                        ) : null}
+                        <button type="button" onClick={() => setUploadLab({ id: l.ref.id as string, name: l.summary, hasReport })} aria-label="Report actions" className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#6B7B73] hover:bg-gray-100 dark:hover:bg-[#111827]">
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 )
               })}
@@ -646,7 +673,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         // Vitals
         <Panel title="Vitals" icon={Activity} aside={vitalOpen ? "Cancel" : "Record reading"} asideOnClick={() => setVitalOpen((v) => !v)} full>
           {latestVital === undefined ? (
-            <div className="flex items-center gap-2 text-sm text-[#667085]"><Loader2 className="h-4 w-4 animate-spin text-[#2E37A4]" /> Loading…</div>
+            <div className="flex items-center gap-2 text-sm text-[#667085]"><Loader2 className="h-4 w-4 animate-spin text-[#6B2B26]" /> Loading…</div>
           ) : latestVital === null ? (
             <p className="text-sm text-[#667085] dark:text-[#94A3B8]">No vitals recorded yet.</p>
           ) : (
@@ -671,12 +698,22 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                 <label className="flex flex-col gap-1.5 text-sm"><span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">Notes</span><input value={vitalForm.notes} onChange={(e) => setVitalForm({ ...vitalForm, notes: e.target.value })} className={inputCls} placeholder="Optional" /></label>
               </div>
               <div className="flex items-end">
-                <Button type="submit" disabled={vitalSaving} className="bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white h-10 px-4 rounded-lg text-sm font-semibold inline-flex items-center gap-2 w-full justify-center">{vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save</Button>
+                <Button type="submit" disabled={vitalSaving} className="bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white h-10 px-4 rounded-lg text-sm font-semibold inline-flex items-center gap-2 w-full justify-center">{vitalSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save</Button>
               </div>
             </form>
           ) : null}
         </Panel>
       )}
+
+      {uploadLab ? (
+        <LabReportUploadModal
+          labResultId={uploadLab.id}
+          labName={uploadLab.name}
+          hasReport={uploadLab.hasReport}
+          onClose={() => setUploadLab(null)}
+          onUploaded={() => { void fetchTimeline() }}
+        />
+      ) : null}
     </div>
   )
 }
@@ -760,12 +797,12 @@ function VitalInput({ label, value, onChange }: { label: string; value: string; 
   return (
     <label className="flex flex-col gap-1.5 text-sm">
       <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">{label}</span>
-      <input type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} className="h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]" />
+      <input type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} className="h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]" />
     </label>
   )
 }
 
-const inputCls = "h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+const inputCls = "h-10 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm w-full bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
 
 function Field({ label, required, wide, error, children }: { label: string; required?: boolean; wide?: boolean; error?: string; children: React.ReactNode }) {
   return (

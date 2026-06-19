@@ -8,23 +8,23 @@ export default function HelpPage() {
         <h2 className="text-base font-bold text-[#141414] dark:text-[#F9FAFB] mb-4">How can we help you?</h2>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC]">Frequently Asked Questions</h3>
+            <h3 className="text-sm font-bold text-[#6B2B26] dark:text-[#A5B4FC]">Frequently Asked Questions</h3>
             <p className="text-sm text-[#667085] dark:text-[#94A3B8]">Find quick answers to common questions about appointments, lab reports, and prescriptions.</p>
           </div>
           <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-bold text-[#2E37A4] dark:text-[#A5B4FC]">Contact Support</h3>
+            <h3 className="text-sm font-bold text-[#6B2B26] dark:text-[#A5B4FC]">Contact Support</h3>
             <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
               Email us at{" "}
               <a
                 href="mailto:care@precisionhealth.in"
-                className="text-[#2E37A4] dark:text-[#A5B4FC] font-medium hover:underline"
+                className="text-[#6B2B26] dark:text-[#A5B4FC] font-medium hover:underline"
               >
                 care@precisionhealth.in
               </a>{" "}
               or call our 24/7 helpline at{" "}
               <a
                 href="tel:+919976540310"
-                className="text-[#2E37A4] dark:text-[#A5B4FC] font-medium hover:underline"
+                className="text-[#6B2B26] dark:text-[#A5B4FC] font-medium hover:underline"
               >
                 +91 99765 40310
               </a>

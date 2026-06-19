@@ -59,6 +59,8 @@ export const createStaffSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(200)
     .optional(),
+  /** Per-staff page access (RBAC area keys). Sanitized in the service. */
+  allowedAreas: z.array(z.string().max(40)).max(40).optional(),
 })
 
 export type CreateStaffInput = z.infer<typeof createStaffSchema>
@@ -73,6 +75,8 @@ export const updateStaffSchema = z.object({
   phone: trimmedOptional(50),
   role: roleEnum.optional(),
   departmentId: z.union([uuid, z.null()]).optional(),
+  /** Per-staff page access (RBAC area keys). Sanitized in the service. */
+  allowedAreas: z.array(z.string().max(40)).max(40).optional(),
 })
 
 export type UpdateStaffInput = z.infer<typeof updateStaffSchema>

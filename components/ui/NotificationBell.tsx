@@ -167,7 +167,7 @@ export function NotificationBell({
             {unread > 0 ? (
               <button
                 onClick={() => void markAllRead()}
-                className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                 type="button"
               >
                 Mark all as read
@@ -193,13 +193,13 @@ export function NotificationBell({
                     className={`w-full text-left px-4 py-3 text-sm flex flex-col gap-1 transition-colors hover:bg-[#F9FAFB] dark:hover:bg-[#111827] ${
                       n.readAt
                         ? "bg-white dark:bg-[#1F2937]"
-                        : "bg-[#F4F5FF] dark:bg-[#312E81]/30"
+                        : "bg-[#F9ECEB] dark:bg-[#312E81]/30"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span className="font-semibold text-[#101828] dark:text-white flex items-center gap-2">
                         {!n.readAt ? (
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#2E37A4] dark:bg-[#A5B4FC] flex-shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#6B2B26] dark:bg-[#A5B4FC] flex-shrink-0" />
                         ) : null}
                         {n.title}
                       </span>

@@ -20,10 +20,11 @@ import type { Prisma } from "@prisma/client"
 import { ConsultationType, TreatmentPlanStatus } from "@prisma/client"
 
 import { db } from "@/lib/db"
-import { NotFoundError } from "@/lib/api/errors"
+import { NotFoundError, ValidationError } from "@/lib/api/errors"
 import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import { parseRxItem } from "@/lib/rx-library"
+import { buildObjectKey, getDownloadUrl, putObject } from "@/lib/services/storage"
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -242,20 +243,26 @@ export type SelfLabResult = Prisma.LabResultGetPayload<{
 
 /**
  * `LabResult` has no status enum (see schema.prisma BE-16 comment).
- * Finalization is signalled by `reportedAt` being set — we hide rows
- * still awaiting a report from the patient view.
+ * Finalization is signalled by `reportedAt` being set.
+ *
+ * By default we hide rows still awaiting a report (the historical
+ * reported-only contract). The lab-management portal page passes
+ * `includePending` so the patient can also see tests the doctor ordered
+ * that are still "active" — those are exactly the ones he uploads a report
+ * against after visiting the diagnostic centre.
  */
 export async function listSelfLabResults(args: {
   patientId: string
   actorUserId: string
   input: SelfListInput
+  includePending?: boolean
 }): Promise<SelfListResult<SelfLabResult>> {
   const take = clampLimit(args.input.limit)
 
   const rows = await db.labResult.findMany({
     where: {
       patientId: args.patientId,
-      reportedAt: { not: null },
+      ...(args.includePending ? {} : { reportedAt: { not: null } }),
     },
     take: take + 1,
     ...(args.input.cursor
@@ -280,6 +287,114 @@ export async function listSelfLabResults(args: {
   })
 
   return { items: rows, nextCursor }
+}
+
+/** Max size for a patient-uploaded report — matches the storage-service cap. */
+const MAX_LAB_REPORT_BYTES = 25 * 1024 * 1024
+
+/**
+ * Upload a report PDF for one of the calling patient's own lab orders.
+ *
+ * The patient gets the test done at a diagnostic centre and uploads the PDF
+ * here. We accept the bytes server-side (multipart, like the avatar flow)
+ * rather than handing the patient a raw presigned S3 URL — the row is
+ * hard-pinned to `patientId` so a patient can never attach to someone
+ * else's lab, and PDFs are the only accepted type.
+ *
+ * On success the object lands in the private `phi` bucket and the row is
+ * stamped `attachmentKey` / `attachmentUploadedAt` / `reportedAt` (active →
+ * completed). Returns the new object key.
+ */
+export async function uploadSelfLabReport(args: {
+  patientId: string
+  actorUserId: string
+  labResultId: string
+  buffer: Buffer
+  contentType: string
+  filename: string
+}): Promise<{ id: string; attachmentUploadedAt: Date }> {
+  if (args.contentType !== "application/pdf") {
+    throw new ValidationError("Report must be a PDF")
+  }
+  if (args.buffer.byteLength <= 0) {
+    throw new ValidationError("Empty file")
+  }
+  if (args.buffer.byteLength > MAX_LAB_REPORT_BYTES) {
+    throw new ValidationError("File too large (max 25 MB)")
+  }
+
+  // Ownership check — hard-pinned to the calling patient.
+  const lab = await db.labResult.findFirst({
+    where: { id: args.labResultId, patientId: args.patientId },
+    select: { id: true, reportedAt: true },
+  })
+  if (!lab) throw new NotFoundError("Lab result not found")
+
+  const key = buildObjectKey({
+    bucketLabel: "phi",
+    suggestedFilename: args.filename || "lab-report.pdf",
+  })
+  await putObject({
+    bucket: "phi",
+    key,
+    body: args.buffer,
+    contentType: "application/pdf",
+  })
+
+  const now = new Date()
+  const updated = await db.labResult.update({
+    where: { id: lab.id },
+    data: {
+      attachmentKey: key,
+      attachmentMime: "application/pdf",
+      attachmentUploadedAt: now,
+      ...(lab.reportedAt == null ? { reportedAt: now } : {}),
+    },
+    select: { id: true, attachmentUploadedAt: true },
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "UPDATE",
+    entityType: "LabResult",
+    entityId: lab.id,
+    detail: { scope: "self.labReport.upload", key },
+  })
+
+  return { id: updated.id, attachmentUploadedAt: updated.attachmentUploadedAt ?? now }
+}
+
+/**
+ * Mint a short-lived presigned download URL for the calling patient's own
+ * lab report. Ownership-pinned; returns null when the row has no attachment.
+ */
+export async function getSelfLabReportDownload(args: {
+  patientId: string
+  actorUserId: string
+  labResultId: string
+}): Promise<{ downloadUrl: string } | null> {
+  const lab = await db.labResult.findFirst({
+    where: { id: args.labResultId, patientId: args.patientId },
+    select: { id: true, attachmentKey: true },
+  })
+  if (!lab) throw new NotFoundError("Lab result not found")
+  if (!lab.attachmentKey) return null
+
+  const signed = await getDownloadUrl({
+    bucket: "phi",
+    key: lab.attachmentKey,
+    asAttachment: true,
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "LabResult",
+    entityId: lab.id,
+    detail: { scope: "self.labReport.download" },
+  })
+
+  return { downloadUrl: signed.url }
 }
 
 // ---------------------------------------------------------------------------

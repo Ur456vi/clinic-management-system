@@ -27,6 +27,8 @@ declare module "next-auth" {
       avatarUrl: string | null
       /** True while a temp-password account must reset before using the portal. */
       mustResetPassword: boolean
+      /** Effective admin areas this user may open (RBAC). */
+      areas: string[]
     } & DefaultSession["user"]
   }
 
@@ -38,6 +40,7 @@ declare module "next-auth" {
     fullName: string
     avatarUrl: string | null
     mustResetPassword: boolean
+    allowedAreas: string[]
   }
 }
 
@@ -55,5 +58,7 @@ declare module "next-auth/jwt" {
     avatarUrl: string | null
     /** True while a temp-password account must reset before using the portal. */
     mustResetPassword: boolean
+    /** Effective admin areas this user may open (RBAC). */
+    areas: string[]
   }
 }

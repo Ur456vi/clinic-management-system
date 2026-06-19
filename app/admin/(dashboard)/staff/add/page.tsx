@@ -27,6 +27,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
+import { ASSIGNABLE_AREAS, roleDefaultAreas, type RbacRole } from "@/lib/rbac"
 
 type Role =
   | "ADMIN"
@@ -47,6 +48,11 @@ const ROLES: { value: Role; label: string }[] = [
   { value: "AESTHETICS_SPECIALIST", label: "Aesthetics Specialist" },
 ]
 
+const ASSIGNABLE_KEYS = ASSIGNABLE_AREAS.map((a) => a.key)
+/** A role's default toggleable areas — the starting point for the checkboxes. */
+const defaultAreasFor = (role: Role): string[] =>
+  roleDefaultAreas(role as RbacRole).filter((k) => ASSIGNABLE_KEYS.includes(k))
+
 type FormState = {
   firstName: string
   lastName: string
@@ -55,6 +61,7 @@ type FormState = {
   role: Role | ""
   departmentId: string
   password: string
+  allowedAreas: string[]
 }
 
 const empty: FormState = {
@@ -65,6 +72,7 @@ const empty: FormState = {
   role: "DOCTOR",
   departmentId: "",
   password: "",
+  allowedAreas: defaultAreasFor("DOCTOR"),
 }
 
 interface Department {
@@ -103,6 +111,19 @@ export default function AddStaffPage() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((f) => ({ ...f, [k]: v }))
 
+  // Changing the role re-seeds the access checkboxes from that role's
+  // defaults; the admin can then customize the set per this staff member.
+  const setRole = (r: Role) =>
+    setForm((f) => ({ ...f, role: r, allowedAreas: defaultAreasFor(r) }))
+
+  const toggleArea = (key: string) =>
+    setForm((f) => ({
+      ...f,
+      allowedAreas: f.allowedAreas.includes(key)
+        ? f.allowedAreas.filter((k) => k !== key)
+        : [...f.allowedAreas, key],
+    }))
+
   const canSubmit =
     form.firstName.trim().length > 0 &&
     form.lastName.trim().length > 0 &&
@@ -125,6 +146,7 @@ export default function AddStaffPage() {
         ...(form.password.trim().length >= 8
           ? { password: form.password }
           : {}),
+        allowedAreas: form.allowedAreas,
       }
       const res = await fetch("/api/staff", {
         method: "POST",
@@ -179,7 +201,7 @@ export default function AddStaffPage() {
           <Button
             type="submit"
             disabled={!canSubmit || submitting}
-            className="px-6 h-11 bg-[#2E37A4] hover:bg-[#1d246b] disabled:bg-[#B3B5E2] text-white font-semibold rounded-lg shadow-sm inline-flex items-center gap-2"
+            className="px-6 h-11 bg-[#6B2B26] hover:bg-[#54201D] disabled:bg-[#D5ABAB] text-white font-semibold rounded-lg shadow-sm inline-flex items-center gap-2"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -283,7 +305,7 @@ export default function AddStaffPage() {
               <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#667085] dark:text-[#94A3B8]" />
               <select
                 value={form.role}
-                onChange={(e) => set("role", e.target.value as Role)}
+                onChange={(e) => setRole(e.target.value as Role)}
                 className={`${inputCls} pl-10 bg-white dark:bg-[#1F2937]`}
               >
                 {ROLES.map((r) => (
@@ -326,6 +348,43 @@ export default function AddStaffPage() {
         </div>
       </section>
 
+      {/* Access (per-staff RBAC) */}
+      <section className="space-y-4">
+        <div>
+          <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Access</h3>
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">
+            Which sections this staff member can open. Pre-filled from the role —
+            tick or untick to customize. Dashboard and Profile are always available.
+          </p>
+        </div>
+        {form.role === "ADMIN" ? (
+          <p className="text-sm rounded-lg px-3 py-2.5 bg-[#EEF4F1] text-[#1F3D33]">
+            Admins have full access to every area.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {ASSIGNABLE_AREAS.map((a) => {
+              const checked = form.allowedAreas.includes(a.key)
+              return (
+                <label
+                  key={a.key}
+                  className="flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer text-sm text-[#344054] dark:text-[#CBD5E1]"
+                  style={{ borderColor: checked ? "#2E37A4" : "#D0D5DD", background: checked ? "#F5F6FE" : undefined }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleArea(a.key)}
+                    className="h-4 w-4 accent-[#2E37A4]"
+                  />
+                  <span className="font-medium">{a.label}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
       {/* Account */}
       <section className="space-y-6">
         <h3 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Account</h3>
@@ -351,7 +410,7 @@ export default function AddStaffPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] shadow-sm"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] shadow-sm"
 
 function Field({
   label,

@@ -148,7 +148,7 @@ export default function AdminAssessmentDetailPage({
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+        <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
         Loading submission…
       </div>
     )
@@ -164,7 +164,7 @@ export default function AdminAssessmentDetailPage({
           </p>
           <Link
             href="/admin/assessments"
-            className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] hover:underline font-semibold"
+            className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] hover:underline font-semibold"
           >
             ← Back to all submissions
           </Link>
@@ -184,7 +184,7 @@ export default function AdminAssessmentDetailPage({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <Link
           href="/admin/assessments"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> All submissions
         </Link>
@@ -194,7 +194,7 @@ export default function AdminAssessmentDetailPage({
       {/* Header — patient + status */}
       <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6 md:p-7 flex flex-col md:flex-row md:items-start md:justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] flex items-center justify-center font-bold">
+          <div className="h-12 w-12 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC] flex items-center justify-center font-bold">
             {initials(submission.contactName)}
           </div>
           <div>
@@ -208,7 +208,7 @@ export default function AdminAssessmentDetailPage({
                 {" · "}
                 <Link
                   href={`/admin/patients/${submission.patient.id}`}
-                  className="text-[#2E37A4] dark:text-[#A5B4FC] font-semibold hover:underline"
+                  className="text-[#6B2B26] dark:text-[#A5B4FC] font-semibold hover:underline"
                 >
                   Open chart →
                 </Link>
@@ -234,7 +234,7 @@ export default function AdminAssessmentDetailPage({
               type="button"
               onClick={() => void setStatus("COMPLETED")}
               disabled={updatingStatus}
-              className="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-[#2E37A4] hover:bg-[#1d246b] disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-[#6B2B26] hover:bg-[#54201D] disabled:opacity-50"
             >
               Mark completed
             </button>
@@ -363,7 +363,7 @@ export default function AdminAssessmentDetailPage({
             {submission.suggestedFocus.map((f) => (
               <span
                 key={f.key}
-                className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F4F5FF] dark:bg-[#312E81] text-[#3538CD]"
+                className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#F9ECEB] dark:bg-[#312E81] text-[#3538CD]"
               >
                 {f.label}
               </span>
@@ -410,7 +410,7 @@ export default function AdminAssessmentDetailPage({
               <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] mt-0.5">
                 {promptFor(q, submission.contactSex)}
               </p>
-              <p className="text-sm text-[#2E37A4] dark:text-[#A5B4FC] font-semibold mt-1">
+              <p className="text-sm text-[#6B2B26] dark:text-[#A5B4FC] font-semibold mt-1">
                 {renderAnswer(q, submission.answers[q.id])}
               </p>
             </li>
@@ -457,7 +457,7 @@ export default function AdminAssessmentDetailPage({
                     {h.id !== submission.id ? (
                       <Link
                         href={`/admin/assessments/${h.id}`}
-                        className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                        className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                       >
                         Open
                       </Link>
@@ -565,7 +565,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC] flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC] flex items-center justify-center flex-shrink-0">
         {icon}
       </div>
       <div className="min-w-0">
@@ -600,7 +600,7 @@ function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { bg: string; fg: string; Icon: typeof Clock; label: string }> = {
     REQUESTED: { bg: "#EFF8FF", fg: "#175CD3", Icon: Clock, label: "Requested" },
     CONFIRMED: { bg: "#ECFDF3", fg: "#027A48", Icon: CheckCircle2, label: "Confirmed" },
-    COMPLETED: { bg: "#F4F5FF", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
+    COMPLETED: { bg: "#F9ECEB", fg: "#3538CD", Icon: CheckCircle2, label: "Completed" },
     CANCELLED: { bg: "#FEF3F2", fg: "#B42318", Icon: XCircle, label: "Cancelled" },
   }
   const { bg, fg, Icon, label } = map[status]

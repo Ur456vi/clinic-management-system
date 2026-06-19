@@ -171,7 +171,7 @@ export default function LoginPage() {
                 autoComplete="off"
                 value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#B3B5E2] focus:outline-none focus:ring-2 focus:ring-[#B3B5E2]/20"
+                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
                 style={{
                   width: '476px',
                   height: '48px',
@@ -211,7 +211,7 @@ export default function LoginPage() {
                 name="password"
                 value={password || ""}
                 onChange={(e) => setPassword(e.target.value)}
-                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#B3B5E2] focus:outline-none focus:ring-2 focus:ring-[#B3B5E2]/20"
+                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
                 style={{
                   width: '476px',
                   height: '48px',
@@ -238,7 +238,7 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 id="remember"
-                className="h-5 w-5 cursor-pointer rounded border-[#D0D5DD] text-[#B3B5E2] focus:ring-[#B3B5E2]"
+                className="h-5 w-5 cursor-pointer rounded border-[#D0D5DD] text-[#D5ABAB] focus:ring-[#D5ABAB]"
               />
               <label htmlFor="remember" className="cursor-pointer text-sm font-medium text-[#475467]">
                 Remember Me
@@ -256,7 +256,7 @@ export default function LoginPage() {
           <Button
             className="h-14 w-full text-lg font-bold text-white shadow-sm transition-all"
             style={{
-              backgroundColor: isEnabled && !isLoading ? '#2E37A4' : '#B3B5E2',
+              backgroundColor: isEnabled && !isLoading ? '#6B2B26' : '#D5ABAB',
               opacity: 1,
             }}
             variant="default"

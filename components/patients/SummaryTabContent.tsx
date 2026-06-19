@@ -20,7 +20,7 @@ const StatsCard = ({ title, value, trend, trendValue }: { title: string; value: 
 
 const FilterDropdown = ({ label }: { label: string }) => (
   <div className="relative">
-    <select className="appearance-none h-10 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] min-w-[120px]">
+    <select className="appearance-none h-10 pl-4 pr-10 border border-[#D0D5DD] rounded-lg bg-white text-sm text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] min-w-[120px]">
       <option>{label}</option>
     </select>
     <ChevronLeft className="absolute right-3 top-3 w-4 h-4 text-[#667085] -rotate-90" />
@@ -73,7 +73,7 @@ export default function SummaryTabContent() {
             <input
               type="text"
               placeholder="Search patients..."
-              className="w-full h-10 pl-10 pr-4 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4]"
+              className="w-full h-10 pl-10 pr-4 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26]"
             />
           </div>
           <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ export default function SummaryTabContent() {
                 <Filter className="w-4 h-4 text-[#344054]" />
               </button>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#2E37A4] text-white rounded-lg text-sm font-semibold hover:bg-[#1d246b] transition-all">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[#6B2B26] text-white rounded-lg text-sm font-semibold hover:bg-[#54201D] transition-all">
               <Plus className="w-4 h-4" />
               Add New Patient
             </button>
@@ -116,7 +116,7 @@ export default function SummaryTabContent() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                        i % 3 === 0 ? "bg-[#444CE7]" : i % 3 === 1 ? "bg-[#7A5AF8]" : "bg-[#2E37A4]"
+                        i % 3 === 0 ? "bg-[#444CE7]" : i % 3 === 1 ? "bg-[#7A5AF8]" : "bg-[#6B2B26]"
                       }`}>
                         {p.name.split(' ').map(n => n[0]).join('')}
                       </div>
@@ -159,7 +159,7 @@ export default function SummaryTabContent() {
               <ChevronLeft className="w-4 h-4" />
               Previous
             </button>
-            <button className="w-10 h-10 bg-[#F4F5FF] text-[#2E37A4] rounded-lg text-sm font-bold border border-[#2E37A4]/10">1</button>
+            <button className="w-10 h-10 bg-[#F9ECEB] text-[#6B2B26] rounded-lg text-sm font-bold border border-[#6B2B26]/10">1</button>
             <button className="w-10 h-10 text-[#667085] rounded-lg text-sm font-medium hover:bg-gray-50">2</button>
             <button className="w-10 h-10 text-[#667085] rounded-lg text-sm font-medium hover:bg-gray-50">3</button>
             <button className="px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm font-medium text-[#344054] hover:bg-gray-50 flex items-center gap-2">

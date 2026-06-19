@@ -91,9 +91,9 @@ interface Props {
 }
 
 const inputCls =
-  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+  "w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
 const areaCls =
-  "w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+  "w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
 
 export default function DoctorConsultation({ appointmentId, consult }: Props) {
   const router = useRouter()
@@ -421,7 +421,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
         <div>
           <Link
             href="/admin/appointments"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#2E37A4] mb-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:text-[#6B2B26] mb-2"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Appointments
           </Link>
@@ -431,7 +431,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
             {consult.patient ? (
               <Link
                 href={`/admin/patients/${consult.patient.id}`}
-                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+                className="font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
               >
                 {consult.patient.fullName}
               </Link>
@@ -465,7 +465,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
                 onClick={() => setActiveSection(s.slug)}
                 className={`w-full text-left px-6 py-4 text-sm font-medium transition-all border-b border-[#EAECF0] dark:border-[#374151] last:border-b-0 ${
                   activeSection === s.slug
-                    ? "bg-[#F9FAFB] dark:bg-[#111827] text-[#2E37A4] dark:text-[#A5B4FC] border-l-4 border-l-[#2E37A4]"
+                    ? "bg-[#F9FAFB] dark:bg-[#111827] text-[#6B2B26] dark:text-[#A5B4FC] border-l-4 border-l-[#6B2B26]"
                     : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
                 }`}
               >
@@ -526,7 +526,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save consultation
         </Button>
-        <Button onClick={bookFollowUp} className="bg-[#2E37A4] hover:bg-[#1d246b] text-white flex items-center gap-2">
+        <Button onClick={bookFollowUp} className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2">
           <CalendarPlus className="h-4 w-4" /> Book follow-up
         </Button>
       </div>
@@ -639,7 +639,7 @@ function TableControl({
                       value={row[c.key] ?? ""}
                       onChange={(e) => setCell(ri, c.key, e.target.value)}
                       placeholder={c.placeholder}
-                      className="w-full h-10 px-2.5 border border-transparent hover:border-[#D0D5DD] dark:hover:border-[#374151] rounded-lg bg-transparent text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] focus:bg-white dark:focus:bg-[#1F2937] transition-all"
+                      className="w-full h-10 px-2.5 border border-transparent hover:border-[#D0D5DD] dark:hover:border-[#374151] rounded-lg bg-transparent text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] focus:bg-white dark:focus:bg-[#1F2937] transition-all"
                     />
                   </td>
                 ))}
@@ -666,7 +666,7 @@ function TableControl({
         <button
           type="button"
           onClick={addRow}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
         >
           <Plus className="h-3.5 w-3.5" /> {addLabel ?? "Add row"}
         </button>

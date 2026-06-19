@@ -224,7 +224,7 @@ export default function ReportsPage() {
         sub: `${stats.assessments.total} assessment${
           stats.assessments.total === 1 ? "" : "s"
         } received`,
-        bg: "#2E37A4",
+        bg: "#6B2B26",
         icon: <Users className="h-5 w-5 text-white opacity-85" />,
       },
       {
@@ -293,7 +293,7 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-12 flex items-center justify-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
-          <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
           Loading dashboard…
         </div>
       ) : (
@@ -340,7 +340,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <BreakdownCard
               title="Appointments by status"
-              icon={<Calendar className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
+              icon={<Calendar className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Requested", value: stats.appointments.byStatus.REQUESTED, fg: "#175CD3" },
                 { label: "Confirmed", value: stats.appointments.byStatus.CONFIRMED, fg: "#027A48" },
@@ -351,7 +351,7 @@ export default function ReportsPage() {
             />
             <BreakdownCard
               title="Invoices by status"
-              icon={<FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
+              icon={<FileText className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Issued", value: stats.invoices.byStatus.ISSUED, fg: "#175CD3" },
                 {
@@ -370,7 +370,7 @@ export default function ReportsPage() {
             />
             <BreakdownCard
               title="Assessments by status"
-              icon={<ClipboardCheck className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
+              icon={<ClipboardCheck className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />}
               rows={[
                 { label: "Requested", value: stats.assessments.byStatus.REQUESTED, fg: "#175CD3" },
                 { label: "Confirmed", value: stats.assessments.byStatus.CONFIRMED, fg: "#027A48" },
@@ -384,14 +384,14 @@ export default function ReportsPage() {
           <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                <TrendingUp className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
                 <h2 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">
                   Latest health-assessment submissions
                 </h2>
               </div>
               <Link
                 href="/admin/assessments"
-                className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
               >
                 View all →
               </Link>
@@ -432,7 +432,7 @@ export default function ReportsPage() {
                       <td className="py-2.5 text-right">
                         <Link
                           href={`/admin/assessments/${a.id}`}
-                          className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                          className="text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
                         >
                           Open
                         </Link>

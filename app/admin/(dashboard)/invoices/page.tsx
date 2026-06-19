@@ -117,7 +117,7 @@ export default function InvoicesPage() {
           </p>
         </div>
         <Link href="/admin/invoices/add">
-          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
+          <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2">
             New Invoice
           </Button>
         </Link>
@@ -131,7 +131,7 @@ export default function InvoicesPage() {
             placeholder="Search by invoice #, patient name, or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
         <div className="relative">
@@ -139,7 +139,7 @@ export default function InvoicesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as Status | "ALL")}
-            className="pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] font-medium focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="pl-9 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg text-sm bg-white dark:bg-[#1F2937] text-[#101828] dark:text-[#F9FAFB] font-medium focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           >
             {STATUS_FILTERS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -174,7 +174,7 @@ export default function InvoicesPage() {
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
-                      <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+                      <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
                       <p className="text-sm font-medium">Loading invoices…</p>
                     </div>
                   </td>
@@ -198,8 +198,8 @@ export default function InvoicesPage() {
                 <tr>
                   <td colSpan={7} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center text-[#667085] dark:text-[#94A3B8] gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#F4F5FF] dark:bg-[#312E81] flex items-center justify-center">
-                        <FileText className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                      <div className="w-12 h-12 rounded-full bg-[#F9ECEB] dark:bg-[#312E81] flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
                       </div>
                       <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">No invoices yet</p>
                       <p className="text-xs max-w-sm">
@@ -244,7 +244,7 @@ function InvoiceRowItem({
       <td className="px-6 py-4">
         <Link
           href={`/admin/invoices/${row.id}`}
-          className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+          className="text-sm font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
         >
           {row.invoiceNumber}
         </Link>
@@ -255,7 +255,7 @@ function InvoiceRowItem({
           <div>
             <Link
               href={`/admin/patients/${row.patient.id}`}
-              className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#2E37A4]"
+              className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] hover:text-[#6B2B26]"
             >
               {row.patient.fullName}
             </Link>

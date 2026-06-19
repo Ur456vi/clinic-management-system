@@ -16,14 +16,14 @@ export default function ComingSoon({
     <div className="flex flex-col items-center justify-center text-center min-h-[60vh] px-6">
       <div
         className="h-16 w-16 rounded-2xl flex items-center justify-center mb-5"
-        style={{ background: "#E8EEFB" }}
+        style={{ background: "rgba(107, 43, 38, 0.1)" }}
       >
-        <Clock className="h-8 w-8" style={{ color: "#2E37A4" }} />
+        <Clock className="h-8 w-8" style={{ color: "#6B2B26" }} />
       </div>
       <h1 className="text-2xl font-bold text-[#101828]">{title}</h1>
       <span
         className="mt-2.5 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wide uppercase"
-        style={{ background: "#EEF2FF", color: "#2E37A4" }}
+        style={{ background: "rgba(107, 43, 38, 0.1)", color: "#6B2B26" }}
       >
         Coming soon
       </span>

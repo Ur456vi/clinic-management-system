@@ -38,40 +38,28 @@ import {
   type TransitionAppointmentInput,
   type UpdateAppointmentInput,
 } from "@/lib/validation/appointment"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create or mutate appointments. */
-const WRITE_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-]
+const WRITE_ROLES: readonly Role[] = rolesFor("appointment:write")
 
 /**
  * Roles allowed to read appointments. Wider than the write set — the
  * specialists need visibility into their own day even if they don't
  * book the slot themselves.
  */
-const VIEW_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const VIEW_ROLES: readonly Role[] = rolesFor("appointment:view")
 
 /**
  * Roles that see the whole appointment book. Everyone else is scoped to
  * appointments assigned to their own staff profile — both in lists and on
  * single records (`assertAppointmentAccess`).
  */
-const FULL_BOOK_ROLES: readonly Role[] = [Role.ADMIN, Role.RECEPTION]
+const FULL_BOOK_ROLES: readonly Role[] = rolesFor("appointment:fullBook")
 
 /**
  * Ownership gate for single-appointment access (detail, transition,

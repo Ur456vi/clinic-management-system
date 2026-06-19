@@ -79,7 +79,7 @@ export default function PatientAppointmentsPage() {
         </div>
         <button
           onClick={() => router.push("/patient/appointments/new")}
-          className="bg-[#2E37A4] hover:bg-[#1d246b] text-white rounded-lg px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
+          className="bg-[#6B2B26] hover:bg-[#54201D] text-white rounded-lg px-4 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <CalendarPlus className="h-4 w-4" /> New Appointment
         </button>
@@ -92,7 +92,7 @@ export default function PatientAppointmentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by doctor, department, or reason…"
-            className="w-full h-10 pl-9 pr-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15"
           />
         </div>
         <select

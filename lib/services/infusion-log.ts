@@ -25,6 +25,7 @@ import {
   type TransitionInfusionLogInput,
   type UpdateInfusionLogInput,
 } from "@/lib/validation/infusion-log"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
@@ -38,34 +39,21 @@ import {
  * spec'd for the same job in BE-03). ADMIN is granted for unblocking
  * cleanup operations.
  */
-const WRITE_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.INFUSION_SPECIALIST,
-]
+const WRITE_ROLES: readonly Role[] = rolesFor("infusion:write")
 
 /**
  * Roles allowed to read an infusion log. Any authenticated clinic role
  * may read — the patient-portal scope is not surfaced through these
  * routes.
  */
-const READ_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const READ_ROLES: readonly Role[] = rolesFor("infusion:read")
 
 /**
  * Roles allowed to hard-delete an infusion log. Tight by design — soft
  * delete is `status = ABORTED`; hard delete is an admin-only escape
  * hatch for cleaning up test rows.
  */
-const DELETE_ROLES: readonly Role[] = [Role.ADMIN]
+const DELETE_ROLES: readonly Role[] = rolesFor("infusion:delete")
 
 // ---------------------------------------------------------------------------
 // Include shape

@@ -95,7 +95,7 @@ export default function RxLibraryPicker({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-full pl-8 pr-3 h-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+            className="w-full pl-8 pr-3 h-9 rounded-lg border border-[#D0D5DD] dark:border-[#374151] bg-white dark:bg-[#111827] text-sm text-[#101828] dark:text-[#F9FAFB] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function RxLibraryPicker({
                   ? c.groups.map((g, gi) => (
                       <div key={gi} className="pb-1">
                         {g.name ? (
-                          <p className="px-3 pt-1.5 pb-0.5 text-[11px] font-semibold text-[#2E37A4] dark:text-[#A5B4FC]">
+                          <p className="px-3 pt-1.5 pb-0.5 text-[11px] font-semibold text-[#6B2B26] dark:text-[#A5B4FC]">
                             {g.name}
                           </p>
                         ) : null}
@@ -167,7 +167,7 @@ export default function RxLibraryPicker({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
       >
         <Plus className="h-3.5 w-3.5" /> {label}
       </button>

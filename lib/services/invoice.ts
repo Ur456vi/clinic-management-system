@@ -47,25 +47,17 @@ import {
   type RecordPaymentInput,
   type UpdateInvoiceInput,
 } from "@/lib/validation/invoice"
+import { rolesFor } from "@/lib/rbac"
 
 // ---------------------------------------------------------------------------
 // Role gates
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to create / mutate invoices and record payments. */
-const WRITE_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RECEPTION,
-]
+const WRITE_ROLES: readonly Role[] = rolesFor("invoice:write")
 
 /** Roles allowed to read invoices. */
-const VIEW_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-]
+const VIEW_ROLES: readonly Role[] = rolesFor("invoice:view")
 
 // ---------------------------------------------------------------------------
 // Include shape

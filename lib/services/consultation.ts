@@ -22,6 +22,8 @@ import { AuditAction, ConsultationStatus, ConsultationType, Role } from "@prisma
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
+import { materializeLabOrdersFromConsultation } from "@/lib/services/lab-result"
+import { rolesFor } from "@/lib/rbac"
 import {
   ALLOWED_STATUS_TRANSITIONS,
   type CreateConsultationInput,
@@ -76,23 +78,15 @@ export function isMain(c: { type: string }): boolean {
 // ---------------------------------------------------------------------------
 
 /** Roles allowed to author an RMO consultation. */
-const RMO_AUTHOR_ROLES: readonly Role[] = [Role.ADMIN, Role.RMO, Role.DOCTOR]
+const RMO_AUTHOR_ROLES: readonly Role[] = rolesFor("consultation:createRmo")
 /** Roles allowed to author a MAIN (senior doctor) consultation. */
-const MAIN_AUTHOR_ROLES: readonly Role[] = [Role.ADMIN, Role.DOCTOR]
+const MAIN_AUTHOR_ROLES: readonly Role[] = rolesFor("consultation:createMain")
 /**
  * Roles allowed to *see* a consultation. The patient/PHI-access surface
  * is wider than the author surface — reception books appointments, the
  * specialists need history during their own sessions.
  */
-const VIEW_ROLES: readonly Role[] = [
-  Role.ADMIN,
-  Role.DOCTOR,
-  Role.RMO,
-  Role.RECEPTION,
-  Role.INFUSION_SPECIALIST,
-  Role.REHAB_SPECIALIST,
-  Role.AESTHETICS_SPECIALIST,
-]
+const VIEW_ROLES: readonly Role[] = rolesFor("consultation:view")
 
 /**
  * Shallow-merge two `sections` blobs at the top level. This is the
@@ -424,8 +418,10 @@ export async function transitionConsultation(
     }
 
     const data: Prisma.ConsultationUpdateInput = { status: input.to }
+    let signedAt: Date | null = null
     if (input.to === ConsultationStatus.SIGNED) {
-      data.signedAt = new Date()
+      signedAt = new Date()
+      data.signedAt = signedAt
       data.signedBy = { connect: { id: actor.userId } }
     }
 
@@ -434,6 +430,24 @@ export async function transitionConsultation(
       data,
       include: CONSULTATION_INCLUDE,
     })
+
+    // On sign, materialize the tests selected in the consultation's "Test"
+    // section into LabResult rows (order date = sign time, status = active)
+    // so they appear in the patient's Labs & Diagnostics tab immediately.
+    let labOrdersCreated = 0
+    if (input.to === ConsultationStatus.SIGNED) {
+      const signer = await tx.user.findUnique({
+        where: { id: actor.userId },
+        select: { staff: { select: { id: true } } },
+      })
+      labOrdersCreated = await materializeLabOrdersFromConsultation(tx, {
+        consultationId: after.id,
+        patientId: before.patientId,
+        sections: after.sections,
+        orderedAt: signedAt ?? new Date(),
+        orderingDoctorId: signer?.staff?.id ?? null,
+      })
+    }
 
     await recordAudit(
       {
@@ -444,6 +458,7 @@ export async function transitionConsultation(
         detail: {
           transition: { from: before.status, to: after.status },
           notes: input.notes ?? null,
+          labOrdersCreated,
         },
       },
       { tx },

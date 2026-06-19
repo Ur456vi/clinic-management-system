@@ -174,8 +174,8 @@ export default function DashboardPage() {
         name: "Total Patients",
         value: data.patientsCount.toString(),
         icon: Users,
-        color: "text-[#2E37A4] dark:text-[#A5B4FC]",
-        bg: "bg-[#F4F5FF] dark:bg-[#312E81]",
+        color: "text-[#6B2B26] dark:text-[#A5B4FC]",
+        bg: "bg-[#F9ECEB] dark:bg-[#312E81]",
         href: "/admin/patients",
       },
       {
@@ -242,7 +242,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8]">{stat.name}</p>
               <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
                 {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-[#2E37A4] dark:text-[#A5B4FC]" />
+                  <Loader2 className="h-5 w-5 animate-spin text-[#6B2B26] dark:text-[#A5B4FC]" />
                 ) : (
                   stat.value
                 )}
@@ -259,7 +259,7 @@ export default function DashboardPage() {
             <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Upcoming Appointments</h3>
             <Link
               href="/admin/appointments"
-              className="text-sm font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:text-[#1d246b]"
+              className="text-sm font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:text-[#54201D]"
             >
               View All
             </Link>
@@ -333,8 +333,8 @@ export default function DashboardPage() {
               ok
             />
             <PerformanceRow
-              icon={<Clock className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />}
-              tintBg="bg-[#F4F5FF] dark:bg-[#312E81]"
+              icon={<Clock className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />}
+              tintBg="bg-[#F9ECEB] dark:bg-[#312E81]"
               title="Outstanding balance"
               subtitle={
                 loading
@@ -345,7 +345,7 @@ export default function DashboardPage() {
             />
             <PerformanceRow
               icon={<ClipboardCheck className="h-5 w-5 text-[#3538CD]" />}
-              tintBg="bg-[#F4F5FF] dark:bg-[#312E81]"
+              tintBg="bg-[#F9ECEB] dark:bg-[#312E81]"
               title="Pending assessment bookings"
               subtitle={
                 loading
@@ -419,7 +419,7 @@ function PerformanceRow({
         <Link
           href={actionHref}
           className={`text-xs font-bold hover:underline ${
-            danger ? "text-[#B42318]" : "text-[#2E37A4] dark:text-[#A5B4FC]"
+            danger ? "text-[#B42318]" : "text-[#6B2B26] dark:text-[#A5B4FC]"
           }`}
         >
           {actionLabel}
@@ -435,7 +435,7 @@ function ApptStatusPill({ status }: { status: ApptStatus }) {
   const map: Record<ApptStatus, { bg: string; fg: string; label: string }> = {
     REQUESTED: { bg: "#EFF8FF", fg: "#175CD3", label: "Requested" },
     CONFIRMED: { bg: "#ECFDF3", fg: "#027A48", label: "Confirmed" },
-    COMPLETED: { bg: "#F4F5FF", fg: "#3538CD", label: "Completed" },
+    COMPLETED: { bg: "#F9ECEB", fg: "#3538CD", label: "Completed" },
     CANCELLED: { bg: "#FEF3F2", fg: "#B42318", label: "Cancelled" },
     NO_SHOW: { bg: "#FFF4ED", fg: "#B93815", label: "No-show" },
   }

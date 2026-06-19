@@ -103,18 +103,18 @@ export default function Sidebar() {
                 key={item.label}
                 onClick={() => router.push(item.href)}
                 className={`flex flex-row justify-between items-center py-3 pl-5 pr-0 rounded-lg cursor-pointer transition-all duration-200 ${
-                  isActive ? "bg-[#F5F6F8] text-[#2E37A4]" : "text-[#141414] hover:bg-[#F9FAFB]"
+                  isActive ? "bg-[#F5F6F8] text-[#6B2B26]" : "text-[#141414] hover:bg-[#F9FAFB]"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <div className={isActive ? "text-[#2E37A4]" : "text-[#141414]"}>
+                  <div className={isActive ? "text-[#6B2B26]" : "text-[#141414]"}>
                     {item.icon}
                   </div>
                   <span className={`text-base ${isActive ? "font-semibold" : "font-normal"}`}>
                     {item.label}
                   </span>
                 </div>
-                {isActive && <div className="w-1 h-6.5 bg-[#2E37A4] rounded-full" />}
+                {isActive && <div className="w-1 h-6.5 bg-[#6B2B26] rounded-full" />}
               </div>
             );
           })}

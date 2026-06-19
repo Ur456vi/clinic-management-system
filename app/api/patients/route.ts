@@ -34,9 +34,10 @@ import {
   listPatientsQuerySchema,
 } from "@/lib/validation/patient"
 import { createPatient, listPatients } from "@/lib/services/patient"
+import { rolesFor } from "@/lib/rbac"
 
 /** Front-desk + clinical staff may register a patient (not PATIENT/specialists). */
-const PATIENT_WRITE: Role[] = [Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION]
+const PATIENT_WRITE: readonly Role[] = rolesFor("patient:create")
 
 export const GET = defineHandler(async ({ req }) => {
   await requireSession()

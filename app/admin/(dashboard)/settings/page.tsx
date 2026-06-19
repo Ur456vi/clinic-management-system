@@ -46,7 +46,7 @@ function SettingsPageContent() {
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading settings…</p>
       </div>
     );
@@ -73,14 +73,14 @@ function SettingsPageContent() {
               onClick={() => handleTabChange("email-smtp")}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
                 activeTab === "email-smtp"
-                  ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                  ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                   : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
               }`}
             >
               <Mail
                 className={`h-5 w-5 shrink-0 ${
                   activeTab === "email-smtp"
-                    ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                    ? "text-[#6B2B26] dark:text-[#A5B4FC]"
                     : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
                 }`}
               />
@@ -93,14 +93,14 @@ function SettingsPageContent() {
             onClick={() => handleTabChange("profile")}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
               activeTab === "profile"
-                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                 : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
             }`}
           >
             <User
               className={`h-5 w-5 shrink-0 ${
                 activeTab === "profile"
-                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  ? "text-[#6B2B26] dark:text-[#A5B4FC]"
                   : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
               }`}
             />
@@ -112,14 +112,14 @@ function SettingsPageContent() {
             onClick={() => handleTabChange("password")}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
               activeTab === "password"
-                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                 : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
             }`}
           >
             <Lock
               className={`h-5 w-5 shrink-0 ${
                 activeTab === "password"
-                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  ? "text-[#6B2B26] dark:text-[#A5B4FC]"
                   : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
               }`}
             />
@@ -131,14 +131,14 @@ function SettingsPageContent() {
             onClick={() => handleTabChange("notifications")}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
               activeTab === "notifications"
-                ? "bg-[#F4F5FF] dark:bg-[#312E81] text-[#2E37A4] dark:text-[#A5B4FC]"
+                ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
                 : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
             }`}
           >
             <Bell
               className={`h-5 w-5 shrink-0 ${
                 activeTab === "notifications"
-                  ? "text-[#2E37A4] dark:text-[#A5B4FC]"
+                  ? "text-[#6B2B26] dark:text-[#A5B4FC]"
                   : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
               }`}
             />
@@ -168,7 +168,7 @@ export default function SettingsPage() {
     <Suspense
       fallback={
         <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-          <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+          <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
           <p className="text-sm font-medium">Loading settings…</p>
         </div>
       }

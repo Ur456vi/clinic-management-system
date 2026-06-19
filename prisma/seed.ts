@@ -122,6 +122,16 @@ const STAFF: StaffSeed[] = [
       "Default platform administrator account. Used to bootstrap the " +
       "first clinic in dev/staging.",
   },
+  { email: "admin1@vyara.local", fullName: "Admin 1", role: "ADMIN", departmentSlug: null },
+  { email: "admin2@vyara.local", fullName: "Admin 2", role: "ADMIN", departmentSlug: null },
+  { email: "admin3@vyara.local", fullName: "Admin 3", role: "ADMIN", departmentSlug: null },
+  { email: "admin4@vyara.local", fullName: "Admin 4", role: "ADMIN", departmentSlug: null },
+  { email: "admin5@vyara.local", fullName: "Admin 5", role: "ADMIN", departmentSlug: null },
+  { email: "admin6@vyara.local", fullName: "Admin 6", role: "ADMIN", departmentSlug: null },
+  { email: "admin7@vyara.local", fullName: "Admin 7", role: "ADMIN", departmentSlug: null },
+  { email: "admin8@vyara.local", fullName: "Admin 8", role: "ADMIN", departmentSlug: null },
+  { email: "admin9@vyara.local", fullName: "Admin 9", role: "ADMIN", departmentSlug: null },
+  { email: "admin10@vyara.local", fullName: "Admin 10", role: "ADMIN", departmentSlug: null },
 
   // --- Doctors (3) ---------------------------------------------------------
   {

@@ -28,6 +28,7 @@ import { db } from "@/lib/db"
 import { env } from "@/lib/env"
 import { verifyPassword } from "@/lib/passwords"
 import { UnauthorizedError } from "@/lib/errors"
+import { effectiveAreasFor } from "@/lib/rbac"
 
 /** Shape of the user object returned from `authorize`. */
 export type AuthorizedUser = {
@@ -37,6 +38,8 @@ export type AuthorizedUser = {
   fullName: string
   avatarUrl: string | null
   mustResetPassword: boolean
+  /** Per-staff custom area access (empty for patients / role-default staff). */
+  allowedAreas: string[]
 }
 
 /** Shape of `session.user` after our session callback runs. */
@@ -47,6 +50,8 @@ export type SessionUser = {
   fullName: string
   avatarUrl: string | null
   mustResetPassword: boolean
+  /** Effective admin areas this user may open (RBAC). */
+  areas: string[]
 }
 
 export const authOptions: NextAuthOptions = {
@@ -85,7 +90,7 @@ export const authOptions: NextAuthOptions = {
         const user = await db.user.findUnique({
           where: { email },
           include: {
-            staff: { select: { fullName: true, avatarUrl: true } },
+            staff: { select: { fullName: true, avatarUrl: true, allowedAreas: true } },
             patient: { select: { fullName: true } },
           },
         })
@@ -135,6 +140,7 @@ export const authOptions: NextAuthOptions = {
           fullName,
           avatarUrl,
           mustResetPassword: user.mustResetPassword,
+          allowedAreas: user.staff?.allowedAreas ?? [],
         }
       },
     }),
@@ -151,15 +157,25 @@ export const authOptions: NextAuthOptions = {
         token.fullName = u.fullName
         token.avatarUrl = u.avatarUrl
         token.mustResetPassword = u.mustResetPassword
+        token.areas = effectiveAreasFor(u.role, u.allowedAreas)
       } else if (trigger === "update" && token.userId) {
-        // Called via the client `update()` after a forced password reset —
-        // re-read the flag so the proxy stops gating the user mid-session.
+        // Called via the client `update()` (e.g. after a forced password
+        // reset, or to pick up an admin's access change mid-session) —
+        // re-read the gating-relevant fields so the proxy/nav refresh.
         try {
           const fresh = await db.user.findUnique({
             where: { id: token.userId as string },
-            select: { mustResetPassword: true },
+            select: {
+              mustResetPassword: true,
+              role: true,
+              staff: { select: { allowedAreas: true } },
+            },
           })
-          if (fresh) token.mustResetPassword = fresh.mustResetPassword
+          if (fresh) {
+            token.mustResetPassword = fresh.mustResetPassword
+            token.role = fresh.role
+            token.areas = effectiveAreasFor(fresh.role, fresh.staff?.allowedAreas)
+          }
         } catch {
           /* keep stale token on transient DB error */
         }
@@ -176,6 +192,7 @@ export const authOptions: NextAuthOptions = {
         session.user.fullName = (token.fullName as string) ?? token.email
         session.user.avatarUrl = (token.avatarUrl as string | null) ?? null
         session.user.mustResetPassword = Boolean(token.mustResetPassword)
+        session.user.areas = (token.areas as string[] | undefined) ?? []
       }
       return session
     },
@@ -210,5 +227,6 @@ export async function requireUser(): Promise<SessionUser> {
     fullName: u.fullName,
     avatarUrl: u.avatarUrl,
     mustResetPassword: u.mustResetPassword ?? false,
+    areas: u.areas ?? [],
   }
 }

@@ -26,6 +26,9 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
+import { ASSIGNABLE_AREAS } from "@/lib/rbac"
+
+const ASSIGNABLE_KEYS = ASSIGNABLE_AREAS.map((a) => a.key)
 
 type Role =
   | "ADMIN"
@@ -69,6 +72,8 @@ interface Staff {
   departmentId: string | null
   department: { id: string; name: string; slug: string } | null
   isActive: boolean
+  allowedAreas: string[]
+  effectiveAreas: string[]
   createdAt: string
 }
 
@@ -96,9 +101,18 @@ export default function StaffDetailPage() {
     phone: "",
     role: "DOCTOR" as Role,
     departmentId: "",
+    allowedAreas: [] as string[],
   })
   const [saving, setSaving] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  const toggleArea = (key: string) =>
+    setForm((f) => ({
+      ...f,
+      allowedAreas: f.allowedAreas.includes(key)
+        ? f.allowedAreas.filter((k) => k !== key)
+        : [...f.allowedAreas, key],
+    }))
 
   const load = useCallback(async () => {
     setError(null)
@@ -114,6 +128,8 @@ export default function StaffDetailPage() {
         phone: s.phone ?? "",
         role: s.role,
         departmentId: s.departmentId ?? "",
+        // Pre-fill from the staff member's current effective access.
+        allowedAreas: (s.effectiveAreas ?? []).filter((k) => ASSIGNABLE_KEYS.includes(k)),
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load staff member")
@@ -154,6 +170,7 @@ export default function StaffDetailPage() {
         role: form.role,
         phone: form.phone.trim() || undefined,
         departmentId: form.departmentId ? form.departmentId : null,
+        allowedAreas: form.allowedAreas,
       }
       const res = await fetch(`/api/staff/${id}`, {
         method: "PATCH",
@@ -189,7 +206,7 @@ export default function StaffDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-[#667085] dark:text-[#94A3B8]">
-        <Loader2 className="h-7 w-7 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-3" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-3" />
         <p className="text-sm font-medium">Loading staff member…</p>
       </div>
     )
@@ -232,7 +249,7 @@ export default function StaffDetailPage() {
 
         {!editing ? (
           <Link href={`/admin/staff/${id}?edit=1`}>
-            <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
+            <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
               <Pencil className="h-4 w-4" /> <span>Edit</span>
             </Button>
           </Link>
@@ -297,11 +314,44 @@ export default function StaffDetailPage() {
               </select>
             </FormField>
 
+            <div className="md:col-span-2">
+              <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-sm">Access</span>
+              <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-1 mb-3">
+                Sections this staff member can open. Dashboard and Profile are always available.
+              </p>
+              {form.role === "ADMIN" ? (
+                <p className="text-sm rounded-lg px-3 py-2.5 bg-[#EEF4F1] text-[#1F3D33]">
+                  Admins have full access to every area.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {ASSIGNABLE_AREAS.map((a) => {
+                    const checked = form.allowedAreas.includes(a.key)
+                    return (
+                      <label
+                        key={a.key}
+                        className="flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer text-sm text-[#344054] dark:text-[#CBD5E1]"
+                        style={{ borderColor: checked ? "#2E37A4" : "#D0D5DD", background: checked ? "#F5F6FE" : undefined }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleArea(a.key)}
+                          className="h-4 w-4 accent-[#2E37A4]"
+                        />
+                        <span className="font-medium">{a.label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
             <div className="md:col-span-2 flex items-center gap-3 mt-2">
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2"
+                className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg h-auto text-sm font-semibold inline-flex items-center gap-2"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save changes
@@ -352,7 +402,7 @@ export default function StaffDetailPage() {
 /* ── atoms ─────────────────────────────────────────────────────── */
 
 const inputCls =
-  "h-10 w-full rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/15 focus:border-[#2E37A4]"
+  "h-10 w-full rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
 
 function StatusPill({ active }: { active: boolean }) {
   return (

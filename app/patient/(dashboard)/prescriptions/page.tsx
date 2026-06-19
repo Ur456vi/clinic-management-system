@@ -217,7 +217,7 @@ export default function PatientPrescriptionsPage() {
   if (plans === null || loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[400px] text-sm text-gray-500 dark:text-gray-400">
-        <Loader2 className="h-5 w-5 animate-spin mr-2 text-[#2E37A4]" />
+        <Loader2 className="h-5 w-5 animate-spin mr-2 text-[#6B2B26]" />
         Loading prescriptions...
       </div>
     );
@@ -508,17 +508,17 @@ export default function PatientPrescriptionsPage() {
               {/* Row 1: Logo & Badge */}
               <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2.5">
-                  <div className="shrink-0 text-blue-600 dark:text-indigo-400">
+                  <div className="shrink-0 text-[#6B2B26] dark:text-[#A5B4FC]">
                     {/* Preclinic Blue circular cross logo */}
-                    <svg className="h-8 w-8 text-[#2E37A4]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" className="fill-[#2E37A4]/10 dark:fill-indigo-950/20 stroke-[#2E37A4] dark:stroke-indigo-400" strokeWidth="2" />
+                    <svg className="h-8 w-8 text-[#6B2B26]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" className="fill-[#6B2B26]/10 dark:fill-red-950/20 stroke-[#6B2B26] dark:stroke-red-400" strokeWidth="2" />
                       <path d="M12 7v10M7 12h10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                     </svg>
                   </div>
                   <h2 className="text-xl font-bold tracking-tight text-gray-950 dark:text-white font-sans select-none">Preclinic</h2>
                 </div>
 
-                <span className="px-3.5 py-1 bg-indigo-50 dark:bg-indigo-950/20 text-[#2E37A4] dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-900/40 rounded-lg text-xs font-bold tracking-wide uppercase select-none">
+                <span className="px-3.5 py-1 bg-[#6B2B26]/10 dark:bg-red-950/20 text-[#6B2B26] dark:text-[#A5B4FC] border border-[#6B2B26]/20 dark:border-red-900/40 rounded-lg text-xs font-bold tracking-wide uppercase select-none">
                   {presId}
                 </span>
               </div>
@@ -528,7 +528,7 @@ export default function PatientPrescriptionsPage() {
                 
                 {/* Doctor section */}
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40 text-[#2E37A4] dark:text-indigo-400 text-xs font-bold ring-1 ring-gray-100 dark:ring-gray-800">
+                  <div className="h-11 w-11 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#6B2B26]/10 dark:bg-red-950/40 text-[#6B2B26] dark:text-[#A5B4FC] text-xs font-bold ring-1 ring-gray-100 dark:ring-gray-800">
                     <svg className="h-6 w-6 stroke-current" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
@@ -624,14 +624,14 @@ export default function PatientPrescriptionsPage() {
                 {/* Doctor Digital Signature */}
                 <div className="text-left sm:text-right shrink-0 flex flex-col sm:items-end">
                   <span 
-                    className="text-2xl text-[#2E37A4] dark:text-indigo-400 select-none leading-none font-semibold pb-1"
+                    className="text-2xl text-[#6B2B26] dark:text-[#A5B4FC] select-none leading-none font-semibold pb-1"
                     style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive, sans-serif" }}
                   >
                     {docName.replace(/^Dr\.\s+/i, "")}
                   </span>
                   <div className="border-t border-dashed border-gray-300 dark:border-gray-700 w-36 my-1.5" />
                   <h5 className="text-xs font-bold text-gray-950 dark:text-white">Dr. {docName}</h5>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-550 mt-0.5">{getDoctorQualifications(docName, docSpec)}</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-555 mt-0.5">{getDoctorQualifications(docName, docSpec)}</p>
                 </div>
               </div>
 
@@ -716,12 +716,12 @@ export default function PatientPrescriptionsPage() {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-8 py-2 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-gray-700 focus:border-[#2E37A4] dark:focus:border-indigo-500 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-hidden transition-all shadow-xs"
+                className="w-full pl-10 pr-8 py-2 bg-white dark:bg-[#1F2937] border border-gray-300 dark:border-gray-700 focus:border-[#6B2B26] dark:focus:border-[#6B2B26]/80 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-hidden transition-all shadow-xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-650 transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -736,14 +736,14 @@ export default function PatientPrescriptionsPage() {
                   onClick={() => setShowFiltersPopover(prev => !prev)}
                   className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium border rounded-lg shadow-xs transition-all ${
                     filterStatus !== "ALL" || filterDoctor !== "ALL"
-                      ? "bg-indigo-50 dark:bg-indigo-950/20 text-[#2E37A4] dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/50"
+                      ? "bg-[#6B2B26]/10 dark:bg-red-950/20 text-[#6B2B26] dark:text-[#A5B4FC] border-[#6B2B26]/20 dark:border-red-900/50"
                       : "bg-white dark:bg-[#1F2937] hover:bg-gray-50 dark:hover:bg-gray-800/80 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700"
                   }`}
                 >
                   <Filter className="h-4 w-4 text-gray-500" />
                   <span>Filters</span>
                   {(filterStatus !== "ALL" || filterDoctor !== "ALL") && (
-                    <span className="flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-[#2E37A4] text-white text-[10px] font-bold">
+                    <span className="flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-[#6B2B26] text-white text-[10px] font-bold">
                       {[filterStatus !== "ALL", filterDoctor !== "ALL"].filter(Boolean).length}
                     </span>
                   )}
@@ -797,7 +797,7 @@ export default function PatientPrescriptionsPage() {
                         <select
                           value={filterDoctor}
                           onChange={(e) => setFilterDoctor(e.target.value)}
-                          className="w-full px-3 py-2 bg-gray-50 dark:bg-[#111827] border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-xs rounded-lg outline-hidden focus:border-[#2E37A4] dark:focus:border-indigo-500 font-medium"
+                          className="w-full px-3 py-2 bg-gray-50 dark:bg-[#111827] border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white text-xs rounded-lg outline-hidden focus:border-[#6B2B26] dark:focus:border-[#6B2B26]/80 font-medium"
                         >
                           <option value="ALL">All Doctors</option>
                           {uniqueDoctors.map(name => (
@@ -832,7 +832,7 @@ export default function PatientPrescriptionsPage() {
                       className="w-full flex items-center justify-between px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                       <span>Recent</span>
-                      {sortBy === "recent" && <Check className="h-4 w-4 text-[#2E37A4] dark:text-indigo-400" />}
+                      {sortBy === "recent" && <Check className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />}
                     </button>
                     <button
                       onClick={() => {
@@ -842,7 +842,7 @@ export default function PatientPrescriptionsPage() {
                       className="w-full flex items-center justify-between px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                       <span>Oldest</span>
-                      {sortBy === "oldest" && <Check className="h-4 w-4 text-[#2E37A4] dark:text-indigo-400" />}
+                      {sortBy === "oldest" && <Check className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />}
                     </button>
                   </div>
                 )}
@@ -874,7 +874,7 @@ export default function PatientPrescriptionsPage() {
               )}
               <button
                 onClick={clearFilters}
-                className="text-[#2E37A4] dark:text-indigo-400 hover:underline font-semibold ml-auto"
+                className="text-[#6B2B26] dark:text-[#A5B4FC] hover:underline font-semibold ml-auto"
               >
                 Clear All
               </button>
@@ -896,7 +896,7 @@ export default function PatientPrescriptionsPage() {
                 {isFiltered && (
                   <button
                     onClick={clearFilters}
-                    className="mt-4 inline-flex items-center justify-center px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#2E37A4] dark:bg-indigo-950/20 dark:text-indigo-400 font-semibold rounded-lg text-sm border border-indigo-200 dark:border-indigo-900/40 transition-colors"
+                    className="mt-4 inline-flex items-center justify-center px-4 py-2 bg-[#6B2B26]/10 hover:bg-[#54201D]/20 text-[#6B2B26] dark:text-[#A5B4FC] font-semibold rounded-lg text-sm border border-[#6B2B26]/20 dark:border-red-900/40 transition-colors"
                   >
                     Reset Filters
                   </button>
@@ -937,7 +937,7 @@ export default function PatientPrescriptionsPage() {
                           {/* ID Column */}
                           <td className="py-4.5 px-6 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-[#2E37A4] dark:group-hover:text-indigo-400 transition-colors">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-[#6B2B26] dark:group-hover:text-[#A5B4FC] transition-colors">
                                 {presId}
                               </span>
                               <span className={`inline-flex items-center justify-center w-1.5 h-1.5 rounded-full ${plan.status === 'SIGNED' ? 'bg-emerald-500' : 'bg-rose-500'}`} title={plan.status} />
@@ -948,7 +948,7 @@ export default function PatientPrescriptionsPage() {
                           <td className="py-4.5 px-6 whitespace-nowrap">
                             <div className="flex items-center gap-3">
                               {/* Avatar */}
-                              <div className="h-9 w-9 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40 text-[#2E37A4] dark:text-indigo-400 text-xs font-bold ring-1 ring-gray-100 dark:ring-gray-800">
+                              <div className="h-9 w-9 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#6B2B26]/10 dark:bg-red-950/40 text-[#6B2B26] dark:text-[#A5B4FC] text-xs font-bold ring-1 ring-gray-100 dark:ring-gray-800">
                                 {avatarUrl ? (
                                   <img
                                     src={avatarUrl}
@@ -1069,7 +1069,7 @@ export default function PatientPrescriptionsPage() {
                     <ChevronLeft className="h-4.5 w-4.5" />
                   </button>
 
-                  <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#2E37A4] text-white shadow-xs select-none min-w-[28px] text-center">
+                  <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#6B2B26] text-white shadow-xs select-none min-w-[28px] text-center">
                     {currentPage}
                   </span>
 

@@ -213,7 +213,7 @@ export default function PatientsPage() {
                 setSearchQuery(e.target.value)
               }
               placeholder="Search patients by name or email..."
-              className="block w-full pl-11 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm placeholder-[#667085] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+              className="block w-full pl-11 pr-3 py-2.5 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm placeholder-[#667085] dark:placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
             />
           </div>
 
@@ -234,7 +234,7 @@ export default function PatientsPage() {
 
         {/* Add Patient */}
         <Link href="/admin/patients/add">
-          <Button className="bg-[#2E37A4] hover:bg-[#1d246b] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
+          <Button className="bg-[#6B2B26] hover:bg-[#54201D] text-white px-4 py-2.5 rounded-lg flex items-center gap-2 h-auto text-sm font-semibold">
             <Plus className="h-5 w-5" />
             <span>Add New Patient</span>
           </Button>
@@ -282,7 +282,7 @@ export default function PatientsPage() {
                     className="px-6 py-12 text-center"
                   >
                     <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
-                      <Loader2 className="h-8 w-8 animate-spin text-[#2E37A4] dark:text-[#A5B4FC] mb-4" />
+                      <Loader2 className="h-8 w-8 animate-spin text-[#6B2B26] dark:text-[#A5B4FC] mb-4" />
 
                       <p className="text-sm font-medium">
                         Loading patients...
@@ -349,7 +349,7 @@ export default function PatientsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-[#F2F4FF] flex items-center justify-center border border-[#E0E2FF]">
-                          <User className="h-5 w-5 text-[#2E37A4] dark:text-[#A5B4FC]" />
+                          <User className="h-5 w-5 text-[#6B2B26] dark:text-[#A5B4FC]" />
                         </div>
 
                         <div className="flex flex-col">
