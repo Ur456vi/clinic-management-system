@@ -131,27 +131,26 @@ export default function ContactPage() {
         <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-10 px-6 pt-12 pb-16 md:grid-cols-2 md:gap-12 md:px-12 md:pt-16 md:pb-20">
           <div className="flex flex-col justify-center">
             <SectionEyebrow>Contact Us</SectionEyebrow>
-            <h1
+            <h2
               className="font-medium leading-[1.05]"
               style={{
                 fontFamily: "var(--font-display)",
                 color: "var(--brand-ink)",
-                fontSize: "clamp(36px, 4.5vw, 64px)",
+                fontSize: "clamp(36px, 4.5vw, 36px)",
               }}
             >
-              We&apos;re Here
+              You Know Something Has Changed.
               <br />
               <span style={{ color: "var(--brand-olive)" }}>
-                For Your Health
+                Let’s Understand Why.
               </span>
-            </h1>
+            </h2>
             <p
               className="mt-5 max-w-xl text-base leading-relaxed"
               style={{ color: "var(--brand-ink-soft)" }}
             >
-              Have a question or ready to take the next step toward better
-              health? Our team is here to help you with compassion, expertise,
-              and personalized care.
+              When symptoms persist despite “normal” reports, a deeper understanding of physiology often reveals what conventional evaluations miss.
+              We help decode with expertise, compassion and personalised attention.
             </p>
 
             {/* Trust tiles — icon over label, separated by hairline rules */}

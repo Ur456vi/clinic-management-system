@@ -45,7 +45,7 @@ export function MensVitalityCTASection({ svc }: { svc: ServiceContent }) {
                   fontSize: "clamp(24px, 2.5vw, 32px)",
                 }}
               >
-                Ready to Restore Your Vitality?
+                Disease Is A Late Event. Understanding Physiology Comes First
               </h2>
               <p className="text-[#FAF8F3]/90 text-[13px] md:text-[14px] font-medium tracking-wide">
                 Take the first step toward renewed energy, performance, and confidence.

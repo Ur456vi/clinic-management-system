@@ -6,7 +6,7 @@ export function MensFeaturesBand({ svc }: { svc: ServiceContent }) {
   const features = [
     {
       title: "Physician-Led",
-      desc: "Expert care from\nexperienced specialists.",
+      desc: "Every recommendation begins with clinical evaluation—not algorithms or trends.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
           {/* Abstract leaf/shield */}
@@ -18,8 +18,8 @@ export function MensFeaturesBand({ svc }: { svc: ServiceContent }) {
       )
     },
     {
-      title: "Evidence-Based",
-      desc: "Science-driven protocols\nand treatment plans.",
+      title: "Systems-Based",
+      desc: "Hormonal, metabolic, vascular, inflammatory, and lifestyle factors assessed together.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
           {/* Abstract microscope / DNA */}
@@ -31,8 +31,8 @@ export function MensFeaturesBand({ svc }: { svc: ServiceContent }) {
       )
     },
     {
-      title: "Confidential",
-      desc: "Your privacy and results\nare always protected.",
+      title: "Data-Driven",
+      desc: "Objective measurements, structured interpretation, and longitudinal tracking.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
           {/* Shield with keyhole */}
@@ -43,8 +43,8 @@ export function MensFeaturesBand({ svc }: { svc: ServiceContent }) {
       )
     },
     {
-      title: "Long-Term Focus",
-      desc: "Sustainable results,\nnot quick fixes.",
+      title: "Long-Term Outcomes",
+      desc: "Focused on restoring physiology, not delivering temporary fixes.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
           {/* Clock with target */}
@@ -57,18 +57,18 @@ export function MensFeaturesBand({ svc }: { svc: ServiceContent }) {
         </svg>
       )
     },
-    {
-      title: "Holistic & Integrated",
-      desc: "We treat the whole you,\nnot just one number.",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
-          {/* Hands holding figure */}
-          <path d="M12 21.5c-3-2-7-5.5-7-10a5.5 5.5 0 0 1 11 0c0 4.5-4 8-7 10z" />
-          <circle cx="12" cy="9" r="2" />
-          <path d="M7 21h10" />
-        </svg>
-      )
-    }
+    // {
+    //   title: "Holistic & Integrated",
+    //   desc: "We treat the whole you,\nnot just one number.",
+    //   icon: (
+    //     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#657153" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90 shrink-0">
+    //       {/* Hands holding figure */}
+    //       <path d="M12 21.5c-3-2-7-5.5-7-10a5.5 5.5 0 0 1 11 0c0 4.5-4 8-7 10z" />
+    //       <circle cx="12" cy="9" r="2" />
+    //       <path d="M7 21h10" />
+    //     </svg>
+    //   )
+    // }
   ];
 
   return (

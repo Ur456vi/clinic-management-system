@@ -279,7 +279,7 @@ export default function LoginPage() {
               marginBottom: '0px' // Reduced space below
             }}
           >
-            Copyright © 2026 - Dr. Yuvraj Singh MD.
+            Copyright © 2026 - Dr. Yuvraaj Singh MD.
           </p>
         </form>
 

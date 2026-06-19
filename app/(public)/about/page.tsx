@@ -41,15 +41,15 @@ const ABOUT_TILES = [
 
 const CHAPTERS = [
   {
-    no: "01",
+    no: "I",
     title: "A Different Beginning",
     eyebrow: "Years in Internal Medicine and Critical Care",
     body: "As a specialist trained in Internal Medicine and Critical Care, Dr. Yuvraaj Singh spent years managing some of the most complex and life-threatening conditions. At a time when critical care in India was still evolving, he chose to go deeper—training across multiple high-intensity disciplines integrated into his post-graduate curriculum: Neurosciences at the National Institute of Mental Health and Neurosciences (NIMHANS), Bangalore; Cardiology at Sri Jaideva Institute of Cardiovascular Sciences and Research, Bangalore; and Oncology at Kidwai Memorial Institute of Oncology, Bangalore. He later completed advanced clinical work in Oncology at Fortis Memorial Research Institute, Gurgaon, followed by advanced training in Hormonal, Metabolic, and Regenerative Medicine (USA). This diverse and multidisciplinary foundation enables him to bridge conventional medicine with cutting-edge approaches to preventive, metabolic, and regenerative healthcare.",
-    image: "/images/landing/abt-1.png",
+    image: "/images/landing/abt-7.png",
     alignment: "left" as const,
   },
   {
-    no: "02",
+    no: "II",
     title: "What Critical Care Teaches You",
     eyebrow: "By the time most diseases present, the biology has already been altered for years.",
     body: "Most patients begin years earlier. Metabolic dysfunction starts unnoticed. Hormonal shifts dismissed as 'normal'. Chronic inflammation that silently progressed. \"It's normal.\" \"It's age.\" \"It's stress.\" It rarely is.",
@@ -57,7 +57,7 @@ const CHAPTERS = [
     alignment: "right" as const,
   },
   {
-    no: "03",
+    no: "III",
     title: "The Question That Changed Everything",
     eyebrow: "What if these conditions could be identified and corrected before they reached the ICU?",
     body: "From Intervention to Predictive, Preventive and Precision Medicine. A shift from treating breakdowns to optimizing physiology — addressing the root causes of disease and aging.",
@@ -65,15 +65,15 @@ const CHAPTERS = [
     alignment: "left" as const,
   },
   {
-    no: "04",
+    no: "IV",
     title: "A Defining Phase",
     eyebrow: "During the COVID-19 pandemic, extensive frontline work and setting up comprehensive home-based ICU care for patients with limited access to hospital resources.",
     body: "A formative period that crystallised the institute's commitment to physician-led, systems-based precision care.",
-    image: "/images/landing/abt-4.png",
+    image: "/images/landing/abt-6.jpg",
     alignment: "right" as const,
   },
   {
-    no: "05",
+    no: "V",
     title: "The Founding of the Institute",
     eyebrow: "A precision-medicine institute, structured around the principles refined across three decades of clinical practice.",
     body: "The Institute of Precision Metabolic & Hormonal Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",

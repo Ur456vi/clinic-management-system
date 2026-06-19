@@ -183,9 +183,9 @@ export default function ForgotPassword() {
         {/* Logo */}
         <div className="flex flex-col items-center">
           <Image
-            src="/images/logos/vyara.png"
+            src="/images/logos/dr-yuvraaj-logo.png"
             alt="Vyara Logo"
-            width={64}
+            width={600}
             height={65}
             className="object-contain"
             priority
@@ -308,7 +308,7 @@ export default function ForgotPassword() {
                     textAlign: 'center'
                   }}
                 >
-                  Copyright © 2026 - Dr. Yuvraj Singh MD.
+                  Copyright © 2026 - Dr. Yuvraaj Singh MD.
                 </p>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function ForgotPassword() {
                   textAlign: 'center'
                 }}
               >
-                Copyright © 2026 - Dr. Yuvraj Singh MD.
+                Copyright © 2026 - Dr. Yuvraaj Singh MD.
               </p>
             </div>
           </>
@@ -521,7 +521,7 @@ export default function ForgotPassword() {
                   textAlign: 'center'
                 }}
               >
-                Copyright © 2026 - Dr. Yuvraj Singh MD.
+                Copyright © 2026 - Dr. Yuvraaj Singh MD.
               </p>
             </div>
           </>
@@ -680,7 +680,7 @@ export default function ForgotPassword() {
                     textAlign: 'center'
                   }}
                 >
-                  Copyright © 2026 - Dr. Yuvraj Singh MD.
+                  Copyright © 2026 - Dr. Yuvraaj Singh MD.
                 </p>
               </div>
             </div>
@@ -751,7 +751,7 @@ export default function ForgotPassword() {
                   textAlign: 'center'
                 }}
               >
-                Copyright © 2026 - Dr. Yuvraj Singh MD.
+                Copyright © 2026 - Dr. Yuvraaj Singh MD.
               </p>
             </div>
           </>

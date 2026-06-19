@@ -17,8 +17,8 @@ export default function NotFound() {
       <div className="w-full max-w-lg bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-10 flex flex-col items-center text-center gap-6">
         <div className="flex flex-col items-center gap-3">
           <Image
-            src="/images/logos/vyara.png"
-            alt="Vyara Logo"
+            src="/images/logos/dr-yuvraaj-logo.png"
+            alt="Dr. Yuvraaj Logo"
             width={56}
             height={57}
             className="object-contain"
