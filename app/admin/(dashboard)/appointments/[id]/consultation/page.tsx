@@ -1299,6 +1299,104 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Odour</label>
+                              <div className="relative">
+                                <select name="personal_history__bowel_odour" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select odour</option>
+                                  <option value="Odourless">Odourless</option>
+                                  <option value="Foul Smelling">Foul Smelling</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Any Characteristic odour ?</label>
+                              <input name="personal_history__bowel_characteristic_odour"
+                                type="text"
+                                placeholder="Specify characteristic odour"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Others</label>
+                              <div className="flex flex-col gap-y-3">
+                                {[
+                                  "Any worms noted in the stools ?",
+                                  "Any Itching around the anal region, especially at night ? (Pruritus Ani)",
+                                  "Any Anal Tags, Warts",
+                                  "Any H/o perineal Abscesses ?",
+                                  "Urge or Stress Incontinence",
+                                  "Any H/o Involuntary defecation ?",
+                                  "None"
+                                ].map((item) => (
+                                  <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                    <input name="personal_history__bowel_others" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Early Satiety</label>
+                              <div className="flex flex-col gap-y-3">
+                                {[
+                                  "Feeling of fullness after a few bites only",
+                                  "Abdominal fullness or heaviness (discomfort) long after a meal"
+                                ].map((item) => (
+                                  <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                    <input name="personal_history__bowel_early_satiety" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">If present please specify</label>
+                              <input name="personal_history__bowel_early_satiety_specify"
+                                type="text"
+                                placeholder="Specify details"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Burning sensation in the esophagus and epigastrium</label>
+                              <div className="flex flex-col gap-y-3">
+                                {[
+                                  "Worsens with Food intake",
+                                  "Alleviated after food intake",
+                                  "None"
+                                ].map((item) => (
+                                  <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                    <input name="personal_history__bowel_burning_sensation" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Bloating</label>
+                              <div className="flex flex-col gap-y-3">
+                                {[
+                                  "Immediately after a meal",
+                                  "Few hours after a meal",
+                                  "None"
+                                ].map((item) => (
+                                  <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                    <input name="personal_history__bowel_bloating" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Constipation alternating with episodes of Diarrhoea ?</label>
+                              <input name="personal_history__bowel_constipation_diarrhoea"
+                                type="text"
+                                placeholder="description and duration"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -1504,6 +1602,56 @@ export default function StartAppointmentConsultationPage() {
                                   <option value="nocturia">Nocturia</option>
                                 </select>
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Volume</label>
+                              <div className="relative">
+                                <select name="personal_history__bladder_volume" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select volume</option>
+                                  <option value="Normal averages (200 - 400ml per urination">Normal averages (200 - 400ml per urination</option>
+                                  <option value="low volume">low volume</option>
+                                  <option value="Large volume">Large volume</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Odour</label>
+                              <div className="relative">
+                                <select name="personal_history__bladder_odour" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                  <option value="">Select odour</option>
+                                  <option value="Odourless">Odourless</option>
+                                  <option value="Foul odour">Foul odour</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Any characteristic or identifiable odour ?</label>
+                              <input name="personal_history__bladder_characteristic_odour"
+                                type="text"
+                                placeholder="Specify characteristic odour"
+                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Others</label>
+                              <div className="flex flex-col gap-y-3">
+                                {[
+                                  "Any Burning sensation while urinating ? (Burning Micturition)",
+                                  "Painful Micturition (Penile or abdominal or scrotal pain)",
+                                  "Itching sensation per urethra or around the genitals",
+                                  "Night time urination ? (Nocturia) - Frequency (No. Of times during the night)",
+                                  "H/o Giddiness during or after micturition ?",
+                                  "Urge or Stress incontinence ?",
+                                  "Any H/o Involuntary Micturition"
+                                ].map((item) => (
+                                  <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                    <input name="personal_history__bladder_others" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                    <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                  </label>
+                                ))}
                               </div>
                             </div>
                           </div>
@@ -1944,6 +2092,13 @@ export default function StartAppointmentConsultationPage() {
                                     <option value="brisk walk">Brisk Walk</option>
                                     <option value="jogging">Jogging</option>
                                     <option value="running">Running</option>
+                                    <option value="stretches">Stretches</option>
+                                    <option value="yoga">Yoga</option>
+                                    <option value="pilates">Pilates</option>
+                                    <option value="calisthenics">Calisthenics</option>
+                                    <option value="weight training">Weight Training</option>
+                                    <option value="martial arts">Martial Arts - Grappling etc</option>
+                                    <option value="hiit">HIIT</option>
                                     <option value="trekking">Trekking</option>
                                     <option value="sport(s)">Sport(s)</option>
                                   </select>
@@ -1957,6 +2112,10 @@ export default function StartAppointmentConsultationPage() {
                                 <div className="relative">
                                   <select name="personal_history__exercise_indoor_type" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                     <option value="">Select option</option>
+                                    <option value="walk">Walk</option>
+                                    <option value="brisk walk">Brisk Walk</option>
+                                    <option value="jogging">Jogging</option>
+                                    <option value="running">Running</option>
                                     <option value="stretches">Stretches</option>
                                     <option value="yoga">Yoga</option>
                                     <option value="pilates">Pilates</option>
@@ -1964,6 +2123,8 @@ export default function StartAppointmentConsultationPage() {
                                     <option value="weight training">Weight Training</option>
                                     <option value="martial arts">Martial Arts - Grappling etc</option>
                                     <option value="hiit">HIIT</option>
+                                    <option value="trekking">Trekking</option>
+                                    <option value="sport(s)">Sport(s)</option>
                                   </select>
                                   <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
@@ -2333,10 +2494,18 @@ export default function StartAppointmentConsultationPage() {
                                     <select name="personal_history__womens_health_vasomotor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
                                       <option value="Hot flashes">Hot flashes</option>
-                                      <option value="Night sweats - Frequency, severity">Night sweats - Frequency, severity</option>
+                                      <option value="night sweats">night sweats</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Frequency/Severity</label>
+                                  <input name="personal_history__womens_health_vasomotor_frequency"
+                                    type="text"
+                                    placeholder="Enter frequency/severity"
+                                    className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
+                                  />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Neuropsychological</label>
@@ -2653,11 +2822,35 @@ export default function StartAppointmentConsultationPage() {
                                   <select name="personal_history__mens_health_prostate_issues" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                     <option value="">Select option</option>
                                     <option value="No">No</option>
-                                    <option value="Yes - Frequency / Urgency / Hesitancy / Poor Flow / Dribble">Yes - Frequency / Urgency / Hesitancy / Poor Flow / Dribble</option>
+                                    <option value="Yes">Yes</option>
                                   </select>
                                   <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
                               </div>
+                              {form["personal_history__mens_health_prostate_issues"] === "Yes" && (
+                                <>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Frequency</label>
+                                    <input name="personal_history__mens_health_prostate_frequency" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Urgency</label>
+                                    <input name="personal_history__mens_health_prostate_urgency" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hesitancy</label>
+                                    <input name="personal_history__mens_health_prostate_hesitancy" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Poor Flow</label>
+                                    <input name="personal_history__mens_health_prostate_poor_flow" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dribble</label>
+                                    <input name="personal_history__mens_health_prostate_dribble" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  </div>
+                                </>
+                              )}
                             </div>
 
                           </div>
@@ -2715,6 +2908,7 @@ export default function StartAppointmentConsultationPage() {
                                   <div className="relative">
                                     <select name="personal_history__gpe_facies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
                                       <option value="Facial expressions">Facial expressions</option>
                                       <option value="Myasthenic Facies - drooping of eyelids, angles of the mouth">Myasthenic Facies - drooping of eyelids, angles of the mouth</option>
                                       <option value="Mask Facies">Mask Facies</option>
@@ -2747,38 +2941,44 @@ export default function StartAppointmentConsultationPage() {
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-1.5 col-span-2">
+                                <div className="flex flex-col gap-3 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Scars / Bruises / Naevi / Facial Puffiness</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_scars_bruises_naevi" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="Scars">Scars</option>
-                                      <option value="Bruises">Bruises</option>
-                                      <option value="Naevi">Naevi</option>
-                                      <option value="Facial Puffiness">Facial Puffiness</option>
-                                      <option value="Infraorbital Puffiness">Infraorbital Puffiness</option>
-                                      <option value="Periorbital Puffiness">Periorbital Puffiness</option>
-                                      <option value="Nasal Allergic Crease">Nasal Allergic Crease</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  <div className="flex flex-col gap-y-3">
+                                    {[
+                                      "Scars",
+                                      "Bruises",
+                                      "Naevi",
+                                      "Facial Puffiness",
+                                      "Infraorbital Puffiness",
+                                      "Periorbital Puffiness",
+                                      "Nasal Allergic Crease"
+                                    ].map((item) => (
+                                      <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                        <input name="personal_history__gpe_scars_bruises_naevi" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                        <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                      </label>
+                                    ))}
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-3 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Buccopharyngeal Mucosa</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_buccopharyngeal_mucosa" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="Normal">Normal</option>
-                                      <option value="Not Present">Not Present</option>
-                                      <option value="Thrush">Thrush</option>
-                                      <option value="Aphthous Ulcers">Aphthous Ulcers</option>
-                                      <option value="Glossitis">Glossitis</option>
-                                      <option value="Leukoplakia">Leukoplakia</option>
-                                      <option value="Hyperpigmentation">Hyperpigmentation</option>
-                                      <option value="Geographic Tongue">Geographic Tongue</option>
-                                      <option value="Fissured Tongue">Fissured Tongue</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  <div className="flex flex-col gap-y-3">
+                                    {[
+                                      "Normal",
+                                      "Not Present",
+                                      "Thrush",
+                                      "Aphthous Ulcers",
+                                      "Glossitis",
+                                      "Leukoplakia",
+                                      "Hyperpigmentation",
+                                      "Geographic Tongue",
+                                      "Fissured Tongue"
+                                    ].map((item) => (
+                                      <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                        <input name="personal_history__gpe_buccopharyngeal_mucosa" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                        <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                      </label>
+                                    ))}
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -2884,7 +3084,7 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
 
                                 {/* Lymphadenopathy */}
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-1.5 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lymphadenopathy</label>
                                   <div className="relative">
                                     <select name="personal_history__gpe_lymphadenopathy" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
@@ -2896,33 +3096,36 @@ export default function StartAppointmentConsultationPage() {
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-3 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Lymphadenopathy — Descriptive Details</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_lymphadenopathy_description" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="Anatomical Area">Anatomical Area</option>
-                                      <option value="Tender">Tender</option>
-                                      <option value="Non-Tender">Non-Tender</option>
-                                      <option value="Erythematous">Erythematous</option>
-                                      <option value="Non-Erythematous">Non-Erythematous</option>
-                                      <option value="Single Node">Single Node</option>
-                                      <option value="Multiple Nodes">Multiple Nodes</option>
-                                      <option value="Small (less than 1 cm)">Small (less than 1 cm)</option>
-                                      <option value="Large (greater than 1 cm)">Large (greater than 1 cm)</option>
-                                      <option value="Soft">Soft</option>
-                                      <option value="Firm">Firm</option>
-                                      <option value="Hard">Hard</option>
-                                      <option value="Fluctuant">Fluctuant</option>
-                                      <option value="Non-Fluctuant">Non-Fluctuant</option>
-                                      <option value="Mobile">Mobile</option>
-                                      <option value="Fixed">Fixed</option>
-                                      <option value="Matted">Matted</option>
-                                      <option value="Non-Matted">Non-Matted</option>
-                                      <option value="Overlying Skin Changes Present">Overlying Skin Changes Present</option>
-                                      <option value="No Overlying Skin Changes">No Overlying Skin Changes</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  <div className="flex flex-col gap-y-3">
+                                    {[
+                                      "Anatomical Area",
+                                      "Tender",
+                                      "Non-Tender",
+                                      "Erythematous",
+                                      "Non-Erythematous",
+                                      "Single Node",
+                                      "Multiple Nodes",
+                                      "Small (less than 1 cm)",
+                                      "Large (greater than 1 cm)",
+                                      "Soft",
+                                      "Firm",
+                                      "Hard",
+                                      "Fluctuant",
+                                      "Non-Fluctuant",
+                                      "Mobile",
+                                      "Fixed",
+                                      "Matted",
+                                      "Non-Matted",
+                                      "Overlying Skin Changes Present",
+                                      "No Overlying Skin Changes"
+                                    ].map((item) => (
+                                      <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                        <input name="personal_history__gpe_lymphadenopathy_description" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                        <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                      </label>
+                                    ))}
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -2956,25 +3159,28 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
 
                                 {/* Nail Changes */}
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-3 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Nail Changes</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_nail_changes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="None">None</option>
-                                      <option value="Digital Clubbing">Digital Clubbing</option>
-                                      <option value="Platynychia">Platynychia</option>
-                                      <option value="Horizontal Ridges">Horizontal Ridges</option>
-                                      <option value="Vertical Ridges">Vertical Ridges</option>
-                                      <option value="Colour Changes">Colour Changes</option>
-                                      <option value="White Spots">White Spots</option>
-                                      <option value="Pitting">Pitting</option>
-                                      <option value="Other findings — Any deviation from Normal">Other findings — Any deviation from Normal</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  <div className="flex flex-col gap-y-3">
+                                    {[
+                                      "None",
+                                      "Digital Clubbing",
+                                      "Platynychia",
+                                      "Horizontal Ridges",
+                                      "Vertical Ridges",
+                                      "Colour Changes",
+                                      "White Spots",
+                                      "Pitting",
+                                      "Other findings — Any deviation from Normal"
+                                    ].map((item) => (
+                                      <label key={item} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                        <input name="personal_history__gpe_nail_changes" value={item} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                        <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item}</span>
+                                      </label>
+                                    ))}
                                   </div>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-1.5 col-span-2">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Nail Changes — Details</label>
                                   <input name="personal_history__gpe_nail_changes_details" type="text" placeholder="Grade, Distribution and other details" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
                                 </div>
