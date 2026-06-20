@@ -158,7 +158,7 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
 
   const setField = (n: string, v: string) => setForm((p) => ({ ...p, [n]: v }))
 
-  const save = async () => {
+  const save = async (): Promise<boolean> => {
     setSaving(true)
     try {
       const sections: Record<string, Record<string, string>> = {}
@@ -218,11 +218,64 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
           /* status transition is best-effort; the consultation is saved */
         }
       }
+      return true
     } catch (err) {
       const message = err instanceof Error ? err.message : "Save failed"
       notify.error("Couldn't save consultation", { description: message })
+      return false
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Sign & finalize: persist the latest sections, then walk the consultation
+  // state machine DRAFT → IN_PROGRESS → SIGNED. Signing is what triggers the
+  // server to materialize the doctor's selected lab tests into LabResult rows
+  // (see `materializeLabOrdersFromConsultation`), so they show up in the
+  // patient + admin Labs sections. SIGNED is terminal — the chart is immutable
+  // afterwards — hence the explicit confirm.
+  const [signing, setSigning] = useState(false)
+  const signAndFinalize = async () => {
+    if (signing || saving) return
+    if (
+      !window.confirm(
+        "Sign & finalize this consultation? Once signed it cannot be edited. The selected lab tests will be added to the patient's Labs records.",
+      )
+    )
+      return
+    setSigning(true)
+    try {
+      // Persist current form first; bail if the save itself failed.
+      if (!(await save())) return
+
+      const transition = (to: "IN_PROGRESS" | "SIGNED") =>
+        fetch(`/api/consultations/${consult.id}/transition`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to }),
+        })
+
+      // DRAFT/RMO_DONE → IN_PROGRESS. A 400 here means the row is already at
+      // (or past) IN_PROGRESS — tolerate it and proceed to sign.
+      const mid = await transition("IN_PROGRESS")
+      if (!mid.ok && mid.status !== 400) throw new Error(`HTTP ${mid.status}`)
+
+      const signed = await transition("SIGNED")
+      if (!signed.ok) {
+        const j = (await signed.json().catch(() => null)) as
+          | { error?: { message?: string } }
+          | null
+        throw new Error(j?.error?.message ?? `HTTP ${signed.status}`)
+      }
+
+      notify.success("Consultation signed — lab tests added to patient records")
+      router.refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Sign failed"
+      notify.error("Couldn't sign consultation", { description: message })
+    } finally {
+      setSigning(false)
     }
   }
 
@@ -520,12 +573,26 @@ export default function DoctorConsultation({ appointmentId, consult }: Props) {
       <div className="sticky bottom-0 z-30 -mx-8 -mb-8 mt-2 border-t border-[#EAECF0] dark:border-[#374151] bg-white/95 dark:bg-[#1F2937]/95 backdrop-blur px-8 py-4 flex items-center justify-end gap-3">
         <Button
           onClick={() => void save()}
-          disabled={saving}
+          disabled={saving || signing}
           className="bg-[#027A48] hover:bg-[#04643c] text-white flex items-center gap-2 mr-auto"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save consultation
         </Button>
+        {consult.status !== "SIGNED" ? (
+          <Button
+            onClick={() => void signAndFinalize()}
+            disabled={saving || signing}
+            className="bg-[#1D4ED8] hover:bg-[#1E3FA8] text-white flex items-center gap-2"
+          >
+            {signing ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+            Sign &amp; finalize
+          </Button>
+        ) : (
+          <span className="flex items-center gap-2 text-sm font-medium text-[#027A48]">
+            <FileText className="h-4 w-4" /> Signed
+          </span>
+        )}
         <Button onClick={bookFollowUp} className="bg-[#6B2B26] hover:bg-[#54201D] text-white flex items-center gap-2">
           <CalendarPlus className="h-4 w-4" /> Book follow-up
         </Button>
