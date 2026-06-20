@@ -70,7 +70,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-white dark:bg-[#0F172A] text-[#101828] dark:text-white">
+      <body
+        className="min-h-full flex flex-col bg-white dark:bg-[#0F172A] text-[#101828] dark:text-white"
+        suppressHydrationWarning
+      >
         <ThemeProvider>
           <AuthProvider>
             <NotificationProvider>{children}</NotificationProvider>
