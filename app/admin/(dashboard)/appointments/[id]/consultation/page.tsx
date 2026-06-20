@@ -1207,6 +1207,15 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__appetite_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -1397,6 +1406,15 @@ export default function StartAppointmentConsultationPage() {
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all"
                               />
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__bowels_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -1514,6 +1532,15 @@ export default function StartAppointmentConsultationPage() {
                                   </label>
                                 ))}
                               </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__sleep_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1654,6 +1681,15 @@ export default function StartAppointmentConsultationPage() {
                                 ))}
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__bladder_habits_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -1677,6 +1713,15 @@ export default function StartAppointmentConsultationPage() {
                                 </select>
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__energy_levels_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1706,6 +1751,15 @@ export default function StartAppointmentConsultationPage() {
                                 type="text"
                                 placeholder="Duration and pattern"
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__libido_sex_drive_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -1817,6 +1871,15 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__mentation_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -1863,6 +1926,15 @@ export default function StartAppointmentConsultationPage() {
                                 type="text"
                                 placeholder="E.g. cosmetics, sunscreens, etc."
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__dietary_considerations_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
                               />
                             </div>
                           </div>
@@ -2041,6 +2113,15 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__exercise_regimen_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2088,6 +2169,15 @@ export default function StartAppointmentConsultationPage() {
                                   <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
                               </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__body_weight_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
                             </div>
                           </div>
                         </div>
@@ -2213,6 +2303,15 @@ export default function StartAppointmentConsultationPage() {
                               </div>
                             </div>
 
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__personal_hygiene_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2259,6 +2358,15 @@ export default function StartAppointmentConsultationPage() {
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__body_temperature_temperature_tolerance_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2293,6 +2401,15 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
                               </div>
                             ))}
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__stress_the_percieved_stress_scale_pss_10__note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2530,6 +2647,15 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
                               </div>
                             </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__women_s_health_menstrual_history_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -2740,6 +2866,15 @@ export default function StartAppointmentConsultationPage() {
                               )}
                             </div>
 
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__men_s_sexual_health_history_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -3261,6 +3396,15 @@ export default function StartAppointmentConsultationPage() {
                               </div>
                             </div>
 
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__general_physical_examination_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -3306,6 +3450,15 @@ export default function StartAppointmentConsultationPage() {
                                 </select>
                                 <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                               </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__miscellaneous_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
                             </div>
                           </div>
                         </div>
