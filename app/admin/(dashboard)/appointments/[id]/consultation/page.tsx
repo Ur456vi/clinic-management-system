@@ -2051,16 +2051,42 @@ export default function StartAppointmentConsultationPage() {
                             <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
                           </div>
                           <div className="p-6 space-y-6">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Weight Increase</label>
-                              <div className="relative">
-                                <select name="personal_history__body_weight_increase" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="stable">Stable</option>
-                                  <option value="fluctuating < 1-2kgs">Fluctuating &lt; 1-2kgs</option>
-                                  <option value="fluctuating > 1-2 kgs">Fluctuating &gt;1-2 kgs</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                            <div className="grid grid-cols-1 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Stability</label>
+                                <div className="relative">
+                                  <select name="personal_history__body_weight_stability" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Stable">Stable</option>
+                                    <option value="Fluctuating (< 1-2kgs )">Fluctuating (&lt; 1-2kgs )</option>
+                                    <option value="Fluctuating (> 1-2kgs )">Fluctuating (&gt; 1-2kgs )</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Weight Gain</label>
+                                <div className="relative">
+                                  <select name="personal_history__body_weight_gain" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Proportionate to degree of caloric intake and/or exercise">Proportionate to degree of caloric intake and/or exercise</option>
+                                    <option value="Disproportionate to degree of caloric intake and/or exercise">Disproportionate to degree of caloric intake and/or exercise</option>
+                                    <option value="Significant weight gain ? (>5 kgs in 3 months)">Significant weight gain ? (&gt;5 kgs in 3 months)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Weight Loss</label>
+                                <div className="relative">
+                                  <select name="personal_history__body_weight_loss" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="Proportionate to degree of caloric intake and/or exercise">Proportionate to degree of caloric intake and/or exercise</option>
+                                    <option value="Disproportionate to degree of caloric intake and/or exercise">Disproportionate to degree of caloric intake and/or exercise</option>
+                                    <option value="Significant weight loss (> 1/10th of initial body weight in 6 months)">Significant weight loss (&gt; 1/10th of initial body weight in 6 months)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -2484,6 +2510,7 @@ export default function StartAppointmentConsultationPage() {
                                   <div className="relative">
                                     <select name="personal_history__womens_health_cancer_screening_status" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
+                                      <option value="No Screening Done">No Screening Done</option>
                                       <option value="Last mammogram">Last mammogram</option>
                                       <option value="Pap smear">Pap smear</option>
                                       <option value="Pelvic exam">Pelvic exam</option>
@@ -2768,6 +2795,7 @@ export default function StartAppointmentConsultationPage() {
                                   <div className="relative">
                                     <select name="personal_history__gpe_facies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
+                                      <option value="None">None</option>
                                       <option value="Normal">Normal</option>
                                       <option value="Facial expressions">Facial expressions</option>
                                       <option value="Myasthenic Facies - drooping of eyelids, angles of the mouth">Myasthenic Facies - drooping of eyelids, angles of the mouth</option>
@@ -2843,29 +2871,36 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dental Formula</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_dental_formula" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="Normal">Normal</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                  <input name="personal_history__gpe_dental_formula" type="text" placeholder="e.g. 32/32" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dental Caries</label>
+                                  <input name="personal_history__gpe_dental_caries" type="text" placeholder="Location & extent" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingivitis</label>
+                                  <div className="flex items-center gap-4 h-11">
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input type="radio" name="personal_history__gpe_gingivitis" value="Not Present" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Not Present</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input type="radio" name="personal_history__gpe_gingivitis" value="Mild" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Mild</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input type="radio" name="personal_history__gpe_gingivitis" value="Moderate" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Moderate</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input type="radio" name="personal_history__gpe_gingivitis" value="Severe" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#2E37A4] dark:text-[#A5B4FC] focus:ring-[#2E37A4]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Severe</span>
+                                    </label>
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Teeth and Gums Findings</label>
-                                  <div className="relative">
-                                    <select name="personal_history__gpe_teeth_gums_findings" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                      <option value="">Select option</option>
-                                      <option value="Dental Caries">Dental Caries</option>
-                                      <option value="Gingivitis">Gingivitis</option>
-                                      <option value="Gingival Hypertrophy">Gingival Hypertrophy</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                                  </div>
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gingival Hypertrophy Duration</label>
-                                  <input name="personal_history__gpe_gingival_hypertrophy_duration" type="text" placeholder="Specify duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Duration (if present)</label>
+                                  <input name="personal_history__gpe_gingivitis_duration" type="text" placeholder="" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
                                 </div>
                               </div>
                             </div>
@@ -3063,7 +3098,7 @@ export default function StartAppointmentConsultationPage() {
                                 </div>
 
                                 <div className="flex flex-col gap-1.5">
-                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Abnormal Gait Pattern</label>
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gait Pattern</label>
                                   <div className="relative">
                                     <select name="personal_history__gpe_gait_abnormal_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
