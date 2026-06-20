@@ -230,7 +230,9 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__exercise_perspiration", s: "personal_history", sub: "Exercise Regimen", l: "Perspiration" },
   { n: "personal_history__exercise_hr_variability", s: "personal_history", sub: "Exercise Regimen", l: "HR Variability" },
   // Body Weight
-  { n: "personal_history__body_weight_increase", s: "personal_history", sub: "Body Weight", l: "Body Weight Increase" },
+  { n: "personal_history__body_weight_stability", s: "personal_history", sub: "Body Weight", l: "Stability" },
+  { n: "personal_history__body_weight_gain", s: "personal_history", sub: "Body Weight", l: "Weight Gain" },
+  { n: "personal_history__body_weight_loss", s: "personal_history", sub: "Body Weight", l: "Weight Loss" },
   // Personal Hygiene
   { n: "personal_history__hygiene_bathing_summers", s: "personal_history", sub: "Personal Hygiene", l: "Bathing: No. Of times a day in summers" },
   { n: "personal_history__hygiene_bathing_winters", s: "personal_history", sub: "Personal Hygiene", l: "Bathing: No of times a day in Winters" },
@@ -320,11 +322,12 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__gpe_scars_bruises_naevi", s: "personal_history", sub: "General Physical Examination", l: "Scars / Bruises / Naevi / Facial Puffiness" },
   { n: "personal_history__gpe_buccopharyngeal_mucosa", s: "personal_history", sub: "General Physical Examination", l: "Buccopharyngeal Mucosa" },
   { n: "personal_history__gpe_dental_formula", s: "personal_history", sub: "General Physical Examination", l: "Dental Formula" },
-  { n: "personal_history__gpe_teeth_gums_findings", s: "personal_history", sub: "General Physical Examination", l: "Teeth and Gums Findings" },
-  { n: "personal_history__gpe_gingival_hypertrophy_duration", s: "personal_history", sub: "General Physical Examination", l: "Gingival Hypertrophy Duration" },
+  { n: "personal_history__gpe_dental_caries", s: "personal_history", sub: "General Physical Examination", l: "Dental Caries" },
+  { n: "personal_history__gpe_gingivitis", s: "personal_history", sub: "General Physical Examination", l: "Gingivitis" },
+  { n: "personal_history__gpe_gingivitis_duration", s: "personal_history", sub: "General Physical Examination", l: "Gingivitis Duration" },
   // Gait
   { n: "personal_history__gpe_gait_stance_swing", s: "personal_history", sub: "General Physical Examination", l: "Normal Stance and Swing Phases" },
-  { n: "personal_history__gpe_gait_abnormal_pattern", s: "personal_history", sub: "General Physical Examination", l: "Abnormal Gait Pattern" },
+  { n: "personal_history__gpe_gait_abnormal_pattern", s: "personal_history", sub: "General Physical Examination", l: "Gait Pattern" },
   // Clinical Signs
   { n: "personal_history__gpe_pallor", s: "personal_history", sub: "General Physical Examination", l: "Pallor" },
   { n: "personal_history__gpe_pallor_degree", s: "personal_history", sub: "General Physical Examination", l: "Pallor — Degree" },
