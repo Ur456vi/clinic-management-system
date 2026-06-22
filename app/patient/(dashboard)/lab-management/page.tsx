@@ -27,6 +27,7 @@ import LabReportModal from "@/components/patient/LabReportModal";
 type Lab = {
   id: string;
   panelName: string;
+  summary: string | null;
   collectedAt: string;
   reportedAt: string | null;
   labName: string | null;
@@ -148,6 +149,9 @@ export default function PatientLabManagementPage() {
                   <tr key={l.id}>
                     <td className="px-4 py-3">
                       <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{l.panelName}</div>
+                      {l.summary && l.summary !== l.panelName ? (
+                        <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5">{l.summary}</div>
+                      ) : null}
                       {l.labName ? <div className="text-xs text-[#98A2B3]">{l.labName}</div> : null}
                     </td>
                     <td className="px-4 py-3 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(l.collectedAt)}</td>

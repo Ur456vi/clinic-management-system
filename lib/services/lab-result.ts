@@ -37,7 +37,7 @@ import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError } from "@/lib/errors"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import { getDownloadUrl } from "@/lib/services/storage"
-import { lookupTest, parseSelectedTests } from "@/lib/test-catalog"
+import { groupSelectedByPanel, parseSelectedTests, testKey } from "@/lib/test-catalog"
 import { rolesFor } from "@/lib/rbac"
 import type {
   AnalyteInput,
@@ -122,9 +122,13 @@ function readSection(
  *
  *   - Order date  → `collectedAt = orderedAt` (the sign time).
  *   - Status      → "active" (derived: `reportedAt = null`).
- *   - One row per distinct test name; the report PDF is attached later.
+ *   - One row per selected *panel* — e.g. "(A) ROUTINE INVESTIGATIONS PANEL" —
+ *     with the chosen tests captured in `summary`. This matches the
+ *     one-row-per-panel model (see file header) and the prescription print,
+ *     so the patient uploads a single consolidated report per panel rather
+ *     than one per individual test. The report PDF is attached later.
  *
- * Idempotent: tests already materialized for this consultation (matched on
+ * Idempotent: panels already materialized for this consultation (matched on
  * `panelName`) are skipped, so a re-run never duplicates rows. Returns the
  * number of new orders created. Runs inside the caller's transaction.
  */
@@ -154,29 +158,51 @@ export async function materializeLabOrdersFromConsultation(
       ? preferredLab.trim().slice(0, 200)
       : null
 
-  // Resolve each test key to a clean display name; dedupe.
-  const names = new Set<string>()
-  for (const k of keys) {
-    const name = (lookupTest(k)?.name ?? k.split("::").pop() ?? k).trim()
-    if (name) names.add(name.slice(0, 200))
-  }
-  if (names.size === 0) return 0
+  // Group the selected tests by their catalog panel so each panel becomes a
+  // single order, labelled "(<code>) <name>" with the chosen tests in summary.
+  const grouped = groupSelectedByPanel(keys)
+  const rows: { panelName: string; summary: string }[] = grouped.map(
+    ({ panel, tests }) => ({
+      panelName: `(${panel.code}) ${panel.name}`.slice(0, 200),
+      summary: tests.join(", "),
+    }),
+  )
 
-  // Skip anything already ordered for this consultation (idempotent re-sign).
+  // Keep any selected key the catalog no longer knows about (custom/stale) as
+  // its own row so an order is never silently dropped.
+  const matched = new Set(
+    grouped.flatMap(({ panel, tests }) =>
+      tests.map((t) => testKey(panel.id, t)),
+    ),
+  )
+  for (const k of keys) {
+    if (matched.has(k)) continue
+    const name = (k.split("::").pop() ?? k).trim().slice(0, 200)
+    if (name) rows.push({ panelName: name, summary: name })
+  }
+  if (rows.length === 0) return 0
+
+  // Skip panels already ordered for this consultation (idempotent re-sign),
+  // and dedupe within this batch.
   const existing = await tx.labResult.findMany({
     where: { consultationId: args.consultationId },
     select: { panelName: true },
   })
   const have = new Set(existing.map((r) => r.panelName))
-  const toCreate = [...names].filter((n) => !have.has(n))
+  const seen = new Set<string>()
+  const toCreate = rows.filter((r) => {
+    if (have.has(r.panelName) || seen.has(r.panelName)) return false
+    seen.add(r.panelName)
+    return true
+  })
   if (toCreate.length === 0) return 0
 
   await tx.labResult.createMany({
-    data: toCreate.map((name) => ({
+    data: toCreate.map((r) => ({
       patientId: args.patientId,
       consultationId: args.consultationId,
-      panelName: name,
-      summary: name,
+      panelName: r.panelName,
+      summary: r.summary,
       collectedAt: args.orderedAt,
       reportedAt: null,
       orderingDoctorId: args.orderingDoctorId,
