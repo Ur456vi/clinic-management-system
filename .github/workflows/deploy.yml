@@ -35,7 +35,8 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
-
+          SMTP_USER: ${{ secrets.UAT_SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.UAT_SMTP_PASSWORD }}
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -68,37 +69,56 @@ jobs:
           script: |
             set -e
             APP_DIR=/home/ec2-user/vyara
+            cd $APP_DIR
 
-            mkdir -p $APP_DIR && cd $APP_DIR
-
-            if [ ! -d ".git" ]; then
-              git init
-              git remote add origin https://github.com/Ur456vi/clinic-management-system.git
-            fi
-
-            git fetch origin main
-            git reset --hard origin/main
-
-            # Overwrite .env from GH secrets — single source of truth.
+            # Write .env from GitHub secrets + hardcoded UAT domain.
             # SMTP host/port/from are non-secret config; user + password come
-            # from repo secrets (SMTP_USER / SMTP_PASSWORD).
-            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=%s\nNEXT_PUBLIC_APP_URL=%s\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
-              "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${NEXTAUTH_URL}" "${NEXT_PUBLIC_APP_URL}" "${SMTP_USER}" "${SMTP_PASSWORD}" > .env
+            # from repo secrets (UAT_SMTP_USER / UAT_SMTP_PASSWORD).
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://dryuvraajsingh.com\nNEXT_PUBLIC_APP_URL=https://vyara.algoborne.com\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
+              "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${SMTP_USER}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
 
-            if [ ! -f /home/ec2-user/.vyara_seeded ]; then
-              echo "Running seed..."
-              npm run db:seed && touch /home/ec2-user/.vyara_seeded
-              echo "Seed complete."
-            else
-              echo "Seed already ran, skipping."
-            fi
+            # Install dependencies using the project's own node_modules (Prisma 6)
+            npm install --omit=dev
 
-            if pm2 list | grep -q "vyara-dev"; then
-              pm2 restart vyara-dev
-            else
-              pm2 start npm --name vyara-dev -- start
-            fi
+            # Run Prisma migrations using local installed version (not npx which pulls latest)
+            npm run prisma:deploy
+
+            # Configure Nginx reverse proxy for UAT
+            sudo tee /etc/nginx/conf.d/vyara.conf > /dev/null <<'NGINXCONF'
+            server {
+                listen 80;
+                server_name dryuvraajsingh.com;
+                return 301 https://$host$request_uri;
+            }
+
+            server {
+                listen 443 ssl;
+                server_name dryuvraajsingh.com;
+
+                ssl_certificate /etc/letsencrypt/live/dryuvraajsingh.com/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/dryuvraajsingh.com/privkey.pem;
+
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            NGINXCONF
+
+            # Test and reload Nginx
+            sudo nginx -t && sudo systemctl reload nginx
+
+            # Always delete and re-create PM2 process to pick up fresh .env
+            pm2 delete vyara-uat || true
+            pm2 start npm --name vyara-uat -- start
 
             pm2 save
-            echo "Deploy complete!"
+            echo "UAT Deploy complete! Live at https://dryuvraajsingh.com"
