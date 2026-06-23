@@ -79,6 +79,12 @@ export interface AppointmentsListProps {
   subtitle: string
   /** When set, only this staff member's appointments are listed. */
   staffId?: string
+  /**
+   * When true, omit the primary doctor (Dr. Yuvraaj) from the list — his
+   * bookings live on the dedicated "Dr Yuvraaj Appointment" view. Ignored
+   * when `staffId` is set.
+   */
+  excludePrimaryDoctor?: boolean
   /** Show the "Add Appointment" CTA (default true). */
   showAdd?: boolean
   /**
@@ -94,6 +100,7 @@ export default function AppointmentsList({
   title,
   subtitle,
   staffId,
+  excludePrimaryDoctor = false,
   showAdd = true,
   showRmoSummary = false,
   emptyHint,
@@ -113,6 +120,7 @@ export default function AppointmentsList({
       const url = new URL("/api/appointments", window.location.origin)
       if (statusFilter !== "ALL") url.searchParams.set("status", statusFilter)
       if (staffId) url.searchParams.set("staffId", staffId)
+      else if (excludePrimaryDoctor) url.searchParams.set("excludePrimary", "1")
       url.searchParams.set("limit", "50")
       const res = await fetch(url.toString(), { credentials: "include" })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -130,7 +138,7 @@ export default function AppointmentsList({
     } finally {
       setLoading(false)
     }
-  }, [statusFilter, staffId])
+  }, [statusFilter, staffId, excludePrimaryDoctor])
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

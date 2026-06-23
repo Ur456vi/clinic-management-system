@@ -74,6 +74,12 @@ const limitParam = z
   .transform((v) => (v === undefined || v === "" ? undefined : Number(v)))
   .pipe(z.number().int().positive().max(100).optional())
 
+/** Truthy query flag — accepts `1` / `true` (case-insensitive). */
+const boolParam = z
+  .string()
+  .optional()
+  .transform((v) => v === "1" || v?.toLowerCase() === "true")
+
 // ---------------------------------------------------------------------------
 // Allowed transitions (BE-27)
 // ---------------------------------------------------------------------------
@@ -194,6 +200,8 @@ export type TransitionAppointmentInput = z.infer<
  *   from / to       — ISO datetimes; inclusive lower bound, exclusive upper
  *   cursor          — opaque cursor (id of last row of previous page)
  *   limit           — page size (default 20, max 100)
+ *   excludePrimary  — `1`/`true` to omit the primary doctor (Dr. Yuvraaj),
+ *                     who has a dedicated list. Ignored when `staffId` is set.
  */
 export const listAppointmentsQuerySchema = z
   .object({
@@ -209,6 +217,7 @@ export const listAppointmentsQuerySchema = z
       .optional()
       .transform((v) => (v === "" ? undefined : v)),
     limit: limitParam,
+    excludePrimaryDoctor: boolParam,
   })
   .refine(
     (v) => {

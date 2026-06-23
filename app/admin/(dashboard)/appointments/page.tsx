@@ -14,7 +14,8 @@ export default function AppointmentsPage() {
   return (
     <AppointmentsList
       title="Appointments"
-      subtitle="Live booking list — slots created by reception, the patient portal, and the public-site assessment flow all show up here."
+      subtitle="Live booking list — slots created by reception, the patient portal, and the public-site assessment flow all show up here. Dr. Yuvraaj's appointments live on the dedicated 'Dr Yuvraaj Appointment' page."
+      excludePrimaryDoctor
     />
   )
 }

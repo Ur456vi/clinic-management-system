@@ -34,6 +34,7 @@ export const GET = defineHandler(async ({ req }) => {
     to: sp.get("to") ?? undefined,
     cursor: sp.get("cursor") ?? undefined,
     limit: sp.get("limit") ?? undefined,
+    excludePrimaryDoctor: sp.get("excludePrimary") ?? undefined,
   })
 
   const { items, nextCursor } = await listAppointments(query, {

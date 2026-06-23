@@ -303,6 +303,25 @@ export type ListAppointmentsResult = {
  * row of the previous page; we over-fetch by one so we know if a next
  * page exists without a second query.
  */
+/**
+ * Resolve the "primary doctor" (Dr. Yuvraaj Singh) staff id by name match.
+ * The clinic reseeds with fresh UUIDs, so we can't hard-code it — same
+ * runtime name-match the "Dr Yuvraaj Appointment" page uses. Returns null
+ * if he isn't in the staff directory (then nothing is excluded).
+ */
+async function resolvePrimaryDoctorStaffId(): Promise<string | null> {
+  const staff = await db.staff.findFirst({
+    where: {
+      isActive: true,
+      user: { role: Role.DOCTOR },
+      fullName: { contains: "yuvraaj", mode: "insensitive" },
+    },
+    select: { id: true },
+    orderBy: { createdAt: "asc" },
+  })
+  return staff?.id ?? null
+}
+
 export async function listAppointments(
   input: ListAppointmentsQuery,
   actor: { userId: string; role: Role },
@@ -340,6 +359,14 @@ export async function listAppointments(
     })
     if (!staff) return { items: [], nextCursor: null }
     where.staffId = staff.id
+  }
+
+  // The main "Appointments" list excludes the primary doctor (Dr. Yuvraaj),
+  // who has a dedicated view. Only honoured for full-book roles browsing the
+  // whole book (no explicit/account staffId scope) — staffId always wins.
+  if (input.excludePrimaryDoctor && !where.staffId) {
+    const primaryId = await resolvePrimaryDoctorStaffId()
+    if (primaryId) where.staffId = { not: primaryId }
   }
 
   const rows = await db.appointment.findMany({
