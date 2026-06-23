@@ -4475,21 +4475,28 @@ export default function StartAppointmentConsultationPage() {
                       <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
                         {consult.patient?.fullName ?? "—"}
                       </span>
-                      . Below is everything captured in the RMO consultation. Use the
-                      actions to schedule a follow-up RMO visit or refer the patient on
-                      to Dr. Yuvraaj Singh for the main consultation.
+                      . Below is the complete RMO intake — every question, with answers
+                      shown where captured and the rest marked unfilled. Use the actions
+                      to schedule a follow-up RMO visit or refer the patient on to
+                      Dr. Yuvraaj Singh for the main consultation.
                     </p>
                   </div>
 
-                  {/* Tab-based summary: one sub-tab per captured section + Quiz */}
+                  {/* Tab-based summary: one sub-tab per section (+ Vitals/Quiz) */}
                   {(() => {
-                    const dataSections = SECTION_ORDER.filter((sec) =>
-                      RMO_FIELDS.some((f) => f.s === sec && (form[f.n] ?? "").trim() !== ""),
-                    )
-                    const tabs: { key: string; label: string }[] = [
-                      ...dataSections.map((s) => ({ key: s, label: SECTION_LABEL[s] })),
-                      ...(latestVital ? [{ key: "__vitals", label: "Vitals" }] : []),
-                      ...(quiz ? [{ key: "__quiz", label: "Quiz Assessment" }] : []),
+                    // Every section is shown — even with zero answers — so the
+                    // summary reads as a complete intake checklist. A dot on the
+                    // sub-tab flags which sections actually have data captured.
+                    const tabs: { key: string; label: string; filled: boolean }[] = [
+                      ...SECTION_ORDER.map((s) => ({
+                        key: s,
+                        label: SECTION_LABEL[s],
+                        filled: RMO_FIELDS.some(
+                          (f) => f.s === s && (form[f.n] ?? "").trim() !== "",
+                        ),
+                      })),
+                      ...(latestVital ? [{ key: "__vitals", label: "Vitals", filled: true }] : []),
+                      ...(quiz ? [{ key: "__quiz", label: "Quiz Assessment", filled: true }] : []),
                     ]
                     if (tabs.length === 0) {
                       return (
@@ -4507,19 +4514,36 @@ export default function StartAppointmentConsultationPage() {
                       <div className="mt-6 rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden">
                         {/* Sub-tab strip */}
                         <div className="flex flex-wrap gap-1.5 p-3 bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
-                          {tabs.map((t) => (
-                            <button
-                              key={t.key}
-                              onClick={() => setSummaryTab(t.key)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                                current === t.key
-                                  ? "bg-[#6B2B26] text-white"
-                                  : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
-                              }`}
-                            >
-                              {t.label}
-                            </button>
-                          ))}
+                          {tabs.map((t) => {
+                            const active = current === t.key
+                            const isSection = t.key !== "__vitals" && t.key !== "__quiz"
+                            return (
+                              <button
+                                key={t.key}
+                                onClick={() => setSummaryTab(t.key)}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                                  active
+                                    ? "bg-[#6B2B26] text-white"
+                                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
+                                }`}
+                              >
+                                {isSection ? (
+                                  <span
+                                    className={`h-1.5 w-1.5 rounded-full ${
+                                      t.filled
+                                        ? active
+                                          ? "bg-white"
+                                          : "bg-[#0E8C6A]"
+                                        : active
+                                          ? "bg-white/40"
+                                          : "bg-[#D0D5DD] dark:bg-[#475569]"
+                                    }`}
+                                  />
+                                ) : null}
+                                {t.label}
+                              </button>
+                            )
+                          })}
                         </div>
 
                         {/* Active panel */}
@@ -4595,21 +4619,84 @@ export default function StartAppointmentConsultationPage() {
                               </Link>
                             </div>
                           ) : (
-                            <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151] -my-1">
-                              {RMO_FIELDS.filter(
-                                (f) => f.s === current && (form[f.n] ?? "").trim() !== "",
-                              ).map((f) => (
-                                <div
-                                  key={f.n}
-                                  className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-3"
-                                >
-                                  <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
-                                  <dd className="sm:col-span-2 text-sm text-[#101828] dark:text-[#F9FAFB] whitespace-pre-wrap break-words">
-                                    {form[f.n]}
-                                  </dd>
+                            (() => {
+                              const fields = RMO_FIELDS.filter((f) => f.s === current)
+                              const answered = fields.filter(
+                                (f) => (form[f.n] ?? "").trim() !== "",
+                              ).length
+                              // Group fields by their sub-section, preserving
+                              // registry order; fields without a `sub` fall into
+                              // a single leading unlabelled group.
+                              const groups: { sub: string; items: typeof fields }[] = []
+                              for (const f of fields) {
+                                const key = f.sub ?? ""
+                                let g = groups.find((x) => x.sub === key)
+                                if (!g) {
+                                  g = { sub: key, items: [] }
+                                  groups.push(g)
+                                }
+                                g.items.push(f)
+                              }
+                              const complete = answered === fields.length && fields.length > 0
+                              return (
+                                <div>
+                                  <div className="flex items-center justify-between mb-5">
+                                    <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                                      {SECTION_LABEL[current]}
+                                    </h3>
+                                    <span
+                                      className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                                      style={
+                                        complete
+                                          ? { background: "#E4F3EC", color: "#0E8C6A" }
+                                          : answered === 0
+                                            ? { background: "#F2F4F7", color: "#98A2B3" }
+                                            : { background: "#FEF6E7", color: "#B25E09" }
+                                      }
+                                    >
+                                      {answered} / {fields.length} answered
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-6">
+                                    {groups.map((g) => (
+                                      <div key={g.sub || "_default"}>
+                                        {g.sub ? (
+                                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B2B26] dark:text-[#A5B4FC] mb-1.5">
+                                            {g.sub}
+                                          </h4>
+                                        ) : null}
+                                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+                                          {g.items.map((f) => {
+                                            const val = (form[f.n] ?? "").trim()
+                                            return (
+                                              <div
+                                                key={f.n}
+                                                className="flex flex-col gap-0.5 py-2.5 border-b border-[#EAECF0] dark:border-[#374151]"
+                                              >
+                                                <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
+                                                  {f.l}
+                                                </dt>
+                                                <dd className="text-sm whitespace-pre-wrap break-words">
+                                                  {val ? (
+                                                    <span className="text-[#101828] dark:text-[#F9FAFB]">
+                                                      {val}
+                                                    </span>
+                                                  ) : (
+                                                    <span className="italic text-[#98A2B3] dark:text-[#64748B]">
+                                                      Not provided
+                                                    </span>
+                                                  )}
+                                                </dd>
+                                              </div>
+                                            )
+                                          })}
+                                        </dl>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              ))}
-                            </dl>
+                              )
+                            })()
                           )}
                         </div>
                       </div>
