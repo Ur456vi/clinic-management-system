@@ -1773,17 +1773,20 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                           <div className="p-6 space-y-6">
                             <div className="grid grid-cols-2 gap-6">
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Mood</label>
-                                <div className="relative">
-                                  <select name="personal_history__mood" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                    <option value="">Select mood</option>
-                                    <option value="stable">Stable</option>
-                                    <option value="anxious">Anxious</option>
-                                    <option value="depressed">Depressed</option>
-                                    <option value="irritable">Irritable</option>
-                                  </select>
-                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              <div className="flex flex-col gap-3">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Mood (select all that apply)</label>
+                                <div className="grid grid-cols-2 gap-y-3">
+                                  {[
+                                    { label: "Stable", value: "stable" },
+                                    { label: "Anxious", value: "anxious" },
+                                    { label: "Depressed", value: "depressed" },
+                                    { label: "Irritable", value: "irritable" }
+                                  ].map((item) => (
+                                    <label key={item.value} className="flex items-center gap-2 cursor-pointer group w-fit">
+                                      <input name="personal_history__mood" value={item.value} type="checkbox" className="w-4 h-4 rounded border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
+                                      <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">{item.label}</span>
+                                    </label>
+                                  ))}
                                 </div>
                               </div>
                               <div className="flex flex-col gap-1.5">
@@ -1890,52 +1893,219 @@ export default function StartAppointmentConsultationPage() {
                             <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
                           </div>
                           <div className="p-6 space-y-6">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Dietary Considerations</label>
-                              <textarea name="personal_history__dietary_considerations"
-                                placeholder="Dietary patterns, restrictions, preferences"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Exercise Regimen</label>
-                              <textarea name="personal_history__exercise_regimen"
-                                placeholder="Type, frequency, duration of exercise"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Hygiene</label>
-                              <textarea name="personal_history__personal_hygiene"
-                                placeholder="Bathing / Brushing / Change of underclothes / Nail care"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
-                              />
-                            </div>
-                            {form["personal_history__time_between_last_oral_intake_and_sleep"] === ">2 hrs" && (
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time duration</label>
-                                <input name="personal_history__time_between_last_oral_intake_and_sleep_specify" type="text" placeholder="specify time duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              {/* Meal Timings */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Meal Timings</label>
+                                <div className="relative">
+                                  <select name="personal_history__meal_time" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__meal_time"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Irregular">Irregular</option>
+                                    <option value="3 meals">3 meals</option>
+                                    <option value="2 meals">2 meals</option>
+                                    <option value="1 meal (specify which meal and timings)">1 meal (specify which meal and timings)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
                               </div>
-                            )}
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Habits</label>
-                              <input name="personal_history__personal_habits"
-                                type="text"
-                                placeholder="E.g. cosmetics, sunscreens, etc."
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
-                              <textarea
-                                name="personal_history__dietary_considerations_note"
-                                rows={3}
-                                placeholder="Add a note..."
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
+                              {form["personal_history__meal_time"] === "1 meal (specify which meal and timings)" && (
+                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify which meal and timings</label>
+                                  <input name="personal_history__meal_time_specify" type="text" placeholder="Specify..." className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__meal_time_specify"] || ""} />
+                                </div>
+                              )}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gap between meals (In hours)</label>
+                                <input name="personal_history__gap_between_meals" type="text" placeholder="Gap between meals" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__gap_between_meals"] || ""} />
+                              </div>
+
+                              {/* Portions */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Portions</label>
+                                <div className="relative">
+                                  <select name="personal_history__portions" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__portions"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="100 - 300gms">100 - 300gms</option>
+                                    <option value="500gms to >500gms">500gms to {">"}500gms</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* In Betweens */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">In Betweens</label>
+                                <div className="relative">
+                                  <select name="personal_history__in_betweens" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__in_betweens"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Never to very rare">Never to very rare</option>
+                                    <option value="Intermittently">Intermittently</option>
+                                    <option value="Regularly">Regularly</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* Major component of diet */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Major component of diet</label>
+                                <div className="relative">
+                                  <select name="personal_history__major_component_of_diet" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__major_component_of_diet"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Protein">Protein</option>
+                                    <option value="Fats">Fats</option>
+                                    <option value="Carbs">Carbs</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* Intake of Fruits and Vegetables */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Intake of Fruits and Vegetables</label>
+                                <div className="relative">
+                                  <select name="personal_history__intake_of_fruits_and_vegetables" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__intake_of_fruits_and_vegetables"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Staple to Regularly">Staple to Regularly</option>
+                                    <option value="Intermittently">Intermittently</option>
+                                    <option value="Never to Very rare">Never to Very rare</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* Oils used for cooking */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Oils used for cooking</label>
+                                <div className="relative">
+                                  <select name="personal_history__oils_used_for_cooking" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__oils_used_for_cooking"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Olive oil">Olive oil</option>
+                                    <option value="Coconut oil">Coconut oil</option>
+                                    <option value="Seed Oils (Sunflower / Mustard / Sesame etc)">Seed Oils (Sunflower / Mustard / Sesame etc)</option>
+                                    <option value="Vegetable oils">Vegetable oils</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* Snacking */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking</label>
+                                <div className="relative">
+                                  <select name="personal_history__snacking" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__snacking"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes points (Frequency / Midnight snacking)">Yes points (Frequency / Midnight snacking)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              {form["personal_history__snacking"] === "Yes points (Frequency / Midnight snacking)" && (
+                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Snacking Details (Frequency / Midnight snacking)</label>
+                                  <input name="personal_history__snacking_type" type="text" placeholder="Specify..." className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__snacking_type"] || ""} />
+                                </div>
+                              )}
+
+                              {/* Hot Beverages */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Hot Beverages</label>
+                                <div className="relative">
+                                  <select name="personal_history__hot_beverages" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__hot_beverages"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="None">None</option>
+                                    <option value="Tea">Tea</option>
+                                    <option value="Coffee">Coffee</option>
+                                    <option value="Tea and Coffee">Tea and Coffee</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              {["Tea", "Coffee", "Tea and Coffee"].includes(form["personal_history__hot_beverages"] || "") && (
+                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. Of cups per day</label>
+                                  <input name="personal_history__hot_beverages_cups" type="text" placeholder="Number of cups" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__hot_beverages_cups"] || ""} />
+                                </div>
+                              )}
+
+                              {/* Fasting */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting</label>
+                                <div className="relative">
+                                  <select name="personal_history__fasting" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__fasting"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Never to Very Rare">Never to Very Rare</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Intermittent">Intermittent</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+
+                              {/* Time to first oral intake */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time to first oral intake of the day after waking up</label>
+                                <div className="relative">
+                                  <select name="personal_history__time_to_first_oral_intake" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__time_to_first_oral_intake"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Immediate">Immediate</option>
+                                    <option value="15-20 mins">15-20 mins</option>
+                                    <option value="30 mins to > 30 mins (specify time)">30 mins to {">"} 30 mins (specify time)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              {form["personal_history__time_to_first_oral_intake"] === "30 mins to > 30 mins (specify time)" && (
+                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time</label>
+                                  <input name="personal_history__time_to_first_oral_intake_specify" type="text" placeholder="Specify time" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__time_to_first_oral_intake_specify"] || ""} />
+                                </div>
+                              )}
+
+                              {/* Time between last oral intake and sleep */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Time between last oral intake of the day and sleep</label>
+                                <div className="relative">
+                                  <select name="personal_history__time_between_last_oral_intake_and_sleep" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__time_between_last_oral_intake_and_sleep"] || ""}>
+                                    <option value="">Select...</option>
+                                    <option value="Immediate">Immediate</option>
+                                    <option value="30 mins - 1hr - 5 points">30 mins - 1hr - 5 points</option>
+                                    <option value="1-2 hrs or >2 hrs (specify time duration)">1-2 hrs or {">"}2 hrs (specify time duration)</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              {form["personal_history__time_between_last_oral_intake_and_sleep"] === "1-2 hrs or >2 hrs (specify time duration)" && (
+                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify time duration</label>
+                                  <input name="personal_history__time_between_last_oral_intake_and_sleep_specify" type="text" placeholder="Specify time duration" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__time_between_last_oral_intake_and_sleep_specify"] || ""} />
+                                </div>
+                              )}
+
+                              {/* Diet Plan */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Following a specific professionally laid out Diet Plan ? - Specify (all details)</label>
+                                <textarea name="personal_history__diet_plan_specify" rows={3} placeholder="Specify all details..." className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none" defaultValue={form["personal_history__diet_plan_specify"] || ""} />
+                              </div>
+
+                              {/* Personal Habits */}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Personal Habits</label>
+                                <input name="personal_history__personal_habits" type="text" placeholder="E.g. cosmetics, sunscreens, etc." className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all" defaultValue={form["personal_history__personal_habits"] || ""} />
+                              </div>
+
+                              <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151] sm:col-span-2">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                                <textarea
+                                  name="personal_history__dietary_considerations_note"
+                                  rows={3}
+                                  placeholder="Add a note..."
+                                  className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -2454,15 +2624,7 @@ export default function StartAppointmentConsultationPage() {
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Number of pregnancies</label>
-                              <div className="relative">
-                                <select name="personal_history__womens_health_pregnancies" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="NVD">NVD</option>
-                                  <option value="LSCS">LSCS</option>
-                                  <option value="Any Complications Prepartum, partum, postpartum">Any Complications Prepartum, partum, postpartum</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
+                              <input name="personal_history__womens_health_pregnancies" type="text" placeholder="Number" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
                             </div>
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Any Miscarriages / MTP ?</label>
@@ -2878,6 +3040,64 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                         </div>
 
+                        {/* Miscellaneous Accordion */}
+                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
+                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
+                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Miscellaneous</h3>
+                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
+                          </div>
+                          <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-2 gap-6">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Perspiration</label>
+                                <div className="relative">
+                                  <select name="personal_history__perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="excessive">Excessive</option>
+                                    <option value="minimal">Minimal</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Odor</label>
+                                <div className="relative">
+                                  <select name="personal_history__body_odor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
+                                    <option value="">Select option</option>
+                                    <option value="present">Present</option>
+                                    <option value="not present">Not Present</option>
+                                  </select>
+                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Halitosis (Bad Breath)</label>
+                              <div className="relative">
+                                <select name="personal_history__halitosis_bad_breath" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
+                                  <option value="">Select option</option>
+                                  <option value="present">Present</option>
+                                  <option value="not present">Not Present</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
+                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
+                              <textarea
+                                name="personal_history__miscellaneous_note"
+                                rows={3}
+                                placeholder="Add a note..."
+                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : activeSection === "Examination Summary" ? (
+                    <>
                         {/* General Physical Examination Accordion */}
                         <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
                           <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
@@ -3237,6 +3457,7 @@ export default function StartAppointmentConsultationPage() {
                                   <div className="relative">
                                     <select name="personal_history__gpe_gait_abnormal_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
+                                      <option value="Normal">Normal</option>
                                       <option value="Antalgic">Antalgic</option>
                                       <option value="Scissors">Scissors</option>
                                       <option value="Shuffling">Shuffling</option>
@@ -3408,66 +3629,8 @@ export default function StartAppointmentConsultationPage() {
                           </div>
                         </div>
 
-                        {/* Miscellaneous Accordion */}
-                        <div className="border border-[#EAECF0] dark:border-[#374151] rounded-xl overflow-hidden">
-                          <div className="bg-white dark:bg-[#1F2937] px-6 py-4 flex items-center justify-between border-b border-[#EAECF0] dark:border-[#374151]">
-                            <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Miscellaneous</h3>
-                            <ChevronDown className="h-5 w-5 text-[#667085] dark:text-[#94A3B8]" />
-                          </div>
-                          <div className="p-6 space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Perspiration</label>
-                                <div className="relative">
-                                  <select name="personal_history__perspiration" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                    <option value="">Select option</option>
-                                    <option value="normal">Normal</option>
-                                    <option value="excessive">Excessive</option>
-                                    <option value="minimal">Minimal</option>
-                                  </select>
-                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                                </div>
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Body Odor</label>
-                                <div className="relative">
-                                  <select name="personal_history__body_odor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                    <option value="">Select option</option>
-                                    <option value="present">Present</option>
-                                    <option value="not present">Not Present</option>
-                                  </select>
-                                  <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Halitosis (Bad Breath)</label>
-                              <div className="relative">
-                                <select name="personal_history__halitosis_bad_breath" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="present">Present</option>
-                                  <option value="not present">Not Present</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5 pt-4 mt-6 border-t border-[#EAECF0] dark:border-[#374151]">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Note</label>
-                              <textarea
-                                name="personal_history__miscellaneous_note"
-                                rows={3}
-                                placeholder="Add a note..."
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all resize-none"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : activeSection === "Examination Summary" ? (
-                    <>
                       {/* Appearance & Mental Status Header */}
-                      <div className="mb-8">
+                      <div className="mt-8 mb-8">
                         <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Appearance & Mental Status</h2>
                         <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">General appearance and cognitive assessment</p>
                       </div>
