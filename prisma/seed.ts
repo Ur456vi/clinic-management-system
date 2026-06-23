@@ -958,7 +958,7 @@ async function seedClinicalLoop(
     if (!infusionStaffId) {
       console.warn(
         `  clinical-loop: skipping ${bundle.patientNumber} ` +
-          `(infusion staff ${bundle.infusionStaffEmail} not seeded)`,
+        `(infusion staff ${bundle.infusionStaffEmail} not seeded)`,
       )
       continue
     }
@@ -1197,9 +1197,9 @@ async function seedClinicalLoop(
 
   console.log(
     `  clinical loop: labs=${labCount} plans=${planCount} ` +
-      `planItems=${itemCount} infusions=${infusionCount} ` +
-      `invoices=${invoiceCount} invoiceItems=${invoiceItemCount} ` +
-      `payments=${paymentCount}`,
+    `planItems=${itemCount} infusions=${infusionCount} ` +
+    `invoices=${invoiceCount} invoiceItems=${invoiceItemCount} ` +
+    `payments=${paymentCount}`,
   )
 }
 
