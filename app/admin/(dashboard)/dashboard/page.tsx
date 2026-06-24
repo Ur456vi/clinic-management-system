@@ -73,8 +73,10 @@ interface DashboardData {
   upcoming: ApptRow[]
   overdueInvoices: InvRow[]
   pendingAssessments: number
-  todaysApptsCount: number
-  yuvraajApptsCount: number
+  /** TODAY's appointments NOT assigned to Dr. Yuvraaj (RMO / other doctors). */
+  todaysRmoCount: number
+  /** TODAY's appointments assigned to Dr. Yuvraaj. */
+  todaysYuvraajCount: number
 }
 
 const EMPTY: DashboardData = {
@@ -87,8 +89,8 @@ const EMPTY: DashboardData = {
   upcoming: [],
   overdueInvoices: [],
   pendingAssessments: 0,
-  todaysApptsCount: 0,
-  yuvraajApptsCount: 0,
+  todaysRmoCount: 0,
+  todaysYuvraajCount: 0,
 }
 
 export default function DashboardPage() {
@@ -153,16 +155,17 @@ export default function DashboardPage() {
       const todayEnd = new Date()
       todayEnd.setHours(23, 59, 59, 999)
 
-      let todaysApptsCount = 0
-      let yuvraajApptsCount = 0
+      let todaysRmoCount = 0
+      let todaysYuvraajCount = 0
 
       for (const a of apptList) {
         const t = new Date(a.startsAt).getTime()
-        if (t >= todayStart.getTime() && t <= todayEnd.getTime()) {
-          todaysApptsCount++
-        }
+        if (t < todayStart.getTime() || t > todayEnd.getTime()) continue
+        // Split TODAY's appointments: Dr. Yuvraaj vs everyone else (RMO).
         if (a.staff?.fullName?.toLowerCase().includes("yuvraaj")) {
-          yuvraajApptsCount++
+          todaysYuvraajCount++
+        } else {
+          todaysRmoCount++
         }
       }
 
@@ -176,8 +179,8 @@ export default function DashboardPage() {
         upcoming,
         overdueInvoices: overdue.slice(0, 5),
         pendingAssessments: asmList.filter((a) => a.status === "REQUESTED").length,
-        todaysApptsCount,
-        yuvraajApptsCount,
+        todaysRmoCount,
+        todaysYuvraajCount,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load dashboard")
@@ -283,12 +286,12 @@ export default function DashboardPage() {
                 <Calendar className="h-6 w-6 text-[#0284C7] dark:text-[#E0F2FE]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8] whitespace-nowrap">Today's Appointment</p>
+                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8]">Today&apos;s RMO Appointments</p>
                 <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin text-[#0284C7] dark:text-[#E0F2FE]" />
                   ) : (
-                    data.todaysApptsCount.toString().padStart(2, '0')
+                    data.todaysRmoCount.toString().padStart(2, '0')
                   )}
                 </p>
               </div>
@@ -299,12 +302,12 @@ export default function DashboardPage() {
                 <UserSquare2 className="h-6 w-6 text-[#BE185D] dark:text-[#FCE7F3]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8] whitespace-nowrap">Dr. Yuvraaj Appointment</p>
+                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8]">Today&apos;s Dr. Yuvraaj Appointments</p>
                 <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin text-[#BE185D] dark:text-[#FCE7F3]" />
                   ) : (
-                    data.yuvraajApptsCount.toString().padStart(2, '0')
+                    data.todaysYuvraajCount.toString().padStart(2, '0')
                   )}
                 </p>
               </div>
