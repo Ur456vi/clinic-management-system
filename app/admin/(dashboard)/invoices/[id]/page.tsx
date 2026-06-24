@@ -725,16 +725,27 @@ export default function InvoiceDetailsPage({
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         @media print {
-          @page { size: A4; margin: 10mm; }
+          @page { size: A4; margin: 0; }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+          }
           body * { visibility: hidden; }
           .inv-print, .inv-print * { visibility: visible; }
           .inv-print { 
-            position: absolute; 
+            position: fixed !important; 
             left: 0; 
             top: 0; 
             width: 1000px !important; 
-            transform: scale(0.71); 
+            height: 1400px !important;
+            transform: scale(0.68); 
             transform-origin: top left; 
+            overflow: hidden;
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            page-break-before: avoid;
           }
           .no-print { display: none !important; }
         }
