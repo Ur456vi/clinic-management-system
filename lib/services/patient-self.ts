@@ -589,6 +589,39 @@ export async function listSelfInvoices(args: {
   return { items: rows, nextCursor }
 }
 
+const SELF_INVOICE_DETAIL_INCLUDE = {
+  items: { orderBy: { createdAt: "asc" as const } },
+  payments: { orderBy: { receivedAt: "desc" as const } },
+  department: { select: { id: true, name: true } },
+  patient: { select: { id: true, patientNumber: true, fullName: true } },
+} as const
+
+export type SelfInvoiceDetail = Prisma.InvoiceGetPayload<{
+  include: typeof SELF_INVOICE_DETAIL_INCLUDE
+}>
+
+/** One of the calling patient's own invoices, with items + payments + patient.
+ *  Hard-pinned to `patientId` so a patient can never read another's bill. */
+export async function getSelfInvoice(args: {
+  patientId: string
+  actorUserId: string
+  invoiceId: string
+}): Promise<SelfInvoiceDetail> {
+  const inv = await db.invoice.findFirst({
+    where: { id: args.invoiceId, patientId: args.patientId },
+    include: SELF_INVOICE_DETAIL_INCLUDE,
+  })
+  if (!inv) throw new NotFoundError("Invoice not found")
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "Invoice",
+    entityId: inv.id,
+    detail: { scope: "self.invoice" },
+  })
+  return inv
+}
+
 // ---------------------------------------------------------------------------
 // Prescriptions (derived from the doctor's MAIN consultation Final Prescription)
 // ---------------------------------------------------------------------------

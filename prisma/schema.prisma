@@ -940,6 +940,12 @@ model Invoice {
   /// Equal to `subtotalCents` (no tax applied).
   totalCents    Int @map("total_cents")
 
+  /// Number of equal installments the total is split into (1 = pay in full).
+  /// The per-installment amount + paid/due status are DERIVED from this and
+  /// the captured payments (see lib/invoice-installments.ts) — no schedule
+  /// table. Patients pay each part at a later visit; staff records it.
+  installmentCount Int @default(1) @map("installment_count")
+
   status InvoiceStatus @default(DRAFT)
 
   notes String?

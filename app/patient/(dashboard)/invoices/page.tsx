@@ -9,6 +9,7 @@
  * status, amount paid, and balance — there is no online "pay now" here.
  */
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Receipt, Building2, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -227,6 +228,14 @@ export default function PatientInvoicesPage() {
                         <Row label="Total" value={fmt(inv.totalCents)} bold />
                         <Row label="Paid" value={fmt(paid)} />
                         <Row label="Balance" value={fmt(balance)} bold tone={balance > 0 ? "amber" : "green"} />
+                      </div>
+                      <div className="mt-3">
+                        <Link
+                          href={`/patient/invoices/${inv.id}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
+                        >
+                          View full invoice →
+                        </Link>
                       </div>
                     </div>
                   ) : null}

@@ -208,6 +208,7 @@ export async function createInvoice(
           departmentId: input.departmentId,
           subtotalCents,
           totalCents,
+          installmentCount: input.installmentCount ?? 1,
           status: InvoiceStatus.DRAFT,
           notes: input.notes,
           dueAt: input.dueAt,
@@ -374,6 +375,10 @@ export async function updateInvoiceStatus(
 
     if (input.notes !== undefined) {
       data.notes = input.notes
+    }
+
+    if (input.installmentCount !== undefined) {
+      data.installmentCount = input.installmentCount
     }
 
     const after = await tx.invoice.update({

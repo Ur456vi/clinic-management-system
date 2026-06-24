@@ -124,6 +124,8 @@ export const createInvoiceSchema = z.object({
   departmentId: uuid.optional(),
   notes: trimmedOptional(2000),
   dueAt: isoDateTime.optional(),
+  /** Split the total into N equal installments (1 = pay in full). */
+  installmentCount: z.number().int().min(1).max(12).optional(),
   items: z.array(invoiceItemInputSchema).min(1, "At least one item required"),
 })
 
@@ -137,10 +139,17 @@ export const updateInvoiceSchema = z
   .object({
     status: statusEnum.optional(),
     notes: z.string().trim().max(2000).nullable().optional(),
+    installmentCount: z.number().int().min(1).max(12).optional(),
   })
-  .refine((v) => v.status !== undefined || v.notes !== undefined, {
-    message: "At least one of `status` or `notes` is required",
-  })
+  .refine(
+    (v) =>
+      v.status !== undefined ||
+      v.notes !== undefined ||
+      v.installmentCount !== undefined,
+    {
+      message: "At least one of `status`, `notes` or `installmentCount` is required",
+    },
+  )
 
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>
 

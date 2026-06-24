@@ -36,6 +36,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
+import { computeInstallments } from "@/lib/invoice-installments"
 
 type Status = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
@@ -47,6 +48,7 @@ interface InvoiceApi {
   subtotalCents: number
   totalCents: number
   paidCents: number
+  installmentCount: number
   currency: string
   issuedAt: string
   dueAt: string | null
@@ -120,17 +122,23 @@ export default function InvoiceDetailsPage({
     if (!invoice || updating) return
     const balanceCents = Math.max(0, invoice.totalCents - paidCents)
     if (balanceCents <= 0) return
+    // On an installment plan, collect the NEXT installment's outstanding amount;
+    // otherwise collect the full balance.
+    const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents)
+    const amountCents =
+      invoice.installmentCount > 1 && plan.nextDue ? plan.nextDue.remainingCents : balanceCents
+    if (amountCents <= 0) return
     setUpdating(true)
     try {
       const res = await fetch(`/api/invoices/${id}/payments`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ amountCents: balanceCents, method: "UPI" }),
+        body: JSON.stringify({ amountCents, method: "UPI" }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error?.message ?? "Couldn't record payment")
-      notify.success("Payment recorded — invoice paid")
+      notify.success("Payment recorded")
       await fetchOne()
     } catch (err) {
       notify.error("Couldn't record payment", {
@@ -203,6 +211,14 @@ export default function InvoiceDetailsPage({
     .filter((p) => !p.status || p.status === "CAPTURED")
     .reduce((acc, p) => acc + (Number(p.amountCents) || 0), 0)
 
+  // Derived installment plan (equal split). nextDue drives the "record next
+  // installment" button; the schedule card lists each part's paid/due status.
+  const installmentPlan = computeInstallments(
+    invoice.totalCents,
+    invoice.installmentCount,
+    paidCents,
+  )
+
   const issuedLabel = invoice.issuedAt
     ? new Date(invoice.issuedAt).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -238,7 +254,9 @@ export default function InvoiceDetailsPage({
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              Mark UPI payment received
+              {invoice.installmentCount > 1 && installmentPlan.nextDue
+                ? `Record installment ${installmentPlan.nextDue.seq}/${invoice.installmentCount} · ${formatMoney(installmentPlan.nextDue.remainingCents, invoice.currency)}`
+                : "Mark UPI payment received"}
             </Button>
           ) : null}
           <Button
@@ -675,6 +693,43 @@ export default function InvoiceDetailsPage({
           </div>
         </div>
       </div>
+
+      {/* Installment plan — screen only, excluded from print */}
+      {invoice.installmentCount > 1 ? (
+        <div className="no-print bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-[#EAECF0] dark:border-[#374151] flex items-center justify-between">
+            <h3 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Installment plan</h3>
+            <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
+              {installmentPlan.installments.filter((x) => x.status === "PAID").length} of {invoice.installmentCount} paid · balance {formatMoney(installmentPlan.balanceCents, invoice.currency)}
+            </span>
+          </div>
+          <ul className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
+            {installmentPlan.installments.map((inst) => {
+              const st =
+                inst.status === "PAID"
+                  ? { bg: "#ECFDF3", fg: "#027A48", label: "Paid" }
+                  : inst.status === "PARTIAL"
+                    ? { bg: "#FFF1D6", fg: "#B5642A", label: `Partial · ${formatMoney(inst.remainingCents, invoice.currency)} left` }
+                    : { bg: "#EFF8FF", fg: "#175CD3", label: "Due" }
+              return (
+                <li key={inst.seq} className="px-6 py-3.5 flex items-center justify-between text-sm">
+                  <span className="font-medium text-[#101828] dark:text-[#F9FAFB]">
+                    Installment {inst.seq} of {invoice.installmentCount}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                      {formatMoney(inst.amountCents, invoice.currency)}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: st.bg, color: st.fg }}>
+                      {st.label}
+                    </span>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      ) : null}
 
       {/* Payment history — screen only, excluded from print */}
       <div className="no-print bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm overflow-hidden">

@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react"
 
 import { notify } from "@/lib/notify"
+import { splitInstallments } from "@/lib/invoice-installments"
 
 type LineItem = { description: string; quantity: string; unitPriceRupees: string }
 type PatientLite = { id: string; fullName: string; patientNumber: string }
@@ -62,6 +63,7 @@ function CreateInvoiceForm() {
     { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES },
   ])
   const [notes, setNotes] = useState("")
+  const [installmentCount, setInstallmentCount] = useState(1)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
@@ -83,10 +85,15 @@ function CreateInvoiceForm() {
               })
               setPatientLocked(true)
               if (data.department?.id) setDepartmentId(data.department.id)
+              // Dynamic description derived from the appointment context
+              // (clinician + visit date) rather than a static "Consultation".
               const clinician = data.staff?.fullName ? ` — ${data.staff.fullName}` : ""
+              const when = data.startsAt
+                ? ` · ${new Date(data.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
+                : ""
               setItems([
                 {
-                  description: `Consultation${clinician}`,
+                  description: `Consultation${clinician}${when}`,
                   quantity: "1",
                   unitPriceRupees: DEFAULT_CONSULT_RUPEES,
                 },
@@ -172,6 +179,7 @@ function CreateInvoiceForm() {
         appointmentId,
         departmentId: departmentId || undefined,
         notes: notes.trim() || undefined,
+        installmentCount: installmentCount > 1 ? installmentCount : undefined,
         items: items.map((it) => ({
           description: it.description.trim(),
           quantity: it.quantity.trim() || "1",
@@ -204,7 +212,7 @@ function CreateInvoiceForm() {
       })
       setSubmitting(false)
     }
-  }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, items, router])
+  }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, installmentCount, items, router])
 
   return (
     <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-6xl">
@@ -318,6 +326,24 @@ function CreateInvoiceForm() {
             </div>
           </div>
 
+          {/* Payment plan (installments / EMI) */}
+          <div className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">Payment plan</span>
+            <select
+              value={String(installmentCount)}
+              onChange={(e) => setInstallmentCount(Number(e.target.value))}
+              className={inputCls + " h-11 sm:max-w-xs"}
+            >
+              <option value="1">Pay in full</option>
+              <option value="2">2 installments</option>
+              <option value="3">3 installments</option>
+              <option value="4">4 installments</option>
+            </select>
+            <span className="text-xs text-[#98A2B3]">
+              Split a large bill so the patient can pay each part at a later visit — staff records each payment.
+            </span>
+          </div>
+
           {/* Notes */}
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">Notes (optional)</span>
@@ -338,6 +364,17 @@ function CreateInvoiceForm() {
           <div className="text-sm">
             <div className="flex justify-between py-1.5 font-bold text-base text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
           </div>
+          {installmentCount > 1 ? (
+            <div className="text-xs text-[#667085] dark:text-[#94A3B8] flex flex-col gap-0.5 pt-1 border-t border-[#EAECF0] dark:border-[#374151]">
+              <span className="font-semibold text-[#344054] dark:text-[#CBD5E1] pt-2">{installmentCount} installments</span>
+              {splitInstallments(totals.total, installmentCount).map((c, i) => (
+                <span key={i} className="flex justify-between">
+                  <span>Installment {i + 1}</span>
+                  <span>{fmt(c)}</span>
+                </span>
+              ))}
+            </div>
+          ) : null}
           <button
             type="button"
             onClick={() => void save()}
