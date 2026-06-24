@@ -29,7 +29,7 @@ import {
 export const metadata: Metadata = {
   title: "About Dr. Yuvraaj Singh — A Journey Rooted in Experience",
   description:
-    "Three decades of internal medicine, critical care, endocrinology, and metabolic restoration. From frontline ICU work to predictive, preventive precision medicine.",
+    "Two decades of internal medicine, critical care, endocrinology, and metabolic restoration. From frontline ICU work to predictive, preventive precision medicine.",
 };
 
 const ABOUT_TILES = [
@@ -75,7 +75,7 @@ const CHAPTERS = [
   {
     no: "V",
     title: "The Founding of the Institute",
-    eyebrow: "A precision-medicine institute, structured around the principles refined across three decades of clinical practice.",
+    eyebrow: "A precision-medicine institute, structured around the principles refined across two decades of clinical practice.",
     body: "The Institute of Precision Hormonal & Metabolic Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",
     image: "/images/landing/abt-5.png",
     alignment: "left" as const,

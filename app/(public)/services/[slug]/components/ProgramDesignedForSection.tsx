@@ -8,15 +8,15 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
 
   if (svc.slug === "aesthetic-external") {
     const flatSymptoms = [
-      "Accelerated facial aging",
-      "Skin dullness & loss of elasticity",
-      "Collagen loss",
-      "Pigmenting changes",
-      "Stress-related skin deterioration",
-      "Hair thinning & scalp concerns",
-      "Volume loss & tissue laxity",
-      "Post-menopausal skin changes",
-      "Inflammatory or metabolically driven skin decline"
+      "Accelerated tissue aging",
+      "Reduced skin vitality",
+      "Connective tissue decline",
+      "Pigmentary disorders",
+      "Stress-associated tissue changes",
+      "Hair density decline",
+      "Volume loss & connective tissue laxity",
+      "Hormone-associated tissue changes",
+      "Inflammation-associated tissue aging"
     ];
 
     const gridRows = [
@@ -156,8 +156,8 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 {/* Mobile / Tablet Responsive 2-Column/1-Column Checklist */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-x-6 gap-y-4">
                   {flatSymptoms.map(text => (
-                    <div key={text} className="flex items-start gap-2.5">
-                      <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46] mt-0.5">
+                    <div key={text} className="flex items-center gap-2.5">
+                      <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46]">
                         <CheckCircleIcon size={12} className="text-[#687C59]" />
                       </div>
                       <span className="text-neutral-800 text-[12px] font-medium leading-tight">

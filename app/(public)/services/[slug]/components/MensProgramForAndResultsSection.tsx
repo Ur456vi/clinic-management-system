@@ -28,10 +28,10 @@ export function MensProgramForAndResultsSection({ svc }: { svc: ServiceContent }
   );
 
   const stats = [
-    { value: "87%", label: "More Energy\n& Stamina" },
-    { value: "82%", label: "Improved Libido\n& Performance" },
-    { value: "79%", label: "Better Sleep\n& Recovery" },
-    { value: "84%", label: "Increased Strength\n& Lean Muscle" },
+    { value: "87%", label: "Energy\n& Stamina" },
+    { value: "82%", label: "Libido\n& Performance" },
+    { value: "79%", label: "Sleep\n& Recovery" },
+    { value: "89%", label: "Strength\n& Lean Muscle" },
   ];
 
   return (
@@ -95,7 +95,7 @@ export function MensProgramForAndResultsSection({ svc }: { svc: ServiceContent }
                 Real Results. Real Transformations.
               </h2>
               <p className="text-[#1F1F1F] font-medium text-[13px] md:text-[14px] mb-12">
-                Our patients report life-changing improvements in
+                Our patients report life-changing improvements in quality of life with regards to :
               </p>
               
               {/* Stats Row */}

@@ -42,7 +42,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
             <>
               {/* ── Realistic photograph ── */}
               <img
-                src="/images/landing/service-female-hormonal-hero.jpg"
+                src="/images/landing/service-female-hormonal-hero.png"
                 alt="Women's hormonal health — physician care"
                 className="absolute inset-0 w-full h-full object-cover object-[65%_20%] hidden md:block"
               />
@@ -94,53 +94,7 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
               </svg>
 
               {/* ── Botanical leaf — left edge of photo ── */}
-              <div className="absolute left-[2%] bottom-[8%] z-20 hidden lg:block" aria-hidden="true">
-                <svg width="70" height="180" viewBox="0 0 70 180" fill="none">
-                  {/* Main stem — curves gently upward-left */}
-                  <path
-                    d="M50 180 Q48 150 44 125 Q38 95 28 70 Q20 48 14 20"
-                    stroke="#7A8C6A"
-                    strokeWidth="1.2"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                  {/* Leaf 1 — lower right */}
-                  <path
-                    d="M44 128 Q60 118 66 100 Q52 96 44 110 Q43 120 44 128 Z"
-                    fill="#8A9E76"
-                    stroke="#6E845A"
-                    strokeWidth="0.7"
-                    opacity="0.7"
-                  />
-                  <path d="M44 128 Q54 112 66 100" stroke="#6E845A" strokeWidth="0.35" fill="none" opacity="0.45" />
-                  {/* Leaf 2 — mid left */}
-                  <path
-                    d="M32 88 Q14 80 8 62 Q22 58 32 72 Q33 80 32 88 Z"
-                    fill="#8A9E76"
-                    stroke="#6E845A"
-                    strokeWidth="0.7"
-                    opacity="0.7"
-                  />
-                  <path d="M32 88 Q20 74 8 62" stroke="#6E845A" strokeWidth="0.35" fill="none" opacity="0.45" />
-                  {/* Leaf 3 — upper right */}
-                  <path
-                    d="M24 58 Q40 48 44 32 Q30 28 24 42 Q23 50 24 58 Z"
-                    fill="#8A9E76"
-                    stroke="#6E845A"
-                    strokeWidth="0.7"
-                    opacity="0.7"
-                  />
-                  <path d="M24 58 Q33 44 44 32" stroke="#6E845A" strokeWidth="0.35" fill="none" opacity="0.45" />
-                  {/* Leaf 4 — top tip */}
-                  <path
-                    d="M14 20 Q8 6 14 0 Q22 8 18 18 Q16 20 14 20 Z"
-                    fill="#9AAE82"
-                    stroke="#6E845A"
-                    strokeWidth="0.7"
-                    opacity="0.65"
-                  />
-                </svg>
-              </div>
+              
             </>
           ) : isMensHormonal ? (
             <>

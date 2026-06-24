@@ -5,11 +5,11 @@ export function FemaleLongitudinalTrackingSection({ svc }: { svc: ServiceContent
   if (svc.slug !== "female-hormonal") return null;
 
   const steps = [
-    { title: "Evaluate", desc: ["Comprehensive", "assessment &", "advanced testing"] },
-    { title: "Interpret", desc: ["In-depth physician", "analysis of your", "unique physiology"] },
-    { title: "Personalize", desc: ["Individualized care", "plan built around", "your biology"] },
-    { title: "Monitor", desc: ["Track progress", "with continuous", "refinement"] },
-    { title: "Optimize", desc: ["Achieve long-term", "health, vitality &", "quality of life"] }
+    { title: "Evaluation", desc: ["Comprehensive", "assessment &", "advanced testing"] },
+    { title: "Interpretation", desc: ["In-depth physician", "analysis of your", "unique physiology"] },
+    { title: "Personalization", desc: ["Individualized care", "plan built around", "your biology"] },
+    { title: "Monitoring", desc: ["Track progress", "with continuous", "refinement"] },
+    { title: "Optimization", desc: ["Achieve long-term", "health, vitality &", "quality of life"] }
   ];
 
   return (

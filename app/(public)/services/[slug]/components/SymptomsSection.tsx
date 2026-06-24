@@ -419,46 +419,7 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
             </div>
 
             {/* Decorative botanical leaf */}
-            <div className="mt-6 opacity-50 flex justify-center lg:justify-start" aria-hidden="true">
-              <svg
-                width="120"
-                height="73"
-                viewBox="0 0 180 110"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Main curved stem */}
-                <path d="M30 100 Q55 80 80 60 Q105 42 140 20" stroke="var(--brand-olive)" strokeWidth="1.1" fill="none" strokeLinecap="round"/>
-
-                {/* Branch 1 — lower left */}
-                <path d="M55 80 Q38 68 22 72" stroke="var(--brand-olive)" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
-                {/* Leaf 1a — lower left outer */}
-                <path d="M22 72 Q10 62 16 50 Q28 54 30 66 Q26 70 22 72Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M22 72 Q19 61 16 50" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-                {/* Leaf 1b — lower left inner */}
-                <path d="M36 76 Q24 62 30 50 Q42 56 42 68 Q40 73 36 76Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M36 76 Q33 63 30 50" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-
-                {/* Branch 2 — middle */}
-                <path d="M80 60 Q74 44 62 38" stroke="var(--brand-olive)" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
-                {/* Leaf 2a — middle left */}
-                <path d="M62 38 Q46 30 46 16 Q60 18 64 32 Q64 36 62 38Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M62 38 Q54 27 46 16" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-                {/* Leaf 2b — middle right */}
-                <path d="M80 60 Q90 44 102 46" stroke="var(--brand-olive)" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
-                <path d="M102 46 Q118 38 120 24 Q106 22 100 36 Q100 42 102 46Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M102 46 Q110 35 120 24" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-
-                {/* Branch 3 — upper right */}
-                <path d="M120 36 Q126 24 118 14" stroke="var(--brand-olive)" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
-                {/* Leaf 3a — upper right outer */}
-                <path d="M118 14 Q108 4 96 8 Q98 20 110 22 Q115 18 118 14Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M118 14 Q107 11 96 8" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-                {/* Leaf 3b — upper far right */}
-                <path d="M140 20 Q152 10 162 14 Q158 26 146 26 Q142 24 140 20Z" stroke="var(--brand-olive)" strokeWidth="0.85" fill="none" strokeLinejoin="round"/>
-                <path d="M140 20 Q151 17 162 14" stroke="var(--brand-olive)" strokeWidth="0.5" fill="none" strokeLinecap="round" opacity="0.6"/>
-              </svg>
-            </div>
+            
           </div>
 
           {/* Right: care pathways card */}
