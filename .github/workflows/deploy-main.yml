@@ -7,13 +7,13 @@ on:
 
 jobs:
   deploy:
-    name: Build & Deploy to UAT
+    name: Build & Deploy to main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: uat
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,21 +51,21 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "mkdir -p /home/ec2-user/vyara/.next"
 
-      - name: Copy .next build to UAT EC2
+      - name: Copy .next build to main EC2
         run: |
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             .next/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/.next/
 
-      - name: Copy package files to UAT EC2
+      - name: Copy package files to main EC2
         run: |
           rsync -az \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             package.json package-lock.json prisma/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/
 
-      - name: Deploy to UAT EC2 via SSH
+      - name: Deploy to main EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -83,7 +83,7 @@ jobs:
             APP_DIR=/home/ec2-user/vyara
             cd $APP_DIR
 
-            # Write .env from GitHub secrets + hardcoded UAT domain.
+            # Write .env from GitHub secrets + hardcoded main domain.
             # SMTP host/port/from are non-secret config; user + password come
             # from repo secrets (UAT_SMTP_USER / UAT_SMTP_PASSWORD).
             printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.algoborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.algoborne.com\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
@@ -96,7 +96,7 @@ jobs:
             # Run Prisma migrations using local installed version (not npx which pulls latest)
             npm run prisma:deploy
 
-            # Configure Nginx reverse proxy for UAT
+            # Configure Nginx reverse proxy for main
             sudo tee /etc/nginx/conf.d/dryuvraajsingh.conf > /dev/null <<'NGINXCONF'
             server {
                 listen 80;
