@@ -242,7 +242,7 @@ export default function PrescriptionSheet({
               className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white"
               style={{ width: 50, height: 50, border: `2px solid ${GOLD}` }}
             >
-              <Image src="/images/logos/iphmh-logo.jpeg" alt="IPHMH" width={52} height={52} className="object-contain" />
+              <Image src="/images/logos/iphmh-logos.jpeg" alt="IPHMH" width={50} height={50} className="object-contain" />
             </div>
             <div>
               <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
