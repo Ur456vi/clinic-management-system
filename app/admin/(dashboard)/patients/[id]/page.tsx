@@ -185,6 +185,24 @@ function ageFrom(dob: string | null): string {
   return `${y} yrs`
 }
 
+type PlanItemApi = {
+  id: string
+  kind: string
+  name: string
+  dose: string | null
+  frequency: string | null
+  durationDays: number | null
+  sequence: number
+}
+type PlanApi = {
+  id: string
+  title: string
+  status: string
+  signedAt: string | null
+  createdAt: string
+  items: PlanItemApi[]
+}
+
 const TABS = ["Clinical Summary", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -202,6 +220,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [openRefills, setOpenRefills] = useState(0)
+  const [plan, setPlan] = useState<PlanApi | null | undefined>(undefined)
   const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean } | null>(null)
   const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
@@ -333,6 +352,20 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  // Latest SIGNED treatment plan drives the "Prescribed Program" card.
+  const fetchPlan = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/treatment-plans?patientId=${id}&status=SIGNED&limit=10`, { credentials: "include" })
+      if (!res.ok) return setPlan(null)
+      const json = await res.json()
+      const rows: PlanApi[] = Array.isArray(json?.data) ? json.data : []
+      // Most recently signed plan is the active program (list is newest-first).
+      setPlan(rows[0] ?? null)
+    } catch {
+      setPlan(null)
+    }
+  }, [id])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchOne()
@@ -340,7 +373,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     void fetchVitals()
     void fetchTimeline()
     void fetchRefills()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills])
+    void fetchPlan()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -383,6 +417,22 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     for (const e of events) g[e.type].push(e)
     return g
   }, [events])
+
+  // Derived "Prescribed Program" metrics from the active signed plan. Program
+  // length comes from the longest item duration (falls back to 12 weeks when
+  // the plan items carry no duration); the week + progress are from sign date.
+  const program = useMemo(() => {
+    if (!plan) return null
+    const items = [...(plan.items ?? [])].sort((a, b) => a.sequence - b.sequence)
+    const maxDuration = items.reduce((m, it) => Math.max(m, it.durationDays ?? 0), 0)
+    const totalWeeks = maxDuration > 0 ? Math.ceil(maxDuration / 7) : 12
+    const start = new Date(plan.signedAt ?? plan.createdAt).getTime()
+    const daysElapsed = Math.max(0, Math.floor((Date.now() - start) / 86400000))
+    const totalDays = totalWeeks * 7
+    const weekNo = Math.max(1, Math.min(totalWeeks, Math.floor(daysElapsed / 7) + 1))
+    const pct = totalDays > 0 ? Math.max(0, Math.min(100, Math.round((daysElapsed / totalDays) * 100))) : 0
+    return { title: plan.title, items, totalWeeks, weekNo, pct }
+  }, [plan])
 
   const now = Date.now()
   const upcoming = (activity ?? []).filter((a) => new Date(a.startsAt).getTime() >= now && (a.status === "REQUESTED" || a.status === "CONFIRMED")).sort((a, b) => +new Date(a.startsAt) - +new Date(b.startsAt))
@@ -556,23 +606,42 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         </div>
       ) : tab === "Program & Refills" ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          <Panel title="Prescribed Program" icon={ClipboardList} aside="Representative">
-            <h4 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">Metabolic &amp; Hormonal Optimization Program</h4>
-            <div className="flex gap-2 mt-2">
-              <Chip>12 Weeks Program</Chip><Chip tone="green">Active – Week 1</Chip>
-            </div>
-            <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-center">
-              <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #E7DFCD" }}>
-                {[["Hormonal Balance", "Testosterone, Thyroid, Cortisol"], ["Metabolic Restoration", "Insulin Sensitivity, Body Composition"], ["Energy & Recovery", "Mitochondrial Support, Inflammation Control"]].map(([a, b], i) => (
-                  <div key={a} className="flex flex-col px-4 py-2.5" style={i > 0 ? { borderTop: "1px solid #EFE8D8" } : undefined}>
-                    <span className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{a}</span>
-                    <span className="text-xs text-[#6B7B73] dark:text-[#94A3B8]">{b}</span>
+          <Panel title="Prescribed Program" icon={ClipboardList}>
+            {plan === undefined ? (
+              <Empty text="Loading program…" />
+            ) : !program ? (
+              <Empty text="No active program prescribed yet. Sign a treatment plan to start one." />
+            ) : (
+              <>
+                <h4 className="text-base font-bold text-[#101828] dark:text-[#F9FAFB]">{program.title}</h4>
+                <div className="flex gap-2 mt-2">
+                  <Chip>{program.totalWeeks} Weeks Program</Chip>
+                  <Chip tone="green">Active – Week {program.weekNo}</Chip>
+                </div>
+                <div className="mt-4 grid grid-cols-[1fr_auto] gap-4 items-center">
+                  <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #E7DFCD" }}>
+                    {program.items.length === 0 ? (
+                      <div className="px-4 py-2.5">
+                        <span className="text-xs text-[#6B7B73] dark:text-[#94A3B8]">No items in this program.</span>
+                      </div>
+                    ) : (
+                      program.items.slice(0, 4).map((it, i) => (
+                        <div key={it.id} className="flex flex-col px-4 py-2.5" style={i > 0 ? { borderTop: "1px solid #EFE8D8" } : undefined}>
+                          <span className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">{it.name}</span>
+                          <span className="text-xs text-[#6B7B73] dark:text-[#94A3B8]">
+                            {[it.dose, it.frequency].filter(Boolean).join(" · ") || it.kind}
+                          </span>
+                        </div>
+                      ))
+                    )}
                   </div>
-                ))}
-              </div>
-              <ProgressRing pct={12} />
-            </div>
-            <p className="text-[11px] mt-3" style={{ color: "#A08A52" }}>Representative — needs a Program model to go live.</p>
+                  <ProgressRing pct={program.pct} weekNo={program.weekNo} totalWeeks={program.totalWeeks} />
+                </div>
+                {program.items.length > 4 ? (
+                  <p className="text-[11px] mt-3 text-[#98A2B3]">+{program.items.length - 4} more item{program.items.length - 4 === 1 ? "" : "s"} in this program</p>
+                ) : null}
+              </>
+            )}
           </Panel>
           <Panel title="Upcoming Bookings & Sessions" icon={CalendarClock}>
             {upcoming.length === 0 ? <Empty text="No upcoming bookings." /> : (
@@ -741,7 +810,7 @@ function Chip({ children, tone }: { children: React.ReactNode; tone?: "green" })
   return <span className="text-[11px] font-semibold px-2.5 py-1 rounded-md" style={tone === "green" ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#F1EEE4", color: "#7A6A3C" }}>{children}</span>
 }
 
-function ProgressRing({ pct }: { pct: number }) {
+function ProgressRing({ pct, weekNo, totalWeeks }: { pct: number; weekNo: number; totalWeeks: number }) {
   const r = 34
   const c = 2 * Math.PI * r
   return (
@@ -750,7 +819,7 @@ function ProgressRing({ pct }: { pct: number }) {
         <circle cx="46" cy="46" r={r} fill="none" stroke="#EFE8D8" strokeWidth="9" />
         <circle cx="46" cy="46" r={r} fill="none" stroke={GREEN} strokeWidth="9" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} transform="rotate(-90 46 46)" />
         <text x="46" y="44" textAnchor="middle" fontSize="18" fontWeight="700" fill={INK}>{pct}%</text>
-        <text x="46" y="60" textAnchor="middle" fontSize="9" fill="#8A9A92">Week 1 of 12</text>
+        <text x="46" y="60" textAnchor="middle" fontSize="9" fill="#8A9A92">Week {weekNo} of {totalWeeks}</text>
       </svg>
     </div>
   )
