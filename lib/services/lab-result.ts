@@ -596,6 +596,64 @@ export type LabResultAttachmentDownload = {
  *  - Writes an UPDATE audit row with `{ before, after }` describing the
  *    attachment fields (not the whole row).
  */
+/**
+ * Lazily migrate a legacy single-file lab result into the attachments table:
+ * if the row has `attachmentKey` set but no attachment rows yet, create one
+ * mirroring the legacy columns so pre-existing single-file rows surface in the
+ * multi-file list. Idempotent. Runs inside the caller's transaction.
+ */
+export async function backfillLegacyAttachment(
+  tx: Prisma.TransactionClient,
+  labResultId: string,
+): Promise<void> {
+  const lab = await tx.labResult.findUnique({
+    where: { id: labResultId },
+    select: { attachmentKey: true, attachmentMime: true, attachmentUploadedAt: true },
+  })
+  if (!lab?.attachmentKey) return
+  const count = await tx.labResultAttachment.count({ where: { labResultId } })
+  if (count > 0) return
+  await tx.labResultAttachment.create({
+    data: {
+      labResultId,
+      attachmentKey: lab.attachmentKey,
+      attachmentMime: lab.attachmentMime,
+      ...(lab.attachmentUploadedAt ? { createdAt: lab.attachmentUploadedAt } : {}),
+    },
+  })
+}
+
+/**
+ * Re-sync the legacy mirror columns (and `reportedAt`) from the current
+ * attachments — the most-recent file wins. When no files remain, clears the
+ * mirror + `reportedAt`, flipping the row back to "active". Caller's tx.
+ */
+export async function syncAttachmentMirror(
+  tx: Prisma.TransactionClient,
+  labResultId: string,
+): Promise<void> {
+  const latest = await tx.labResultAttachment.findFirst({
+    where: { labResultId },
+    orderBy: { createdAt: "desc" },
+    select: { attachmentKey: true, attachmentMime: true, createdAt: true },
+  })
+  await tx.labResult.update({
+    where: { id: labResultId },
+    data: latest
+      ? {
+          attachmentKey: latest.attachmentKey,
+          attachmentMime: latest.attachmentMime,
+          attachmentUploadedAt: latest.createdAt,
+        }
+      : {
+          attachmentKey: null,
+          attachmentMime: null,
+          attachmentUploadedAt: null,
+          reportedAt: null,
+        },
+  })
+}
+
 export async function attachToLabResult(
   id: string,
   payload: AttachLabResultBody,
@@ -610,26 +668,32 @@ export async function attachToLabResult(
   return db.$transaction(async (tx) => {
     const before = await tx.labResult.findUnique({
       where: { id },
-      select: {
-        id: true,
-        attachmentKey: true,
-        attachmentMime: true,
-        attachmentUploadedAt: true,
-        reportedAt: true,
-      },
+      select: { id: true, reportedAt: true },
     })
     if (!before) throw new NotFoundError("Lab result not found")
 
+    // Migrate any legacy single file into the table first, then ADD this one.
+    await backfillLegacyAttachment(tx, id)
+
     const now = new Date()
+    await tx.labResultAttachment.create({
+      data: {
+        labResultId: id,
+        attachmentKey: payload.key,
+        attachmentMime: payload.contentType ?? null,
+        filename: payload.filename ?? null,
+        sizeBytes: payload.sizeBytes ?? null,
+        uploadedById: actor.userId,
+      },
+    })
+
+    // Mirror this (newest) file onto the row + stamp reportedAt on the first.
     const after = await tx.labResult.update({
       where: { id },
       data: {
         attachmentKey: payload.key,
-        ...(payload.contentType !== undefined
-          ? { attachmentMime: payload.contentType }
-          : {}),
+        attachmentMime: payload.contentType ?? null,
         attachmentUploadedAt: now,
-        // First report in → mark it reported (status active → completed).
         ...(before.reportedAt == null ? { reportedAt: now } : {}),
       },
       include: LAB_RESULT_INCLUDE,
@@ -641,17 +705,11 @@ export async function attachToLabResult(
       entityId: after.id,
       detail: {
         attachment: {
-          before: {
-            attachmentKey: before.attachmentKey,
-            attachmentMime: before.attachmentMime,
-            attachmentUploadedAt: before.attachmentUploadedAt,
+          added: {
+            key: payload.key,
+            filename: payload.filename ?? null,
+            sizeBytes: payload.sizeBytes ?? null,
           },
-          after: {
-            attachmentKey: after.attachmentKey,
-            attachmentMime: after.attachmentMime,
-            attachmentUploadedAt: after.attachmentUploadedAt,
-          },
-          sizeBytes: payload.sizeBytes ?? null,
         },
       },
     })
@@ -688,6 +746,8 @@ export async function detachFromLabResult(
     })
     if (!before) throw new NotFoundError("Lab result not found")
 
+    // Remove every report file, then clear the legacy mirror columns.
+    await tx.labResultAttachment.deleteMany({ where: { labResultId: id } })
     await tx.labResult.update({
       where: { id },
       data: {
@@ -773,4 +833,126 @@ export async function getLabResultAttachmentDownload(
     attachmentKey: row.attachmentKey,
     attachmentUploadedAt: row.attachmentUploadedAt,
   }
+}
+
+// ---------------------------------------------------------------------------
+// Multiple report files per lab result
+// ---------------------------------------------------------------------------
+
+export type LabResultAttachmentItem = {
+  id: string
+  filename: string | null
+  attachmentMime: string | null
+  sizeBytes: number | null
+  uploadedAt: string
+}
+
+/**
+ * List every report file on a lab result (newest first). Lazily backfills a
+ * legacy single-file row into the attachments table so older results still
+ * show their file. READ_ROLES gate.
+ */
+export async function listLabResultAttachments(
+  id: string,
+  actor: { userId: string; role: Role },
+): Promise<LabResultAttachmentItem[]> {
+  if (!READ_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(`Role ${actor.role} cannot view lab results`)
+  }
+  const rows = await db.$transaction(async (tx) => {
+    const lab = await tx.labResult.findUnique({ where: { id }, select: { id: true } })
+    if (!lab) throw new NotFoundError("Lab result not found")
+    await backfillLegacyAttachment(tx, id)
+    return tx.labResultAttachment.findMany({
+      where: { labResultId: id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        filename: true,
+        attachmentMime: true,
+        sizeBytes: true,
+        createdAt: true,
+      },
+    })
+  })
+  await writeAudit(db, {
+    actorUserId: actor.userId,
+    action: "READ",
+    entityId: id,
+    detail: { attachment: { scope: "list", count: rows.length } },
+  })
+  return rows.map((a) => ({
+    id: a.id,
+    filename: a.filename,
+    attachmentMime: a.attachmentMime,
+    sizeBytes: a.sizeBytes,
+    uploadedAt: a.createdAt.toISOString(),
+  }))
+}
+
+/**
+ * Mint a presigned GET URL for ONE report file. READ_ROLES gate. Returns null
+ * when the file doesn't exist on this lab result (→ 404 at the route).
+ */
+export async function getLabResultAttachmentFileDownload(
+  id: string,
+  fileId: string,
+  actor: { userId: string; role: Role },
+): Promise<{ downloadUrl: string; filename: string | null } | null> {
+  if (!READ_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(`Role ${actor.role} cannot view lab results`)
+  }
+  const file = await db.labResultAttachment.findFirst({
+    where: { id: fileId, labResultId: id },
+    select: { attachmentKey: true, filename: true },
+  })
+  if (!file) return null
+
+  const signed = await getDownloadUrl({
+    bucket: "phi",
+    key: file.attachmentKey,
+    ttlSec: ATTACHMENT_DOWNLOAD_TTL_SEC,
+    asAttachment: true,
+    ...(file.filename ? { filename: file.filename } : {}),
+  })
+
+  await writeAudit(db, {
+    actorUserId: actor.userId,
+    action: "READ",
+    entityId: id,
+    detail: { attachment: { fileId, key: file.attachmentKey } },
+  })
+
+  return { downloadUrl: signed.url, filename: file.filename }
+}
+
+/**
+ * Delete ONE report file from a lab result, then re-sync the legacy mirror
+ * (and `reportedAt` when the last file goes). Does NOT delete the S3 object
+ * (cleanup deferred, consistent with detach). ATTACH_ROLES gate so whoever
+ * can upload can also remove a mistaken file.
+ */
+export async function deleteLabResultAttachment(
+  id: string,
+  fileId: string,
+  actor: { userId: string; role: Role },
+): Promise<void> {
+  if (!ATTACH_ROLES.includes(actor.role)) {
+    throw new ForbiddenError(`Role ${actor.role} cannot modify a lab report`)
+  }
+  await db.$transaction(async (tx) => {
+    const file = await tx.labResultAttachment.findFirst({
+      where: { id: fileId, labResultId: id },
+      select: { id: true, attachmentKey: true },
+    })
+    if (!file) throw new NotFoundError("Attachment not found")
+    await tx.labResultAttachment.delete({ where: { id: file.id } })
+    await syncAttachmentMirror(tx, id)
+    await writeAudit(tx, {
+      actorUserId: actor.userId,
+      action: "DELETE",
+      entityId: id,
+      detail: { attachment: { removed: { fileId, key: file.attachmentKey } } },
+    })
+  })
 }

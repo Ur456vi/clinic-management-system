@@ -818,17 +818,48 @@ model LabResult {
   /// Optional one-liner surfaced in the patient timeline.
   summary String?
 
-  /// S3 object key for the attached PDF/image. Populated by BE-19 once the
-  /// presigned-upload flow lands; nullable until then.
+  /// Legacy single-file pointer. A lab can now hold MANY report files (see
+  /// `attachments`); these columns are kept in sync with the most-recent row
+  /// so existing reads (timeline, "Completed" badges) keep working unchanged.
   attachmentKey        String?   @map("attachment_key")
   attachmentMime       String?   @map("attachment_mime")
   attachmentUploadedAt DateTime? @map("attachment_uploaded_at")
+
+  /// All report files attached to this lab — one row per uploaded PDF/image.
+  attachments LabResultAttachment[]
+
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @updatedAt @map("updated_at")
 
   @@index([patientId, collectedAt])
   @@index([consultationId])
   @@map("lab_results")
+}
+
+/**
+ * One uploaded report file for a LabResult. A test can have several reports
+ * (e.g. a multi-page panel split across PDFs, or a re-test). Files live in the
+ * private `phi` S3 bucket; this row holds the key + display metadata. Deleting
+ * a row orphans the S3 object (cleanup deferred, consistent with detach).
+ */
+model LabResultAttachment {
+  id          String    @id @default(uuid()) @db.Uuid
+  labResultId String    @map("lab_result_id") @db.Uuid
+  labResult   LabResult @relation(fields: [labResultId], references: [id], onDelete: Cascade)
+
+  /// S3 object key in the private `phi` bucket.
+  attachmentKey  String  @map("attachment_key")
+  attachmentMime String? @map("attachment_mime")
+  /// Original filename, for display + download disposition.
+  filename       String?
+  sizeBytes      Int?    @map("size_bytes")
+  /// User who uploaded (staff id or patient's user id); null when unknown.
+  uploadedById   String? @map("uploaded_by_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([labResultId, createdAt])
+  @@map("lab_result_attachments")
 }
 
 // Billing — Invoice / InvoiceItem / Payment (BE-37)

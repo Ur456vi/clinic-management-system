@@ -112,6 +112,9 @@ export type ListLabResultsQuery = z.infer<typeof listLabResultsQuerySchema>
 
 export const labResultIdParamSchema = z.object({ id: uuid })
 
+/** Route params for a single attachment file under a lab result. */
+export const labResultAttachmentParamSchema = z.object({ id: uuid, fileId: uuid })
+
 /**
  * Body for `PUT /api/lab-results/:id/attachment` (BE-20).
  *
@@ -124,6 +127,8 @@ export const attachLabResultBodySchema = z.object({
   key: z.string().trim().min(1, "Required").max(1024),
   contentType: z.string().trim().min(1).max(200).optional(),
   sizeBytes: z.number().int().nonnegative().max(25 * 1024 * 1024).optional(),
+  /** Original filename for display + download disposition. */
+  filename: z.string().trim().min(1).max(255).optional(),
 })
 
 export type AttachLabResultBody = z.infer<typeof attachLabResultBodySchema>

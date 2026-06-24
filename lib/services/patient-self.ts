@@ -25,6 +25,10 @@ import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import { parseRxItem } from "@/lib/rx-library"
 import { buildObjectKey, getDownloadUrl, putObject } from "@/lib/services/storage"
+import {
+  backfillLegacyAttachment,
+  syncAttachmentMirror,
+} from "@/lib/services/lab-result"
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -312,7 +316,7 @@ export async function uploadSelfLabReport(args: {
   buffer: Buffer
   contentType: string
   filename: string
-}): Promise<{ id: string; attachmentUploadedAt: Date }> {
+}): Promise<{ id: string; attachmentId: string; attachmentUploadedAt: Date }> {
   if (args.contentType !== "application/pdf") {
     throw new ValidationError("Report must be a PDF")
   }
@@ -341,16 +345,32 @@ export async function uploadSelfLabReport(args: {
     contentType: "application/pdf",
   })
 
+  // ADD this file (a test can hold many reports) and mirror it as the latest
+  // onto the row so existing reads / "Completed" badges keep working.
   const now = new Date()
-  const updated = await db.labResult.update({
-    where: { id: lab.id },
-    data: {
-      attachmentKey: key,
-      attachmentMime: "application/pdf",
-      attachmentUploadedAt: now,
-      ...(lab.reportedAt == null ? { reportedAt: now } : {}),
-    },
-    select: { id: true, attachmentUploadedAt: true },
+  const attachment = await db.$transaction(async (tx) => {
+    await backfillLegacyAttachment(tx, lab.id)
+    const created = await tx.labResultAttachment.create({
+      data: {
+        labResultId: lab.id,
+        attachmentKey: key,
+        attachmentMime: "application/pdf",
+        filename: args.filename || "lab-report.pdf",
+        sizeBytes: args.buffer.byteLength,
+        uploadedById: args.actorUserId,
+      },
+      select: { id: true },
+    })
+    await tx.labResult.update({
+      where: { id: lab.id },
+      data: {
+        attachmentKey: key,
+        attachmentMime: "application/pdf",
+        attachmentUploadedAt: now,
+        ...(lab.reportedAt == null ? { reportedAt: now } : {}),
+      },
+    })
+    return created
   })
 
   await recordAudit({
@@ -361,7 +381,131 @@ export async function uploadSelfLabReport(args: {
     detail: { scope: "self.labReport.upload", key },
   })
 
-  return { id: updated.id, attachmentUploadedAt: updated.attachmentUploadedAt ?? now }
+  return { id: lab.id, attachmentId: attachment.id, attachmentUploadedAt: now }
+}
+
+export type SelfLabReportFile = {
+  id: string
+  filename: string | null
+  attachmentMime: string | null
+  sizeBytes: number | null
+  uploadedAt: string
+}
+
+/**
+ * List every report file the calling patient has on one of their own labs
+ * (newest first). Ownership-pinned; lazily backfills a legacy single file.
+ */
+export async function listSelfLabReportFiles(args: {
+  patientId: string
+  actorUserId: string
+  labResultId: string
+}): Promise<SelfLabReportFile[]> {
+  const rows = await db.$transaction(async (tx) => {
+    const lab = await tx.labResult.findFirst({
+      where: { id: args.labResultId, patientId: args.patientId },
+      select: { id: true },
+    })
+    if (!lab) throw new NotFoundError("Lab result not found")
+    await backfillLegacyAttachment(tx, lab.id)
+    return tx.labResultAttachment.findMany({
+      where: { labResultId: lab.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        filename: true,
+        attachmentMime: true,
+        sizeBytes: true,
+        createdAt: true,
+      },
+    })
+  })
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "LabResult",
+    entityId: args.labResultId,
+    detail: { scope: "self.labReport.list", count: rows.length },
+  })
+  return rows.map((a) => ({
+    id: a.id,
+    filename: a.filename,
+    attachmentMime: a.attachmentMime,
+    sizeBytes: a.sizeBytes,
+    uploadedAt: a.createdAt.toISOString(),
+  }))
+}
+
+/**
+ * Presigned download for ONE of the patient's own report files. Ownership is
+ * enforced through the `labResult.patientId` relation filter. Null → 404.
+ */
+export async function getSelfLabReportFileDownload(args: {
+  patientId: string
+  actorUserId: string
+  labResultId: string
+  fileId: string
+}): Promise<{ downloadUrl: string; filename: string | null } | null> {
+  const file = await db.labResultAttachment.findFirst({
+    where: {
+      id: args.fileId,
+      labResultId: args.labResultId,
+      labResult: { patientId: args.patientId },
+    },
+    select: { attachmentKey: true, filename: true },
+  })
+  if (!file) return null
+
+  const signed = await getDownloadUrl({
+    bucket: "phi",
+    key: file.attachmentKey,
+    asAttachment: true,
+    ...(file.filename ? { filename: file.filename } : {}),
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "LabResult",
+    entityId: args.labResultId,
+    detail: { scope: "self.labReport.download", fileId: args.fileId },
+  })
+
+  return { downloadUrl: signed.url, filename: file.filename }
+}
+
+/**
+ * Delete ONE of the patient's own report files, re-syncing the mirror (and
+ * `reportedAt` when the last file goes). Ownership-pinned. S3 object is left
+ * for the cleanup job, consistent with the staff detach path.
+ */
+export async function deleteSelfLabReportFile(args: {
+  patientId: string
+  actorUserId: string
+  labResultId: string
+  fileId: string
+}): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const file = await tx.labResultAttachment.findFirst({
+      where: {
+        id: args.fileId,
+        labResultId: args.labResultId,
+        labResult: { patientId: args.patientId },
+      },
+      select: { id: true },
+    })
+    if (!file) throw new NotFoundError("Report file not found")
+    await tx.labResultAttachment.delete({ where: { id: file.id } })
+    await syncAttachmentMirror(tx, args.labResultId)
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "DELETE",
+    entityType: "LabResult",
+    entityId: args.labResultId,
+    detail: { scope: "self.labReport.delete", fileId: args.fileId },
+  })
 }
 
 /**
