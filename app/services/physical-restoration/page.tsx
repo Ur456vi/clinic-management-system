@@ -402,19 +402,18 @@ export default function PhysicalRestorationPage() {
             <span
               className="text-[11px] uppercase font-bold tracking-[0.2em] text-[var(--color-accent-red)] mb-4"
             >
-              FUNCTION. STRENGTH. LONGEVITY.
+              PHYSIOLOGY. FUNCTION. STRENGTH LONGEVITY.
             </span>
             <h1 className="font-serif-brand text-[44px] sm:text-[52px] xl:text-[60px] font-normal leading-[1.05] tracking-tight text-[var(--color-text-primary)]">
               Physical<br />
-              <span className="text-[var(--color-accent-red)]">Restoration</span><br />
-              Programs
+              <span className="text-[var(--color-accent-red)]">Restoration &</span><br />
+              Performance Programs
             </h1>
             
             <p className="mt-6 font-sans text-[16px] sm:text-[17px] leading-relaxed text-[var(--color-text-body)]">
-              Movement is not simply exercise.<br />
+              Movement is not merely exercise<br />
               <span className="block mt-1">
-                It is one of the most <span className="text-[var(--color-accent-green)] font-semibold">powerful biological</span><br />
-                signals the human body receives.
+                It is one of the most powerful physiological regulators of human health.
               </span>
             </p>
             
@@ -425,7 +424,7 @@ export default function PhysicalRestorationPage() {
                 href="#program"
                 className="inline-flex items-center justify-center rounded-none px-6 py-3.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 bg-[var(--color-accent-green)] shadow-sm"
               >
-                Explore Our Programs &rarr;
+                Explore Clinical Pathways &rarr;
               </Link>
               <Link
                 href="/assessment"
@@ -542,7 +541,7 @@ export default function PhysicalRestorationPage() {
                     <LeafIcon className="w-2.5 h-2.5 text-[var(--color-accent-green)]" />
                   </div>
                   <span className="text-[9px] font-bold text-[var(--color-text-body)] whitespace-nowrap bg-[var(--color-bg-primary)] px-1.5 py-0.5 rounded-sm">
-                    Metabolic Health
+                    Metabolic Function
                   </span>
                 </div>
 
@@ -561,7 +560,7 @@ export default function PhysicalRestorationPage() {
                     </svg>
                   </div>
                   <span className="text-[9px] font-bold text-[var(--color-text-body)] whitespace-nowrap bg-[var(--color-bg-primary)] px-1.5 py-0.5 rounded-sm">
-                    Hormonal Function
+                    Hormonal Regulation
                   </span>
                 </div>
 
@@ -578,7 +577,7 @@ export default function PhysicalRestorationPage() {
                     <HeartIcon className="w-2.5 h-2.5 text-[var(--color-accent-green)]" />
                   </div>
                   <span className="text-[9px] font-bold text-[var(--color-text-body)] whitespace-nowrap bg-[var(--color-bg-primary)] px-1.5 py-0.5 rounded-sm">
-                    Vascular Health
+                    Cardiovascular Integrity
                   </span>
                 </div>
 
@@ -615,7 +614,7 @@ export default function PhysicalRestorationPage() {
                     <ClockIcon className="w-2.5 h-2.5 text-[var(--color-accent-green)]" />
                   </div>
                   <span className="text-[9px] font-bold text-[var(--color-text-body)] whitespace-nowrap bg-[var(--color-bg-primary)] px-1.5 py-0.5 rounded-sm">
-                    Longevity &amp; Independence
+                    Functional Longevity
                   </span>
                 </div>
               </div>
@@ -682,8 +681,8 @@ export default function PhysicalRestorationPage() {
               <div className="flex flex-col justify-between h-full">
                 <div>
                   <h2 className="font-serif-brand text-[20px] sm:text-[24px] md:text-[26px] font-normal leading-[1.15] text-[var(--color-accent-red)]">
-                    Too Inactive. Too Intense.<br />
-                    Either Way, The Body Pays.
+                    Physiology Does Not Respond Well To Extremes.<br />
+                    It responds best to adaptation Both Inactivity And Excess Come At A Cost.
                   </h2>
                   <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-text-muted)] font-sans">
                     Many individuals are caught between two extremes:
@@ -718,45 +717,45 @@ export default function PhysicalRestorationPage() {
               <div className="flex flex-col justify-start h-full lg:border-l border-[var(--color-border-light)]/60 lg:pl-6">
                 <div>
                   <h3 className="font-serif-brand text-[17px] sm:text-[19px] md:text-[20px] font-normal leading-[1.2] text-[var(--color-text-primary)] mb-4">
-                    The Result Is Often:
+                    Common Consequences Include:
                   </h3>
                   
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-6">
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Chronic fatigue</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Sarcopenia</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Poor recovery</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced recovery capacity</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Persistent aches and pains</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Chronic musculoskeletal pain</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Declining mobility</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Impaired mobility</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Loss of muscle mass</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Loss of strength and power</span>
                     </div>
-                    <div className="flex items-start gap-2.5">
+                    {/* <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
                       <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Stiffness</span>
+                    </div> */}
+                    <div className="flex items-start gap-2.5">
+                      <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced endurance</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced stamina</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Increased injury risk</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Injuries</span>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Burnout from unsustainable routines</span>
+                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Progressive physical decline</span>
                     </div>
                   </div>
                 </div>
@@ -766,74 +765,74 @@ export default function PhysicalRestorationPage() {
               <div className="flex flex-col justify-start h-full lg:border-l border-[var(--color-border-light)]/60 lg:pl-6">
                 <div>
                   <h3 className="font-serif-brand text-[17px] sm:text-[19px] md:text-[20px] font-normal leading-[1.25] text-[var(--color-text-primary)] mb-4">
-                    Physical Decline Develops Gradually Through:
+                    Loss Of Function Often Begins Long Before Symptoms Become Obvious.
                   </h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-1 gap-x-3 gap-y-3.5">
                     {/* Left sub-column */}
                     <div className="flex flex-col gap-3.5">
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <BicepIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Muscle loss</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <MovementVariabilityIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Reduced movement variability</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <RecoveryPhysiologyIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Poor recovery physiology</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <InflammationIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Chronic inflammation</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Right sub-column */}
-                    <div className="flex flex-col gap-3.5">
-                      <div className="flex items-start gap-2">
+                    <div className="flex flex-col gap-6.5">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <MetabolicIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Metabolic dysfunction</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <CouchIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Sedentary lifestyles</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-full border border-[var(--color-border-light)] bg-white flex items-center justify-center text-[var(--color-accent-green)] shrink-0 shadow-sm mt-0.5">
                           <HormonalDeclineIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
-                        <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-3">
                           <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Hormonal decline</span>
                         </div>
                       </div>
@@ -845,12 +844,12 @@ export default function PhysicalRestorationPage() {
             </div>
 
             {/* Row 1: Full-width horizontal info bar (6 items with icons + posture image on right) */}
-            <div className="w-full bg-[#FBF9F5] border border-[var(--color-border-light)] rounded-2xl overflow-hidden p-4 md:p-5 flex flex-col xl:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="w-full bg-[#FBF9F5] border border-[var(--color-border-light)] rounded-2xl overflow-hidden px-4 md:px-5 py-8 md:py-10 flex flex-col xl:flex-row items-center justify-between gap-4 shadow-sm">
               {/* Left Column: Heading */}
               <div className="max-w-[280px] shrink-0 text-center xl:text-left">
                 <h3 className="font-serif-brand text-[17px] sm:text-[19px] md:text-[20px] font-normal leading-[1.25] text-[var(--color-text-primary)]">
-                  Over time, this affects far more than<br />
-                  physical appearance. It impacts:
+                  The Consequences Extend Far Beyond Appearance.<br />
+                  Physical function influences:
                 </h3>
               </div>
 
@@ -864,7 +863,7 @@ export default function PhysicalRestorationPage() {
                     </svg>
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Energy<br />Levels
+                    Recovery Capacity
                   </span>
                 </div>
 
@@ -874,7 +873,7 @@ export default function PhysicalRestorationPage() {
                     <MeditationIcon className="w-4.5 h-4.5" />
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Confidence
+                    Functional Confidence
                   </span>
                 </div>
 
@@ -884,7 +883,7 @@ export default function PhysicalRestorationPage() {
                     <SpineIcon className="w-4.5 h-4.5 text-[var(--color-icon-stroke)]" />
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Posture &amp;<br />Movement Quality
+                    Movement Efficiency
                   </span>
                 </div>
 
@@ -894,7 +893,7 @@ export default function PhysicalRestorationPage() {
                     <HeartIcon className="w-4.5 h-4.5 text-[var(--color-icon-stroke)]" />
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Cardiovascular<br />Resilience
+                    Cardiometabolic Resilience and Fitness
                   </span>
                 </div>
 
@@ -904,7 +903,7 @@ export default function PhysicalRestorationPage() {
                     <BrainIcon className="w-4.5 h-4.5" />
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Cognitive<br />Function
+                    Cognitive Performance
                   </span>
                 </div>
 
@@ -914,31 +913,31 @@ export default function PhysicalRestorationPage() {
                     <AgingShieldIcon className="w-4.5 h-4.5" />
                   </div>
                   <span className="text-[9px] font-bold uppercase tracking-[0.02em] text-[var(--color-text-body)] leading-tight font-sans">
-                    Long-Term<br />Independence<br />&amp; Aging
+                    Functional Longevity
                   </span>
                 </div>
               </div>
 
               {/* Right Column: Posture Portrait Space */}
-              <div className="w-[110px] h-[80px] shrink-0 bg-[#E0DACE] border border-[var(--color-border-light)] rounded-xl flex flex-col items-center justify-center text-[7.5px] text-[var(--color-text-muted)] font-bold text-center p-2.5 select-none leading-relaxed">
+              {/* <div className="w-[110px] h-[80px] shrink-0 bg-[#E0DACE] border border-[var(--color-border-light)] rounded-xl flex flex-col items-center justify-center text-[7.5px] text-[var(--color-text-muted)] font-bold text-center p-2.5 select-none leading-relaxed">
                 <span>[ POSTURE</span>
                 <span>PORTRAIT ]</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Row 2: 3-column independent layout (Left, Middle, Right) */}
-            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-9 gap-6 items-stretch">
               
               {/* Left Column: Heading, description, bullet points, image (col-span-4) */}
               <div className="lg:col-span-4 bg-white border border-[var(--color-border-light)] rounded-2xl p-5 md:p-6 flex flex-col justify-start shadow-sm">
                 <div>
                   <h3 className="font-serif-brand text-[18px] sm:text-[20px] md:text-[21px] font-normal leading-[1.25] text-[#1A1A1A] mb-4">
-                    Most Exercise Programs Are Built Around Intensity. Very Few Are Built Around Physiology.
+                    Most Exercise Programs Focus On Effort. Very Few Consider Physiology.
                   </h3>
                   <p className="text-[13px] leading-relaxed text-[var(--color-text-body)] mb-5">
                     Generic workouts, trend-driven fitness plans, and unsupervised exercise routines often fail because they ignore:
                   </p>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-3">
                       <RedXIcon />
                       <span className="text-[12.5px] font-semibold text-[var(--color-text-body)]">Recovery capacity</span>
@@ -971,7 +970,7 @@ export default function PhysicalRestorationPage() {
               <div className="lg:col-span-5 bg-white border border-[var(--color-border-light)] rounded-2xl p-5 md:p-6 flex flex-col justify-between shadow-sm">
                 <div>
                   <h3 className="font-serif-brand text-[18px] sm:text-[20px] md:text-[21px] font-normal leading-[1.25] text-[var(--color-text-primary)] mb-4">
-                    Our Physical Restoration Programs Are Designed Around Function—Not Punishment.
+                    Our Physical Restoration Programs Are Designed Around Physiology and Adaptation—Not Exhaustion
                   </h3>
                   <p className="text-[13px] leading-relaxed text-[var(--color-text-body)] mb-5">
                     Exercise is approached as a structured, physician-guided restorative intervention. Every program is individualized based on:
@@ -985,7 +984,7 @@ export default function PhysicalRestorationPage() {
                         <MetabolicIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Age &amp; Body<br />Composition
+                        Age &amp; Body Composition
                       </span>
                     </div>
 
@@ -995,7 +994,7 @@ export default function PhysicalRestorationPage() {
                         <JointIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Mobility &amp;<br />Movement Assessment
+                        Mobility &amp; Movement Assessment
                       </span>
                     </div>
 
@@ -1005,7 +1004,7 @@ export default function PhysicalRestorationPage() {
                         <HormonalDeclineIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Hormonal &amp;<br />Metabolic Status
+                        Hormonal &amp; Metabolic Status
                       </span>
                     </div>
 
@@ -1015,7 +1014,7 @@ export default function PhysicalRestorationPage() {
                         <HeartIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Cardiovascular<br />Conditioning
+                        Cardiovascular Conditioning
                       </span>
                     </div>
 
@@ -1025,7 +1024,7 @@ export default function PhysicalRestorationPage() {
                         <BicepIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Strength &amp;<br />Recovery Capacity
+                        Strength &amp; Recovery Capacity
                       </span>
                     </div>
 
@@ -1035,7 +1034,7 @@ export default function PhysicalRestorationPage() {
                         <AgingShieldIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Pain Patterns &amp;<br />Previous Injuries
+                        Pain Patterns &amp; Previous Injuries
                       </span>
                     </div>
 
@@ -1045,7 +1044,7 @@ export default function PhysicalRestorationPage() {
                         <ClockIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Lifestyle &amp;<br />Occupational Demands
+                        Lifestyle &amp; Occupational Demands
                       </span>
                     </div>
 
@@ -1055,7 +1054,7 @@ export default function PhysicalRestorationPage() {
                         <BrainIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                       </div>
                       <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.01em] text-[var(--color-text-body)] leading-tight">
-                        Neuromuscular<br />Control
+                        Neuromuscular Control
                       </span>
                     </div>
                   </div>
@@ -1066,7 +1065,7 @@ export default function PhysicalRestorationPage() {
               </div>
 
               {/* Right Column: Large curved image container (col-span-3) */}
-              <div className="lg:col-span-3 min-h-[300px] lg:h-[350px] w-full flex items-stretch">
+              {/* <div className="lg:col-span-3 min-h-[300px] lg:h-[350px] w-full flex items-stretch">
                 <div 
                   className="w-full bg-[#E0DACE] border border-[var(--color-border-light)] flex items-center justify-center text-[10px] text-[var(--color-text-muted)] font-bold text-center shadow-sm select-none"
                   style={{
@@ -1081,7 +1080,7 @@ export default function PhysicalRestorationPage() {
                     <span>ATHLETE ]</span>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Row 3: Physician-guided therapist programs (Figma-Aligned 2-Column layout) */}
@@ -1097,7 +1096,7 @@ export default function PhysicalRestorationPage() {
                   <div className="md:col-span-7 flex flex-col justify-between h-full pr-0 md:pr-2">
                     <div>
                       <h3 className="font-serif-brand text-[18px] sm:text-[20px] md:text-[21px] font-normal leading-[1.3] text-[var(--color-text-primary)] mb-4">
-                        These Are Physician-Guided, Therapist-Supervised Restoration Programs.
+                        These Are Physician-Directed, Therapist-Supervised Restoration Programs.
                       </h3>
                       <p className="text-[13px] leading-relaxed text-[var(--color-text-body)]">
                         Programs are conducted by trained Physical Restoration Specialists (PRS) within a structured clinical framework focused on:
@@ -1175,9 +1174,9 @@ export default function PhysicalRestorationPage() {
                   {/* Inner Right Column: checklist of 8 programs with middle vertical separator line */}
                   <div className="md:col-span-5 flex flex-col justify-start h-full md:border-l border-[var(--color-border-light)]/60 md:pl-6 pt-4 md:pt-0">
                     <span className="text-[11px] uppercase font-bold tracking-[0.12em] text-[var(--color-accent-green)] mb-4 block">
-                      Depending on individual needs, programs include:
+                      Individualized Clinical Programs May Include:
                     </span>
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-6">
                       <div className="flex items-center gap-3">
                         <CheckOutlineIcon className="w-4 h-4 text-[#4A7C40] shrink-0" />
                         <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-snug">Corrective Movement Training</span>
@@ -1220,10 +1219,10 @@ export default function PhysicalRestorationPage() {
               <div className="lg:col-span-4 bg-[var(--color-accent-red)] text-white rounded-2xl p-5 md:p-6 flex flex-col justify-start shadow-md">
                 <div>
                   <h3 className="font-serif-brand text-[18px] sm:text-[20px] md:text-[21px] font-normal leading-[1.3] text-white mb-3">
-                    We Are About Rebuilding Capacity.
+                     We Are About Restoring Function. Physical Decline Is Not Inevitable.
                   </h3>
                   <p className="text-[13px] text-white/80 mb-5 leading-relaxed">
-                    Outcomes focus on long-term physical durability, active strength, and baseline function:
+                    Outcomes Focus On Preserving Strength, Function, Mobility, And Independence Across The Lifespan.
                   </p>
                   
                   <div className="flex flex-col gap-3">
@@ -1270,10 +1269,10 @@ export default function PhysicalRestorationPage() {
             </div>
 
             <h2 className="font-serif-brand text-[22px] sm:text-[24px] font-normal leading-[1.2] text-[var(--color-text-primary)] text-left relative z-10">
-              Every Program Evolves Longitudinally.
+              Every Program Is Continuously Measured And Refined. 
             </h2>
             <p className="text-[10px] sm:text-[10.5px] uppercase tracking-[0.1em] font-bold text-[var(--color-accent-green)] mt-2 mb-6 text-left relative z-10">
-              Progress is continuously tracked through:
+              Progress Is Measured. Outcomes Are Tracked.
             </p>
             
             {/* Connected horizontal sequence line */}
@@ -1288,7 +1287,7 @@ export default function PhysicalRestorationPage() {
                   <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-transform hover:scale-105">
                     <DumbbellIcon className="w-5 h-5 text-[var(--color-icon-stroke)]" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Strength Markers</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Strength & Power</span>
                 </div>
 
                 {/* Step 2: Endurance Capacity */}
@@ -1296,7 +1295,7 @@ export default function PhysicalRestorationPage() {
                   <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-transform hover:scale-105">
                     <RecoveryWaveIcon className="w-5 h-5 text-[var(--color-icon-stroke)]" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Endurance Capacity</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Aerobic Capacity</span>
                 </div>
 
                 {/* Step 3: Mobility Improvements */}
@@ -1304,7 +1303,7 @@ export default function PhysicalRestorationPage() {
                   <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-transform hover:scale-105">
                     <RunnerIcon className="w-5 h-5 text-[var(--color-icon-stroke)]" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Mobility Improvements</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Mobility & Stability</span>
                 </div>
 
                 {/* Step 4: Body Composition */}
@@ -1320,7 +1319,7 @@ export default function PhysicalRestorationPage() {
                   <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-transform hover:scale-105">
                     <ShieldCheckIcon className="w-5 h-5 text-[var(--color-icon-stroke)]" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Recovery Patterns</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Recovery Capacity</span>
                 </div>
 
                 {/* Step 6: Functional Performance Metrics */}
@@ -1328,7 +1327,7 @@ export default function PhysicalRestorationPage() {
                   <div className="w-[46px] h-[46px] border border-[var(--color-border-light)] rounded-full flex items-center justify-center bg-white shadow-sm transition-transform hover:scale-105 overflow-hidden">
                     <EcgLine color="var(--color-icon-stroke)" className="w-9 h-6 shrink-0" />
                   </div>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Functional Performance Metrics</span>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[var(--color-text-body)] leading-snug">Functional Performance</span>
                 </div>
 
               </div>
@@ -1358,7 +1357,7 @@ export default function PhysicalRestorationPage() {
                 </div>
                 <div className="flex flex-col text-left">
                   <p className="font-serif-brand text-[15px] sm:text-[16px] font-normal leading-snug text-[var(--color-text-primary)] mb-1.5">
-                    "The human body is designed to adapt, strengthen, and recover."
+                    The Human Body Is Designed To Adapt. Our Role Is To Create The Conditions For That Adaptation.
                   </p>
                   <p className="text-[12px] text-[var(--color-text-muted)] leading-relaxed font-sans">
                     But only when movement is approached intelligently, progressively, and in alignment with physiology.
@@ -1374,8 +1373,8 @@ export default function PhysicalRestorationPage() {
                   <LeafIcon className="w-8 h-8 text-[#EDE8DF]" />
                 </div>
                 <p className="text-[#FAF8F5]/90 text-[14px] md:text-[15px] font-medium leading-relaxed tracking-wide font-sans">
-                  Restore Function. Rebuild Strength.<br className="hidden md:block" />
-                  Renew Your Capacity For Life.
+                  Restore Function. Preserve Independence.<br className="hidden md:block" />
+                  Extend Healthspan.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-4 shrink-0 w-full lg:w-auto">

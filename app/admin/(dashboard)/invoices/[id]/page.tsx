@@ -318,7 +318,7 @@ export default function InvoiceDetailsPage({
               <div className="h-[0.5px] bg-[#384a3c] w-6"></div>
             </div>
             <p className="text-[9px] uppercase tracking-[0.15em] text-[#384a3c] leading-[1.6]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>
-              Precision Metabolic
+              Precision Hormonal
             </p>
             <div className="flex items-center w-full justify-center gap-2 my-1 opacity-80">
               <div className="h-[0.5px] bg-[#384a3c] w-4"></div>
@@ -326,17 +326,17 @@ export default function InvoiceDetailsPage({
               <div className="h-[0.5px] bg-[#384a3c] w-4"></div>
             </div>
             <p className="text-[9px] uppercase tracking-[0.15em] text-[#384a3c] leading-[1.6]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>
-              Hormonal Health
+              Metabolic Health
             </p>
           </div>
 
           {/* Middle Doctor Details */}
           <div className="pl-10 pr-10 border-r border-[#a98b63]/50 flex flex-col justify-center w-[40%]">
             <div className="flex items-baseline gap-2 mb-1.5">
-              <h2 className="text-[26px] text-[#384a3c]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, letterSpacing: "0.02em" }}>DR. YUVRAAJ SINGH</h2>
-              <span className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.08em" }}>MD, FAARM</span>
+              <h2 className="text-[22px] text-[#384a3c]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, letterSpacing: "0.02em" }}>DR. YUVRAAJ SINGH</h2>
+              <span className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.08em" }}>MD | F.A.A.R.M</span>
             </div>
-            <p className="text-[10px] text-[#384a3c] mb-6 uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.15em" }}>INTERNAL MEDICINE PHYSICIAN</p>
+            {/* <p className="text-[10px] text-[#384a3c] mb-6 uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.15em" }}>INTERNAL MEDICINE PHYSICIAN</p> */}
             
             <div className="space-y-4 text-[9px] uppercase text-[#384a3c] mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.05em", lineHeight: "1.5" }}>
               <div className="flex items-start gap-3">
@@ -361,29 +361,29 @@ export default function InvoiceDetailsPage({
             <table className="w-full text-[10px] text-[#384a3c]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.02em" }}>
               <tbody>
                 <tr>
-                  <td className="py-2.5 w-24 align-top">INVOICE NO.</td>
-                  <td className="py-2.5 w-4 align-top text-center">:</td>
-                  <td className="py-2.5 align-top">{invoice.invoiceNumber}</td>
+                  <td className="py-1 w-24 align-top">INVOICE NO.</td>
+                  <td className="py-1 w-4 align-top text-center">:</td>
+                  <td className="py-1 align-top">{invoice.invoiceNumber}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 w-24 align-top">DATE</td>
-                  <td className="py-2.5 w-4 align-top text-center">:</td>
-                  <td className="py-2.5 align-top">{issuedLabel}</td>
+                  <td className="py-1 w-24 align-top">DATE</td>
+                  <td className="py-1 w-4 align-top text-center">:</td>
+                  <td className="py-1 align-top">{issuedLabel}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 w-24 align-top">PATIENT ID</td>
-                  <td className="py-2.5 w-4 align-top text-center">:</td>
-                  <td className="py-2.5 align-top">{invoice.patient?.patientNumber || "—"}</td>
+                  <td className="py-1 w-24 align-top">PATIENT ID</td>
+                  <td className="py-1 w-4 align-top text-center">:</td>
+                  <td className="py-1 align-top">{invoice.patient?.patientNumber || "—"}</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 w-24 align-top">CONSULTANT</td>
-                  <td className="py-2.5 w-4 align-top text-center">:</td>
-                  <td className="py-2.5 align-top uppercase">DR. YUVRAAJ SINGH, MD, FAARM</td>
+                  <td className="py-1 w-24 align-top">CONSULTANT</td>
+                  <td className="py-1 w-4 align-top text-center">:</td>
+                  <td className="py-1 align-top uppercase">DR. YUVRAAJ SINGH, MD | F.A.A.R.M</td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 w-24 align-top">LOCATION</td>
-                  <td className="py-2.5 w-4 align-top text-center">:</td>
-                  <td className="py-2.5 align-top uppercase">DELHI NCR</td>
+                  <td className="py-1 w-24 align-top">LOCATION</td>
+                  <td className="py-1 w-4 align-top text-center">:</td>
+                  <td className="py-1 align-top uppercase">811, Harnoor House, 1st Floor, Sector-42, Gurugram</td>
                 </tr>
               </tbody>
             </table>
@@ -460,7 +460,7 @@ export default function InvoiceDetailsPage({
                  biology, performance and longevity.
                </p>
                <p className="text-[14px] italic" style={{ color: "#4A5650", fontFamily: "Georgia, serif" }}>
-                 &mdash; Dr. Yuvraaj Singh
+                 &mdash; Dr. Yuvraaj Singh (MD | F.A.A.R.M)
                </p>
              </div>
           </div>
@@ -575,14 +575,14 @@ export default function InvoiceDetailsPage({
         <div className="px-10 flex gap-12 py-12 bg-[#fdfaf6] items-start">
           <div className="w-[40%] pt-2">
             <div className="text-[36px] mb-4 text-[#28342F] leading-none font-medium ml-2" style={{ fontFamily: "'Meddon', 'La Belle Aurore', 'Style Script', cursive", transform: "rotate(-3deg)" }}>
-              Yuvraaj Singh
+              <br />
             </div>
             <div className="w-[230px] border-b-[1.5px] border-[#c3ab7b] mb-4"></div>
             <h4 className="text-[16px] font-semibold text-[#28342F] mb-1 tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               Dr. Yuvraaj Singh, MD, FAARM
             </h4>
             <p className="text-[11px] font-semibold text-[#4A5650] tracking-[0.12em] mb-4 uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-              INTERNAL MEDICINE PHYSICIAN
+              Internal Medicine / Critical Care / Advanced training in Hormonal and Metabolic Medicine (USA)
             </p>
             <div className="text-[12px] text-[#4A5650] space-y-1.5 italic leading-[1.6]">
               <p>Fellow, American Academy of Anti-Aging Medicine (A4M)</p>
@@ -658,17 +658,17 @@ export default function InvoiceDetailsPage({
             </p>
           </div>
           <div className="flex flex-col gap-3.5 text-[12.5px] tracking-wide w-1/2 pl-12 relative z-10 text-[#fdfaf6]">
-            <div className="flex items-center gap-5"><Phone className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> +91 9311 330 777</div>
-            <div className="flex items-center gap-5"><Mail className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> care@iphmh.com</div>
-            <div className="flex items-center gap-5"><Globe className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> www.iphmh.com</div>
-            <div className="flex items-center gap-5"><MapPin className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> Delhi NCR | Gurugram</div>
+            <div className="flex items-center gap-5"><Phone className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> +91 9266843439</div>
+            <div className="flex items-center gap-5"><Mail className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> dryuvraaj@iphmh.com</div>
+            <div className="flex items-center gap-5"><Globe className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> www.dryuvraajsingh.com</div>
+            <div className="flex items-center gap-5"><MapPin className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> 811, Harnoor House, 1st Floor, Sector-42, Gurugram</div>
           </div>
         </div>
 
         {/* Bottom Gold Strip */}
         <div className="bg-[#ebd9bd] text-[#384a3c] text-center py-6">
           <div className="text-[12px] font-medium tracking-[0.25em] uppercase mb-2">
-            INSTITUTE OF PRECISION METABOLIC & HORMONAL HEALTH
+            INSTITUTE OF PRECISION HORMONAL & METABOLIC HEALTH
           </div>
           <div className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#384a3c]/90">
             PRECISION. PERSONALIZATION. RESULTS.
@@ -725,16 +725,27 @@ export default function InvoiceDetailsPage({
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         @media print {
-          @page { size: A4; margin: 10mm; }
+          @page { size: A4; margin: 0; }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+          }
           body * { visibility: hidden; }
           .inv-print, .inv-print * { visibility: visible; }
           .inv-print { 
-            position: absolute; 
+            position: fixed !important; 
             left: 0; 
             top: 0; 
             width: 1000px !important; 
-            transform: scale(0.71); 
+            height: 1400px !important;
+            transform: scale(0.68); 
             transform-origin: top left; 
+            overflow: hidden;
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            page-break-before: avoid;
           }
           .no-print { display: none !important; }
         }

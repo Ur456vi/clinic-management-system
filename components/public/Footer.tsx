@@ -149,7 +149,7 @@ export default function Footer() {
         <div className="mt-8 flex flex-col items-center">
           <hr className="w-full max-w-[90%] border-t border-[#D9D5C8] mb-6" />
           <p className="text-[11px] font-medium text-[#666666]">
-            Copyright 2026, All Right Reserved by Dr. Yuvraaj Singh MD
+            Copyright 2026, All Right Reserved by Dr. Yuvraaj Singh MD  (Vyara Wellness Pvt. Ltd.)
           </p>
         </div>
       </div>

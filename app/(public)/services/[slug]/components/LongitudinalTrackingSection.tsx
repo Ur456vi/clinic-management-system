@@ -6,10 +6,10 @@ export function LongitudinalTrackingSection({ svc }: { svc: ServiceContent }) {
 
   if (svc.slug === "aesthetic-external") {
     const philosophyItems = [
-      { icon: "leaf", title: "Natural Outcomes" },
-      { icon: "heart", title: "Tissue Quality" },
-      { icon: "target", title: "Structural Harmony" },
-      { icon: "sparkle", title: "Regenerative Support" },
+      { icon: "leaf", title: "Natural Tissue Architecture" },
+      { icon: "heart", title: "Tissue Integrity" },
+      { icon: "target", title: "Structural Preservation" },
+      { icon: "sparkle", title: "Regenerative Medicine" },
       { icon: "clock", title: "Graceful Aging" }
     ];
 
@@ -59,7 +59,7 @@ export function LongitudinalTrackingSection({ svc }: { svc: ServiceContent }) {
  
               <div className="relative z-10">
                 <h3 className="font-serif text-2xl md:text-[28px] leading-snug font-normal">
-                  The Philosophy Is Conservative, Regenerative, And Long-Term.
+                  Regenerative. Physiological. Long-Term.
                 </h3>
                 <p className="mt-4 text-xs font-semibold text-white/70">
                   The emphasis is on:
@@ -90,7 +90,7 @@ export function LongitudinalTrackingSection({ svc }: { svc: ServiceContent }) {
             <div className="bg-[#FAF8F5] border border-[#EAE6DF] rounded-[24px] p-8 md:p-10 flex flex-col justify-between text-neutral-950 relative overflow-hidden shadow-sm">
               <div className="relative z-10">
                 <h3 className="font-serif text-2xl md:text-[28px] leading-snug font-normal text-neutral-950">
-                  Every Program Is Individualized.
+                  Every Intervention Is Individualized.
                 </h3>
                 <p className="mt-4 text-xs font-semibold text-neutral-600">
                   Interventions are selected only after understanding:

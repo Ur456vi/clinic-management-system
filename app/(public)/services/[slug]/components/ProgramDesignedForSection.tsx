@@ -8,15 +8,15 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
 
   if (svc.slug === "aesthetic-external") {
     const flatSymptoms = [
-      "Accelerated facial aging",
-      "Skin dullness & loss of elasticity",
-      "Collagen loss",
-      "Pigmenting changes",
-      "Stress-related skin deterioration",
-      "Hair thinning & scalp concerns",
-      "Volume loss & tissue laxity",
-      "Post-menopausal skin changes",
-      "Inflammatory or metabolically driven skin decline"
+      "Accelerated tissue aging",
+      "Reduced skin vitality",
+      "Connective tissue decline",
+      "Pigmentary disorders",
+      "Stress-associated tissue changes",
+      "Hair density decline",
+      "Volume loss & connective tissue laxity",
+      "Hormone-associated tissue changes",
+      "Inflammation-associated tissue aging"
     ];
 
     const gridRows = [
@@ -60,11 +60,9 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
               {/* Text Area */}
               <div className="w-full md:w-[56%] flex flex-col justify-center">
                 <h2 className="font-serif text-[18px] md:text-[22px] lg:text-[20px] xl:text-[25px] leading-[1.3] text-neutral-950 font-normal">
-                  The Goal Is Not To Change<br />
-                  How Someone Looks.<br />
+                  The Goal Is Not To Change Identity.<br />
                   <span className="text-[#A3B18A]">
-                    It Is To Restore How Well<br />
-                    The Tissue Ages.
+                    The Goal Is To Preserve Tissue Health.
                   </span>
                 </h2>
                 
@@ -72,7 +70,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 <div className="w-12 h-[1.5px] bg-[#D2B48C] mt-5 mb-5" />
                 
                 <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium max-w-[320px]">
-                  Which is why aesthetic care in this Institute is integrated into a broader framework of internal restoration and long-term health optimization.
+                  Aesthetic interventions are integrated into a broader framework of hormonal, metabolic, regenerative, and longevity-focused care.
                 </p>
               </div>
 
@@ -158,8 +156,8 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 {/* Mobile / Tablet Responsive 2-Column/1-Column Checklist */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-x-6 gap-y-4">
                   {flatSymptoms.map(text => (
-                    <div key={text} className="flex items-start gap-2.5">
-                      <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46] mt-0.5">
+                    <div key={text} className="flex items-center gap-2.5">
+                      <div className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#EBF0E6] text-[#4E5C46]">
                         <CheckCircleIcon size={12} className="text-[#687C59]" />
                       </div>
                       <span className="text-neutral-800 text-[12px] font-medium leading-tight">

@@ -49,7 +49,7 @@ function shell(title: string, inner: string): string {
       <div style="background:${BRAND};padding:20px 28px;color:#fff;font-size:18px;font-weight:700">${esc(title)}</div>
       <div style="padding:28px">${inner}</div>
     </div>
-    <p style="text-align:center;color:${MUTE};font-size:12px;margin-top:18px">© 2026 Dr. Yuvraaj Singh M.D. — Institute of Precision Metabolic &amp; Hormonal Health</p>
+    <p style="text-align:center;color:${MUTE};font-size:12px;margin-top:18px">© 2026 Dr. Yuvraaj Singh M.D. — Institute of Precision Hormonal & Metabolic Health</p>
   </div></body></html>`
 }
 
@@ -100,12 +100,12 @@ export function patientAppointmentEmail(a: AppointmentInfo): {
       <table style="width:100%;border-collapse:collapse">
         ${detailRow("Date", fmtDate(a.startsAt))}
         ${detailRow("Time", `${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`)}
-        ${detailRow("Doctor", a.doctorName)}
+        ${detailRow("Institure Chair", a.doctorName)}
         ${a.reason ? detailRow("Reason", a.reason) : ""}
       </table>
     </div>
-    <p style="font-size:13px;color:${MUTE};margin:20px 0 0">Please arrive 10 minutes early. To reschedule, simply reply to this email.</p>`
-  return { subject, text, html: shell("Appointment Confirmed", inner) }
+    <p style="font-size:13px;color:${MUTE};margin:20px 0 0">Please arrive 15 minutes Prior to the scheduled time <br />Please bring all your Relevant Prescriptions, Investigation & Other Documents along with you.</p>`
+  return { subject, text, html: shell("Appointment Confirmed has been Confirmed", inner) }
 }
 
 /* ── Assessment booking confirmation (patient) ────────────────────── */
@@ -221,7 +221,7 @@ export function patientBookingReturningEmail(a: BookingInfo): {
       a.loginUrl,
     )}" style="display:inline-block;background:${BRAND};color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:8px">Open Patient Portal</a></div>`
 
-  return { subject, text, html: shell("Appointment Confirmed", inner) }
+  return { subject, text, html: shell("Your Appointment has been Confirmed", inner) }
 }
 
 /* ── Doctor hand-off (RMO summary + quiz) ─────────────────────────── */

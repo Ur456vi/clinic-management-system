@@ -17,7 +17,7 @@ import HomeContent from "@/app/(public)/_home-content";
 
 export const metadata: Metadata = {
   title:
-    "Institute of Precision Metabolic & Hormonal Health — Dr. Yuvraaj Singh M.D.",
+    "Institute of Precision Hormonal & Metabolic Health — Dr. Yuvraaj Singh M.D.",
   description:
     "Physician-led precision health for individuals who refuse to normalize decline. Advanced systems-based hormonal, metabolic, and regenerative medicine.",
 };

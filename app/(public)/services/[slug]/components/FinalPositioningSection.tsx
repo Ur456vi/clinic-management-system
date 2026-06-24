@@ -25,8 +25,8 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 </svg>
               </div>
               <p className="text-[#FAF8F5]/90 text-[14px] md:text-[15px] font-medium leading-relaxed tracking-wide">
-                Precision Medicine. Scientific Guidance. Natural Results.<br className="hidden md:block" />
-                Restoring Health. Enhancing Vitality. Preserving You.
+                Precision Medicine. Regenerative Science. Natural Outcomes.<br className="hidden md:block" />
+                Restoring Physiology. Preserving Tissue Health. Supporting Longevity.
               </p>
             </div>
 
@@ -61,7 +61,9 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                     FINAL POSITIONING
                   </h3>
                   <p className="text-neutral-950 font-sans font-medium text-[14px] md:text-[16px] lg:text-[17px] xl:text-[18px] leading-relaxed lg:leading-[30px] tracking-normal">
-                    &ldquo;The Institute operates with a serious clinical framework at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic health and Regenerative care through physician-led precision frameworks designed for long-term physiological restoration.&rdquo;
+                    &ldquo;Aesthetic medicine in this Institute exists within a larger framework of Internal Medicine, Endocrinology, Metabolic Health, Regenerative Medicine, and Longevity Science.
+Because the quality of aging is influenced not only by procedures, but by the physiology that supports the tissue itself.
+&rdquo;
                   </p>
                 </div>
                 

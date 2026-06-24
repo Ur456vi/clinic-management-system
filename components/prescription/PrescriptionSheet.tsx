@@ -4,7 +4,7 @@
  * Reusable, printable Prescription & Clinical Plan "sheet" for the MAIN
  * (Dr. Yuvraaj) consultation.
  *
- * Renders every captured consultation section in the approved IHMH
+ * Renders every captured consultation section in the approved IPHMH
  * prescription layout (numbered sections, two-column body, signature
  * block, contact footer) and carries its own print-isolation styles so
  * any page that mounts it prints correctly — the `rx-root` visibility
@@ -29,11 +29,11 @@ const CREAM = "#F6F1E7"
  * Replace the XXXX placeholders with the live registration & contact once
  * confirmed; every print reads from here. */
 const CLINIC = {
-  kmcReg: "XXXXXX",
-  phone: "+91 XXXXX XXXXX",
-  website: "www.ihmh.in",
-  email: "care@ihmh.in",
-  address: "Institute of Hormonal & Metabolic Health, Bengaluru, Karnataka",
+  // kmcReg: "XXXXXX",
+  phone: "+91 9266843439",
+  website: "www.dryuvraajsingh.com",
+  email: "dryuvraaj@iphmh.com",
+  address: "811, Harnoor House, 1st Floor, Sector-42, Gurugram-122002",
 } as const
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -228,7 +228,7 @@ export default function PrescriptionSheet({
   // stamp is the consultation's last-save time, not render time.
   const generated = updatedAt ? new Date(updatedAt) : null
   const rxYear = (generated ?? (consultDate ? new Date(consultDate) : null))?.getFullYear()
-  const rxId = `IHMH-P-${rxYear ?? "—"}-${consultId.replace(/-/g, "").slice(0, 5).toUpperCase()}`
+  const rxId = `IPHMH-P-${rxYear ?? "—"}-${consultId.replace(/-/g, "").slice(0, 5).toUpperCase()}`
 
   return (
     <>
@@ -236,24 +236,22 @@ export default function PrescriptionSheet({
       <div className="overflow-x-auto">
       <div className="rx-root" style={{ background: CREAM, color: "#101828", width: 1040 }}>
         {/* Header */}
-        <div className="px-6 pt-5 pb-3" style={{ display: "grid", gridTemplateColumns: "250px 1fr 235px", gap: "16px", alignItems: "start" }}>
+        <div className="px-6 pt-5 pb-3" style={{ display: "grid", gridTemplateColumns: "250px 1fr 255px", gap: "10px", alignItems: "start" }}>
           <div className="flex items-center gap-3">
             <div
               className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white"
-              style={{ width: 60, height: 60, border: `2px solid ${GOLD}` }}
+              style={{ width: 50, height: 50, border: `2px solid ${GOLD}` }}
             >
-              <Image src="/dr-yuvraaj-logo.png" alt="IHMH" width={52} height={52} className="object-contain" />
+              <Image src="/images/logos/iphmh-logo.jpeg" alt="IPHMH" width={52} height={52} className="object-contain" />
             </div>
             <div>
-              <p className="text-[9px] tracking-[0.2em] font-semibold" style={{ color: "#3D4A45" }}>
+              <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
                 INSTITUTE OF
               </p>
               <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
-                HORMONAL &<br />METABOLIC HEALTH
+                PRECISION HORMONAL &<br />METABOLIC HEALTH
               </p>
-              <p className="text-[7px] tracking-[0.14em] font-semibold mt-0.5" style={{ color: GOLD }}>
-                PRECISION MEDICINE · PREVENTIVE CARE · REGENERATIVE SCIENCE
-              </p>
+              
             </div>
           </div>
 
@@ -265,29 +263,29 @@ export default function PrescriptionSheet({
               className="inline-block text-white text-[10px] font-bold tracking-[0.15em] px-5 py-1 rounded-full mt-1"
               style={{ background: GREEN }}
             >
-              MAIN CONSULTATION
+              CONSULTATION
             </span>
-            <p className="mt-1.5 text-[26px] leading-7" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive", color: "#161D1A" }}>
+            
+            <p className="mt-1.5 text-[26px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
               Dr. Yuvraaj Singh
+              
             </p>
             <p className="text-[10px] font-semibold" style={{ color: "#28342F" }}>
-              MD (Internal Medicine) &nbsp;|&nbsp; Critical Care Specialist
+              MD (Internal Medicine) &nbsp;|&nbsp; F.A.A.R.M
             </p>
-            <p className="text-[9px]" style={{ color: "#4A5650" }}>
-              Fellowship Trained in Endocrinology &amp; Metabolic Medicine (A4M, USA)
-            </p>
+            
           </div>
 
           <div className="border rounded-md bg-white divide-y self-start" style={{ borderColor: GOLD, fontSize: "9.5px" }}>
-            <p className="px-2.5 py-1.5 flex justify-between gap-2">
+            <p className="px-2 py-1.5 flex justify-between gap-1">
               <span className="font-bold">PRESCRIPTION ID :</span>
               <span>{rxId}</span>
             </p>
-            <p className="px-2.5 py-1.5 flex justify-between gap-2 border-t" style={{ borderColor: "#E5DFD0" }}>
+            <p className="px-2 py-1.5 flex justify-between gap-1 border-t" style={{ borderColor: "#E5DFD0" }}>
               <span className="font-bold">CONSULTATION DATE :</span>
               <span>{fmtDate(consultDate)}</span>
             </p>
-            <p className="px-2.5 py-1.5 flex justify-between gap-2 border-t" style={{ borderColor: "#E5DFD0" }}>
+            <p className="px-2 py-1.5 flex justify-between border-t" style={{ borderColor: "#E5DFD0" }}>
               <span className="font-bold">REPORT GENERATED :</span>
               <span>
                 {generated
@@ -305,7 +303,7 @@ export default function PrescriptionSheet({
           <div className="space-y-4">
             {/* 1. Patient demographics */}
             <div>
-              <SectionHeader no={1} title="Patient Demographics" />
+              <SectionHeader no={1} title="Demographics" />
               <Card className="mt-2">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                   <KV k="Name" v={patientName} />
@@ -314,7 +312,7 @@ export default function PrescriptionSheet({
                   <KV k="Occupation" v={pd("occupation")} />
                   <KV k="Gender" v={pd("gender")} />
                   <KV k="Referred By" v={pd("referred_by")} />
-                  <KV k="Contact" v={pd("contact")} />
+                  <KV k="Contact Details" v={pd("contact")} />
                   <KV k="Email" v={pd("email")} />
                 </div>
                 <div
@@ -322,14 +320,14 @@ export default function PrescriptionSheet({
                   style={{ borderColor: "#E5DFD0", color: "#3D4A45" }}
                 >
                   <span>Registration Date: {fmtDate(pd("registration_date"))}</span>
-                  <span>Main Consultation Date: {fmtDate(consultDate)}</span>
+                  <span>Consultation Date: {fmtDate(consultDate)}</span>
                 </div>
               </Card>
             </div>
 
             {/* 2. Baseline assessment & physical exam */}
             <div>
-              <SectionHeader no={2} title="Baseline Assessment & Physical Exam"  />
+              <SectionHeader no={2} title="Baseline Assessment & Physical Examination"  />
               <Card className="mt-2">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -369,16 +367,16 @@ export default function PrescriptionSheet({
             {/* Treatment planning (rehab / aesthetic notes) */}
             {(ira("rehab_plan") || ira("aesthetic_plan") || ira("treatment_notes")) && (
               <div>
-                <SectionHeader no={3} title="Rehab & Aesthetic Plan" />
+                <SectionHeader no={3} title="Physical Restoration & Aesthetics Plan" />
                 <Card className="mt-2 space-y-2">
                   {ira("rehab_plan") ? (
                     <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Rehabilitation:</b> {ira("rehab_plan")}
+                      <b>Physical Restoration:</b> {ira("rehab_plan")}
                     </p>
                   ) : null}
                   {ira("aesthetic_plan") ? (
                     <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Aesthetic:</b> {ira("aesthetic_plan")}
+                      <b>Aesthetics:</b> {ira("aesthetic_plan")}
                     </p>
                   ) : null}
                   {ira("treatment_notes") ? (
@@ -392,7 +390,7 @@ export default function PrescriptionSheet({
 
             {/* 5. Main consultation */}
             <div>
-              <SectionHeader no={4} title="Main Consultation with Dr. Yuvraaj Singh" />
+              <SectionHeader no={4} title="Consultation with Dr. Yuvraaj Singh" />
               <Card className="mt-2 p-0 overflow-hidden">
                 <div
                   className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
@@ -454,8 +452,8 @@ export default function PrescriptionSheet({
                   )
                 })()}
                 <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
-                  🔒 {ts("sample_collection") || "Sample collection at IHMH Lab"} &nbsp;|&nbsp;{" "}
-                  {ts("report_turnaround") || "Reports in 48–72 hrs"}
+                  🔒 {ts("sample_collection") || "Sample collection at IPHMH Lab"} &nbsp;|&nbsp;{" "}
+                  {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
                   {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
                 </p>
                 {ts("test_notes") ? (
@@ -472,7 +470,7 @@ export default function PrescriptionSheet({
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. MEDICATIONS &amp; SUPPLEMENTS
+                    A. MEDICATION &amp; SUPPLEMENTS
                   </p>
                   <RxTable
                     columns={[
@@ -512,10 +510,10 @@ export default function PrescriptionSheet({
               <div className="grid grid-cols-[200px_1fr] gap-4">
                 <div>
                   <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
-                    Review Lab Reports With:
+                    Review Lab Reports:
                   </p>
                   <p className="text-[10.5px] font-semibold mt-1" style={{ color: "#28342F" }}>
-                    📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh"} on
+                    📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh"}
                   </p>
                   <p className="text-[10.5px] font-bold" style={{ color: GREEN }}>
                     {fmtDate(fp("follow_up_date"))}{" "}
@@ -526,7 +524,7 @@ export default function PrescriptionSheet({
                 </div>
                 <div>
                   <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
-                    Next Steps:
+                    Follow-up Notes:
                   </p>
                   <Bullets text={fp("follow_up_notes")} checks />
                 </div>
@@ -535,21 +533,18 @@ export default function PrescriptionSheet({
           </div>
 
           <Card className="self-end text-center py-3">
-            <p className="text-[24px] leading-7" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive", color: "#161D1A" }}>
-              Yuvraaj Singh
+            <p className="text-[24px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
+              <br />
             </p>
             <div className="border-t mx-4 my-1.5" style={{ borderColor: "#D8D2C2" }} />
             <p className="text-[11px] font-bold" style={{ color: "#161D1A" }}>
-              Dr. Yuvraaj Singh
+              Dr. Yuvraaj Singh (MD and F.A.A.R.M)
             </p>
             <p className="text-[8.5px]" style={{ color: "#3D4A45" }}>
-              MD (Internal Medicine)
+              Internal Medicine / Critical Care / Advanced training in Hormonal and Metabolic Medicine (USA)
               <br />
-              Critical Care Specialist
-              <br />
-              Fellowship in Endocrinology &amp; Metabolic Medicine (A4M, USA)
-              <br />
-              KMC Reg. No.: {CLINIC.kmcReg}
+              
+              
             </p>
           </Card>
         </div>
@@ -562,9 +557,7 @@ export default function PrescriptionSheet({
             <span>✉️ {CLINIC.email}</span>
             <span>📍 {CLINIC.address}</span>
           </div>
-          <p className="text-center italic pb-2 text-[8.5px]" style={{ color: "#C9C2B0" }}>
-            This prescription is confidential and intended solely for the patient named above.
-          </p>
+          
         </div>
       </div>
       </div>

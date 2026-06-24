@@ -40,7 +40,7 @@ import { SERVICES } from "@/components/public/services-config";
 export const metadata: Metadata = {
   title: "Contact — Dr. Yuvraaj Singh M.D.",
   description:
-    "Send us a message or request consultation at the Institute of Precision Metabolic & Hormonal Health. Located in Sector 45, Gurugram, Haryana.",
+    "Send us a message or request consultation at the Institute of Precision Hormonal & Metabolic Health. Located in Sector 45, Gurugram, Haryana.",
 };
 
 /* Muted gold accent — used for quote marks and hairline rules. Not in the
@@ -480,7 +480,7 @@ export default function ContactPage() {
 >
   <Image
     src="/images/landing/contact-map.png"
-    alt="Institute of Precision Metabolic & Hormonal Health Location"
+    alt="Institute of Precision Hormonal & Metabolic Health Location"
     fill
     className="object-cover"
   />

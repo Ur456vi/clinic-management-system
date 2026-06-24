@@ -33,7 +33,7 @@ import {
 
 
 const HERO_TILES = [
-  { icon: "/images/landing/Radar.png", label: "Over two decades of experience across Internal Medicine, Critical Care and complex multidisciplinary medical environments, alongside advanced training in endocrinology, metabolic and regenerative medicine, informing a systems-based and precision-led clinical approach." },
+  { icon: "/images/landing/Radar.png", label: "Over two decades of experience across Internal Medicine, Critical Care and complex multidisciplinary medical environments, alongside advanced training in endocrinology, metabolic and regenerative medicine, forming a systems-based and precision-led clinical approach." },
   // { icon: "/images/landing/Neuron.png", label: "precision metabolic medicine" },
   // { icon: "/images/landing/Trust.png", label: "Hormonal & Longevity care" },
 ];
@@ -128,7 +128,7 @@ const FOCUS_AREAS = [
       "Insulin resistance and ovarian-metabolic assessment (PCOS)",
       "Long-term protection of bone, metabolic, neurological and cardiovascular health",
     ],
-    label: "Bio-identical Hormone Therapy—prescribed with clinical rigor, not trend.",
+    label: "Bio-identical Hormone Replacement Therapy(BHRT) — prescribed with clinical rigor, not trend.",
   },
   {
     title: "Male Hormonal, Metabolic & Performance Health",

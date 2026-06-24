@@ -27,33 +27,7 @@ export function ConventionalSection({ svc }: { svc: ServiceContent }) {
               {/* Left Sub-section: Highlighted light blue container */}
               <div className="w-full md:w-[60%] bg-[#F0F6F9] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
                 {/* Subtle Leaf SVG at bottom-left */}
-                <div className="absolute left-[4%] bottom-[4%] z-0 pointer-events-none opacity-20" aria-hidden="true">
-                  <svg width="60" height="150" viewBox="0 0 70 180" fill="none">
-                    <path
-                      d="M50 180 Q48 150 44 125 Q38 95 28 70 Q20 48 14 20"
-                      stroke="#7A8C6A"
-                      strokeWidth="1.2"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M44 128 Q60 118 66 100 Q52 96 44 110 Q43 120 44 128 Z"
-                      fill="#8A9E76"
-                      stroke="#6E845A"
-                      strokeWidth="0.7"
-                      fillOpacity="0.3"
-                    />
-                    <path d="M44 128 Q54 112 66 100" stroke="#6E845A" strokeWidth="0.35" fill="none" opacity="0.45" />
-                    <path
-                      d="M32 88 Q14 80 8 62 Q22 58 32 72 Q33 80 32 88 Z"
-                      fill="#8A9E76"
-                      stroke="#6E845A"
-                      strokeWidth="0.7"
-                      fillOpacity="0.3"
-                    />
-                    <path d="M32 88 Q20 74 8 62" stroke="#6E845A" strokeWidth="0.35" fill="none" opacity="0.45" />
-                  </svg>
-                </div>
+                
 
                 <div className="relative z-10 flex flex-col h-full justify-between">
                   <div>

@@ -21,7 +21,7 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
                 {/* Left Text */}
                 <div className="flex-1">
                   <h3 className="font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-[var(--brand-burgundy)] font-normal">
-                    Because external appearance cannot be separated from internal physiology.
+                    “Appearance And Physiology Are Inseparable”.
                   </h3>
                   <p className="mt-4 text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium">
                     When the body functions better internally, the effects are often visible externally—through skin quality, vitality, recovery, facial integrity, and the way an individual carries themselves over time.
@@ -37,10 +37,10 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
                 {/* Right Text */}
                 <div className="flex-1">
                   <p className="font-serif text-[18px] md:text-[20px] lg:text-[21px] xl:text-[23px] leading-snug text-[var(--brand-burgundy)] font-normal">
-                    True aesthetic medicine should not create a different face.
+                    True Aesthetic Medicine Preserves Rather Than Replaces.
                   </p>
                   <p className="mt-4 font-serif text-[16px] md:text-[18px] lg:text-[19px] xl:text-[20px] leading-snug text-neutral-950 font-normal">
-                    It should help preserve the health, integrity, and vitality of the one already there.
+                    The goal is to maintain tissue health, structural integrity, and biological vitality over time.
                   </p>
                 </div>
               </div>

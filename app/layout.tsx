@@ -43,7 +43,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Institute of Precision Metabolic & Hormonal Health — Dr. Yuvraaj Singh M.D.",
+  title: "Institute of Precision Hormonal & Metabolic Health — Dr. Yuvraaj Singh M.D.",
   description:
     "Physician-led precision health for individuals who refuse to normalize decline. An advanced systems-based clinical institute focused on hormonal, metabolic and regenerative health.",
 };
