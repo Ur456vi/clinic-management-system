@@ -91,7 +91,39 @@ jobs:
             # Run Prisma migrations using local installed version (not npx which pulls latest)
             npm run prisma:deploy
 
-            # Configure Nginx reverse proxy for UAT
+            # --- TLS (Let's Encrypt) + Nginx ---------------------------------
+            # Ensure a valid cert exists on EVERY deploy, idempotently. We do NOT
+            # force a brand-new cert each run (Let's Encrypt rate-limits 5 identical
+            # certs/week): we obtain one the first time, then renew only when it is
+            # within 30 days of expiry. certbot also installs a renewal timer.
+            DOMAIN=dryuvraajsingh.com
+            CERTBOT_EMAIL=admin@dryuvraajsingh.com
+
+            # certbot + nginx plugin (skipped if already installed).
+            if ! command -v certbot >/dev/null 2>&1; then
+              sudo dnf install -y certbot python3-certbot-nginx \
+                || sudo yum install -y certbot python3-certbot-nginx
+            fi
+
+            if [ ! -f /etc/letsencrypt/live/dryuvraajsingh.com/fullchain.pem ]; then
+              # No cert yet: stand up an HTTP-only vhost so `nginx -t` passes and
+              # port 80 can answer the ACME http-01 challenge, then issue the cert.
+              sudo tee /etc/nginx/conf.d/vyara.conf > /dev/null <<'NGINXHTTP'
+            server {
+                listen 80;
+                server_name dryuvraajsingh.com;
+                location / { proxy_pass http://127.0.0.1:3000; }
+            }
+            NGINXHTTP
+              sudo nginx -t && sudo systemctl reload nginx
+              sudo certbot certonly --nginx -d "$DOMAIN" \
+                --non-interactive --agree-tos -m "$CERTBOT_EMAIL" --keep-until-expiring
+            else
+              # Cert present: renew only if it is near expiry (no-op otherwise).
+              sudo certbot renew --quiet || true
+            fi
+
+            # Cert is now guaranteed to exist -> write the full HTTPS vhost.
             sudo tee /etc/nginx/conf.d/vyara.conf > /dev/null <<'NGINXCONF'
             server {
                 listen 80;
