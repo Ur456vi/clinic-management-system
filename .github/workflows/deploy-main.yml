@@ -94,7 +94,7 @@ jobs:
             npm install --omit=dev
 
             # Run Prisma migrations using local installed version (not npx which pulls latest)
-            npx prisma migrate resolve --applied "20260515084441_be37_invoice_payment" 2>/dev/null; npx prisma migrate resolve --applied "20260516083821_be26_infusion_log" 2>/dev/null; npx prisma migrate resolve --applied "20260517000000_be45_notifications" 2>/dev/null; npm run prisma:deploy
+            for m in 20260515084441_be37_invoice_payment 20260516083821_be26_infusion_log 20260517000000_be45_notifications 20260519113501_add_appointments 20260520000000_be25_plan_revoke_and_version 20260525000000_patient_avatar_url 20260526000000_assessment_submissions 20260526082258_add_patient_to_role 20260530000000_appointment_consultation_link 20260530120000_add_settings 20260605000000_add_user_notification_prefs 20260605010000_add_vitals_and_must_reset_password 20260613101448_add_invoice_department 20260615114055_add_refill_request 20260617000000_remove_gst 20260617120000_staff_allowed_areas; do npx prisma migrate resolve --applied "$m" 2>/dev/null || true; done && npm run prisma:deploy
 
             # Configure Nginx reverse proxy for main
             sudo tee /etc/nginx/conf.d/dryuvraajsingh.conf > /dev/null <<'NGINXCONF'
