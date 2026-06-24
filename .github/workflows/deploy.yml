@@ -40,9 +40,16 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
+          chmod 700 ~/.ssh
+          # Write the key with a guaranteed trailing newline — `echo` can omit
+          # it, which makes ssh reject the key as "invalid format" downstream.
+          printf '%s\n' "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          # Best-effort host-key pinning. ssh-keyscan exits non-zero — and under
+          # `bash -e` fails the whole step — when the runner can't reach the host
+          # (e.g. the EC2 security group doesn't allow the GitHub runner's IP).
+          # rsync/ssh below use StrictHostKeyChecking=no, so this must not be fatal.
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Copy .next build to EC2
         run: |
