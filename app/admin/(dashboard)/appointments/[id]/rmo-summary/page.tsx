@@ -142,16 +142,19 @@ export default function RmoSummaryPage() {
     const v = secs?.[SECTION_KEY[f.s]]?.[f.n]
     return v == null ? "" : String(v)
   }
+  // Sections that actually have captured data — used by the print sheet
+  // (concise, filled-only). The on-screen review below shows ALL sections.
   const dataSections = SECTION_ORDER.filter((sec) =>
     RMO_FIELDS.some((f) => f.s === sec && val(f).trim() !== ""),
   )
-  const current = dataSections.includes(activeTab) ? activeTab : dataSections[0]
+  const current = SECTION_ORDER.includes(activeTab) ? activeTab : SECTION_ORDER[0]
 
   // Drug allergies — surfaced as a prominent banner above the summary so the
   // doctor can't miss them. Sourced from the RMO intake's "Known Allergies".
   const allergies = val({ s: "medical_history", n: "medical_history__known_allergies" }).trim()
 
   // Group a section's visible fields by subsection (registry `sub`), in order.
+  // Filled-only — used by the print sheet, which should stay concise.
   const groupBySub = (sec: string) => {
     const visible = RMO_FIELDS.filter((f) => f.s === sec && val(f).trim() !== "")
     const groups: { sub: string; fields: typeof RMO_FIELDS }[] = []
@@ -163,6 +166,23 @@ export default function RmoSummaryPage() {
     }
     return groups
   }
+
+  // Group ALL of a section's fields by subsection — used by the on-screen
+  // review so every question shows (answered or not), like the consultation
+  // Summary tab. Empty values render as "Not provided".
+  const groupAllBySub = (sec: string) => {
+    const groups: { sub: string; fields: typeof RMO_FIELDS }[] = []
+    for (const f of RMO_FIELDS.filter((x) => x.s === sec)) {
+      const sub = f.sub ?? ""
+      const last = groups[groups.length - 1]
+      if (last && last.sub === sub) last.fields.push(f)
+      else groups.push({ sub, fields: [f] })
+    }
+    return groups
+  }
+  const sectionFields = (sec: string) => RMO_FIELDS.filter((f) => f.s === sec)
+  const sectionAnswered = (sec: string) =>
+    sectionFields(sec).filter((f) => val(f).trim() !== "").length
 
   const sex = val({ s: "demographics", n: "demographics__sex" })
   const dob = val({ s: "demographics", n: "demographics__date_of_birth" })
@@ -274,45 +294,103 @@ export default function RmoSummaryPage() {
         {/* RMO intake sections (tabbed) */}
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">
           <h2 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">RMO Consultation Intake</h2>
-          {!data.rmoSummary || dataSections.length === 0 ? (
+          {!data.rmoSummary ? (
             <div className="rounded-xl border border-dashed border-[#D0D5DD] dark:border-[#374151] p-6 text-center text-sm text-[#667085] dark:text-[#94A3B8]">
               No RMO intake recorded for this patient yet.
             </div>
           ) : (
             <div className="rounded-xl border border-[#EAECF0] dark:border-[#374151] overflow-hidden">
+              {/* Sub-tab strip — every section, with a dot flagging captured data. */}
               <div className="flex flex-wrap gap-1.5 p-3 bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151]">
-                {dataSections.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setActiveTab(s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      current === s
-                        ? "bg-[#6B2B26] text-white"
-                        : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
-                    }`}
-                  >
-                    {SECTION_LABEL[s]}
-                  </button>
-                ))}
+                {SECTION_ORDER.map((s) => {
+                  const active = current === s
+                  const filled = RMO_FIELDS.some((f) => f.s === s && val(f).trim() !== "")
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setActiveTab(s)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                        active
+                          ? "bg-[#6B2B26] text-white"
+                          : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          filled
+                            ? active
+                              ? "bg-white"
+                              : "bg-[#0E8C6A]"
+                            : active
+                              ? "bg-white/40"
+                              : "bg-[#D0D5DD] dark:bg-[#475569]"
+                        }`}
+                      />
+                      {SECTION_LABEL[s]}
+                    </button>
+                  )
+                })}
               </div>
-              <div className="p-5 flex flex-col gap-5">
-                {groupBySub(current).map((g, gi) => (
-                  <div key={gi}>
-                    {g.sub ? (
-                      <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] mb-1">{g.sub}</h3>
-                    ) : null}
-                    <dl className="divide-y divide-[#EAECF0] dark:divide-[#374151] -my-1">
-                      {g.fields.map((f) => (
-                        <div key={f.n} className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-3">
-                          <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
-                          <dd className="sm:col-span-2 text-sm text-[#101828] dark:text-[#F9FAFB] whitespace-pre-wrap break-words">
-                            {val(f)}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                ))}
+
+              {/* Active panel — answered badge + grouped fields, blanks shown. */}
+              <div className="p-5">
+                {(() => {
+                  const total = sectionFields(current).length
+                  const answered = sectionAnswered(current)
+                  const complete = answered === total && total > 0
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between mb-5">
+                        <h3 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                          {SECTION_LABEL[current]}
+                        </h3>
+                        <span
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={
+                            complete
+                              ? { background: "#E4F3EC", color: "#0E8C6A" }
+                              : answered === 0
+                                ? { background: "#F2F4F7", color: "#98A2B3" }
+                                : { background: "#FEF6E7", color: "#B25E09" }
+                          }
+                        >
+                          {answered} / {total} answered
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-6">
+                        {groupAllBySub(current).map((g, gi) => (
+                          <div key={gi}>
+                            {g.sub ? (
+                              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#6B2B26] dark:text-[#A5B4FC] mb-1.5">
+                                {g.sub}
+                              </h4>
+                            ) : null}
+                            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+                              {g.fields.map((f) => {
+                                const value = val(f).trim()
+                                return (
+                                  <div
+                                    key={f.n}
+                                    className="flex flex-col gap-0.5 py-2.5 border-b border-[#EAECF0] dark:border-[#374151]"
+                                  >
+                                    <dt className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{f.l}</dt>
+                                    <dd className="text-sm whitespace-pre-wrap break-words">
+                                      {value ? (
+                                        <span className="text-[#101828] dark:text-[#F9FAFB]">{value}</span>
+                                      ) : (
+                                        <span className="italic text-[#98A2B3] dark:text-[#64748B]">Not provided</span>
+                                      )}
+                                    </dd>
+                                  </div>
+                                )
+                              })}
+                            </dl>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
           )}
