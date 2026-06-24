@@ -657,7 +657,7 @@ export default function PatientPrescriptionsPage() {
 
             {/* Copyright Footer */}
             <div className="text-center text-[11px] text-gray-400 dark:text-gray-550 mt-6 mb-4 select-none">
-              Copyright © 2026 - Vyara.
+              Copyright © 2026 - IPHMH.
             </div>
           </div>
         );
@@ -1086,8 +1086,8 @@ export default function PatientPrescriptionsPage() {
           </div>
 
           {/* Copyright Footer */}
-          <div className="text-center text-[11px] text-gray-400 dark:text-gray-500 mt-8 mb-4 no-print select-none">
-            Copyright © 2026 - Vyara.
+          <div className="text-center text-[11px] text-gray-400 dark:text-gray-550 mt-8 mb-4 no-print select-none">
+            Copyright © 2026 - IPHMH.
           </div>
         </>
       )}
