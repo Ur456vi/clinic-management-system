@@ -148,6 +148,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   // Appetite
   { n: "personal_history__appetite_level", s: "personal_history", sub: "Appetite", l: "Appetite Level" },
   { n: "personal_history__food_cravings", s: "personal_history", sub: "Appetite", l: "Food Cravings" },
+  { n: "personal_history__appetite_note", s: "personal_history", sub: "Appetite", l: "Note" },
   // Bowels
   { n: "personal_history__regularity", s: "personal_history", sub: "Bowels", l: "Regularity" },
   { n: "personal_history__frequency_per_day", s: "personal_history", sub: "Bowels", l: "Frequency (per day)" },
@@ -163,6 +164,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__bowel_burning_sensation", s: "personal_history", sub: "Bowels", l: "Burning sensation in the esophagus and epigastrium" },
   { n: "personal_history__bowel_bloating", s: "personal_history", sub: "Bowels", l: "Bloating" },
   { n: "personal_history__bowel_constipation_diarrhoea", s: "personal_history", sub: "Bowels", l: "Constipation alternating with episodes of Diarrhoea ?" },
+  { n: "personal_history__bowels_note", s: "personal_history", sub: "Bowels", l: "Note" },
   // Sleep
   { n: "personal_history__quality_of_sleep", s: "personal_history", sub: "Sleep", l: "Quality of Sleep" },
   { n: "personal_history__sleep_duration_hours", s: "personal_history", sub: "Sleep", l: "Sleep Duration (hours)" },
@@ -173,6 +175,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__pillow", s: "personal_history", sub: "Sleep", l: "Height and No. of Pillows" },
   { n: "personal_history__mattress", s: "personal_history", sub: "Sleep", l: "Mattress Quality" },
   { n: "personal_history__parasomnias_select_all_that_apply", s: "personal_history", sub: "Sleep", l: "Parasomnias (select all that apply)" },
+  { n: "personal_history__sleep_note", s: "personal_history", sub: "Sleep", l: "Note" },
   // Bladder Habits
   { n: "personal_history__frequency_times_per_day", s: "personal_history", sub: "Bladder Habits", l: "Frequency (times per day)" },
   { n: "personal_history__urgency", s: "personal_history", sub: "Bladder Habits", l: "Urgency" },
@@ -184,11 +187,14 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__bladder_odour", s: "personal_history", sub: "Bladder Habits", l: "Odour" },
   { n: "personal_history__bladder_characteristic_odour", s: "personal_history", sub: "Bladder Habits", l: "Any characteristic or identifiable odour ?" },
   { n: "personal_history__bladder_others", s: "personal_history", sub: "Bladder Habits", l: "Others" },
+  { n: "personal_history__bladder_habits_note", s: "personal_history", sub: "Bladder Habits", l: "Note" },
   // Energy Levels
   { n: "personal_history__energy_pattern", s: "personal_history", sub: "Energy Levels", l: "Energy Pattern" },
+  { n: "personal_history__energy_levels_note", s: "personal_history", sub: "Energy Levels", l: "Note" },
   // Libido / Sex Drive
   { n: "personal_history__libido_level", s: "personal_history", sub: "Libido / Sex Drive", l: "Libido Level" },
   { n: "personal_history__duration_pattern", s: "personal_history", sub: "Libido / Sex Drive", l: "Duration / Pattern" },
+  { n: "personal_history__libido_sex_drive_note", s: "personal_history", sub: "Libido / Sex Drive", l: "Note" },
   // Mentation
   { n: "personal_history__mood", s: "personal_history", sub: "Mentation", l: "Mood" },
   { n: "personal_history__irritability", s: "personal_history", sub: "Mentation", l: "Irritability" },
@@ -197,8 +203,11 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__tendencies", s: "personal_history", sub: "Mentation", l: "Tendencies" },
   { n: "personal_history__brain_fog", s: "personal_history", sub: "Mentation", l: "Brain Fog" },
   { n: "personal_history__depression_anxiety", s: "personal_history", sub: "Mentation", l: "Depression & Anxiety" },
+  { n: "personal_history__mentation_note", s: "personal_history", sub: "Mentation", l: "Note" },
   // Dietary Considerations
   { n: "personal_history__meal_time", s: "personal_history", sub: "Dietary Considerations", l: "Meal Time" },
+  { n: "personal_history__meal_time_specify", s: "personal_history", sub: "Dietary Considerations", l: "Specify which meal and timings" },
+  { n: "personal_history__gap_between_meals", s: "personal_history", sub: "Dietary Considerations", l: "Gap between meals (In hours)" },
   { n: "personal_history__portions", s: "personal_history", sub: "Dietary Considerations", l: "Portions" },
   { n: "personal_history__in_betweens", s: "personal_history", sub: "Dietary Considerations", l: "In Betweens" },
   { n: "personal_history__major_component_of_diet", s: "personal_history", sub: "Dietary Considerations", l: "Major component of diet" },
@@ -215,6 +224,8 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__time_between_last_oral_intake_and_sleep", s: "personal_history", sub: "Dietary Considerations", l: "Time between last oral intake of the day and sleep" },
   { n: "personal_history__time_between_last_oral_intake_and_sleep_specify", s: "personal_history", sub: "Dietary Considerations", l: "Time between last oral intake (specify time duration)" },
   { n: "personal_history__personal_habits", s: "personal_history", sub: "Dietary Considerations", l: "Personal Habits" },
+  { n: "personal_history__diet_plan_specify", s: "personal_history", sub: "Dietary Considerations", l: "Following a specific professionally laid out Diet Plan ?" },
+  { n: "personal_history__dietary_considerations_note", s: "personal_history", sub: "Dietary Considerations", l: "Note" },
   // Exercise Regimen
   { n: "personal_history__exercise_sedentary", s: "personal_history", sub: "Exercise Regimen", l: "Never to Sedantary" },
   { n: "personal_history__exercise_days_per_week", s: "personal_history", sub: "Exercise Regimen", l: "No. Of Days per week" },
@@ -229,10 +240,12 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__exercise_joint_pains", s: "personal_history", sub: "Exercise Regimen", l: "Joint pains / Back pain after exercise" },
   { n: "personal_history__exercise_perspiration", s: "personal_history", sub: "Exercise Regimen", l: "Perspiration" },
   { n: "personal_history__exercise_hr_variability", s: "personal_history", sub: "Exercise Regimen", l: "HR Variability" },
+  { n: "personal_history__exercise_regimen_note", s: "personal_history", sub: "Exercise Regimen", l: "Note" },
   // Body Weight
   { n: "personal_history__body_weight_stability", s: "personal_history", sub: "Body Weight", l: "Stability" },
   { n: "personal_history__body_weight_gain", s: "personal_history", sub: "Body Weight", l: "Weight Gain" },
   { n: "personal_history__body_weight_loss", s: "personal_history", sub: "Body Weight", l: "Weight Loss" },
+  { n: "personal_history__body_weight_note", s: "personal_history", sub: "Body Weight", l: "Note" },
   // Personal Hygiene
   { n: "personal_history__hygiene_bathing_summers", s: "personal_history", sub: "Personal Hygiene", l: "Bathing: No. Of times a day in summers" },
   { n: "personal_history__hygiene_bathing_winters", s: "personal_history", sub: "Personal Hygiene", l: "Bathing: No of times a day in Winters" },
@@ -253,10 +266,12 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__hygiene_change_underclothes", s: "personal_history", sub: "Personal Hygiene", l: "Change of underclothes" },
   { n: "personal_history__hygiene_cutting_nails", s: "personal_history", sub: "Personal Hygiene", l: "Cutting of Nails" },
   { n: "personal_history__hygiene_towels", s: "personal_history", sub: "Personal Hygiene", l: "Towels" },
+  { n: "personal_history__personal_hygiene_note", s: "personal_history", sub: "Personal Hygiene", l: "Note" },
   // Body Temperature & Temperature Tolerance
   { n: "personal_history__temperature_extremities", s: "personal_history", sub: "Body Temperature & Temperature Tolerance", l: "Exteremities" },
   { n: "personal_history__temperature_tolerance", s: "personal_history", sub: "Body Temperature & Temperature Tolerance", l: "Tolerance" },
   { n: "personal_history__temperature_discernibility", s: "personal_history", sub: "Body Temperature & Temperature Tolerance", l: "Discernibility" },
+  { n: "personal_history__body_temperature_temperature_tolerance_note", s: "personal_history", sub: "Body Temperature & Temperature Tolerance", l: "Note" },
   // Stress - The Percieved Stress Scale (PSS-10)
   { n: "personal_history__pss10_q1", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "(1) How often are you upset because of an unexpected occurrence" },
   { n: "personal_history__pss10_q2", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "(2) How often have you felt that you were unable to control the important things in your life" },
@@ -268,6 +283,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__pss10_q8", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "(8) How often have you felt you were on top of things" },
   { n: "personal_history__pss10_q9", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "(9) How often have you been angered because of things that were outside of your control" },
   { n: "personal_history__pss10_q10", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "(10) How often have you felt difficulties were piling up so high that you could not overcome or deal with them" },
+  { n: "personal_history__stress_the_percieved_stress_scale_pss_10__note", s: "personal_history", sub: "Stress - The Percieved Stress Scale (PSS-10)", l: "Note" },
   // Women's Health & Menstrual History
   { n: "personal_history__womens_health_age_of_menarche", s: "personal_history", sub: "Women's Health & Menstrual History", l: "Age of menarche" },
   { n: "personal_history__womens_health_current_menstrual_status", s: "personal_history", sub: "Women's Health & Menstrual History", l: "Current menstrual status" },
@@ -289,6 +305,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__womens_health_urogenital_health", s: "personal_history", sub: "Women's Health & Menstrual History", l: "Urogenital Health" },
   { n: "personal_history__womens_health_cancer_screening_status", s: "personal_history", sub: "Women's Health & Menstrual History", l: "Cancer Screening Status" },
   { n: "personal_history__womens_health_quality_of_life_impact", s: "personal_history", sub: "Women's Health & Menstrual History", l: "How much are these symptoms affecting your daily life?" },
+  { n: "personal_history__women_s_health_menstrual_history_note", s: "personal_history", sub: "Women's Health & Menstrual History", l: "Note" },
   // Men's Sexual Health History
   { n: "personal_history__mens_health_morning_erections", s: "personal_history", sub: "Men's Sexual Health History", l: "Morning erections present?" },
   { n: "personal_history__mens_health_libido_vs_erection", s: "personal_history", sub: "Men's Sexual Health History", l: "Libido vs erection (differentiate)" },
@@ -312,6 +329,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__mens_health_prostate_hesitancy", s: "personal_history", sub: "Men's Sexual Health History", l: "Hesitancy" },
   { n: "personal_history__mens_health_prostate_poor_flow", s: "personal_history", sub: "Men's Sexual Health History", l: "Poor Flow" },
   { n: "personal_history__mens_health_prostate_dribble", s: "personal_history", sub: "Men's Sexual Health History", l: "Dribble" },
+  { n: "personal_history__men_s_sexual_health_history_note", s: "personal_history", sub: "Men's Sexual Health History", l: "Note" },
   // General Physical Examination
   { n: "personal_history__gpe_appearance_attitude", s: "personal_history", sub: "General Physical Examination", l: "Appearance / Attitude" },
   { n: "personal_history__gpe_attention_span", s: "personal_history", sub: "General Physical Examination", l: "Attention Span" },
@@ -338,6 +356,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__gpe_cyanosis_degree", s: "personal_history", sub: "General Physical Examination", l: "Cyanosis — Degree" },
   { n: "personal_history__gpe_lymphadenopathy", s: "personal_history", sub: "General Physical Examination", l: "Lymphadenopathy" },
   { n: "personal_history__gpe_lymphadenopathy_description", s: "personal_history", sub: "General Physical Examination", l: "Lymphadenopathy — Descriptive Details" },
+  { n: "personal_history__general_physical_examination_note", s: "personal_history", sub: "General Physical Examination", l: "Note" },
   { n: "personal_history__gpe_lymphadenopathy_duration", s: "personal_history", sub: "General Physical Examination", l: "Lymphadenopathy — Duration" },
   { n: "personal_history__gpe_edema", s: "personal_history", sub: "General Physical Examination", l: "Edema" },
   { n: "personal_history__gpe_edema_details", s: "personal_history", sub: "General Physical Examination", l: "Edema — Details" },
@@ -363,6 +382,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__perspiration", s: "personal_history", sub: "Miscellaneous", l: "Perspiration" },
   { n: "personal_history__body_odor", s: "personal_history", sub: "Miscellaneous", l: "Body Odor" },
   { n: "personal_history__halitosis_bad_breath", s: "personal_history", sub: "Miscellaneous", l: "Halitosis (Bad Breath)" },
+  { n: "personal_history__miscellaneous_note", s: "personal_history", sub: "Miscellaneous", l: "Note" },
   { n: "examination_summary__attention_span", s: "examination_summary", l: "Attention Span" },
   { n: "examination_summary__short_term_memory", s: "examination_summary", l: "Short Term Memory" },
   { n: "examination_summary__stance_swing_phases", s: "examination_summary", l: "Stance & Swing Phases" },

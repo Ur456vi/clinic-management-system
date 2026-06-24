@@ -159,23 +159,6 @@ export const MAIN_SECTIONS: MainSection[] = [
         ],
       },
       {
-        title: "General Physical Examination (GPE)",
-        controls: [
-          { kind: "select", n: "patientDetail__gpe_general_appearance", l: "General Appearance", options: ["Well-looking", "Ill-looking", "Cachectic", "Obese", "Distressed"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_build_nutrition", l: "Build & Nutrition", options: ["Well-built & nourished", "Average", "Poorly nourished", "Overweight"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_pallor", l: "Pallor", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_icterus", l: "Icterus", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_cyanosis", l: "Cyanosis", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_clubbing", l: "Clubbing", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_lymphadenopathy", l: "Lymphadenopathy", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_edema", l: "Pedal Edema", options: ["Absent", "Present"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_dehydration", l: "Dehydration", options: ["Absent", "Mild", "Moderate", "Severe"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_jvp", l: "JVP", options: ["Normal", "Raised"], placeholder: "Select" },
-          { kind: "select", n: "patientDetail__gpe_thyroid", l: "Thyroid", options: ["Normal", "Enlarged"], placeholder: "Select" },
-          { kind: "textarea", n: "patientDetail__gpe_other_findings", l: "Other Findings", placeholder: "Skin, nails, ENT, lymph nodes, any other general findings", rows: 3, full: true },
-        ],
-      },
-      {
         title: "Systemic Exam",
         controls: [
           { kind: "text", n: "patientDetail__exam_cvs", l: "CVS", placeholder: "e.g., S1S2 normal, no murmurs" },
