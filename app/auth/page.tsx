@@ -83,7 +83,7 @@ export default function SignInPage() {
         </div>
 
         {/* Copyright */}
-        <p className="text-xs font-bold text-[#667085] leading-4 m-0 mt-2">Copyright © 2026 - Vyara.</p>
+        <p className="text-xs font-bold text-[#667085] leading-4 m-0 mt-2">Copyright © 2026 - IPHMH.</p>
       </div>
     </main>
   );
