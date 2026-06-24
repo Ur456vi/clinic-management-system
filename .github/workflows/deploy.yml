@@ -51,12 +51,35 @@ jobs:
           # rsync/ssh below use StrictHostKeyChecking=no, so this must not be fatal.
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
+      - name: Verify SSH + prepare deploy dir on EC2
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=4"
+          for attempt in 1 2 3 4 5; do
+            if ssh $SSH_OPTS "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" "mkdir -p /home/ec2-user/vyara/.next"; then
+              echo "SSH to ${{ secrets.EC2_HOST }} OK"
+              exit 0
+            fi
+            echo "SSH attempt $attempt/5 failed; retrying in 15s..."
+            sleep 15
+          done
+          echo "::error title=SSH unreachable::Cannot complete the SSH handshake to ${{ secrets.EC2_HOST }}:22 (the host reset the connection before auth). deploy-uat works with the SAME key, so this is specific to the EC2_HOST box: confirm EC2_HOST is the right instance, sshd is running, the security group allows :22, and fail2ban / the host firewall is not blocking the GitHub runner."
+          exit 1
+
       - name: Copy .next build to EC2
         run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            .next/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/.next/
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=4"
+          for attempt in 1 2 3 4 5; do
+            if rsync -az --delete --timeout=120 \
+                 -e "ssh $SSH_OPTS" \
+                 .next/ \
+                 "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/.next/"; then
+              exit 0
+            fi
+            echo "rsync attempt $attempt/5 failed (SSH reset / transient); retrying in 15s..."
+            sleep 15
+          done
+          echo "::error title=rsync failed::.next sync to ${{ secrets.EC2_HOST }} failed after 5 attempts — see the SSH host checklist above."
+          exit 1
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
