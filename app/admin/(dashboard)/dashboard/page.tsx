@@ -73,6 +73,8 @@ interface DashboardData {
   upcoming: ApptRow[]
   overdueInvoices: InvRow[]
   pendingAssessments: number
+  todaysApptsCount: number
+  yuvraajApptsCount: number
 }
 
 const EMPTY: DashboardData = {
@@ -85,6 +87,8 @@ const EMPTY: DashboardData = {
   upcoming: [],
   overdueInvoices: [],
   pendingAssessments: 0,
+  todaysApptsCount: 0,
+  yuvraajApptsCount: 0,
 }
 
 export default function DashboardPage() {
@@ -144,6 +148,24 @@ export default function DashboardPage() {
         if (inv.currency) currency = inv.currency
       }
 
+      const todayStart = new Date()
+      todayStart.setHours(0, 0, 0, 0)
+      const todayEnd = new Date()
+      todayEnd.setHours(23, 59, 59, 999)
+
+      let todaysApptsCount = 0
+      let yuvraajApptsCount = 0
+
+      for (const a of apptList) {
+        const t = new Date(a.startsAt).getTime()
+        if (t >= todayStart.getTime() && t <= todayEnd.getTime()) {
+          todaysApptsCount++
+        }
+        if (a.staff?.fullName?.toLowerCase().includes("yuvraaj")) {
+          yuvraajApptsCount++
+        }
+      }
+
       setData({
         patientsCount: patientList.length,
         staffCount: staffList.length,
@@ -154,6 +176,8 @@ export default function DashboardPage() {
         upcoming,
         overdueInvoices: overdue.slice(0, 5),
         pendingAssessments: asmList.filter((a) => a.status === "REQUESTED").length,
+        todaysApptsCount,
+        yuvraajApptsCount,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load dashboard")
@@ -252,6 +276,41 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Two new boxes row on the left */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-[#E0F2FE] dark:bg-[#0369A1] flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-[#0284C7] dark:text-[#E0F2FE]" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8] whitespace-nowrap">Today's Appointment</p>
+                <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-[#0284C7] dark:text-[#E0F2FE]" />
+                  ) : (
+                    data.todaysApptsCount.toString().padStart(2, '0')
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-[#FCE7F3] dark:bg-[#831843] flex items-center justify-center">
+                <UserSquare2 className="h-6 w-6 text-[#BE185D] dark:text-[#FCE7F3]" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#667085] dark:text-[#94A3B8] whitespace-nowrap">Dr. Yuvraaj Appointment</p>
+                <p className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-[#BE185D] dark:text-[#FCE7F3]" />
+                  ) : (
+                    data.yuvraajApptsCount.toString().padStart(2, '0')
+                  )}
+                </p>
+              </div>
+            </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upcoming Appointments */}
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm flex flex-col">
@@ -314,8 +373,8 @@ export default function DashboardPage() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+            )}
+          </div>
 
         {/* Clinic Performance */}
         <div className="bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl shadow-sm p-6">

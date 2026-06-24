@@ -153,7 +153,11 @@ export default function StartAppointmentConsultationPage() {
         const flat: Record<string, string> = {}
         const secs = (c.sections ?? {}) as Record<string, Record<string, unknown>>
         for (const f of RMO_FIELDS) {
-          const v = secs?.[SECTION_KEY[f.s]]?.[f.n]
+          let v = secs?.[SECTION_KEY[f.s]]?.[f.n]
+          // Fallback for fields moved from personal_history to examination_summary
+          if (v == null && f.s === "examination_summary" && f.n.startsWith("personal_history__")) {
+            v = secs?.[SECTION_KEY["personal_history"]]?.[f.n]
+          }
           if (v != null) flat[f.n] = String(v)
         }
         setForm(flat)
