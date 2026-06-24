@@ -60,11 +60,9 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
               {/* Text Area */}
               <div className="w-full md:w-[56%] flex flex-col justify-center">
                 <h2 className="font-serif text-[18px] md:text-[22px] lg:text-[20px] xl:text-[25px] leading-[1.3] text-neutral-950 font-normal">
-                  The Goal Is Not To Change<br />
-                  How Someone Looks.<br />
+                  The Goal Is Not To Change Identity.<br />
                   <span className="text-[#A3B18A]">
-                    It Is To Restore How Well<br />
-                    The Tissue Ages.
+                    The Goal Is To Preserve Tissue Health.
                   </span>
                 </h2>
                 
@@ -72,7 +70,7 @@ export function ProgramDesignedForSection({ svc }: { svc: ServiceContent }) {
                 <div className="w-12 h-[1.5px] bg-[#D2B48C] mt-5 mb-5" />
                 
                 <p className="text-[13px] md:text-[14px] leading-relaxed text-neutral-950 font-medium max-w-[320px]">
-                  Which is why aesthetic care in this Institute is integrated into a broader framework of internal restoration and long-term health optimization.
+                  Aesthetic interventions are integrated into a broader framework of hormonal, metabolic, regenerative, and longevity-focused care.
                 </p>
               </div>
 

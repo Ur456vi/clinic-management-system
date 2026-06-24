@@ -76,7 +76,7 @@ const CHAPTERS = [
     no: "V",
     title: "The Founding of the Institute",
     eyebrow: "A precision-medicine institute, structured around the principles refined across three decades of clinical practice.",
-    body: "The Institute of Precision Metabolic & Hormonal Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",
+    body: "The Institute of Precision Hormonal & Metabolic Health operates at the intersection of Internal Medicine, Pre-Critical Care, Endocrinology, Metabolic Health and Regenerative Care.",
     image: "/images/landing/abt-5.png",
     alignment: "left" as const,
   },

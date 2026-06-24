@@ -18,14 +18,14 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
               className="font-medium leading-[1.2] mb-6"
               style={{
                 fontFamily: "var(--font-display)",
-                fontSize: "clamp(28px, 3.2vw, 36px)",
+                fontSize: "clamp(28px, 3.2vw, 26px)",
               }}
             >
-              <span className="text-[#7A2329]">Appearance Is Not</span><br />
-              <span className="text-[#1F1F1F]">Just Skin Deep.</span>
+              <span className="text-[#7A2329]">Aesthetic Aging Is A Physiological Process.</span><br />
+              <span className="text-[#1F1F1F]">The Face Reflects Internal Health.</span>
             </h2>
             <p className="text-[#333333] font-medium text-[14px] md:text-[15px] leading-relaxed max-w-[360px]">
-              Changes in skin quality, facial volume, texture, elasticity, pigmentation, hair health, and overall appearance are frequently influenced by:
+              Changes in tissue quality, facial structure, skin integrity, and appearance are influenced by multiple physiological systems.
             </p>
           </div>
 
@@ -93,29 +93,15 @@ export function SymptomsSection({ svc }: { svc: ServiceContent }) {
                
                {/* Quote Text */}
                <p className="text-black font-semibold text-[14px] xl:text-[14.5px] leading-[1.55] relative z-10 text-balance">
-                 Yet, aesthetic medicine{" "}
-                 <br className="hidden md:inline" />
-                 is often approached in isolation—focused only on cosmetic correction{" "}
-                 <br className="hidden md:inline" />
-                 without understanding the physiological environment underneath it.
+                 Aesthetic outcomes are often optimized{" "}
+                 
+                 when tissue quality, physiology, and long-term biological {" "}
+                 {/* <br className="hidden md:inline" /> */}
+                 health are considered alongside procedural interventions.
                </p>
                
                {/* Faint botanical outline */}
-               <div className="absolute bottom-0 right-0 opacity-60 pointer-events-none">
-                 <svg width="60" height="75" viewBox="0 0 60 75" fill="none">
-                    {/* Stem */}
-                    <path d="M55 75 Q45 55 35 35" stroke="#A9B198" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-                    {/* Top Right Leaf */}
-                    <path d="M35 35 Q30 25 35 15 Q45 15 45 25 Q45 30 35 35 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
-                    <path d="M35 35 Q37 25 45 15" stroke="#A9B198" strokeWidth="0.5" fill="none" />
-                    {/* Bottom Right Leaf */}
-                    <path d="M43 50 Q48 35 55 30 Q60 40 55 50 Q50 55 43 50 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
-                    <path d="M43 50 Q50 40 55 30" stroke="#A9B198" strokeWidth="0.5" fill="none" />
-                    {/* Left Leaf */}
-                    <path d="M38 52 Q25 50 20 60 Q25 70 38 70 Q45 60 38 52 Z" stroke="#A9B198" strokeWidth="1" fill="none" strokeLinejoin="round" />
-                    <path d="M38 70 Q30 60 20 60" stroke="#A9B198" strokeWidth="0.5" fill="none" />
-                 </svg>
-               </div>
+               
             </div>
           </div>
           

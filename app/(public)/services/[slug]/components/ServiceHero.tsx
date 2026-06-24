@@ -183,22 +183,20 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
                 /* Dynamic side text block for Aesthetic on clean background */
                 <div className="absolute right-[8%] top-[45%] -translate-y-1/2 w-[260px] hidden xl:block z-20">
                   <h3 className="text-[#1F1F1F] font-medium text-[24px] leading-snug" style={{ fontFamily: "var(--font-display)" }}>
-                    Appearance is<br/>
-                    Deeply Connected<br/>
-                    to Physiology.
+                    "Appearance is<br/>
+                    Physiology Made Visible"
                   </h3>
                   
                   <p className="text-[#1F1F1F] font-semibold text-[15px] leading-relaxed mt-6">
-                    The skin is the body's<br/>
-                    largest organ.
+                    The skin, connective tissue, hair, and facial architecture often reflect hormonal, metabolic, inflammatory, vascular, and age-related physiological processes.
                   </p>
                   
-                  <p className="text-[#4B4B4B] text-[13px] leading-relaxed mt-4">
+                  {/* <p className="text-[#4B4B4B] text-[13px] leading-relaxed mt-4">
                     Hair, connective tissue,<br/>
                     facial structure, and skin<br/>
                     integrity are biological systems<br/>
                     influenced by internal health.
-                  </p>
+                  </p> */}
                   
                   {/* Short horizontal red accent line at the bottom */}
                   <div className="h-[2px] w-[40px] bg-[#7A2329] mt-6" />
@@ -387,14 +385,14 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
           {isAesthetic && (
             <div className="mt-8 block xl:hidden border-l-2 border-[#7A2329] pl-4 max-w-[500px]">
               <h3 className="text-[#1F1F1F] font-medium text-[18px] md:text-[20px] leading-snug" style={{ fontFamily: "var(--font-display)" }}>
-                Appearance is Deeply Connected to Physiology.
+                "Appearance Is Physiology Made Visible”.
               </h3>
               <p className="text-[#1F1F1F] font-semibold text-[14px] leading-relaxed mt-3">
-                The skin is the body's largest organ.
+                The skin, connective tissue, hair, and facial architecture often reflect hormonal, metabolic, inflammatory, vascular, and age-related physiological processes.
               </p>
-              <p className="text-[#4B4B4B] text-[13px] leading-relaxed mt-2">
+              {/* <p className="text-[#4B4B4B] text-[13px] leading-relaxed mt-2">
                 Hair, connective tissue, facial structure, and skin integrity are biological systems influenced by internal health.
-              </p>
+              </p> */}
             </div>
           )}
 

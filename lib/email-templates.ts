@@ -49,7 +49,7 @@ function shell(title: string, inner: string): string {
       <div style="background:${BRAND};padding:20px 28px;color:#fff;font-size:18px;font-weight:700">${esc(title)}</div>
       <div style="padding:28px">${inner}</div>
     </div>
-    <p style="text-align:center;color:${MUTE};font-size:12px;margin-top:18px">© 2026 Dr. Yuvraaj Singh M.D. — Institute of Precision Metabolic &amp; Hormonal Health</p>
+    <p style="text-align:center;color:${MUTE};font-size:12px;margin-top:18px">© 2026 Dr. Yuvraaj Singh M.D. — Institute of Precision Hormonal & Metabolic Health</p>
   </div></body></html>`
 }
 
