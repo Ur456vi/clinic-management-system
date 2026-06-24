@@ -58,6 +58,7 @@ const patientSidebarItems = [
   { name: "Appointments", icon: Calendar, href: "/patient/appointments" },
   { name: "Lab Management", icon: FlaskConical, href: "/patient/lab-management" },
   { name: "Prescriptions", icon: FileSignature, href: "/patient/prescriptions" },
+  { name: "Refills", icon: RefreshCw, href: "/patient/refills" },
   { name: "Billing", icon: Receipt, href: "/patient/invoices" },
   { name: "Reports", icon: BarChart3, href: "/patient/reports" },
 ]
