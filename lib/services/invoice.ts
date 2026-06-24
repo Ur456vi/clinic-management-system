@@ -21,12 +21,12 @@
  * in Sprint 1 Day 11.
  */
 
-import type { Prisma } from "@prisma/client"
 import {
   InvoiceStatus,
   NotificationKind,
   PaymentMethod,
   PaymentStatus,
+  Prisma,
   Role,
 } from "@prisma/client"
 
@@ -177,6 +177,21 @@ export async function createInvoice(
   )
   const totalCents = subtotalCents
 
+  // Resolve the installment plan: custom amounts (must sum to the total) take
+  // precedence over an equal split; default is pay-in-full.
+  let installmentCount = input.installmentCount ?? 1
+  let installmentPlan: number[] | null = null
+  if (input.installments && input.installments.length > 0) {
+    const sum = input.installments.reduce((acc, c) => acc + c, 0)
+    if (sum !== totalCents) {
+      throw new ValidationError(
+        `Custom installments must sum to the invoice total (got ₹${(sum / 100).toLocaleString("en-IN")}, total ₹${(totalCents / 100).toLocaleString("en-IN")})`,
+      )
+    }
+    installmentPlan = input.installments
+    installmentCount = input.installments.length
+  }
+
   const tryCreate = async (): Promise<InvoiceWithRelations> => {
     return db.$transaction(async (tx) => {
       const patient = await tx.patient.findUnique({
@@ -208,7 +223,8 @@ export async function createInvoice(
           departmentId: input.departmentId,
           subtotalCents,
           totalCents,
-          installmentCount: input.installmentCount ?? 1,
+          installmentCount,
+          installmentPlan: installmentPlan ?? undefined,
           status: InvoiceStatus.DRAFT,
           notes: input.notes,
           dueAt: input.dueAt,
@@ -379,6 +395,19 @@ export async function updateInvoiceStatus(
 
     if (input.installmentCount !== undefined) {
       data.installmentCount = input.installmentCount
+    }
+
+    if (input.installments !== undefined) {
+      if (input.installments && input.installments.length > 0) {
+        const sum = input.installments.reduce((acc, c) => acc + c, 0)
+        if (sum !== before.totalCents) {
+          throw new ValidationError("Custom installments must sum to the invoice total")
+        }
+        data.installmentPlan = input.installments
+        data.installmentCount = input.installments.length
+      } else {
+        data.installmentPlan = Prisma.JsonNull
+      }
     }
 
     const after = await tx.invoice.update({

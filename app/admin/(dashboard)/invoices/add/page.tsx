@@ -63,7 +63,9 @@ function CreateInvoiceForm() {
     { description: "Consultation", quantity: "1", unitPriceRupees: DEFAULT_CONSULT_RUPEES },
   ])
   const [notes, setNotes] = useState("")
-  const [installmentCount, setInstallmentCount] = useState(1)
+  // "1" = pay in full; "2"/"3"/"4" = equal split; "custom" = per-row amounts.
+  const [installmentChoice, setInstallmentChoice] = useState("1")
+  const [customAmounts, setCustomAmounts] = useState<string[]>(["", ""])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
 
@@ -164,10 +166,18 @@ function CreateInvoiceForm() {
     return { total: subtotal }
   }, [items])
 
+  // Custom installment plan (cents) + validity (must be 2+ parts that sum to total).
+  const customCents = customAmounts.map((a) => rupeesToCents(a))
+  const customSum = customCents.reduce((a, c) => a + c, 0)
+  const customValid =
+    installmentChoice !== "custom" ||
+    (customCents.length >= 2 && customCents.every((c) => c > 0) && customSum === totals.total && totals.total > 0)
+
   const canSubmit =
     !!patient &&
     !!departmentId &&
     items.length > 0 &&
+    customValid &&
     items.every((it) => it.description.trim() && rupeesToCents(it.unitPriceRupees) >= 0 && (Number.parseFloat(it.quantity) || 0) > 0)
 
   const save = useCallback(async () => {
@@ -179,7 +189,12 @@ function CreateInvoiceForm() {
         appointmentId,
         departmentId: departmentId || undefined,
         notes: notes.trim() || undefined,
-        installmentCount: installmentCount > 1 ? installmentCount : undefined,
+        installmentCount:
+          installmentChoice !== "custom" && Number(installmentChoice) > 1
+            ? Number(installmentChoice)
+            : undefined,
+        installments:
+          installmentChoice === "custom" ? customAmounts.map((a) => rupeesToCents(a)) : undefined,
         items: items.map((it) => ({
           description: it.description.trim(),
           quantity: it.quantity.trim() || "1",
@@ -212,7 +227,7 @@ function CreateInvoiceForm() {
       })
       setSubmitting(false)
     }
-  }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, installmentCount, items, router])
+  }, [patient, canSubmit, submitting, appointmentId, departmentId, notes, installmentChoice, customAmounts, items, router])
 
   return (
     <div className="p-6 lg:p-8 flex flex-col gap-6 max-w-6xl">
@@ -330,15 +345,58 @@ function CreateInvoiceForm() {
           <div className="flex flex-col gap-1.5 text-sm">
             <span className="font-medium text-[#344054] dark:text-[#CBD5E1]">Payment plan</span>
             <select
-              value={String(installmentCount)}
-              onChange={(e) => setInstallmentCount(Number(e.target.value))}
+              value={installmentChoice}
+              onChange={(e) => setInstallmentChoice(e.target.value)}
               className={inputCls + " h-11 sm:max-w-xs"}
             >
               <option value="1">Pay in full</option>
-              <option value="2">2 installments</option>
-              <option value="3">3 installments</option>
-              <option value="4">4 installments</option>
+              <option value="2">2 equal installments</option>
+              <option value="3">3 equal installments</option>
+              <option value="4">4 equal installments</option>
+              <option value="custom">Custom installments…</option>
             </select>
+
+            {installmentChoice === "custom" ? (
+              <div className="flex flex-col gap-2 rounded-xl border border-[#EAECF0] dark:border-[#374151] p-3 sm:max-w-md">
+                {customAmounts.map((amt, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-xs text-[#667085] dark:text-[#94A3B8] w-24 flex-shrink-0">Installment {i + 1}</span>
+                    <input
+                      className={inputCls + " h-9 flex-1"}
+                      value={amt}
+                      onChange={(e) => setCustomAmounts((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+                      placeholder="₹ amount"
+                      inputMode="decimal"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCustomAmounts((prev) => (prev.length > 2 ? prev.filter((_, j) => j !== i) : prev))}
+                      aria-label="Remove installment"
+                      disabled={customAmounts.length <= 2}
+                      className="p-2 text-[#98A2B3] hover:text-[#B42318] rounded-md hover:bg-[#FEF3F2] disabled:opacity-40"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setCustomAmounts((prev) => (prev.length < 12 ? [...prev, ""] : prev))}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6B2B26] dark:text-[#A5B4FC] hover:underline"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add installment
+                  </button>
+                  <span className={`text-xs font-semibold ${customSum === totals.total && totals.total > 0 ? "text-[#0E8C6A]" : "text-[#B54708]"}`}>
+                    {fmt(customSum)} / {fmt(totals.total)}
+                  </span>
+                </div>
+                {customSum !== totals.total ? (
+                  <p className="text-[11px] text-[#B54708]">Installments must add up to the invoice total.</p>
+                ) : null}
+              </div>
+            ) : null}
+
             <span className="text-xs text-[#98A2B3]">
               Split a large bill so the patient can pay each part at a later visit — staff records each payment.
             </span>
@@ -364,10 +422,12 @@ function CreateInvoiceForm() {
           <div className="text-sm">
             <div className="flex justify-between py-1.5 font-bold text-base text-[#101828] dark:text-[#F9FAFB]"><span>Total</span><span>{fmt(totals.total)}</span></div>
           </div>
-          {installmentCount > 1 ? (
+          {installmentChoice !== "1" ? (
             <div className="text-xs text-[#667085] dark:text-[#94A3B8] flex flex-col gap-0.5 pt-1 border-t border-[#EAECF0] dark:border-[#374151]">
-              <span className="font-semibold text-[#344054] dark:text-[#CBD5E1] pt-2">{installmentCount} installments</span>
-              {splitInstallments(totals.total, installmentCount).map((c, i) => (
+              <span className="font-semibold text-[#344054] dark:text-[#CBD5E1] pt-2">
+                {installmentChoice === "custom" ? `${customAmounts.length} custom installments` : `${installmentChoice} installments`}
+              </span>
+              {(installmentChoice === "custom" ? customCents : splitInstallments(totals.total, Number(installmentChoice))).map((c, i) => (
                 <span key={i} className="flex justify-between">
                   <span>Installment {i + 1}</span>
                   <span>{fmt(c)}</span>

@@ -22,6 +22,7 @@ type SelfInvoice = {
   subtotalCents: number
   totalCents: number
   installmentCount: number
+  installmentPlan: number[] | null
   issuedAt: string | null
   department: { id: string; name: string } | null
   patient: { id: string; patientNumber: string; fullName: string } | null
@@ -89,7 +90,7 @@ export default function PatientInvoiceDetailPage({
   const issuedLabel = invoice.issuedAt
     ? new Date(invoice.issuedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
     : "—"
-  const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents)
+  const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents, invoice.installmentPlan)
 
   return (
     <div className="flex flex-col gap-6 p-6 lg:p-8 pb-12 max-w-[1000px]">

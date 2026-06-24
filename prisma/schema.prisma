@@ -940,11 +940,16 @@ model Invoice {
   /// Equal to `subtotalCents` (no tax applied).
   totalCents    Int @map("total_cents")
 
-  /// Number of equal installments the total is split into (1 = pay in full).
-  /// The per-installment amount + paid/due status are DERIVED from this and
-  /// the captured payments (see lib/invoice-installments.ts) — no schedule
-  /// table. Patients pay each part at a later visit; staff records it.
+  /// Number of installments the total is split into (1 = pay in full). For an
+  /// equal split this is all that's needed; for a CUSTOM schedule it equals
+  /// `installmentPlan.length`. Paid/due status is DERIVED from captured
+  /// payments (see lib/invoice-installments.ts) — no schedule table.
   installmentCount Int @default(1) @map("installment_count")
+
+  /// Optional CUSTOM per-installment amounts in cents, e.g.
+  /// [150000, 100000, 80000, 70000]. Null = equal split of the total across
+  /// `installmentCount`. Must sum to `totalCents`.
+  installmentPlan Json? @map("installment_plan")
 
   status InvoiceStatus @default(DRAFT)
 

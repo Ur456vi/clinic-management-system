@@ -49,6 +49,7 @@ interface InvoiceApi {
   totalCents: number
   paidCents: number
   installmentCount: number
+  installmentPlan: number[] | null
   currency: string
   issuedAt: string
   dueAt: string | null
@@ -124,7 +125,7 @@ export default function InvoiceDetailsPage({
     if (balanceCents <= 0) return
     // On an installment plan, collect the NEXT installment's outstanding amount;
     // otherwise collect the full balance.
-    const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents)
+    const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents, invoice.installmentPlan)
     const amountCents =
       invoice.installmentCount > 1 && plan.nextDue ? plan.nextDue.remainingCents : balanceCents
     if (amountCents <= 0) return
@@ -217,6 +218,7 @@ export default function InvoiceDetailsPage({
     invoice.totalCents,
     invoice.installmentCount,
     paidCents,
+    invoice.installmentPlan,
   )
 
   const issuedLabel = invoice.issuedAt
