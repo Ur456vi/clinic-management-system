@@ -1,0 +1,136 @@
+name: Deploy to EC2 (vyara)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & Deploy to UAT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: uat
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: https://dryuvraajsingh.com
+          NEXT_PUBLIC_APP_URL: https://dryuvraajsingh.com
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Prepare deployment directory on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p /home/ec2-user/vyara/.next"
+
+      - name: Copy .next build to UAT EC2
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            .next/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/.next/
+
+      - name: Copy package files to UAT EC2
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            package.json package-lock.json prisma/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/
+
+      - name: Deploy to UAT EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          # Fallback SMTP credentials (Brevo relay). Add these as repo secrets.
+          SMTP_USER: ${{ secrets.UAT_SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.UAT_SMTP_PASSWORD }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          envs: DATABASE_URL,NEXTAUTH_SECRET,SMTP_USER,SMTP_PASSWORD
+          script: |
+            set -e
+            APP_DIR=/home/ec2-user/vyara
+            cd $APP_DIR
+
+            # Write .env from GitHub secrets + hardcoded UAT domain.
+            # SMTP host/port/from are non-secret config; user + password come
+            # from repo secrets (UAT_SMTP_USER / UAT_SMTP_PASSWORD).
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.algoborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.algoborne.com\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
+              "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${SMTP_USER}" "${SMTP_PASSWORD}" > .env
+            chmod 600 .env
+
+            # Install dependencies using the project's own node_modules (Prisma 6)
+            npm install --omit=dev
+
+            # Run Prisma migrations using local installed version (not npx which pulls latest)
+            npm run prisma:deploy
+
+            # Configure Nginx reverse proxy for UAT
+            sudo tee /etc/nginx/conf.d/dryuvraajsingh.conf > /dev/null <<'NGINXCONF'
+            server {
+                listen 80;
+                server_name dryuvraajsingh.com;
+                return 301 https://$host$request_uri;
+            }
+
+            server {
+                listen 443 ssl;
+                server_name dryuvraajsingh.com;
+
+                ssl_certificate /etc/letsencrypt/live/dryuvraajsingh.com/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/dryuvraajsingh.com/privkey.pem;
+
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            NGINXCONF
+
+            # Test and reload Nginx
+            sudo nginx -t && sudo systemctl reload nginx
+
+            # Always delete and re-create PM2 process to pick up fresh .env
+            pm2 delete vyara || true
+            pm2 start npm --name vyara -- start
+
+            pm2 save
+            echo "Main Deploy complete! Live at https://dryuvraajsingh.com"
