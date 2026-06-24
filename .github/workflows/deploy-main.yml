@@ -43,12 +43,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H 43.204.240.241 >> ~/.ssh/known_hosts
 
       - name: Prepare deployment directory on EC2
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            ${{ secrets.EC2_USER }}@43.204.240.241 \
             "mkdir -p /home/ec2-user/vyara/.next"
 
       - name: Copy .next build to main EC2
@@ -56,14 +56,14 @@ jobs:
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             .next/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/.next/
+            ${{ secrets.EC2_USER }}@43.204.240.241:/home/ec2-user/vyara/.next/
 
       - name: Copy package files to main EC2
         run: |
           rsync -az \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             package.json package-lock.json prisma/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ec2-user/vyara/
+            ${{ secrets.EC2_USER }}@43.204.240.241:/home/ec2-user/vyara/
 
       - name: Deploy to main EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -74,7 +74,7 @@ jobs:
           SMTP_USER: ${{ secrets.UAT_SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.UAT_SMTP_PASSWORD }}
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: 43.204.240.241
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           envs: DATABASE_URL,NEXTAUTH_SECRET,SMTP_USER,SMTP_PASSWORD
