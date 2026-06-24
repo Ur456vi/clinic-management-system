@@ -55,6 +55,17 @@ export default function AssessmentIntroPage() {
         <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-12">
           {/* Intro copy */}
           <div className="md:col-span-7">
+            
+            <h2
+              className="mb-8 font-medium leading-tight"
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--brand-ink)",
+                fontSize: "clamp(16px, 4vw, 16px)",
+              }}
+            >
+              Contact <b>+91 9266843439</b> for any queries and to know about our programs.
+            </h2>
             <p
               className="mb-3 text-xs font-semibold uppercase tracking-[0.22em]"
               style={{ color: "var(--brand-burgundy)" }}

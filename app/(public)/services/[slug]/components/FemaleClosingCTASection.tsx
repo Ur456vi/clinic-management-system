@@ -1,6 +1,7 @@
 import React from "react";
 import { type ServiceContent } from "@/components/public/services-config";
 import { EcgLine } from "@/components/public/ui";
+import Link from "next/link";
 
 export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "female-hormonal") return null;
@@ -70,12 +71,20 @@ export function FemaleClosingCTASection({ svc }: { svc: ServiceContent }) {
             </p>
 
             {/* CTA Button */}
-            <button
+            {/* <button
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 md:px-8 md:py-3.5 text-[11px] md:text-[12px] font-semibold tracking-[0.16em] uppercase text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
               style={{ background: "#722F27" }}
             >
               Request a Consultation
-            </button>
+            </button> */}
+            <Link
+    href="/assessment"
+    className="mt-2 inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 md:px-8 md:py-3.5 text-[11px] md:text-[12px] font-semibold tracking-[0.16em] uppercase text-white transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
+              style={{ background: "#722F27" }}
+  >
+    Request Consultation
+    
+  </Link>
           </div>
         </div>
       </div>

@@ -32,8 +32,8 @@ async function run() {
     console.log("Sending mail...");
     const mailResult = await sendMail({
       to: email,
-      subject: "Your Vyara password reset code",
-      text: `Your Vyara password reset code is ${otp}.`
+      subject: "Your IPHMH password reset code",
+      text: `Your IPHMH password reset code is ${otp}.`
     });
     console.log("Mail result:", mailResult);
   } catch (err) {

@@ -39,7 +39,7 @@ export function FinalPositioningSection({ svc }: { svc: ServiceContent }) {
                 Request Consultation &rarr;
               </Link>
               <Link 
-                href="/services" 
+                href="/assessment" 
                 className="bg-transparent hover:bg-white/5 text-[#FAF8F5] border border-[#FAF8F5]/80 transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
               >
                 Explore Our Programs &rarr;
@@ -132,9 +132,17 @@ Because the quality of aging is influenced not only by procedures, but by the ph
             <p className="text-[#1F1F1F]/90 text-[16px] md:text-[18px] lg:text-[20px] mb-10 lg:mb-12 font-normal">
               Start your physician-led biological evaluation
             </p>
-            <button className="bg-[#56221E] hover:bg-[#421A17] text-white transition-colors duration-200 py-3.5 px-8 lg:px-10 rounded-full text-[12px] md:text-[13px] font-medium tracking-[0.1em] uppercase">
-              Request Consultation
-            </button>
+            
+            <Link
+      href="/assessment"
+      className="inline-flex items-center justify-center gap-2 rounded px-4 py-2.5 md:px-7 md:py-3.5 text-xs md:text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:opacity-95 w-full max-w-[240px] md:max-w-none md:w-auto whitespace-nowrap"
+      style={{
+        background: "var(--brand-burgundy)",
+        letterSpacing: "0.1em",
+      }}
+    >
+      Request Consultation
+    </Link>
           </div>
 
         </div>

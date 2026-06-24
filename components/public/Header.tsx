@@ -25,6 +25,8 @@ const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/services/female-hormonal", label: "Female Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },
+  { href: "/services/physical-restoration", label: "PHYSICAL RESTORATION" },
+  { href: "/services/aesthetic-external", label: "AESTHETIC MEDICINE" },
   // { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];

@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { type ServiceContent } from "@/components/public/services-config";
+import Link from "next/link";
 
 export function FemaleFinalPositioningSection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "female-hormonal") return null;
@@ -27,22 +28,28 @@ export function FemaleFinalPositioningSection({ svc }: { svc: ServiceContent }) 
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Primary Button */}
-            <button className="bg-[#889A6A] hover:bg-[#7a8a5f] text-white transition-colors duration-200 py-3 px-6 rounded-[4px] text-[13px] font-medium flex items-center justify-center gap-2 w-fit">
-              Request Consultation
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-            
-            {/* Secondary Button */}
-            <button className="bg-transparent border border-[#722F27] hover:bg-[#722F27]/5 text-[#722F27] transition-colors duration-200 py-3 px-6 rounded-[4px] text-[13px] font-medium flex items-center justify-center gap-2 w-fit">
-              Begin Hormonal Assessment
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+  {/* Primary Button */}
+  <Link
+    href="/assessment"
+    className="bg-[#889A6A] hover:bg-[#7a8a5f] text-white transition-colors duration-200 py-3 px-6 rounded-[4px] text-[13px] font-medium flex items-center justify-center gap-2 w-fit"
+  >
+    Request Consultation
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  </Link>
+
+  {/* Secondary Button */}
+  <Link
+    href="/assessment"
+    className="bg-transparent border border-[#722F27] hover:bg-[#722F27]/5 text-[#722F27] transition-colors duration-200 py-3 px-6 rounded-[4px] text-[13px] font-medium flex items-center justify-center gap-2 w-fit"
+  >
+    Begin Hormonal Assessment
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  </Link>
+</div>
         </div>
 
         {/* Right Area (Doctor Image + Stamp) */}

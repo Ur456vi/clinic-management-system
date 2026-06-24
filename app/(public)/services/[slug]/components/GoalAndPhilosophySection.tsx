@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { type ServiceContent } from "@/components/public/services-config";
+import Link from "next/link";
 
 export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
   if (svc.slug !== "metabolic-health" && svc.slug !== "aesthetic-external") return null;
@@ -93,21 +94,26 @@ export function GoalAndPhilosophySection({ svc }: { svc: ServiceContent }) {
 
             {/* Right Buttons */}
             <div className="w-full xl:w-[35%] flex flex-col gap-3">
-              <button className="w-full bg-[#889A6A] hover:bg-[#7A8A5F] text-white transition-colors duration-200 py-3.5 px-4 rounded-[8px] flex items-center justify-center gap-2 text-[13px] md:text-[14px] font-medium shadow-sm whitespace-nowrap">
-                Book Consultation 
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5l7 7-7 7"></path>
-                </svg>
-              </button>
-              <button className="w-full bg-transparent border border-[#722F27] text-[#722F27] hover:bg-[#722F27]/5 transition-colors duration-200 py-3.5 px-4 rounded-[8px] flex items-center justify-center gap-2 text-[13px] md:text-[14px] font-medium whitespace-nowrap">
-                Start Your Metabolic Assessment
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5l7 7-7 7"></path>
-                </svg>
-              </button>
-            </div>
+  <Link href="/assessment">
+    <button className="w-full bg-[#889A6A] hover:bg-[#7A8A5F] text-white transition-colors duration-200 py-3.5 px-4 rounded-[8px] flex items-center justify-center gap-2 text-[13px] md:text-[14px] font-medium shadow-sm whitespace-nowrap">
+      Book Consultation
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14"></path>
+        <path d="M12 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </Link>
+
+  <Link href="/assessment">
+    <button className="w-full bg-transparent border border-[#722F27] text-[#722F27] hover:bg-[#722F27]/5 transition-colors duration-200 py-3.5 px-4 rounded-[8px] flex items-center justify-center gap-2 text-[13px] md:text-[14px] font-medium whitespace-nowrap">
+      Start Your Metabolic Assessment
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14"></path>
+        <path d="M12 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </Link>
+</div>
             
           </div>
         </div>

@@ -56,7 +56,7 @@ export function MensVitalityCTASection({ svc }: { svc: ServiceContent }) {
           {/* Right: Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
             <Link 
-              href="/consultation"
+              href="/assessment"
               className="flex items-center justify-center bg-[#657153] hover:bg-[#525B42] transition-colors text-[#FAF8F3] font-medium text-[13px] px-6 py-3.5 rounded-lg whitespace-nowrap group"
             >
               Book Your Consultation
