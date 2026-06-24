@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSession, signIn } from "next-auth/react"
+import Image from "next/image"
 
 import { notify } from "@/lib/notify"
 
@@ -98,18 +99,15 @@ export default function LoginPage() {
       >
         {/* Logo — matches the public site header logotype */}
         <div className="flex flex-col items-center">
-          <span
-            className="text-4xl md:text-5xl"
-            style={{
-              fontFamily: "var(--font-script)",
-              color: "#C9A227",
-              lineHeight: 1,
-              letterSpacing: "0.02em",
-            }}
-          >
-            Dr. Yuvraaj Singh M.D.
-          </span>
-        </div>
+                  <Image
+                    src="/images/logos/dr-yuvraaj-logo.png"
+                    alt="Dr. Yuvraaj Logo"
+                    width={600}
+                    height={65}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
 
         {/* Header */}
         <div className="flex flex-col items-center gap-2 text-center">

@@ -184,7 +184,7 @@ export default function ForgotPassword() {
         <div className="flex flex-col items-center">
           <Image
             src="/images/logos/dr-yuvraaj-logo.png"
-            alt="Vyara Logo"
+            alt="Dr. Yuvraaj Logo"
             width={600}
             height={65}
             className="object-contain"

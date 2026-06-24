@@ -86,9 +86,9 @@ export const POST = defineHandler(async ({ req }) => {
       // the caller — see the file header for the enumeration argument.
       await sendMail({
         to: body.email,
-        subject: "Your Vyara password reset code",
+        subject: "Your IPHMH password reset code",
         text:
-          `Your Vyara password reset code is ${otp}.\n` +
+          `Your IPHMH password reset code is ${otp}.\n` +
           `It expires in 15 minutes. If you did not request this, you can ignore this email.`,
       })
     }

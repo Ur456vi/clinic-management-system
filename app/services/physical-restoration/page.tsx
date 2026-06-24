@@ -1385,7 +1385,7 @@ export default function PhysicalRestorationPage() {
                   Request Consultation &rarr;
                 </Link>
                 <Link
-                  href="#program"
+                  href="/assessment"
                   className="bg-transparent hover:bg-white/5 text-[#FAF8F5] border border-[#FAF8F5]/80 transition-all py-3 px-6 rounded-full text-[12px] font-semibold tracking-wider uppercase flex items-center justify-center gap-2"
                 >
                   Explore Our Programs &rarr;
