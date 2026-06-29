@@ -114,7 +114,7 @@ export default function PatientLabManagementPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <Kpi icon={FlaskConical} label="Total tests" value={counts.total} fg="#6A4FB0" bg="#F1EEFB" />
         <Kpi icon={Clock} label="Awaiting report" value={counts.active} fg="#2E5AAC" bg="#E5EEF9" />
         <Kpi icon={CheckCircle2} label="Completed" value={counts.done} fg="#0E8C6A" bg="#E4F3EC" />
@@ -133,72 +133,74 @@ export default function PatientLabManagementPage() {
             <p className="text-sm text-[#6B7B73] dark:text-[#94A3B8]">No lab tests ordered yet.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#F9FAFB] dark:bg-[#111827] text-xs text-[#667085] dark:text-[#94A3B8]">
-                <th className="text-left font-semibold px-4 py-3">Test</th>
-                <th className="text-left font-semibold px-4 py-3">Ordered On</th>
-                <th className="text-left font-semibold px-4 py-3">Status</th>
-                <th className="text-right font-semibold px-4 py-3">Report</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
-              {labs.map((l) => {
-                const done = hasReport(l);
-                return (
-                  <tr key={l.id}>
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{l.panelName}</div>
-                      {l.summary && l.summary !== l.panelName ? (
-                        <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5">{l.summary}</div>
-                      ) : null}
-                      {l.labName ? <div className="text-xs text-[#98A2B3]">{l.labName}</div> : null}
-                    </td>
-                    <td className="px-4 py-3 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(l.collectedAt)}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                        style={done ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}
-                      >
-                        {done ? "Completed" : "Active"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-3">
-                        {done ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => void viewReport(l.id)}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
-                              style={{ color: "#0E8C6A" }}
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" /> View
-                            </button>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
+              <thead>
+                <tr className="bg-[#F9FAFB] dark:bg-[#111827] text-xs text-[#667085] dark:text-[#94A3B8]">
+                  <th className="text-left font-semibold px-4 py-3">Test</th>
+                  <th className="text-left font-semibold px-4 py-3">Ordered On</th>
+                  <th className="text-left font-semibold px-4 py-3">Status</th>
+                  <th className="text-right font-semibold px-4 py-3">Report</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
+                {labs.map((l) => {
+                  const done = hasReport(l);
+                  return (
+                    <tr key={l.id}>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{l.panelName}</div>
+                        {l.summary && l.summary !== l.panelName ? (
+                          <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5 whitespace-normal">{l.summary}</div>
+                        ) : null}
+                        {l.labName ? <div className="text-xs text-[#98A2B3]">{l.labName}</div> : null}
+                      </td>
+                      <td className="px-4 py-3 text-[#6B7B73] dark:text-[#94A3B8] whitespace-nowrap">{fmtDate(l.collectedAt)}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
+                          style={done ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}
+                        >
+                          {done ? "Completed" : "Active"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                          {done ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => void viewReport(l.id)}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+                                style={{ color: "#0E8C6A" }}
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" /> View
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActive(l)}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:underline"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" /> Replace
+                              </button>
+                            </>
+                          ) : (
                             <button
                               type="button"
                               onClick={() => setActive(l)}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:underline"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
                             >
-                              <RotateCcw className="h-3.5 w-3.5" /> Replace
+                              <UploadCloud className="h-3.5 w-3.5" /> Upload report
                             </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setActive(l)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
-                          >
-                            <UploadCloud className="h-3.5 w-3.5" /> Upload report
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

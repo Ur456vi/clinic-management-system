@@ -904,7 +904,7 @@ export default function PatientPrescriptionsPage() {
               </div>
             ) : (
               <div className="w-full overflow-x-auto">
-                <table className="w-full border-collapse text-left">
+                <table className="w-full border-collapse text-left min-w-[700px]">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-700 select-none bg-gray-50/70 dark:bg-gray-800/40">
                       <th className="py-4.5 px-6 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
