@@ -879,3 +879,154 @@ export async function getSelfPrescription(args: {
     updatedAt: consult.updatedAt?.toISOString() ?? null,
   }
 }
+
+// ---------------------------------------------------------------------------
+// Clinical summaries (read-only for the patient)
+// ---------------------------------------------------------------------------
+//
+// The doctor / RMO uploads per-visit summary documents from the admin side
+// (see lib/services/clinical-summary.ts). The patient can VIEW their own
+// summaries and download the files, but never create / edit / delete — so the
+// patient lane only exposes the three read functions below, each hard-pinned
+// to `patientId`.
+
+export type SelfClinicalSummary = {
+  id: string
+  title: string
+  summaryDate: string
+  notes: string | null
+  fileCount: number
+  createdAt: string
+}
+
+export type SelfClinicalSummaryFile = {
+  id: string
+  filename: string | null
+  attachmentMime: string | null
+  sizeBytes: number | null
+  uploadedAt: string
+}
+
+/** List the calling patient's own clinical summaries (newest first). */
+export async function listSelfClinicalSummaries(args: {
+  patientId: string
+  actorUserId: string
+  input: SelfListInput
+}): Promise<SelfListResult<SelfClinicalSummary>> {
+  const take = clampLimit(args.input.limit)
+
+  const rows = await db.clinicalSummary.findMany({
+    where: { patientId: args.patientId },
+    take: take + 1,
+    ...(args.input.cursor
+      ? { cursor: { id: args.input.cursor }, skip: 1 }
+      : {}),
+    orderBy: [{ summaryDate: "desc" }, { id: "desc" }],
+    include: { _count: { select: { files: true } } },
+  })
+
+  let nextCursor: string | null = null
+  if (rows.length > take) {
+    const next = rows.pop()
+    nextCursor = next?.id ?? null
+  }
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "ClinicalSummary",
+    entityId: args.patientId,
+    detail: { scope: "self.clinicalSummaries", count: rows.length },
+  })
+
+  return {
+    items: rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      summaryDate: r.summaryDate.toISOString(),
+      notes: r.notes,
+      fileCount: r._count.files,
+      createdAt: r.createdAt.toISOString(),
+    })),
+    nextCursor,
+  }
+}
+
+/** List files on one of the calling patient's own summaries (newest first). */
+export async function listSelfClinicalSummaryFiles(args: {
+  patientId: string
+  actorUserId: string
+  summaryId: string
+}): Promise<SelfClinicalSummaryFile[]> {
+  const summary = await db.clinicalSummary.findFirst({
+    where: { id: args.summaryId, patientId: args.patientId },
+    select: { id: true },
+  })
+  if (!summary) throw new NotFoundError("Clinical summary not found")
+
+  const rows = await db.clinicalSummaryFile.findMany({
+    where: { summaryId: summary.id },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      filename: true,
+      attachmentMime: true,
+      sizeBytes: true,
+      createdAt: true,
+    },
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "ClinicalSummary",
+    entityId: args.summaryId,
+    detail: { scope: "self.clinicalSummary.list", count: rows.length },
+  })
+
+  return rows.map((f) => ({
+    id: f.id,
+    filename: f.filename,
+    attachmentMime: f.attachmentMime,
+    sizeBytes: f.sizeBytes,
+    uploadedAt: f.createdAt.toISOString(),
+  }))
+}
+
+/**
+ * Presigned download for ONE file on one of the patient's own summaries.
+ * Ownership enforced through the `summary.patientId` relation filter. Null → 404.
+ */
+export async function getSelfClinicalSummaryFileDownload(args: {
+  patientId: string
+  actorUserId: string
+  summaryId: string
+  fileId: string
+}): Promise<{ downloadUrl: string; filename: string | null } | null> {
+  const file = await db.clinicalSummaryFile.findFirst({
+    where: {
+      id: args.fileId,
+      summaryId: args.summaryId,
+      summary: { patientId: args.patientId },
+    },
+    select: { attachmentKey: true, filename: true },
+  })
+  if (!file) return null
+
+  const signed = await getDownloadUrl({
+    bucket: "phi",
+    key: file.attachmentKey,
+    asAttachment: true,
+    ...(file.filename ? { filename: file.filename } : {}),
+  })
+
+  await recordAudit({
+    actorUserId: args.actorUserId,
+    action: "READ",
+    entityType: "ClinicalSummary",
+    entityId: args.summaryId,
+    detail: { scope: "self.clinicalSummary.download", fileId: args.fileId },
+  })
+
+  return { downloadUrl: signed.url, filename: file.filename }
+}
