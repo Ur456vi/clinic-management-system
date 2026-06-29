@@ -20,6 +20,8 @@ import {
   ClipboardList,
 } from "lucide-react";
 
+import FilePreviewModal from "@/components/shared/FilePreviewModal";
+
 type Summary = {
   id: string;
   title: string;
@@ -54,6 +56,7 @@ export default function PatientSummariesPage() {
   const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [filesById, setFilesById] = useState<Record<string, SummaryFile[] | "loading">>({});
+  const [preview, setPreview] = useState<{ url: string; filename: string | null; mime: string | null } | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -102,18 +105,18 @@ export default function PatientSummariesPage() {
     [openId, filesById, loadFiles],
   );
 
-  const viewFile = useCallback(async (summaryId: string, fileId: string) => {
+  const viewFile = useCallback(async (summaryId: string, file: SummaryFile) => {
     setError(null);
     try {
       const res = await fetch(
-        `/api/patient/me/clinical-summaries/${summaryId}/files/${fileId}`,
+        `/api/patient/me/clinical-summaries/${summaryId}/files/${file.id}`,
         { credentials: "include" },
       );
       if (!res.ok) throw new Error();
       const json = await res.json();
       const url = json?.data?.downloadUrl;
       if (!url) throw new Error();
-      window.open(url, "_blank", "noopener");
+      setPreview({ url, filename: file.filename, mime: file.attachmentMime });
     } catch {
       setError("Couldn't open the file.");
     }
@@ -215,7 +218,7 @@ export default function PatientSummariesPage() {
                           </div>
                           <button
                             type="button"
-                            onClick={() => void viewFile(s.id, f.id)}
+                            onClick={() => void viewFile(s.id, f)}
                             className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
                             style={{ color: "#6A4FB0" }}
                           >
@@ -231,6 +234,15 @@ export default function PatientSummariesPage() {
           })}
         </div>
       )}
+
+      {preview ? (
+        <FilePreviewModal
+          url={preview.url}
+          filename={preview.filename}
+          mime={preview.mime}
+          onClose={() => setPreview(null)}
+        />
+      ) : null}
     </div>
   );
 }

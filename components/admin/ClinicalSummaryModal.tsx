@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 
 import { notify } from "@/lib/notify"
+import FilePreviewModal from "@/components/shared/FilePreviewModal"
 
 const MAX_BYTES = 25 * 1024 * 1024 // 25 MB — matches the storage service cap.
 
@@ -184,6 +185,7 @@ export default function ClinicalSummaryModal({
   const [files, setFiles] = useState<SummaryFile[] | null>(null)
   const [uploading, setUploading] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [preview, setPreview] = useState<{ url: string; filename: string | null; mime: string | null } | null>(null)
 
   const load = useCallback(async () => {
     if (!summary) return
@@ -271,17 +273,17 @@ export default function ClinicalSummaryModal({
   )
 
   const viewFile = useCallback(
-    async (fileId: string) => {
+    async (file: SummaryFile) => {
       if (!summary) return
       try {
-        const res = await fetch(`/api/clinical-summaries/${summary.id}/files/${fileId}`, {
+        const res = await fetch(`/api/clinical-summaries/${summary.id}/files/${file.id}`, {
           credentials: "include",
         })
         if (!res.ok) throw new Error()
         const json = await res.json()
         const url = json?.data?.downloadUrl
         if (!url) throw new Error()
-        window.open(url, "_blank", "noopener")
+        setPreview({ url, filename: file.filename, mime: file.attachmentMime })
       } catch {
         notify.error("Couldn't open the file")
       }
@@ -467,7 +469,7 @@ export default function ClinicalSummaryModal({
                     </div>
                     <button
                       type="button"
-                      onClick={() => void viewFile(f.id)}
+                      onClick={() => void viewFile(f)}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-[#1F3D33] dark:text-[#A5B4FC] hover:underline"
                     >
                       <ExternalLink className="h-3.5 w-3.5" /> View
@@ -532,6 +534,15 @@ export default function ClinicalSummaryModal({
           </>
         )}
       </div>
+
+      {preview ? (
+        <FilePreviewModal
+          url={preview.url}
+          filename={preview.filename}
+          mime={preview.mime}
+          onClose={() => setPreview(null)}
+        />
+      ) : null}
     </div>
   )
 }

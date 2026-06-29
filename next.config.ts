@@ -29,6 +29,9 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
       "connect-src 'self' https:",
+      // Allow in-app preview of files served from object storage (presigned
+      // S3/R2 URLs) inside an <iframe> — clinical-summary / lab PDFs.
+      "frame-src 'self' blob: https:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

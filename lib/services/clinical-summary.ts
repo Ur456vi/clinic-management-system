@@ -368,11 +368,13 @@ export async function getClinicalSummaryFileDownload(
   })
   if (!file) return null
 
+  // Inline (not `attachment`) so the browser/app can render the file in place
+  // instead of forcing a download — the file is previewed in-system.
   const signed = await getDownloadUrl({
     bucket: "phi",
     key: file.attachmentKey,
     ttlSec: FILE_DOWNLOAD_TTL_SEC,
-    asAttachment: true,
+    asAttachment: false,
     ...(file.filename ? { filename: file.filename } : {}),
   })
 

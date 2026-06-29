@@ -1013,10 +1013,12 @@ export async function getSelfClinicalSummaryFileDownload(args: {
   })
   if (!file) return null
 
+  // Inline (not `attachment`) so the patient app can render the file in place
+  // instead of forcing a download — the file is previewed in-system.
   const signed = await getDownloadUrl({
     bucket: "phi",
     key: file.attachmentKey,
-    asAttachment: true,
+    asAttachment: false,
     ...(file.filename ? { filename: file.filename } : {}),
   })
 
