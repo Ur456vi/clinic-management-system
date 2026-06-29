@@ -677,9 +677,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                   <tr key={l.id} style={{ borderTop: "1px solid #EFE8D8" }}>
                     <td className="py-2.5">
                       <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{(l.ref.panelName as string) || l.summary}</div>
-                      {l.summary && l.summary !== l.ref.panelName ? (
+                      {/* {l.summary && l.summary !== l.ref.panelName ? (
                         <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5">{l.summary}</div>
-                      ) : null}
+                      ) : null} */}
                     </td>
                     <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(orderedOn)}</td>
                     <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={hasReport ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{hasReport ? "Completed" : "Active"}</span></td>

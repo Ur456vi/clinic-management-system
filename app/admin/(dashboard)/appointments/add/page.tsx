@@ -46,7 +46,7 @@ const STEPS = [
   { id: "patient", name: "Patient", Icon: User },
   { id: "slot", name: "Doctor & Slot", Icon: Calendar },
   { id: "details", name: "Details", Icon: FileText },
-  { id: "review", name: "Review", Icon: CheckCircle },
+  { id: "review", name: "Preview", Icon: CheckCircle },
 ] as const
 
 type Patient = {
@@ -727,7 +727,7 @@ function ReviewStep({ form }: { form: FormState }) {
         <div className="h-10 w-10 rounded-full bg-[#ECFDF3] flex items-center justify-center border border-[#ABEFC6]">
           <CheckCircle className="h-5 w-5 text-[#027A48]" />
         </div>
-        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Review</h2>
+        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Preview</h2>
       </div>
       <div className="bg-[#F9FAFB] dark:bg-[#111827] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 text-sm">
         <ReviewBlock title="Patient">

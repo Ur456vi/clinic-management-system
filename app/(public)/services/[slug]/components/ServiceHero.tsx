@@ -292,9 +292,9 @@ export function ServiceHero({ svc }: { svc: ServiceContent }) {
               </>
             ) : isAesthetic ? (
               <>
-                <span className="block">Aesthetic &amp; External</span>
+                <span className="block">Aesthetic Medicine &amp; External Restoration</span>
                 <span className="block mt-1">
-                  Restoration{" "}
+                  
                   <span style={{ color: "var(--brand-burgundy)" }}>Programs</span>
                 </span>
               </>

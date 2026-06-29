@@ -368,7 +368,7 @@ export default function ContactPage() {
               {/* Image column with floating quote card */}
               <div className="relative min-h-[420px]">
                 <Image
-      src="/images/landing/dr-yuvraj-contact-us-img.jpg"
+      src="/images/landing/dr-yuvraj-contact-us-img.png"
       alt="Clinic Reception"
       width={1200}
       height={800}
@@ -474,16 +474,16 @@ export default function ContactPage() {
           </div>
 
           {/* Map */}
-          <div
-  className="relative overflow-hidden rounded-xl border bg-white"
-  style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
->
-  <Image
-    src="/images/landing/contact-map.png"
-    alt="Institute of Precision Hormonal & Metabolic Health Location"
-    fill
-    className="object-cover"
-  />
+                    <div
+            className="relative overflow-hidden rounded-xl border bg-white"
+            style={{ borderColor: "var(--brand-rule)", minHeight: 420 }}
+          >
+            <Image
+              src="/images/landing/contact-map.png"
+              alt="Institute of Precision Hormonal & Metabolic Health Location"
+              fill
+              className="object-cover"
+            />
 
   {/* Floating location label */}
   <div className="pointer-events-none absolute left-1/2 top-10 z-10 -translate-x-1/2 rounded-md bg-white px-4 py-3 text-center text-sm font-medium shadow-lg">

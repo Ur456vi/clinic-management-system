@@ -1297,7 +1297,7 @@ export default function BrainMitochondrialPage() {
               className="text-[#8A9E72] mb-4 font-normal tracking-normal whitespace-nowrap"
               style={{
                 fontFamily: "Adamina, serif",
-                fontSize: "clamp(24px, 2.5vw, 40px)",
+                fontSize: "clamp(24px, 2.5vw, 30px)",
                 lineHeight: "100%",
               }}
             >
@@ -1307,7 +1307,7 @@ export default function BrainMitochondrialPage() {
               className="text-[#1A1A1A] mb-8 font-normal whitespace-nowrap"
               style={{
                 fontFamily: "Inter, sans-serif",
-                fontSize: "clamp(16px, 1.8vw, 24px)",
+                fontSize: "clamp(16px, 1.8vw, 20px)",
                 lineHeight: "115%",
               }}
             >

@@ -364,7 +364,7 @@ export default function HomeContent() {
           <div className="relative w-full">
             <div className="relative w-full aspect-[631/830] max-w-[631px] mx-auto overflow-hidden rounded-[20px]">
               <Image
-                src="/images/landing/about-hero-doctor.png"
+                src="/images/landing/about-hero-doctor-new.png"
                 alt="Dr. Yuvraaj Singh"
                 fill
                 priority

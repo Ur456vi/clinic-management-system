@@ -30,12 +30,12 @@ type RefillRow = {
 }
 
 const FILTERS: { key: string; label: string; status: string }[] = [
+  { key: "all", label: "All", status: "" },
   { key: "open", label: "Open", status: "PENDING,APPROVED" },
   { key: "pending", label: "Pending", status: "PENDING" },
   { key: "approved", label: "Approved", status: "APPROVED" },
   { key: "fulfilled", label: "Fulfilled", status: "FULFILLED" },
   { key: "declined", label: "Declined", status: "DECLINED" },
-  { key: "all", label: "All", status: "" },
 ]
 
 const STATUS_STYLE: Record<Status, { bg: string; fg: string; label: string }> = {

@@ -21,14 +21,15 @@ const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
-  { href: "/services/mens-hormonal", label: "Men's Health" },
   { href: "/services/female-hormonal", label: "Female Health" },
+  { href: "/services/mens-hormonal", label: "Men's Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },
   { href: "/services/physical-restoration", label: "PHYSICAL RESTORATION" },
   { href: "/services/aesthetic-external", label: "AESTHETIC MEDICINE" },
   // { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
+  { href: "/login", label: "Login" },
 ];
 
 function SocialBubble({
@@ -78,13 +79,22 @@ export default function Header() {
         className="w-full"
         style={{ background: "var(--brand-cream-2)" }}
       >
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 md:px-12 relative">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-1 py-3 md:px-12 relative">
           {/* Cursive logotype */}
           <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0" aria-label="Home">
             <Image
+              src="/iphmh-logos.jpeg"
+              alt="Dr. Yuvraaj Singh"
+              width={50}
+              height={50}
+              priority
+              style={{ width: "auto" }}
+              className="h-5 sm:h-4 md:h-6 lg:h-7 xl:h-[40px] shrink-0"
+            />
+            <Image
               src="/dr-yuvraaj-logo.png"
               alt="Dr. Yuvraaj Singh"
-              width={449}
+              width={400}
               height={50}
               priority
               style={{ width: "auto" }}
@@ -140,7 +150,7 @@ export default function Header() {
       >
         {/* Desktop Nav */}
         <div className="hidden md:block">
-          <ul className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-center gap-y-2 gap-x-4 px-6 py-3 md:gap-x-10 md:gap-y-0 md:px-12">
+          <ul className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-center gap-y-2 gap-x-2 px-4 py-3 md:gap-x-10 md:gap-y-0 md:px-12">
             {NAV_LINKS.map((l) => (
               <li key={l.href} className="shrink-0">
                 <Link

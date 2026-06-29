@@ -668,7 +668,7 @@ export default function PhysicalRestorationPage() {
 
       {/* SECTION 2 — PROBLEM STATEMENT & CONVENTIONAL EXTREMES (Figma-Aligned Frame 26) */}
       <section className="w-full py-4 bg-[#F5F0E8]">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 md:px-8">
           <div 
             className="w-full rounded-[24px] border border-[var(--color-border-light)] p-4 sm:p-5 md:p-6 flex flex-col gap-4 sm:gap-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
             style={{ backgroundColor: "#EDE8DF" }}
@@ -723,23 +723,23 @@ export default function PhysicalRestorationPage() {
                   <div className="flex flex-col gap-6">
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Sarcopenia</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Sarcopenia</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced recovery capacity</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced recovery capacity</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Chronic musculoskeletal pain</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Chronic musculoskeletal pain</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Impaired mobility</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Impaired mobility</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Loss of strength and power</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Loss of strength and power</span>
                     </div>
                     {/* <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
@@ -747,15 +747,15 @@ export default function PhysicalRestorationPage() {
                     </div> */}
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced endurance</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Reduced endurance</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Increased injury risk</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Increased injury risk</span>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <RedXIcon className="w-4 h-4 text-[var(--color-accent-red)] shrink-0 mt-0.5" />
-                      <span className="text-[12.5px] font-semibold text-[var(--color-text-body)] leading-tight">Progressive physical decline</span>
+                      <span className="text-[15px] font-semibold text-[var(--color-text-body)] leading-tight">Progressive physical decline</span>
                     </div>
                   </div>
                 </div>
@@ -776,7 +776,7 @@ export default function PhysicalRestorationPage() {
                           <BicepIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Muscle loss</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Muscle loss</span>
                         </div>
                       </div>
 
@@ -785,7 +785,7 @@ export default function PhysicalRestorationPage() {
                           <MovementVariabilityIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Reduced movement variability</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Reduced movement variability</span>
                         </div>
                       </div>
 
@@ -794,7 +794,7 @@ export default function PhysicalRestorationPage() {
                           <RecoveryPhysiologyIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Poor recovery physiology</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Poor recovery physiology</span>
                         </div>
                       </div>
 
@@ -803,7 +803,7 @@ export default function PhysicalRestorationPage() {
                           <InflammationIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Chronic inflammation</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Chronic inflammation</span>
                         </div>
                       </div>
                     </div>
@@ -815,7 +815,7 @@ export default function PhysicalRestorationPage() {
                           <MetabolicIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Metabolic dysfunction</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Metabolic dysfunction</span>
                         </div>
                       </div>
 
@@ -824,7 +824,7 @@ export default function PhysicalRestorationPage() {
                           <CouchIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Sedentary lifestyles</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Sedentary lifestyles</span>
                         </div>
                       </div>
 
@@ -833,7 +833,7 @@ export default function PhysicalRestorationPage() {
                           <HormonalDeclineIcon className="w-4 h-4 text-[var(--color-accent-green)]" />
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[11.5px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Hormonal decline</span>
+                          <span className="text-[15px] font-bold text-[var(--color-text-body)] leading-tight font-sans">Hormonal decline</span>
                         </div>
                       </div>
                     </div>
@@ -1423,7 +1423,7 @@ export default function PhysicalRestorationPage() {
               className="text-[#4A5240] mb-4 font-normal tracking-normal whitespace-nowrap"
               style={{
                 fontFamily: "Adamina, serif",
-                fontSize: "clamp(24px, 2.5vw, 40px)",
+                fontSize: "clamp(24px, 2.5vw, 32px)",
                 lineHeight: "100%",
               }}
             >
@@ -1433,7 +1433,7 @@ export default function PhysicalRestorationPage() {
               className="text-[#1A1A1A] mb-8 font-normal whitespace-nowrap"
               style={{
                 fontFamily: "Inter, sans-serif",
-                fontSize: "clamp(16px, 1.8vw, 24px)",
+                fontSize: "clamp(16px, 1.8vw, 20px)",
                 lineHeight: "115%",
               }}
             >

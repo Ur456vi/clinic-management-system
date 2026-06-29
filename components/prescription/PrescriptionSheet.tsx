@@ -271,7 +271,7 @@ export default function PrescriptionSheet({
               
             </p>
             <p className="text-[10px] font-semibold" style={{ color: "#28342F" }}>
-              MD (Internal Medicine) &nbsp;|&nbsp; F.A.A.R.M
+              MD &nbsp;|&nbsp; F.A.A.R.M
             </p>
             
           </div>
@@ -452,7 +452,7 @@ export default function PrescriptionSheet({
                   )
                 })()}
                 <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
-                  🔒 {ts("sample_collection") || "Sample collection at IPHMH Lab"} &nbsp;|&nbsp;{" "}
+                  🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
                   {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
                   {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
                 </p>
@@ -466,11 +466,11 @@ export default function PrescriptionSheet({
 
             {/* 7. Initiation plan */}
             <div>
-              <SectionHeader no={6} title="Initiation Plan" sub="(To Begin After Today)" />
+              <SectionHeader no={6} title="Initiation & Maintainance Plan" sub="(To Begin After Today)" />
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. MEDICATION &amp; SUPPLEMENTS
+                    A. MEDICATION &amp; TARGET SUPPLEMENTATION
                   </p>
                   <RxTable
                     columns={[
@@ -510,7 +510,7 @@ export default function PrescriptionSheet({
               <div className="grid grid-cols-[200px_1fr] gap-4">
                 <div>
                   <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
-                    Review Lab Reports:
+                    Review Lab Reports On:
                   </p>
                   <p className="text-[10.5px] font-semibold mt-1" style={{ color: "#28342F" }}>
                     📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh"}

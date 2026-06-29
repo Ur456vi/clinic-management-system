@@ -36,7 +36,7 @@ function fmtDate(d: Date): string {
   })
 }
 function fmtTime(d: Date): string {
-  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+  return d.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true, })
 }
 
 function shell(title: string, inner: string): string {
@@ -85,7 +85,7 @@ export function patientAppointmentEmail(a: AppointmentInfo): {
     `Time: ${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`,
     a.reason ? `Reason: ${a.reason}` : ``,
     ``,
-    `Please arrive 10 minutes early. If you need to reschedule, reply to this email.`,
+    `Please arrive 15 minutes Prior to the scheduled time <br />Please bring all your Relevant Prescriptions, Investigation & Other Documents along with you.`,
     ``,
     `Warm regards,`,
     `Dr. Yuvraaj Singh M.D.`,
@@ -100,12 +100,12 @@ export function patientAppointmentEmail(a: AppointmentInfo): {
       <table style="width:100%;border-collapse:collapse">
         ${detailRow("Date", fmtDate(a.startsAt))}
         ${detailRow("Time", `${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`)}
-        ${detailRow("Institure Chair", a.doctorName)}
+        ${detailRow("Institute Chair", a.doctorName)}
         ${a.reason ? detailRow("Reason", a.reason) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:${MUTE};margin:20px 0 0">Please arrive 15 minutes Prior to the scheduled time <br />Please bring all your Relevant Prescriptions, Investigation & Other Documents along with you.</p>`
-  return { subject, text, html: shell("Appointment Confirmed has been Confirmed", inner) }
+  return { subject, text, html: shell("Your Appointment has been Confirmed", inner) }
 }
 
 /* ── Assessment booking confirmation (patient) ────────────────────── */
@@ -125,7 +125,7 @@ export interface NewAccountBookingInfo extends BookingInfo {
 const slotBox = (a: BookingInfo): string => `
   <div style="background:#F9FAFB;border:1px solid ${RULE};border-radius:12px;padding:18px 22px">
     <table style="width:100%;border-collapse:collapse">
-      ${detailRow("Assessment", "Comprehensive Hormone & Metabolic Assessment")}
+      ${detailRow("Particular", "Comprehensive History & Physical Assessment")}
       ${detailRow("Date", a.dateStr)}
       ${detailRow("Time", a.timeStr)}
     </table>
@@ -141,7 +141,7 @@ export function patientBookingNewAccountEmail(a: NewAccountBookingInfo): {
   const text = [
     `Hello ${a.patientName},`,
     ``,
-    `Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Dr. Yuvraaj Singh M.D.`,
+    `Thank you for booking your Comprehensive History & Physical Assessment with Dr. Yuvraaj Singh M.D.`,
     ``,
     `Your appointment is requested for:`,
     `Date: ${a.dateStr}`,
@@ -162,10 +162,10 @@ export function patientBookingNewAccountEmail(a: NewAccountBookingInfo): {
 
   const inner = `
     <p style="font-size:15px;margin:0 0 16px">Hello <strong>${esc(a.patientName)}</strong>,</p>
-    <p style="font-size:14px;color:${MUTE};margin:0 0 20px">Thank you for booking your <strong style="color:${INK}">Comprehensive Hormone &amp; Metabolic Assessment</strong> with Dr. Yuvraaj Singh M.D. Your appointment is requested for:</p>
+    <p style="font-size:14px;color:${MUTE};margin:0 0 20px">Thank you for booking your <strong style="color:${INK}">Comprehensive History & Physical Assessment</strong> with Dr. Yuvraaj Singh M.D. Your appointment is requested for:</p>
     ${slotBox(a)}
 
-    <p style="font-size:14px;color:${MUTE};margin:22px 0 10px">We&apos;ve set up your <strong style="color:${INK}">Patient Portal</strong> account so you can view your appointments, reports, and treatment plans.</p>
+    <p style="font-size:14px;color:${MUTE};margin:22px 0 10px">We&apos;ve set up your <strong style="color:${INK}">Patient Portal</strong> you will be able to view your appointments, reports, treatment plans & all other details partitioning to you on your own personalized dashboard.</p>
 
     <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:18px 22px">
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#92400E;margin-bottom:10px">Your login credentials</div>
@@ -185,9 +185,9 @@ export function patientBookingNewAccountEmail(a: NewAccountBookingInfo): {
     <p style="font-size:13px;color:${MUTE};margin:20px 0 0">Please log in and change your password on your first visit.</p>
     <div style="margin-top:18px"><a href="${esc(
       a.loginUrl,
-    )}" style="display:inline-block;background:${BRAND};color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:8px">Open Patient Portal</a></div>`
+    )}" style="display:inline-block;background:${BRAND};color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:8px">Access Your Portal</a></div>`
 
-  return { subject, text, html: shell("Appointment & Account Confirmed", inner) }
+  return { subject, text, html: shell("Your Appointment & Account has been generated. Pending Confirmation from the Institute", inner) }
 }
 
 /** Returning patient — confirmation only, no credentials. */
@@ -200,7 +200,7 @@ export function patientBookingReturningEmail(a: BookingInfo): {
   const text = [
     `Hello ${a.patientName},`,
     ``,
-    `Thank you for booking your Comprehensive Hormone & Metabolic Assessment with Dr. Yuvraaj Singh M.D.`,
+    `Thank you for booking your Comprehensive History & Physical Assessment with Dr. Yuvraaj Singh M.D.`,
     ``,
     `Your appointment is requested for:`,
     `Date: ${a.dateStr}`,
@@ -219,7 +219,7 @@ export function patientBookingReturningEmail(a: BookingInfo): {
     <p style="font-size:13px;color:${MUTE};margin:22px 0 0">Track your appointment and health updates in your Patient Portal.</p>
     <div style="margin-top:16px"><a href="${esc(
       a.loginUrl,
-    )}" style="display:inline-block;background:${BRAND};color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:8px">Open Patient Portal</a></div>`
+    )}" style="display:inline-block;background:${BRAND};color:#fff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 22px;border-radius:8px">Access Your Portal</a></div>`
 
   return { subject, text, html: shell("Your Appointment has been Confirmed", inner) }
 }

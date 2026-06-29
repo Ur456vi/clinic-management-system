@@ -131,7 +131,7 @@ export default function LoginPage() {
               color: '#141414'
             }}
           >
-            Please enter below details to access the dashboard.
+            Please enter the details below to access your dashboard.
           </p>
         </div>
 
@@ -246,7 +246,7 @@ export default function LoginPage() {
               href="/admin/auth/forgot-password"
               className="text-sm font-semibold text-[#F04438] hover:text-[#D92D20] transition-colors"
             >
-              Forget Password?
+              Forgot Password?
             </Link>
           </div>
 

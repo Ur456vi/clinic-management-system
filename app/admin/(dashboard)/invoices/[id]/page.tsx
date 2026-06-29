@@ -13,6 +13,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { use, useCallback, useEffect, useState } from "react"
+import Image from "next/image"
 import {
   ArrowLeft,
   Printer,
@@ -289,63 +290,14 @@ export default function InvoiceDetailsPage({
         <div className="p-12 flex items-stretch justify-between relative border-b border-[#a98b63]/30 bg-[#fbfaf6]">
           {/* Left Logo */}
           <div className="flex flex-col items-center justify-center pr-10 border-r border-[#a98b63]/50 w-[30%] text-center">
-            <div className="mb-4 relative">
-              <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* The Arc */}
-                <path d="M 12 85 A 48 48 0 1 1 88 85" stroke="url(#goldGradient)" strokeWidth="1.5" strokeLinecap="round" />
-                
-                {/* The Caduceus */}
-                <g fill="url(#goldGradient)">
-                  {/* Staff */}
-                  <rect x="48.5" y="16" width="3" height="66" rx="1.5" />
-                  <circle cx="50" cy="12" r="4.5" />
-                  
-                  {/* Wings (Left) - 3 distinct upward sweeping feathers */}
-                  <path d="M 48 22 C 30 18 15 22 10 28 C 22 30 35 26 48 25 Z" />
-                  <path d="M 48 24 C 28 22 18 28 12 34 C 25 36 38 32 48 27 Z" />
-                  <path d="M 48 26 C 25 28 22 36 18 42 C 30 42 40 36 48 29 Z" />
-                  
-                  {/* Wings (Right) - 3 distinct upward sweeping feathers */}
-                  <path d="M 52 22 C 70 18 85 22 90 28 C 78 30 65 26 52 25 Z" />
-                  <path d="M 52 24 C 72 22 82 28 88 34 C 75 36 62 32 52 27 Z" />
-                  <path d="M 52 26 C 75 28 78 36 82 42 C 70 42 60 36 52 29 Z" />
-                </g>
-                
-                <g stroke="url(#goldGradient)" strokeWidth="3" strokeLinecap="round" fill="none">
-                  {/* Snake 1 (Left starting) - 3 intertwining loops */}
-                  <path d="M 40 82 C 15 72 20 62 50 55 C 80 48 75 38 50 35 C 25 32 30 22 46 18" />
-                  {/* Fake background cutout for depth */}
-                  <path d="M 40 82 C 15 72 20 62 50 55 C 80 48 75 38 50 35 C 25 32 30 22 46 18" stroke="#fbfaf6" strokeWidth="6" opacity="0.1" />
-                  {/* Snake 2 (Right starting) - 3 intertwining loops */}
-                  <path d="M 60 82 C 85 72 80 62 50 55 C 20 48 25 38 50 35 C 75 32 70 22 54 18" />
-                </g>
-
-                <defs>
-                  <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#d4c19f" />
-                    <stop offset="40%" stopColor="#a98b63" />
-                    <stop offset="100%" stopColor="#7a5c37" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <h2 className="text-[52px] tracking-widest leading-none mb-3" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, background: 'linear-gradient(to bottom, #d4c19f, #8b6e4b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>IPHMH</h2>
-            <div className="flex items-center w-full justify-center gap-2 mb-1.5 opacity-80">
-              <div className="h-[0.5px] bg-[#384a3c] w-6"></div>
-              <span className="text-[7px] uppercase tracking-[0.2em] text-[#384a3c]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>Institute Of</span>
-              <div className="h-[0.5px] bg-[#384a3c] w-6"></div>
-            </div>
-            <p className="text-[9px] uppercase tracking-[0.15em] text-[#384a3c] leading-[1.6]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>
-              Precision Hormonal
-            </p>
-            <div className="flex items-center w-full justify-center gap-2 my-1 opacity-80">
-              <div className="h-[0.5px] bg-[#384a3c] w-4"></div>
-              <span className="text-[6.5px] uppercase tracking-[0.3em] text-[#384a3c]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>And</span>
-              <div className="h-[0.5px] bg-[#384a3c] w-4"></div>
-            </div>
-            <p className="text-[9px] uppercase tracking-[0.15em] text-[#384a3c] leading-[1.6]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500 }}>
-              Metabolic Health
-            </p>
+            <Image
+              src="/iphmh-logos.jpeg"
+              alt="IPHMH Logo"
+              width={180}
+              height={180}
+              className="object-contain"
+              priority
+            />
           </div>
 
           {/* Middle Doctor Details */}
@@ -363,12 +315,12 @@ export default function InvoiceDetailsPage({
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>FELLOWSHIP IN ANTI-AGING &<br/>REGENERATIVE MEDICINE – A4M</p>
+                <p>ADVANCED TRAINING IN ENDOCRINOLOGY,<br />METABOLIC & REGENERATIVE<br />MEDICINE, USA</p>
               </div>
-              <div className="flex items-start gap-3">
+              {/* <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><Plus className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>ADVANCED EDUCATION IN<br/>STEM CELL & GENOMICS<br/>(IN PROGRESS)</p>
-              </div>
+                <p>A4M, USA</p>
+              </div> */}
             </div>
             <p className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, letterSpacing: "0.2em" }}>RESTORE &bull; OPTIMIZE &bull; TRANSFORM</p>
           </div>
@@ -597,7 +549,7 @@ export default function InvoiceDetailsPage({
             </div>
             <div className="w-[230px] border-b-[1.5px] border-[#c3ab7b] mb-4"></div>
             <h4 className="text-[16px] font-semibold text-[#28342F] mb-1 tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-              Dr. Yuvraaj Singh, MD, FAARM
+              Dr. Yuvraaj Singh, MD | FAARM
             </h4>
             <p className="text-[11px] font-semibold text-[#4A5650] tracking-[0.12em] mb-4 uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               Internal Medicine / Critical Care / Advanced training in Hormonal and Metabolic Medicine (USA)
@@ -688,9 +640,7 @@ export default function InvoiceDetailsPage({
           <div className="text-[12px] font-medium tracking-[0.25em] uppercase mb-2">
             INSTITUTE OF PRECISION HORMONAL & METABOLIC HEALTH
           </div>
-          <div className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#384a3c]/90">
-            PRECISION. PERSONALIZATION. RESULTS.
-          </div>
+          
         </div>
       </div>
 
