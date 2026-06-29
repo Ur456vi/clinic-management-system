@@ -337,10 +337,10 @@ export default function ProfileSettings({
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#1F2937] rounded-xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden">
+      <div className="sm:bg-white sm:dark:bg-[#1F2937] sm:rounded-xl sm:border sm:border-[#EAECF0] sm:dark:border-[#374151] sm:shadow-sm overflow-hidden">
         {/* Tabs */}
         {showTabsHeader && (
-          <div className="flex border-b border-[#F2F4F7] dark:border-[#374151] overflow-x-auto">
+          <div className="flex border-b border-[#F2F4F7] dark:border-[#374151] overflow-x-auto hide-scrollbar">
             <TabButton
               label="Profile Settings"
               icon={<UserIcon className="h-4 w-4" />}
@@ -362,7 +362,7 @@ export default function ProfileSettings({
           </div>
         )}
 
-        <div className="p-6 lg:p-8">
+        <div className="py-6 sm:p-6 lg:p-8">
           {tab === "profile" ? (
             loading || !profile || !form ? (
               <div className="flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">

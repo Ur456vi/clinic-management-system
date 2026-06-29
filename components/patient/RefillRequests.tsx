@@ -198,7 +198,7 @@ export default function RefillRequests() {
   )
 
   return (
-    <div className="bg-white border border-[#EAECF0] rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col gap-5">
+    <div className="sm:bg-white sm:border sm:border-[#EAECF0] sm:rounded-2xl sm:shadow-sm sm:p-6 flex flex-col gap-5">
       <div className="flex items-center gap-2.5">
         <span className="h-9 w-9 rounded-lg flex items-center justify-center" style={{ background: "#E8EEFB" }}>
           <RefreshCw className="h-4.5 w-4.5" style={{ color: "#6B2B26" }} />
@@ -222,19 +222,19 @@ export default function RefillRequests() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Medicine name (required)"
             maxLength={300}
-            className="flex-1 h-9 px-3 rounded-lg border border-[#D0D5DD] bg-white text-sm text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
+            className="w-full sm:flex-1 min-h-[36px] h-9 px-3 rounded-lg border border-[#D0D5DD] bg-white text-sm text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
           <input
             value={dose}
             onChange={(e) => setDose(e.target.value)}
             placeholder="Dose / strength (optional)"
             maxLength={200}
-            className="sm:w-48 h-9 px-3 rounded-lg border border-[#D0D5DD] bg-white text-sm text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
+            className="w-full sm:w-48 min-h-[36px] h-9 px-3 rounded-lg border border-[#D0D5DD] bg-white text-sm text-[#101828] placeholder-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/15 focus:border-[#6B2B26]"
           />
           <button
             type="submit"
             disabled={!name.trim() || submitting}
-            className="h-9 px-4 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 text-white disabled:opacity-50 flex-shrink-0"
+            className="w-full sm:w-auto min-h-[36px] h-9 px-4 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 text-white disabled:opacity-50 flex-shrink-0"
             style={{ background: "#6B2B26" }}
           >
             {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}

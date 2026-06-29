@@ -28,6 +28,8 @@ import {
   ChevronsRight,
   Stethoscope,
   RefreshCw,
+  Menu,
+  X
 } from "lucide-react"
 
 const adminSidebarItems = [
@@ -88,6 +90,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
   const { data: session } = useSession()
   const rawRole = session?.user?.role
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isPatient = rawRole === "PATIENT"
   const role = rawRole as RbacRole | undefined
@@ -117,22 +120,33 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
     : adminMenuItems.filter((item) => visibleForStaff(item.href))
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] dark:bg-[#111827] font-sans">
+    <div className="flex h-screen bg-[#F9FAFB] dark:bg-[#111827] font-sans overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden" 
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`${
-          collapsed ? "w-[84px]" : "w-[280px]"
-        } bg-white dark:bg-[#1F2937] border-r border-[#EAECF0] dark:border-[#374151] flex flex-col transition-[width] duration-200 ease-in-out`}
+        className={`
+          fixed inset-y-0 left-0 z-50 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+          md:relative md:translate-x-0
+          ${collapsed ? "md:w-[84px]" : "md:w-[280px]"} w-[280px]
+          bg-white dark:bg-[#1F2937] border-r border-[#EAECF0] dark:border-[#374151] flex flex-col transition-all duration-200 ease-in-out
+        `}
         style={isPatient ? { boxShadow: "4px 0 24px rgba(107, 43, 38, 0.15)" } : undefined}
       >
         {/* Logo Section */}
         <div
           className={`h-[90px] flex items-center border-b border-[#EAECF0]/50 dark:border-[#374151]/50 gap-2 ${
-            collapsed ? "px-0 justify-center" : "px-4 justify-between"
+            collapsed ? "md:px-0 md:justify-center px-4 justify-between" : "px-4 justify-between"
           }`}
         >
-          {!collapsed && (
-            <Link href="/" className="flex items-center min-w-0" aria-label="Home">
+          {(!collapsed || mobileMenuOpen) && (
+            <Link href="/" className="flex items-center min-w-0" aria-label="Home" onClick={() => setMobileMenuOpen(false)}>
               <span
                 className="whitespace-nowrap"
                 style={{
@@ -147,11 +161,21 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
               </span>
             </Link>
           )}
+          
+          {/* Close button for mobile */}
+          <button 
+            className="md:hidden p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
           <button
             onClick={() => setCollapsed((v) => !v)}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="h-10 w-10 flex items-center justify-center bg-[#F2F4F7] dark:bg-[#111827] text-[#101828] dark:text-[#F9FAFB] hover:bg-gray-100 rounded-full transition-all shadow-sm shrink-0"
+            className="hidden md:flex h-10 w-10 items-center justify-center bg-[#F2F4F7] dark:bg-[#111827] text-[#101828] dark:text-[#F9FAFB] hover:bg-gray-100 rounded-full transition-all shadow-sm shrink-0"
           >
             {collapsed ? (
               <ChevronsRight className="h-5 w-5" />
@@ -169,20 +193,21 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
               <Link
                 key={item.name}
                 href={item.href}
-                title={collapsed ? item.name : undefined}
+                onClick={() => setMobileMenuOpen(false)}
+                title={collapsed && !mobileMenuOpen ? item.name : undefined}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all group ${
-                  collapsed ? "justify-center" : ""
+                  collapsed && !mobileMenuOpen ? "justify-center" : ""
                 } ${
                   isActive
                     ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
-                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
+                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
                 }`}
               >
-                <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
-                  {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
+                <div className={`flex items-center gap-3 ${collapsed && !mobileMenuOpen ? "justify-center" : ""}`}>
+                  <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"}`} />
+                  {(!collapsed || mobileMenuOpen) && <span className="font-medium text-sm">{item.name}</span>}
                 </div>
-                {isActive && !collapsed && <div className="w-1 h-5 bg-[#6B2B26] rounded-full" />}
+                {isActive && (!collapsed || mobileMenuOpen) && <div className="w-1 h-5 bg-[#6B2B26] rounded-full" />}
               </Link>
             )
           })}
@@ -196,17 +221,18 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
               <Link
                 key={item.name}
                 href={item.href}
-                title={collapsed ? item.name : undefined}
+                onClick={() => setMobileMenuOpen(false)}
+                title={collapsed && !mobileMenuOpen ? item.name : undefined}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${
-                  collapsed ? "justify-center" : ""
+                  collapsed && !mobileMenuOpen ? "justify-center" : ""
                 } ${
                   isActive
                     ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
-                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 hover:text-[#101828]"
+                    : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
                 }`}
               >
-                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828]"}`} />
-                {!collapsed && <span className="font-medium text-sm">{item.name}</span>}
+                <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#6B2B26] dark:text-[#A5B4FC]" : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"}`} />
+                {(!collapsed || mobileMenuOpen) && <span className="font-medium text-sm">{item.name}</span>}
               </Link>
             )
           })}
@@ -215,13 +241,19 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header — the global search will be wired up when the
-            search API lands; until then it would be misleading, so the
-            slot is intentionally empty. The Moon and Bell buttons used
-            to be decorative; they're now backed by ThemeToggle and
-            NotificationBell, which have real handlers + a real feed. */}
-        <header className="h-[72px] bg-white dark:bg-[#1F2937] border-b border-[#EAECF0] dark:border-[#374151] px-8 flex items-center justify-end flex-shrink-0">
-          <div className="flex items-center gap-4">
+        {/* Top Header */}
+        <header className="h-[72px] bg-white dark:bg-[#1F2937] border-b border-[#EAECF0] dark:border-[#374151] px-4 md:px-8 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 -ml-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
+          
+          <div className="flex items-center gap-4 ml-auto">
             <div className="flex items-center gap-1 border-r border-[#EAECF0] dark:border-[#374151] pr-4 mr-2">
               <ThemeToggle className="p-2 text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 rounded-lg transition-colors" />
               {/* <NotificationBell
@@ -235,7 +267,7 @@ export default function UnifiedDashboardLayout({ children }: { children: React.R
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {children}
         </main>
       </div>
