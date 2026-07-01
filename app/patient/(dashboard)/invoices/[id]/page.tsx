@@ -66,19 +66,22 @@ export default function PatientInvoiceDetailPage({
   }, [load])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // A4 portrait at 96dpi (margin 0 → full sheet usable).
+  // A4 portrait at 96dpi (margin 0 → full sheet usable). The sheet is designed
+  // at 1000px wide; render it there and scale down (~0.79) to fill the A4 width
+  // so nothing is cropped and there are no side gaps. See admin invoice page.
   useEffect(() => {
     const A4_W = 794
     const A4_H = 1123
+    const SHEET_W = 1000
     const fit = () => {
       const sheet = sheetRef.current
       const container = printRef.current
       if (!sheet || !container) return
       const prevWidth = sheet.style.width
-      sheet.style.width = `${A4_W}px`
+      sheet.style.width = `${SHEET_W}px`
       const height = sheet.scrollHeight
       sheet.style.width = prevWidth
-      const scale = height > A4_H ? A4_H / height : 1
+      const scale = Math.min(A4_W / SHEET_W, A4_H / height)
       container.style.setProperty("--print-scale", String(scale))
     }
     window.addEventListener("beforeprint", fit)
@@ -226,11 +229,10 @@ export default function PatientInvoiceDetailPage({
           .no-print, .no-print * { display: none !important; }
           .inv-print {
             position: fixed !important;
-            top: 0; left: 0; right: 0;
-            margin: 0 auto !important;
-            width: 794px !important;
-            transform: scale(var(--print-scale, 1));
-            transform-origin: top center;
+            top: 0; left: 0;
+            width: 1000px !important;
+            transform: scale(var(--print-scale, 0.794));
+            transform-origin: top left;
             page-break-inside: avoid;
           }
           .inv-sheet > div { border: 0 !important; }

@@ -134,19 +134,24 @@ export default function InvoiceDetailsPage({
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // A4 portrait at 96dpi. @page margin is 0, so the full sheet is usable.
+  // The sheet is DESIGNED at 1000px wide (narrower cramps the header and clips
+  // the "INVOICE" title), so we render it at 1000px and scale it down to fill
+  // the A4 width — dropping to a smaller scale only if height would overflow.
   const A4_W = 794
   const A4_H = 1123
+  const SHEET_W = 1000
   useEffect(() => {
     const fit = () => {
       const sheet = sheetRef.current
       const container = printRef.current
       if (!sheet || !container) return
-      // Measure at the true print width so the height reflects what prints.
+      // Measure at the native design width so height reflects the real layout.
       const prevWidth = sheet.style.width
-      sheet.style.width = `${A4_W}px`
+      sheet.style.width = `${SHEET_W}px`
       const height = sheet.scrollHeight
       sheet.style.width = prevWidth
-      const scale = height > A4_H ? A4_H / height : 1
+      // Fill the page width; shrink further only if the sheet is too tall.
+      const scale = Math.min(A4_W / SHEET_W, A4_H / height)
       container.style.setProperty("--print-scale", String(scale))
     }
     window.addEventListener("beforeprint", fit)
@@ -454,14 +459,15 @@ export default function InvoiceDetailsPage({
             position: fixed !important;
             top: 0;
             left: 0;
-            right: 0;
-            margin: 0 auto !important;
-            /* Fill the A4 page width, then shrink-to-fit height via JS so a
-               long invoice is never clipped and never spills to a 2nd page. */
-            width: 794px !important;
+            /* Native sheet width; JS scales it (~0.79) to fill the A4 page
+               width, shrinking further only if a long invoice would overflow
+               the page height. Anchored top-left so the scaled box spans the
+               page exactly from x=0 (a >page-width box can't be centred via
+               margin:auto — that shifts it right and clips the edge). */
+            width: 1000px !important;
             gap: 0 !important;
-            transform: scale(var(--print-scale, 1));
-            transform-origin: top center;
+            transform: scale(var(--print-scale, 0.794));
+            transform-origin: top left;
             page-break-inside: avoid;
           }
           /* The sheet itself carries the border on screen; edge-to-edge in print. */
