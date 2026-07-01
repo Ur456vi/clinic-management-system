@@ -27,6 +27,8 @@ import {
   Users,
 } from "lucide-react"
 
+import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils"
+
 type ApptStatus = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
 type InvStatus = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
@@ -361,12 +363,7 @@ export default function DashboardPage() {
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-sm text-[#667085] dark:text-[#94A3B8]">
-                        {new Date(apt.startsAt).toLocaleString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {`${formatClinicDateShort(new Date(apt.startsAt))} · ${formatClinicTime(new Date(apt.startsAt))}`}
                       </td>
                       <td className="px-6 py-4">
                         <ApptStatusPill status={apt.status} />

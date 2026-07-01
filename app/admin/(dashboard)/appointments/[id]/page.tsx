@@ -28,6 +28,13 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+  formatClinicDateLong,
+  formatClinicTime,
+  istInstant,
+  toClinicDateInput,
+  toClinicTimeInput,
+} from "@/lib/date-utils"
 import { notify } from "@/lib/notify"
 
 type Status = "REQUESTED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
@@ -79,8 +86,8 @@ export default function AppointmentDetailPage({
       setAppt(data)
       const starts = new Date(data.startsAt)
       setDraft({
-        date: starts.toISOString().slice(0, 10),
-        time: starts.toTimeString().slice(0, 5),
+        date: toClinicDateInput(starts),
+        time: toClinicTimeInput(starts),
         duration: String(
           Math.max(
             5,
@@ -105,7 +112,7 @@ export default function AppointmentDetailPage({
     if (!appt || saving) return
     setSaving(true)
     try {
-      const startsAt = new Date(`${draft.date}T${draft.time}:00`)
+      const startsAt = istInstant(draft.date, draft.time)
       if (Number.isNaN(startsAt.getTime())) throw new Error("Invalid date/time")
       const endsAt = new Date(
         startsAt.getTime() + Number.parseInt(draft.duration, 10) * 60_000,
@@ -185,16 +192,8 @@ export default function AppointmentDetailPage({
 
   const starts = new Date(appt.startsAt)
   const ends = new Date(appt.endsAt)
-  const dateLabel = starts.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
-  const timeLabel = `${starts.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })} – ${ends.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`
+  const dateLabel = formatClinicDateLong(starts)
+  const timeLabel = `${formatClinicTime(starts)} – ${formatClinicTime(ends)}`
 
   return (
     <div className="flex flex-col gap-6">

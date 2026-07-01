@@ -27,6 +27,8 @@ import {
   Droplets,
 } from "lucide-react";
 
+import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils";
+
 type Profile = {
   id: string;
   fullName: string;
@@ -306,9 +308,9 @@ export default function PatientDashboardPage() {
                     </span>
                   </div>
                   <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
-                    {new Date(a.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                    {formatClinicDateShort(new Date(a.startsAt))}
                     {" · "}
-                    {new Date(a.startsAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                    {formatClinicTime(new Date(a.startsAt))}
                   </span>
                 </li>
               ))}
@@ -334,9 +336,9 @@ export default function PatientDashboardPage() {
                       {a.staff?.fullName ?? "Doctor"}{a.department ? ` · ${a.department.name}` : ""}
                     </p>
                     <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
-                      {new Date(a.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                      {formatClinicDateShort(new Date(a.startsAt))}
                       {" · "}
-                      {new Date(a.startsAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      {formatClinicTime(new Date(a.startsAt))}
                     </p>
                   </div>
                 </div>

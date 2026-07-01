@@ -9,6 +9,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { formatWallClockTime12h } from "@/lib/date-utils";
 import { useQuiz } from "@/components/public/assessment/QuizContext";
 import { QuizHeader } from "@/components/public/assessment/QuizPrimitives";
 import { SEVERITY_LABEL, type SeverityBand } from "@/components/public/assessment/types";
@@ -160,7 +161,7 @@ export default function ConfirmationPage() {
             <DetailRow
               icon={<ClockIcon size={16} />}
               label="Time"
-              value={data.slot.time}
+              value={formatWallClockTime12h(data.slot.time)}
             />
             {data.slot.notes ? (
               <DetailRow

@@ -33,6 +33,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { istInstant } from "@/lib/date-utils"
 import { notify } from "@/lib/notify"
 
 /** Clinic working hours (local, 24h "HH:MM"). The availability service has
@@ -173,7 +174,7 @@ function NewAppointmentPageInner() {
     setSubmitting(true)
     setFieldErrors({})
     try {
-      const startsAt = new Date(`${form.date}T${form.time}:00`)
+      const startsAt = istInstant(form.date, form.time)
       if (Number.isNaN(startsAt.getTime())) throw new Error("Invalid date/time")
       const endsAt = new Date(startsAt.getTime() + form.durationMin * 60_000)
       const body = {

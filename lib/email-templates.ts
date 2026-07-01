@@ -10,6 +10,7 @@
  * Styles are inlined and table-free where possible for broad client support.
  */
 
+import { formatClinicDateLong, formatClinicTime } from "@/lib/date-utils"
 import { RMO_FIELDS, SECTION_LABEL, SECTION_ORDER, SECTION_KEY } from "@/lib/rmo-fields"
 import { QUESTIONS } from "@/components/public/assessment/questions"
 import { CATEGORIES, type CategoryKey } from "@/components/public/assessment/types"
@@ -27,16 +28,13 @@ function esc(s: unknown): string {
     .replace(/>/g, "&gt;")
 }
 
+// Emails render server-side (runtime zone = UTC in prod), so these MUST pin
+// the clinic timezone — otherwise a 2:30 PM IST appointment prints as 9:00 AM.
 function fmtDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  })
+  return formatClinicDateLong(d)
 }
 function fmtTime(d: Date): string {
-  return d.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true, })
+  return formatClinicTime(d)
 }
 
 function shell(title: string, inner: string): string {

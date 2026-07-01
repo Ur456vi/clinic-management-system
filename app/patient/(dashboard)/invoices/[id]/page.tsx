@@ -7,7 +7,7 @@
  */
 
 import Link from "next/link"
-import { use, useCallback, useEffect, useState } from "react"
+import { use, useCallback, useEffect, useRef, useState } from "react"
 import { ArrowLeft, Printer, Loader2, AlertCircle } from "lucide-react"
 
 import InvoiceSheet, { formatMoney } from "@/components/invoice/InvoiceSheet"
@@ -41,6 +41,10 @@ export default function PatientInvoiceDetailPage({
   const [invoice, setInvoice] = useState<SelfInvoice | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // See admin invoice page: pin to A4 width and shrink-to-fit on print so the
+  // sheet fills the page, never clips, and stays one page.
+  const printRef = useRef<HTMLDivElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -61,6 +65,33 @@ export default function PatientInvoiceDetailPage({
     void load()
   }, [load])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  // A4 portrait at 96dpi (margin 0 → full sheet usable).
+  useEffect(() => {
+    const A4_W = 794
+    const A4_H = 1123
+    const fit = () => {
+      const sheet = sheetRef.current
+      const container = printRef.current
+      if (!sheet || !container) return
+      const prevWidth = sheet.style.width
+      sheet.style.width = `${A4_W}px`
+      const height = sheet.scrollHeight
+      sheet.style.width = prevWidth
+      const scale = height > A4_H ? A4_H / height : 1
+      container.style.setProperty("--print-scale", String(scale))
+    }
+    window.addEventListener("beforeprint", fit)
+    const mql = window.matchMedia("print")
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) fit()
+    }
+    mql.addEventListener?.("change", onChange)
+    return () => {
+      window.removeEventListener("beforeprint", fit)
+      mql.removeEventListener?.("change", onChange)
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -109,19 +140,21 @@ export default function PatientInvoiceDetailPage({
       </div>
 
       {/* Branded sheet (prints) */}
-      <div className="inv-print">
+      <div ref={printRef} className="inv-print">
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <InvoiceSheet
-          invoiceNumber={invoice.invoiceNumber}
-          issuedLabel={issuedLabel}
-          patientNumber={invoice.patient?.patientNumber ?? null}
-          patientFullName={invoice.patient?.fullName ?? null}
-          items={invoice.items}
-          subtotalCents={invoice.subtotalCents}
-          totalCents={invoice.totalCents}
-          paidCents={paidCents}
-          currency={CURRENCY}
-        />
+        <div ref={sheetRef} className="inv-sheet">
+          <InvoiceSheet
+            invoiceNumber={invoice.invoiceNumber}
+            issuedLabel={issuedLabel}
+            patientNumber={invoice.patient?.patientNumber ?? null}
+            patientFullName={invoice.patient?.fullName ?? null}
+            items={invoice.items}
+            subtotalCents={invoice.subtotalCents}
+            totalCents={invoice.totalCents}
+            paidCents={paidCents}
+            currency={CURRENCY}
+          />
+        </div>
       </div>
 
       {/* Installment plan (view-only) */}
@@ -180,14 +213,27 @@ export default function PatientInvoiceDetailPage({
       </div>
 
       <style>{`
-        .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .inv-print, .inv-print * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
         @media print {
           @page { size: A4; margin: 0; }
-          html, body { margin: 0 !important; padding: 0 !important; height: 100vh !important; overflow: hidden !important; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           body * { visibility: hidden; }
           .inv-print, .inv-print * { visibility: visible; }
-          .inv-print { position: fixed !important; left: 0; top: 0; width: 1000px !important; height: 1400px !important; transform: scale(0.68); transform-origin: top left; overflow: hidden; }
-          .no-print { display: none !important; }
+          .no-print, .no-print * { display: none !important; }
+          .inv-print {
+            position: fixed !important;
+            top: 0; left: 0; right: 0;
+            margin: 0 auto !important;
+            width: 794px !important;
+            transform: scale(var(--print-scale, 1));
+            transform-origin: top center;
+            page-break-inside: avoid;
+          }
+          .inv-sheet > div { border: 0 !important; }
         }
       `}</style>
     </div>

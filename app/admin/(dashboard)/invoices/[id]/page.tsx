@@ -12,7 +12,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { use, useCallback, useEffect, useState } from "react"
+import { use, useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -88,6 +88,12 @@ export default function InvoiceDetailsPage({
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  // Print scaling: the printable region is pinned to A4 width so it fills the
+  // page; if the sheet is taller than one A4 page we shrink it just enough to
+  // fit (never clip). Recomputed on every print via the `beforeprint` event so
+  // it works for the Print button AND the browser's own Ctrl/Cmd+P.
+  const printRef = useRef<HTMLDivElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
 
   function numberToWordsINR(num: number): string {
   if (num === 0) return "Zero"
@@ -126,6 +132,35 @@ export default function InvoiceDetailsPage({
     void fetchOne()
   }, [fetchOne])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  // A4 portrait at 96dpi. @page margin is 0, so the full sheet is usable.
+  const A4_W = 794
+  const A4_H = 1123
+  useEffect(() => {
+    const fit = () => {
+      const sheet = sheetRef.current
+      const container = printRef.current
+      if (!sheet || !container) return
+      // Measure at the true print width so the height reflects what prints.
+      const prevWidth = sheet.style.width
+      sheet.style.width = `${A4_W}px`
+      const height = sheet.scrollHeight
+      sheet.style.width = prevWidth
+      const scale = height > A4_H ? A4_H / height : 1
+      container.style.setProperty("--print-scale", String(scale))
+    }
+    window.addEventListener("beforeprint", fit)
+    // Safari has no beforeprint — fall back to the print media-query.
+    const mql = window.matchMedia("print")
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) fit()
+    }
+    mql.addEventListener?.("change", onChange)
+    return () => {
+      window.removeEventListener("beforeprint", fit)
+      mql.removeEventListener?.("change", onChange)
+    }
+  }, [])
 
   // Payment is collected at the desk via UPI QR; reception confirms it here.
   // We RECORD a real CAPTURED payment for the outstanding balance (method
@@ -296,10 +331,10 @@ export default function InvoiceDetailsPage({
       </div>
 
       {/* Printable region — only this prints (invoice + payment history) */}
-      <div className="inv-print flex flex-col gap-6">
+      <div ref={printRef} className="inv-print flex flex-col gap-6">
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      {/* Main invoice card */}
-      
+      {/* Main invoice card — measured for print scaling */}
+      <div ref={sheetRef} className="inv-sheet">
       <InvoiceSheet
         invoiceNumber={invoice.invoiceNumber}
         issuedLabel={issuedLabel}
@@ -310,7 +345,8 @@ export default function InvoiceDetailsPage({
         totalCents={invoice.totalCents}
         paidCents={paidCents}
         currency={invoice.currency}
-      /> 
+      />
+      </div>
 
       {/* Installment plan — screen only, excluded from print */}
       {invoice.installmentCount > 1 ? (
@@ -396,31 +432,40 @@ export default function InvoiceDetailsPage({
       {/* Print rules: only the invoice region prints; hide app chrome + toolbar */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
-        .inv-print { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        /* Force branded fills to print in every browser, even with the
+           "Background graphics" option off. */
+        .inv-print, .inv-print * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
         @media print {
           @page { size: A4; margin: 0; }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
-            height: 100vh !important;
-            overflow: hidden !important;
+            background: #fff !important;
           }
+          /* Show only the invoice; hide app chrome and the screen-only cards. */
           body * { visibility: hidden; }
           .inv-print, .inv-print * { visibility: visible; }
-          .inv-print { 
-            position: fixed !important; 
-            left: 0; 
-            top: 0; 
-            width: 1000px !important; 
-            height: 1400px !important;
-            transform: scale(0.68); 
-            transform-origin: top left; 
-            overflow: hidden;
-            page-break-after: avoid;
+          .no-print, .no-print * { display: none !important; }
+          .inv-print {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            margin: 0 auto !important;
+            /* Fill the A4 page width, then shrink-to-fit height via JS so a
+               long invoice is never clipped and never spills to a 2nd page. */
+            width: 794px !important;
+            gap: 0 !important;
+            transform: scale(var(--print-scale, 1));
+            transform-origin: top center;
             page-break-inside: avoid;
-            page-break-before: avoid;
           }
-          .no-print { display: none !important; }
+          /* The sheet itself carries the border on screen; edge-to-edge in print. */
+          .inv-sheet > div { border: 0 !important; }
         }
       `}</style>
     </div>

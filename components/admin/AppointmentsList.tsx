@@ -35,6 +35,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils"
 import { notify } from "@/lib/notify"
 
 /* ── API response shape (mirrors APPOINTMENT_INCLUDE in
@@ -350,15 +351,8 @@ function AppointmentRow({
   onClose: (val?: boolean) => void
 }) {
   const starts = new Date(row.startsAt)
-  const dateLabel = starts.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  })
-  const timeLabel = starts.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const dateLabel = formatClinicDateShort(starts)
+  const timeLabel = formatClinicTime(starts)
 
   return (
     <tr className="hover:bg-[#F9FAFB] transition-colors">

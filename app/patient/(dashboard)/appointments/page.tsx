@@ -9,6 +9,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarPlus, Loader2, Search } from "lucide-react";
 
+import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils";
+
 type Appt = {
   id: string;
   startsAt: string;
@@ -129,9 +131,9 @@ export default function PatientAppointmentsPage() {
               {filtered.map((a) => (
                 <tr key={a.id}>
                   <td className="px-5 py-4 text-[#101828] dark:text-[#F9FAFB] font-medium whitespace-nowrap">
-                    {new Date(a.startsAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                    {formatClinicDateShort(new Date(a.startsAt))}
                     <span className="text-[#98A2B3] dark:text-[#94A3B8] font-normal">
-                      {" · "}{new Date(a.startsAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      {" · "}{formatClinicTime(new Date(a.startsAt))}
                     </span>
                   </td>
                   <td className="px-5 py-4">

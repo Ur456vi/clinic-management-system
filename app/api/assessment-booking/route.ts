@@ -38,6 +38,11 @@ import { z } from "zod";
 import { defineHandler, logger, ok } from "@/lib/api";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import {
+  formatClinicDateLong,
+  formatWallClockTime12h,
+  istInstant,
+} from "@/lib/date-utils";
 import { hashPassword } from "@/lib/passwords";
 import { nextPatientNumber } from "@/lib/services/patient";
 import { sendMail } from "@/lib/email";
@@ -101,7 +106,10 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   const json = await req.json().catch(() => ({}));
   const body = bodySchema.parse(json);
 
-  const preferredAt = new Date(`${body.slot.date}T${body.slot.time}:00`);
+  // The slot date/time is an IST wall-clock the patient picked. This route
+  // runs server-side (UTC), so parse with an explicit IST offset — otherwise
+  // "14:30" would be stored as 14:30Z (5.5h off).
+  const preferredAt = istInstant(body.slot.date, body.slot.time);
   if (Number.isNaN(preferredAt.getTime())) {
     return ok({ bookingId: null, error: "Invalid date/time combination" });
   }
@@ -284,13 +292,8 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   );
 
   // ── 4. Send email via SMTP/Brevo (best-effort async) ──────────────────
-  const dateStr = preferredAt.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const timeStr = body.slot.time;
+  const dateStr = formatClinicDateLong(preferredAt);
+  const timeStr = formatWallClockTime12h(body.slot.time);
 
   const loginUrl = `${env.APP_URL}/login`;
   const mail = isNewPatient
