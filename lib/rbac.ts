@@ -66,6 +66,11 @@ export const PERMISSIONS = {
   "labResult:attach": CLINICAL_DESK, // ATTACH_ROLES (reception uploads reports)
   "labResult:read": ALL_STAFF, // READ_ROLES
 
+  // ClinicalSummary (lib/services/clinical-summary.ts) — doctor/RMO upload
+  // per-visit summary documents; any staff member may view them.
+  "clinicalSummary:write": ["ADMIN", "DOCTOR", "RMO"], // WRITE_ROLES
+  "clinicalSummary:read": ALL_STAFF, // READ_ROLES
+
   // Invoice + Payment (lib/services/invoice.ts)
   "invoice:write": ["ADMIN", "DOCTOR", "RECEPTION"], // WRITE_ROLES
   "invoice:view": CLINICAL_DESK, // VIEW_ROLES

@@ -200,6 +200,9 @@ model User {
   /// Vitals readings this user (staff/RMO) recorded for patients.
   vitalsRecorded Vital[] @relation("VitalRecorder")
 
+  /// Clinical summary entries this user (doctor/RMO) created for patients.
+  clinicalSummariesCreated ClinicalSummary[] @relation("ClinicalSummaryCreator")
+
   @@index([role])
   @@map("users")
 }
@@ -325,6 +328,7 @@ model Patient {
   infusionLogs          InfusionLog[]
   refillRequests        RefillRequest[]
   vitals                Vital[]
+  clinicalSummaries     ClinicalSummary[]
   /// Every completed public-site Health Assessment quiz is captured here.
   /// One row per attempt — retakes are stored as fresh rows so the doctor
   /// can compare scores over time.
@@ -860,6 +864,72 @@ model LabResultAttachment {
 
   @@index([labResultId, createdAt])
   @@map("lab_result_attachments")
+}
+
+// ===========================================================================
+// Clinical Summary — per-patient summary documents uploaded by the doctor / RMO
+// ===========================================================================
+//
+// A free-standing, dated summary entry the doctor (Dr Yuvraaj) or RMO records
+// for a patient — typically one per visit/appointment. Each entry is a title +
+// date and holds ONE OR MORE uploaded files (PDF / image / Word doc) living in
+// the private `phi` S3 bucket. Mirrors the LabResult -> LabResultAttachment
+// shape: the parent row carries the human metadata, the child rows carry the
+// files. Standalone by design (no hard FK to Appointment) — the date is what
+// ties a summary to the visit it describes.
+
+model ClinicalSummary {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Short human label for the entry, e.g. "Follow-up visit summary".
+  title String
+  /// The clinical date the summary describes (the visit/appointment day).
+  summaryDate DateTime @map("summary_date")
+  /// Optional free-text note shown alongside the files.
+  notes String?
+
+  /// Staff/RMO user who created the entry. Nullable so the row survives a
+  /// user deletion (consistent with TreatmentPlan.createdBy / Vital.recordedBy).
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   User?   @relation("ClinicalSummaryCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  /// All files attached to this summary — one row per uploaded document.
+  files ClinicalSummaryFile[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, summaryDate(sort: Desc)])
+  @@map("clinical_summaries")
+}
+
+/**
+ * One uploaded document for a ClinicalSummary. A summary can hold several
+ * files (multi-page scans, lab + note together, ...). Files live in the
+ * private `phi` S3 bucket; this row holds the key + display metadata.
+ * Deleting a row orphans the S3 object (cleanup deferred, consistent with the
+ * lab-attachment detach flow).
+ */
+model ClinicalSummaryFile {
+  id        String          @id @default(uuid()) @db.Uuid
+  summaryId String          @map("summary_id") @db.Uuid
+  summary   ClinicalSummary @relation(fields: [summaryId], references: [id], onDelete: Cascade)
+
+  /// S3 object key in the private `phi` bucket.
+  attachmentKey  String  @map("attachment_key")
+  attachmentMime String? @map("attachment_mime")
+  /// Original filename, for display + download disposition.
+  filename     String?
+  sizeBytes    Int?    @map("size_bytes")
+  /// User who uploaded (staff id); null when unknown.
+  uploadedById String? @map("uploaded_by_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([summaryId, createdAt])
+  @@map("clinical_summary_files")
 }
 
 // Billing — Invoice / InvoiceItem / Payment (BE-37)

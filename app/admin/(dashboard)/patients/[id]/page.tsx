@@ -38,12 +38,15 @@ import {
   CreditCard,
   ClipboardList,
   MoreVertical,
+  FileText,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import RefillManager from "@/components/admin/RefillManager"
 import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
+import ClinicalSummaryModal from "@/components/admin/ClinicalSummaryModal"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -203,7 +206,17 @@ type PlanApi = {
   items: PlanItemApi[]
 }
 
-const TABS = ["Clinical Summary", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+const TABS = ["Clinical Summary", "Summaries", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+
+type ClinicalSummaryRow = {
+  id: string
+  title: string
+  summaryDate: string
+  notes: string | null
+  fileCount: number
+  createdByName: string | null
+  createdAt: string
+}
 
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -222,6 +235,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [openRefills, setOpenRefills] = useState(0)
   const [plan, setPlan] = useState<PlanApi | null | undefined>(undefined)
   const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean } | null>(null)
+  const [summaries, setSummaries] = useState<ClinicalSummaryRow[] | null>(null)
+  const [summaryModal, setSummaryModal] = useState<
+    { mode: "create" } | { mode: "manage"; id: string; title: string } | null
+  >(null)
   const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
   const [vitalOpen, setVitalOpen] = useState(false)
@@ -352,6 +369,32 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  // Clinical summary entries (per-visit documents uploaded by doctor / RMO).
+  const fetchSummaries = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/clinical-summaries?patientId=${id}&limit=100`, { credentials: "include" })
+      if (!res.ok) return setSummaries([])
+      const json = await res.json()
+      setSummaries(json?.data?.items ?? [])
+    } catch {
+      setSummaries([])
+    }
+  }, [id])
+
+  const deleteSummary = useCallback(async (summaryId: string) => {
+    if (!window.confirm("Delete this summary and all its files? This cannot be undone.")) return
+    try {
+      const res = await fetch(`/api/clinical-summaries/${summaryId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) throw new Error()
+      await fetchSummaries()
+    } catch {
+      notify.error("Couldn't delete the summary")
+    }
+  }, [fetchSummaries])
+
   // Latest SIGNED treatment plan drives the "Prescribed Program" card.
   const fetchPlan = useCallback(async () => {
     try {
@@ -374,7 +417,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     void fetchTimeline()
     void fetchRefills()
     void fetchPlan()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan])
+    void fetchSummaries()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -604,6 +648,55 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             )}
           </Panel>
         </div>
+      ) : tab === "Summaries" ? (
+        <Panel
+          title="Clinical Summaries"
+          icon={FileText}
+          aside="+ Add new summary"
+          asideOnClick={() => setSummaryModal({ mode: "create" })}
+          full
+        >
+          {summaries === null ? (
+            <Empty text="Loading summaries…" />
+          ) : summaries.length === 0 ? (
+            <Empty text="No clinical summaries yet. Add the first one." />
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "#EFE8D8" }}>
+              {summaries.map((s) => (
+                <li key={s.id} className="py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] truncate">{s.title}</p>
+                    <p className="text-xs text-[#8A9A92]">
+                      {fmtDate(s.summaryDate)} · {s.fileCount} file{s.fileCount === 1 ? "" : "s"}
+                      {s.createdByName ? ` · ${s.createdByName}` : ""}
+                    </p>
+                    {s.notes ? (
+                      <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5 line-clamp-2">{s.notes}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setSummaryModal({ mode: "manage", id: s.id, title: s.title })}
+                      className="text-xs font-semibold hover:underline px-1.5"
+                      style={{ color: GREEN }}
+                    >
+                      {s.fileCount > 0 ? "View files" : "Add files"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void deleteSummary(s.id)}
+                      aria-label="Delete summary"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#B42318] hover:bg-[#FEF3F2]"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
       ) : tab === "Program & Refills" ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           <Panel title="Prescribed Program" icon={ClipboardList}>
@@ -786,6 +879,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           hasReport={uploadLab.hasReport}
           onClose={() => setUploadLab(null)}
           onUploaded={() => { void fetchTimeline() }}
+        />
+      ) : null}
+
+      {summaryModal ? (
+        <ClinicalSummaryModal
+          patientId={id}
+          summary={summaryModal.mode === "manage" ? { id: summaryModal.id, title: summaryModal.title } : null}
+          onClose={() => setSummaryModal(null)}
+          onChanged={() => { void fetchSummaries() }}
         />
       ) : null}
     </div>
