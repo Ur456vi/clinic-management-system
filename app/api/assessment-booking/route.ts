@@ -294,6 +294,8 @@ export const POST = defineHandler(async ({ req, requestId }) => {
   // ── 4. Send email via SMTP/Brevo (best-effort async) ──────────────────
   const dateStr = formatClinicDateLong(preferredAt);
   const timeStr = formatWallClockTime12h(body.slot.time);
+  const startsAt = preferredAt;
+  const endsAt = new Date(preferredAt.getTime() + 45 * 60 * 1000);
 
   const loginUrl = `${env.APP_URL}/login`;
   const mail = isNewPatient
@@ -301,6 +303,8 @@ export const POST = defineHandler(async ({ req, requestId }) => {
         patientName: body.patient.name,
         dateStr,
         timeStr,
+        startsAt,
+        endsAt,
         loginUrl,
         email: emailNormalised,
         tempPassword,
@@ -309,6 +313,8 @@ export const POST = defineHandler(async ({ req, requestId }) => {
         patientName: body.patient.name,
         dateStr,
         timeStr,
+        startsAt,
+        endsAt,
         loginUrl,
       });
 

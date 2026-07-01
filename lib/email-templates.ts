@@ -145,7 +145,7 @@ export function patientBookingNewAccountEmail(a: NewAccountBookingInfo): {
     ``,
     `Your appointment is requested for:`,
     `Date: ${a.dateStr}`,
-    `Time: ${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`,
+    `Time: ${fmtTime(a.startsAt)}`,
     ``,
     `We have also set up your Patient Portal account so you can view your upcoming appointments, medical reports, and treatment plans.`,
     ``,

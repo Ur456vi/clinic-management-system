@@ -11,6 +11,8 @@ const mail = patientBookingNewAccountEmail({
   patientName: "varun pratap singh",
   dateStr: "Monday, June 1, 2026",
   timeStr: "10:00",
+  startsAt: new Date("2026-06-01T10:00:00Z"),
+  endsAt: new Date("2026-06-01T10:30:00Z"),
   loginUrl: "https://app.vyara.health/login",
   email: "varunpratapsingh191@gmail.com",
   tempPassword: "Xk7p-9Qm2",
