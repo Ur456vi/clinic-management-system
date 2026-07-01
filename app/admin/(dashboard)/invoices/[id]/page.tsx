@@ -21,6 +21,12 @@ import {
   AlertCircle,
   CheckCircle2,
   Trash2,
+  Activity,
+  ShieldCheck,
+  Phone,
+  Mail,
+  MapPin,
+  Globe,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -82,6 +88,23 @@ export default function InvoiceDetailsPage({
   const [error, setError] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  function numberToWordsINR(num: number): string {
+  if (num === 0) return "Zero"
+  const a = [
+    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
+  ]
+  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+  const format2 = (n: number) => (n < 20 ? a[n] : b[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + a[n % 10] : ""))
+  let words = ""
+  if (num >= 10000000) { words += format2(Math.floor(num / 10000000)) + " Crore "; num %= 10000000 }
+  if (num >= 100000) { words += format2(Math.floor(num / 100000)) + " Lakh "; num %= 100000 }
+  if (num >= 1000) { words += format2(Math.floor(num / 1000)) + " Thousand "; num %= 1000 }
+  if (num >= 100) { words += format2(Math.floor(num / 100)) + " Hundred "; num %= 100 }
+  if (num > 0) { words += format2(num) }
+  return words.trim()
+}
 
   const fetchOne = useCallback(async () => {
     setError(null)
@@ -276,364 +299,7 @@ export default function InvoiceDetailsPage({
       <div className="inv-print flex flex-col gap-6">
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
       {/* Main invoice card */}
-      <div className="text-[#384a3c] bg-[#fdfcf7] border border-[#EAECF0] shadow-sm overflow-hidden dark:text-[#101828]">
-        {/* Header Section */}
-        <div className="p-12 flex items-stretch justify-between relative border-b border-[#a98b63]/30 bg-[#fbfaf6]">
-          {/* Left Logo */}
-          <div className="flex flex-col items-center justify-center pr-10 border-r border-[#a98b63]/50 w-[30%] text-center">
-            <Image
-              src="/iphmh-logos.jpeg"
-              alt="IPHMH Logo"
-              width={180}
-              height={180}
-              className="object-contain"
-              priority
-            />
-          </div>
-
-          {/* Middle Doctor Details */}
-          <div className="pl-10 pr-10 border-r border-[#a98b63]/50 flex flex-col justify-center w-[40%]">
-            <div className="flex items-baseline gap-2 mb-1.5">
-              <h2 className="text-[22px] text-[#384a3c]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, letterSpacing: "0.02em" }}>DR. YUVRAAJ SINGH</h2>
-              <span className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.08em" }}>MD | F.A.A.R.M</span>
-            </div>
-            {/* <p className="text-[10px] text-[#384a3c] mb-6 uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.15em" }}>INTERNAL MEDICINE PHYSICIAN</p> */}
-            
-            <div className="space-y-4 text-[9px] uppercase text-[#384a3c] mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.05em", lineHeight: "1.5" }}>
-              <div className="flex items-start gap-3">
-                <div className="text-[#a98b63] shrink-0 mt-[2px]"><Activity className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>MD – INTERNAL MEDICINE</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="text-[#a98b63] shrink-0 mt-[2px]"><ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>ADVANCED TRAINING IN ENDOCRINOLOGY,<br />METABOLIC & REGENERATIVE<br />MEDICINE, USA</p>
-              </div>
-              {/* <div className="flex items-start gap-3">
-                <div className="text-[#a98b63] shrink-0 mt-[2px]"><Plus className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>A4M, USA</p>
-              </div> */}
-            </div>
-            <p className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, letterSpacing: "0.2em" }}>RESTORE &bull; OPTIMIZE &bull; TRANSFORM</p>
-          </div>
-
-          {/* Right Invoice Data */}
-          <div className="pl-10 flex flex-col justify-start w-[30%] pt-2">
-            <h1 className="text-[44px] text-[#384a3c] mb-8" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, letterSpacing: "0.15em" }}>INVOICE</h1>
-            <table className="w-full text-[10px] text-[#384a3c]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.02em" }}>
-              <tbody>
-                <tr>
-                  <td className="py-1 w-24 align-top">INVOICE NO.</td>
-                  <td className="py-1 w-4 align-top text-center">:</td>
-                  <td className="py-1 align-top">{invoice.invoiceNumber}</td>
-                </tr>
-                <tr>
-                  <td className="py-1 w-24 align-top">DATE</td>
-                  <td className="py-1 w-4 align-top text-center">:</td>
-                  <td className="py-1 align-top">{issuedLabel}</td>
-                </tr>
-                <tr>
-                  <td className="py-1 w-24 align-top">PATIENT ID</td>
-                  <td className="py-1 w-4 align-top text-center">:</td>
-                  <td className="py-1 align-top">{invoice.patient?.patientNumber || "—"}</td>
-                </tr>
-                <tr>
-                  <td className="py-1 w-24 align-top">CONSULTANT</td>
-                  <td className="py-1 w-4 align-top text-center">:</td>
-                  <td className="py-1 align-top uppercase">DR. YUVRAAJ SINGH, MD | F.A.A.R.M</td>
-                </tr>
-                <tr>
-                  <td className="py-1 w-24 align-top">LOCATION</td>
-                  <td className="py-1 w-4 align-top text-center">:</td>
-                  <td className="py-1 align-top uppercase">811, Harnoor House, 1st Floor, Sector-42, Gurugram</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Billed To & Quote Section */}
-        <div className="px-10 pt-8 pb-12 flex relative border-b border-[#EAECF0]/50 bg-[#fbfaf6]">
-          {/* Left Column: Billed To */}
-          <div className="w-[280px] pr-6 border-r-[1.5px]" style={{ borderColor: "#E5DFD0" }}>
-            <p className="font-semibold tracking-[0.12em] text-[12px] mb-4 uppercase" style={{ color: "#B08D44" }}>
-              Billed To
-            </p>
-            <p className="font-bold text-[16px]" style={{ color: "#28342F" }}>
-              {invoice.patient ? invoice.patient.fullName : "Ms. Neha Sharma"}
-            </p>
-          </div>
-
-          {/* Right Column: Quote */}
-          <div className="flex-1 pl-10 relative flex items-center min-h-[140px] overflow-hidden">
-             {/* Decorative Background (Hexagons and DNA-like fading shapes) */}
-             <div className="absolute inset-0 opacity-[0.12] pointer-events-none flex items-center justify-end pr-4" style={{ right: "-20px" }}>
-                <svg width="300" height="150" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* DNA Strand */}
-                  <g opacity="0.8">
-                    <path d="M150 0 Q180 37.5 150 75 T150 150" stroke="#B08D44" strokeWidth="4" strokeLinecap="round" />
-                    <path d="M180 0 Q150 37.5 180 75 T180 150" stroke="#B08D44" strokeWidth="4" strokeLinecap="round" />
-                    <line x1="156" y1="20" x2="174" y2="20" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="162" y1="37.5" x2="168" y2="37.5" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="156" y1="55" x2="174" y2="55" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="150" y1="75" x2="180" y2="75" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="156" y1="95" x2="174" y2="95" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="162" y1="112.5" x2="168" y2="112.5" stroke="#B08D44" strokeWidth="2.5" />
-                    <line x1="156" y1="130" x2="174" y2="130" stroke="#B08D44" strokeWidth="2.5" />
-                  </g>
-                  
-                  {/* Hexagons */}
-                  <g opacity="0.6">
-                    <path d="M230 40 L245 30 L260 40 L260 60 L245 70 L230 60 Z" stroke="#B08D44" strokeWidth="1.5" />
-                    <circle cx="230" cy="40" r="3" fill="#B08D44"/>
-                    <circle cx="245" cy="30" r="3" fill="#B08D44"/>
-                    <circle cx="260" cy="40" r="3" fill="#B08D44"/>
-                    <circle cx="260" cy="60" r="3" fill="#B08D44"/>
-                    <circle cx="245" cy="70" r="3" fill="#B08D44"/>
-                    <circle cx="230" cy="60" r="3" fill="#B08D44"/>
-                    
-                    <path d="M200 60 L215 50 L230 60 L230 80 L215 90 L200 80 Z" stroke="#B08D44" strokeWidth="1.5" />
-                    <circle cx="200" cy="60" r="3" fill="#B08D44"/>
-                    <circle cx="215" cy="50" r="3" fill="#B08D44"/>
-                    <circle cx="230" cy="80" r="3" fill="#B08D44"/>
-                    <circle cx="215" cy="90" r="3" fill="#B08D44"/>
-                    <circle cx="200" cy="80" r="3" fill="#B08D44"/>
-                    
-                    <path d="M80 60 L95 50 L110 60 L110 80 L95 90 L80 80 Z" stroke="#B08D44" strokeWidth="1.5" />
-                    <circle cx="80" cy="60" r="3" fill="#B08D44"/>
-                    <circle cx="95" cy="50" r="3" fill="#B08D44"/>
-                    <circle cx="110" cy="60" r="3" fill="#B08D44"/>
-                    <circle cx="110" cy="80" r="3" fill="#B08D44"/>
-                    <circle cx="95" cy="90" r="3" fill="#B08D44"/>
-                    <circle cx="80" cy="80" r="3" fill="#B08D44"/>
-                  </g>
-                </svg>
-             </div>
-             
-             {/* Large Quote Mark */}
-             <div className="absolute top-0 left-8 text-[60px] leading-none" style={{ color: "#D1CCBF", fontFamily: "Georgia, serif" }}>
-               &ldquo;
-             </div>
-             
-             <div className="pl-12 pt-4 relative z-10 w-full pr-12">
-               <p className="text-[17px] italic mb-3" style={{ color: "#28342F", fontFamily: "Georgia, serif", lineHeight: "1.6" }}>
-                 True health is not the absence<br/>
-                 of disease, but the harmony of<br/>
-                 biology, performance and longevity.
-               </p>
-               <p className="text-[14px] italic" style={{ color: "#4A5650", fontFamily: "Georgia, serif" }}>
-                 &mdash; Dr. Yuvraaj Singh (MD | F.A.A.R.M)
-               </p>
-             </div>
-          </div>
-        </div>
-
-        {/* Table / Description Section */}
-        <div className="mx-10 my-8 border border-[#d4c19f]/60 rounded-md overflow-hidden bg-[#fbfaf6]">
-          {/* Header */}
-          <div className="flex items-center bg-[#404d3e] text-[#fdfaf6] text-[11px] tracking-[0.15em] font-semibold uppercase">
-            <div className="w-[70%] py-3.5 pl-8 border-r border-[#d4c19f]/30">
-              Description
-            </div>
-            <div className="w-[30%] py-3.5 text-center">
-              Amount (₹)
-            </div>
-          </div>
-          
-          {/* Items */}
-          {invoice.items.length === 0 ? (
-            <div className="p-10 text-center text-sm text-gray-400">No items</div>
-          ) : invoice.items.map((it, idx) => (
-            <div key={it.id} className={`flex ${idx !== invoice.items.length - 1 ? "border-b border-[#d4c19f]/40" : ""}`}>
-              {/* Left */}
-              <div className="w-[70%] pt-6 pb-4 px-8 border-r border-[#d4c19f]/40 flex gap-6">
-                {/* Custom DNA Icon from Image */}
-                <div className="shrink-0 w-[72px] h-[72px] rounded-full border-[1.5px] border-[#a98b63] flex items-center justify-center relative bg-transparent mt-1">
-                   <svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="23" cy="10" r="3.5" stroke="#384a3c" strokeWidth="1.5" fill="none" />
-                      <path d="M14 18 C 14 14, 32 14, 32 18" stroke="#384a3c" strokeWidth="1.5" fill="none" />
-                      <path d="M20 18 Q26 24 20 30 T20 42" stroke="#384a3c" strokeWidth="1.5" fill="none" />
-                      <path d="M26 18 Q20 24 26 30 T26 42" stroke="#384a3c" strokeWidth="1.5" fill="none" />
-                      <line x1="21.5" y1="22" x2="24.5" y2="22" stroke="#384a3c" strokeWidth="1.5" />
-                      <line x1="21.5" y1="26" x2="24.5" y2="26" stroke="#384a3c" strokeWidth="1.5" />
-                      <line x1="21.5" y1="30" x2="24.5" y2="30" stroke="#384a3c" strokeWidth="1.5" />
-                      <line x1="21.5" y1="34" x2="24.5" y2="34" stroke="#384a3c" strokeWidth="1.5" />
-                      <line x1="21.5" y1="38" x2="24.5" y2="38" stroke="#384a3c" strokeWidth="1.5" />
-                      <path d="M12 24 C 8 24, 6 20, 6 20 C 6 20, 10 18, 12 24 Z" fill="#384a3c" />
-                      <path d="M14 26 C 10 28, 8 32, 8 32 C 8 32, 12 34, 14 26 Z" fill="#384a3c" />
-                      <path d="M34 24 C 38 24, 40 20, 40 20 C 40 20, 36 18, 34 24 Z" fill="#384a3c" />
-                      <path d="M32 26 C 36 28, 38 32, 38 32 C 38 32, 34 34, 32 26 Z" fill="#384a3c" />
-                   </svg>
-                </div>
-                <div className="pt-1">
-                   <h4 className="text-[15px] font-semibold text-[#28342F] tracking-[0.03em] mb-2 uppercase">
-                     {it.description === "Consultation" || invoice.items.length === 1 ? "COMPREHENSIVE PRECISION HEALTH PROGRAM" : it.description}
-                   </h4>
-                   <p className="text-[13px] text-[#4A5650] font-medium leading-[1.7] mb-3 pr-4">
-                     A complete physician-led, evidence-based program encompassing advanced diagnostics, personalized protocols, metabolic optimization, hormonal balance, regenerative strategies, longevity planning, and continuous clinical monitoring.
-                   </p>
-                   <p className="text-[14.5px] text-[#384a3c] italic font-serif opacity-90 tracking-wide">
-                     Designed Around You. Backed by Science. Focused on Results.
-                   </p>
-                </div>
-              </div>
-              {/* Right */}
-              <div className="w-[30%] flex flex-col justify-center items-center pt-6 pb-4 px-4">
-                 <p className="text-[26px] font-medium text-[#28342F] tracking-wide">
-                   {formatMoney(it.lineTotalCents, invoice.currency).replace("INR", "₹").replace(".00", "")}
-                 </p>
-                 <p className="text-[10.5px] text-[#4A5650] font-medium text-center mt-3 leading-relaxed px-6">
-                   (Rupees {numberToWordsINR(Math.floor(it.lineTotalCents / 100))} Only)
-                 </p>
-              </div>
-            </div>
-          ))}
-
-          {/* Totals Section */}
-          <div>
-            {/* Subtotals Area (Transparent bg) */}
-            <div className="flex text-[#28342F] border-b border-[#d4c19f]/40">
-              <div className="w-[70%] border-r border-[#d4c19f]/40"></div>
-              <div className="w-[30%] pt-2 pb-5 px-10 flex flex-col gap-3 text-[13px] font-medium text-[#28342F]">
-                 <div className="flex justify-between w-full items-center">
-                    <span className="text-[#4A5650] text-[11px] uppercase tracking-wider font-bold">Subtotal</span>
-                    <span>{formatMoney(invoice.subtotalCents, invoice.currency)}</span>
-                 </div>
-                 <div className="flex justify-between w-full items-center">
-                    <span className="text-[#384a3c] text-[11px] uppercase tracking-wider font-bold">Grand Total</span>
-                    <span className="font-bold">{formatMoney(invoice.totalCents, invoice.currency)}</span>
-                 </div>
-                 <div className="flex justify-between w-full items-center">
-                    <span className="text-[#a1824a] text-[11px] uppercase tracking-wider font-bold">Paid</span>
-                    <span className="text-[#a1824a] font-bold">{formatMoney(paidCents, invoice.currency)}</span>
-                 </div>
-              </div>
-            </div>
-
-            {/* Bottom Total Row (Pinkish Beige) */}
-            <div className="flex text-[#28342F]">
-              {/* Left */}
-              <div className="w-[70%] py-5 pr-8 border-r border-[#d4c19f]/40 flex items-center justify-end bg-[#e8decd]/80">
-                 <span className="text-[11px] font-bold tracking-[0.1em] text-[#384a3c] uppercase">
-                   TOTAL (ALL INCLUSIVE)
-                 </span>
-              </div>
-              {/* Right */}
-              <div className="w-[30%] py-5 px-10 flex justify-between items-center text-[13px] font-medium text-[#28342F] bg-[#e1d3bc]/80">
-                 <span className="text-[#28342F] text-[11px] uppercase tracking-wider font-black">Balance Due</span>
-                 <span className="font-bold text-[18px]">{formatMoney(Math.max(0, invoice.totalCents - paidCents), invoice.currency)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Thank You Note */}
-        <div className="pt-2 pb-2 text-center font-serif italic text-[#384a3c] bg-[#fdfdfb] border-b border-[#EAECF0]/50">
-          <p>Thank you for placing your trust in us.</p>
-          <p>You are not just a patient. You are a partner in your journey to optimal health and longevity.</p>
-        </div>
-
-        {/* Footer Sign & Philosophy */}
-        <div className="px-10 flex gap-12 py-12 bg-[#fdfaf6] items-start">
-          <div className="w-[40%] pt-2">
-            <div className="text-[36px] mb-4 text-[#28342F] leading-none font-medium ml-2" style={{ fontFamily: "'Meddon', 'La Belle Aurore', 'Style Script', cursive", transform: "rotate(-3deg)" }}>
-              <br />
-            </div>
-            <div className="w-[230px] border-b-[1.5px] border-[#c3ab7b] mb-4"></div>
-            <h4 className="text-[16px] font-semibold text-[#28342F] mb-1 tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-              Dr. Yuvraaj Singh, MD | FAARM
-            </h4>
-            <p className="text-[11px] font-semibold text-[#4A5650] tracking-[0.12em] mb-4 uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-              Internal Medicine / Critical Care / Advanced training in Hormonal and Metabolic Medicine (USA)
-            </p>
-            <div className="text-[12px] text-[#4A5650] space-y-1.5 italic leading-[1.6]">
-              <p>Fellow, American Academy of Anti-Aging Medicine (A4M)</p>
-              <p>Advanced Training in Functional, Regenerative<br/>and Longevity Medicine</p>
-              <p>Advanced Education in Stem Cell & Genomics (In Progress)</p>
-            </div>
-          </div>
-
-          <div className="flex-1 bg-[#fdfaf6] border-[1.5px] border-[#e8decd] rounded-xl p-8 shadow-sm">
-            <h4 className="text-[12px] font-bold text-[#384a3c] tracking-[0.15em] mb-2 uppercase">OUR PHILOSOPHY</h4>
-            <div className="w-8 border-b-[2.5px] border-[#c3ab7b] mb-5"></div>
-            <p className="text-[11.5px] text-[#4A5650] mb-8 leading-[1.8] font-medium">
-              We go beyond symptom management to uncover the root causes of imbalance. Our precision approach integrates clinical expertise, cutting-edge diagnostics, and personalized protocols to restore physiology, enhance performance, and extend healthspan.
-            </p>
-            <div className="flex justify-between items-start text-center px-2">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 mb-3 flex items-center justify-center text-[#384a3c]">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m8 22 8-8"/><path d="m8 2 8 8"/><path d="M8 10a5 5 0 0 0 8-4"/><path d="M8 14a5 5 0 0 1 8 4"/><path d="m15 15-3-3"/><path d="m15 9-3 3"/></svg>
-                </div>
-                <p className="text-[8px] font-bold text-[#384a3c] tracking-[0.12em] uppercase">PHYSICIAN LED</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 mb-3 flex items-center justify-center text-[#384a3c]">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
-                </div>
-                <p className="text-[8px] font-bold text-[#384a3c] tracking-[0.12em] uppercase">EVIDENCE BASED</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 mb-3 flex items-center justify-center text-[#384a3c]">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="m22 2-6 6"/></svg>
-                </div>
-                <p className="text-[8px] font-bold text-[#384a3c] tracking-[0.12em] uppercase">PRECISION FOCUSED</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 mb-3 flex items-center justify-center text-[#384a3c]">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>
-                </div>
-                <p className="text-[8px] font-bold text-[#384a3c] tracking-[0.12em] uppercase">LONG TERM OUTCOMES</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Contact Strip */}
-        <div className="bg-[#414d3e] text-[#d4c19f] px-12 py-10 flex items-center justify-between relative overflow-hidden">
-          {/* DNA Overlay */}
-          <div className="absolute right-[-40px] top-[-20px] bottom-0 w-[400px] opacity-30 pointer-events-none flex items-center justify-end">
-             <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: 'rotate(-15deg)' }}>
-                <path d="M 50 100 Q 150 0, 250 100 T 450 100" stroke="#d4c19f" strokeWidth="2" fill="none"/>
-                <path d="M 50 100 Q 150 200, 250 100 T 450 100" stroke="#d4c19f" strokeWidth="2" fill="none"/>
-                <line x1="80" y1="75" x2="80" y2="125" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="110" y1="50" x2="110" y2="150" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="140" y1="35" x2="140" y2="165" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="170" y1="40" x2="170" y2="160" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="200" y1="60" x2="200" y2="140" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="230" y1="85" x2="230" y2="115" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="270" y1="85" x2="270" y2="115" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="300" y1="60" x2="300" y2="140" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="330" y1="40" x2="330" y2="160" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="360" y1="35" x2="360" y2="165" stroke="#d4c19f" strokeWidth="1" />
-                <line x1="390" y1="50" x2="390" y2="150" stroke="#d4c19f" strokeWidth="1" />
-             </svg>
-          </div>
-
-          <div className="flex items-center gap-8 w-1/2 relative z-10 border-r border-[#d4c19f]/30 pr-10">
-            <div className="text-[#d4c19f] shrink-0 border-[1.5px] border-[#d4c19f] rounded-t-sm rounded-b-xl p-3 w-[60px] h-[64px] flex items-center justify-center">
-               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            </div>
-            <p className="text-[11px] font-medium tracking-[0.05em] uppercase leading-[1.8] text-[#fdfaf6]">
-              <span className="text-[#d4c19f]">ALL PROGRAMS ARE</span><br/>
-              PHYSICIAN-LED, EVIDENCE-BASED<br/>
-              & PERSONALLY SUPERVISED.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3.5 text-[12.5px] tracking-wide w-1/2 pl-12 relative z-10 text-[#fdfaf6]">
-            <div className="flex items-center gap-5"><Phone className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> +91 9266843439</div>
-            <div className="flex items-center gap-5"><Mail className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> dryuvraaj@iphmh.com</div>
-            <div className="flex items-center gap-5"><Globe className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> www.dryuvraajsingh.com</div>
-            <div className="flex items-center gap-5"><MapPin className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> 811, Harnoor House, 1st Floor, Sector-42, Gurugram</div>
-          </div>
-        </div>
-
-        {/* Bottom Gold Strip */}
-        <div className="bg-[#ebd9bd] text-[#384a3c] text-center py-6">
-          <div className="text-[12px] font-medium tracking-[0.25em] uppercase mb-2">
-            INSTITUTE OF PRECISION HORMONAL & METABOLIC HEALTH
-          </div>
-          
-        </div>
-      </div>
+      
       <InvoiceSheet
         invoiceNumber={invoice.invoiceNumber}
         issuedLabel={issuedLabel}
@@ -644,7 +310,7 @@ export default function InvoiceDetailsPage({
         totalCents={invoice.totalCents}
         paidCents={paidCents}
         currency={invoice.currency}
-      />
+      /> 
 
       {/* Installment plan — screen only, excluded from print */}
       {invoice.installmentCount > 1 ? (
@@ -696,7 +362,7 @@ export default function InvoiceDetailsPage({
               <thead>
                 <tr className="bg-[#F9FAFB] dark:bg-[#111827] border-b border-[#EAECF0] dark:border-[#374151] text-xs text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   <th className="px-6 py-3 font-semibold">Date</th>
-                  <th className="px-6 py-3 font-semibold">Method</th>
+                  {/* <th className="px-6 py-3 font-semibold">Method</th> */}
                   <th className="px-6 py-3 font-semibold">Note</th>
                   <th className="px-6 py-3 font-semibold text-right">Amount</th>
                 </tr>
@@ -711,7 +377,7 @@ export default function InvoiceDetailsPage({
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-6 py-3 text-sm text-[#101828] dark:text-[#F9FAFB]">{p.method}</td>
+                    {/* <td className="px-6 py-3 text-sm text-[#101828] dark:text-[#F9FAFB]">{p.method}</td> */}
                     <td className="px-6 py-3 text-sm text-[#667085] dark:text-[#94A3B8]">
                       {p.note ?? "—"}
                     </td>
