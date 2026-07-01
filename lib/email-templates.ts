@@ -112,6 +112,8 @@ export interface BookingInfo {
   patientName: string
   dateStr: string
   timeStr: string
+  startsAt: Date
+  endsAt: Date
   loginUrl: string
 }
 
@@ -143,7 +145,7 @@ export function patientBookingNewAccountEmail(a: NewAccountBookingInfo): {
     ``,
     `Your appointment is requested for:`,
     `Date: ${a.dateStr}`,
-    `Time: ${a.timeStr}`,
+    `Time: ${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`,
     ``,
     `We have also set up your Patient Portal account so you can view your upcoming appointments, medical reports, and treatment plans.`,
     ``,
