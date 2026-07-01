@@ -2665,7 +2665,8 @@ export default function StartAppointmentConsultationPage() {
                                     <select name="personal_history__womens_health_vasomotor" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
                                       <option value="Hot flashes">Hot flashes</option>
-                                      <option value="night sweats">night sweats</option>
+                                      <option value="night sweats">Night sweats</option>
+                                      <option value="night sweats">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2688,6 +2689,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Irritability">Irritability</option>
                                       <option value="Brain fog">Brain fog</option>
                                       <option value="Memory issues">Memory issues</option>
+                                      <option value="Memory issues">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2700,6 +2702,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Difficulty falling asleep">Difficulty falling asleep</option>
                                       <option value="Night awakenings">Night awakenings</option>
                                       <option value="Non-restorative sleep">Non-restorative sleep</option>
+                                      <option value="Non-restorative sleep">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2713,6 +2716,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Vaginal dryness">Vaginal dryness</option>
                                       <option value="Pain during intercourse">Pain during intercourse</option>
                                       <option value="Arousal difficulty">Arousal difficulty</option>
+                                      <option value="Arousal difficulty">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2724,6 +2728,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="">Select option</option>
                                       <option value="Fatigue">Fatigue</option>
                                       <option value="Afternoon crashes">Afternoon crashes</option>
+                                      <option value="Afternoon crashes">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2735,6 +2740,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="">Select option</option>
                                       <option value="Weight gain (especially abdominal)">Weight gain (especially abdominal)</option>
                                       <option value="Loss of muscle">Loss of muscle</option>
+                                      <option value="Loss of muscle">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2748,6 +2754,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Family history (breast / ovarian / Endometrial cancer)">Family history (breast / ovarian / Endometrial cancer)</option>
                                       <option value="History of DVT / Clotting / Stroke / Cardiovascular disease">History of DVT / Clotting / Stroke / Cardiovascular disease</option>
                                       <option value="Unexplained bleeding PV">Unexplained bleeding PV</option>
+                                      <option value="Unexplained bleeding PV">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2762,6 +2769,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Antidepressants">Antidepressants</option>
                                       <option value="Steroids">Steroids</option>
                                       <option value="PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)">PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)</option>
+                                      <option value="PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2774,6 +2782,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="History of fractures">History of fractures</option>
                                       <option value="Back pain">Back pain</option>
                                       <option value="Height loss">Height loss</option>
+                                      <option value="Height loss">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2786,6 +2795,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Urinary urgency">Urinary urgency</option>
                                       <option value="Recurrent UTIs">Recurrent UTIs</option>
                                       <option value="Incontinence">Incontinence</option>
+                                      <option value="Incontinence">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2799,6 +2809,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Last mammogram">Last mammogram</option>
                                       <option value="Pap smear">Pap smear</option>
                                       <option value="Pelvic exam">Pelvic exam</option>
+                                      <option value="Pelvic exam">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -3636,48 +3647,11 @@ export default function StartAppointmentConsultationPage() {
                         </div>
 
                       {/* Appearance & Mental Status Header */}
-                      <div className="mt-8 mb-8">
-                        <h2 className="text-xl font-bold text-[#101828] dark:text-[#F9FAFB]">Appearance & Mental Status</h2>
-                        <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-1">General appearance and cognitive assessment</p>
-                      </div>
+                      
 
                       <div className="space-y-10">
-                        {/* General Appearance Section */}
-                        <div>
-                          <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">General Appearance</h3>
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-                            <div className="flex flex-col gap-1.5 col-span-2">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Appearance / Attitude</label>
-                              <textarea name="examination_summary__appearance_attitude"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all resize-none"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Attention Span</label>
-                              <div className="relative">
-                                <select name="examination_summary__attention_span" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="normal">Normal</option>
-                                  <option value="distracted">Distracted</option>
-                                  <option value="poor">Poor</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Short Term Memory</label>
-                              <div className="relative">
-                                <select name="examination_summary__short_term_memory" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                  <option value="">Select option</option>
-                                  <option value="intact">Intact</option>
-                                  <option value="impaired">Impaired</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        
+                        
 
                         {/* Gait Assessment Section */}
                         <div className="pt-8 border-t border-[#EAECF0] dark:border-[#374151]">
