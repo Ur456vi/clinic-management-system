@@ -665,9 +665,9 @@ export default function PatientPrescriptionsPage() {
         /* RENDER VIEW: LIST VIEW */
         <>
           {/* Refill requests — patient self-service */}
-          <div className="no-print mb-6">
+          {/* <div className="no-print mb-6">
             <RefillRequests />
-          </div>
+          </div> */}
 
           {/* Prescription Header */}
           <div className="flex justify-between items-center no-print mb-6">
