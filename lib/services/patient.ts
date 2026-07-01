@@ -5,8 +5,8 @@
  * functions, and return the result. All business rules live here — most
  * importantly:
  *
- *   - `patientNumber` generation (temporary MAX+1; replaced by a Postgres
- *     sequence in BE-09's seed/migration);
+ *   - `patientNumber` generation (temporary MAX+1 via `document-number.ts`;
+ *     replaced by a Postgres sequence in BE-09's seed/migration);
  *   - soft-delete (status=ARCHIVED + deletedAt timestamp);
  *   - audit-log writes for every read/write of PHI.
  *
@@ -19,6 +19,7 @@ import { PatientStatus } from "@prisma/client"
 
 import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/errors"
+import { DOCUMENT_PREFIX, nextDocumentNumber } from "@/lib/services/document-number"
 import { recordAudit } from "@/lib/services/audit"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import type {
@@ -32,27 +33,26 @@ import type {
 // ---------------------------------------------------------------------------
 
 /**
- * Generate the next `PAT-XXXXXX` identifier.
+ * Generate the next patient number, e.g. `IPHMH/26-27/06-0100`.
  *
- * TEMPORARY: this scans for the largest existing patient number and adds
- * one. There is an obvious race here (two concurrent inserts will collide
- * and one will be retried by the unique index). BE-09 swaps this for a
- * Postgres sequence; we still want POST /api/patients to work in dev today.
+ * See `document-number.ts` for the format and the (temporary) MAX+1 scheme.
+ * Clinic-wide serial, resets each fiscal year.
  */
-async function nextPatientNumber(
+export async function nextPatientNumber(
   tx: Prisma.TransactionClient,
+  now: Date = new Date(),
 ): Promise<string> {
-  const last = await tx.patient.findFirst({
-    where: { patientNumber: { startsWith: "PAT-" } },
-    orderBy: { patientNumber: "desc" },
-    select: { patientNumber: true },
-  })
-  let n = 1
-  if (last) {
-    const tail = Number(last.patientNumber.slice(4))
-    if (Number.isFinite(tail) && tail > 0) n = tail + 1
-  }
-  return `PAT-${String(n).padStart(6, "0")}`
+  return nextDocumentNumber(
+    DOCUMENT_PREFIX.patient,
+    async (fyPrefix) => {
+      const rows = await tx.patient.findMany({
+        where: { patientNumber: { startsWith: fyPrefix } },
+        select: { patientNumber: true },
+      })
+      return rows.map((r) => r.patientNumber)
+    },
+    now,
+  )
 }
 
 // ---------------------------------------------------------------------------

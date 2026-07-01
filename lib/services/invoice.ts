@@ -31,6 +31,7 @@ import {
 } from "@prisma/client"
 
 import { db } from "@/lib/db"
+import { DOCUMENT_PREFIX, nextDocumentNumber } from "@/lib/services/document-number"
 import {
   ForbiddenError,
   NotFoundError,
@@ -89,25 +90,27 @@ export type InvoiceWithRelations = Prisma.InvoiceGetPayload<{
 // ---------------------------------------------------------------------------
 
 /**
- * Generate a human-readable invoice number `INV-YYYY-NNNNNN`.
+ * Generate a human-readable invoice number, e.g. `IPHMH-INV/26-27/06-0100`.
  *
- * We compute the next sequence value off the current year's row count
- * inside the same transaction, then retry once on the off-chance two
- * concurrent inserts pick the same number — the unique constraint on
- * `invoice_number` is the source of truth.
- *
- * A dedicated Postgres sequence is the right long-term answer (see
- * `docs/database.md` for the patient-number pattern). Sequence wiring
- * is deferred to Sprint 2 once we know the year-rollover requirements.
+ * See `document-number.ts` for the format and the (temporary) MAX+1 scheme.
+ * The serial is clinic-wide and resets each fiscal year; the `@@unique` on
+ * `invoice_number` is the source of truth under concurrent inserts.
  */
-async function nextInvoiceNumber(tx: Prisma.TransactionClient): Promise<string> {
-  const year = new Date().getUTCFullYear()
-  const prefix = `INV-${year}-`
-  const count = await tx.invoice.count({
-    where: { invoiceNumber: { startsWith: prefix } },
-  })
-  const padded = String(count + 1).padStart(6, "0")
-  return `${prefix}${padded}`
+async function nextInvoiceNumber(
+  tx: Prisma.TransactionClient,
+  now: Date = new Date(),
+): Promise<string> {
+  return nextDocumentNumber(
+    DOCUMENT_PREFIX.invoice,
+    async (fyPrefix) => {
+      const rows = await tx.invoice.findMany({
+        where: { invoiceNumber: { startsWith: fyPrefix } },
+        select: { invoiceNumber: true },
+      })
+      return rows.map((r) => r.invoiceNumber)
+    },
+    now,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -159,7 +162,7 @@ function computeItem(it: InvoiceItemInput): ComputedItem {
  *
  *  - Role gate: WRITE_ROLES (ADMIN / DOCTOR / RECEPTION).
  *  - Verifies patient (+ appointment, if supplied) exist.
- *  - Generates `INV-YYYY-NNNNNN`; retries once on unique collision.
+ *  - Generates `IPHMH-INV/26-27/06-0100`; the unique index guards collisions.
  *  - Writes a CREATE audit row.
  */
 export async function createInvoice(

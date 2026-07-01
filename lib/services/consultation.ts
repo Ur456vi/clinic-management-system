@@ -21,6 +21,7 @@ import { AuditAction, ConsultationStatus, ConsultationType, Role } from "@prisma
 
 import { db } from "@/lib/db"
 import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
+import { DOCUMENT_PREFIX, nextDocumentNumber } from "@/lib/services/document-number"
 import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
 import { materializeLabOrdersFromConsultation } from "@/lib/services/lab-result"
 import { rolesFor } from "@/lib/rbac"
@@ -378,6 +379,30 @@ export async function updateConsultation(
  * Notification fan-out is intentionally NOT attempted here in Sprint 1;
  * BE-45 will wire the handoff notification on RMO_DONE → IN_PROGRESS.
  */
+/**
+ * Next prescription number, e.g. `IPHMH-PRESC/26-27/06-0100`.
+ *
+ * Clinic-wide serial, resets each fiscal year. See `document-number.ts` for
+ * the format and the (temporary) MAX+1 scheme; the `@@unique` on
+ * `prescription_number` rejects the loser under concurrent signs.
+ */
+async function nextPrescriptionNumber(
+  tx: Prisma.TransactionClient,
+  now: Date,
+): Promise<string> {
+  return nextDocumentNumber(
+    DOCUMENT_PREFIX.prescription,
+    async (fyPrefix) => {
+      const rows = await tx.consultation.findMany({
+        where: { prescriptionNumber: { startsWith: fyPrefix } },
+        select: { prescriptionNumber: true },
+      })
+      return rows.flatMap((r) => (r.prescriptionNumber ? [r.prescriptionNumber] : []))
+    },
+    now,
+  )
+}
+
 export async function transitionConsultation(
   id: string,
   input: TransitionConsultationInput,
@@ -423,6 +448,12 @@ export async function transitionConsultation(
       signedAt = new Date()
       data.signedAt = signedAt
       data.signedBy = { connect: { id: actor.userId } }
+      // Issue the prescription number here — the one moment a MAIN
+      // consultation becomes a real, signed prescription. RMO consultations
+      // carry no prescription, so they get no number.
+      if (before.type === ConsultationType.MAIN) {
+        data.prescriptionNumber = await nextPrescriptionNumber(tx, signedAt)
+      }
     }
 
     const after = await tx.consultation.update({

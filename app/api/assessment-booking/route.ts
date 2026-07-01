@@ -7,7 +7,7 @@
  * Behaviour:
  *   1. Validate the payload with zod.
  *   2. Upsert a Patient by email — if no patient with that email exists
- *      we create one, generating a fresh `PAT-XXXXXX` number using the
+ *      we create one, generating a fresh `IPHMH/..` number using the
  *      same temp scheme `lib/services/patient.ts` uses for staff-created
  *      patients. Existing patients are left untouched (we don't want a
  *      stranger overwriting their name/phone — those changes only happen
@@ -39,6 +39,7 @@ import { defineHandler, logger, ok } from "@/lib/api";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { hashPassword } from "@/lib/passwords";
+import { nextPatientNumber } from "@/lib/services/patient";
 import { sendMail } from "@/lib/email";
 import {
   patientBookingNewAccountEmail,
@@ -95,32 +96,6 @@ const BAND_MAP: Record<
   moderate: AssessmentBand.MODERATE,
   significant: AssessmentBand.SIGNIFICANT,
 };
-
-/**
- * Generate the next `PAT-XXXXXX` identifier inside the given transaction.
- *
- * TEMPORARY (mirrors `lib/services/patient.ts`): this scans for the max
- * existing number and adds one. There is a race here under concurrent
- * inserts; the @@unique on `patientNumber` will reject duplicates and we
- * surface them as a 5xx — acceptable for the public-site booking volume
- * we expect in this iteration. BE-09 swaps both call-sites for a real
- * Postgres sequence.
- */
-async function nextPatientNumber(
-  tx: Prisma.TransactionClient,
-): Promise<string> {
-  const last = await tx.patient.findFirst({
-    where: { patientNumber: { startsWith: "PAT-" } },
-    orderBy: { patientNumber: "desc" },
-    select: { patientNumber: true },
-  });
-  let n = 1;
-  if (last) {
-    const tail = Number(last.patientNumber.slice(4));
-    if (Number.isFinite(tail) && tail > 0) n = tail + 1;
-  }
-  return `PAT-${String(n).padStart(6, "0")}`;
-}
 
 export const POST = defineHandler(async ({ req, requestId }) => {
   const json = await req.json().catch(() => ({}));

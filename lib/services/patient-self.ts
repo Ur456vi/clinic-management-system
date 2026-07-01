@@ -651,6 +651,8 @@ export type SelfPrescriptionItem = {
 
 export type SelfPrescription = {
   id: string
+  /** Human-readable prescription number, e.g. "IPHMH-PRESC/26-27/06-0100". */
+  prescriptionNumber: string | null
   title: string
   summary: string | null
   status: string
@@ -698,7 +700,13 @@ function sectionField(sections: Prisma.JsonValue | null | undefined, key: string
  * drafts don't surface to the patient.
  */
 function shapePrescription(
-  consult: { id: string; status: string; createdAt: Date; sections: Prisma.JsonValue | null },
+  consult: {
+    id: string
+    prescriptionNumber: string | null
+    status: string
+    createdAt: Date
+    sections: Prisma.JsonValue | null
+  },
   doctor: PrescriptionDoctor,
 ): SelfPrescription | null {
   const diagnosis = sectionField(consult.sections, "finalPrescription", "finalPrescription__diagnosis")
@@ -757,6 +765,7 @@ function shapePrescription(
 
   return {
     id: consult.id,
+    prescriptionNumber: consult.prescriptionNumber,
     title: diagnosis || "Prescription",
     summary: [impression, diagnosis].filter(Boolean).join(" — ") || null,
     status: "SIGNED",
@@ -785,7 +794,7 @@ export async function listSelfPrescriptions(args: {
     where: { patientId: args.patientId, type: ConsultationType.MAIN },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: Math.min(take * 2, MAX_PAGE_SIZE) + 1,
-    select: { id: true, status: true, createdAt: true, sections: true },
+    select: { id: true, prescriptionNumber: true, status: true, createdAt: true, sections: true },
   })
 
   // Map consultationId -> prescribing doctor via the linked appointment.
@@ -831,6 +840,7 @@ export async function listSelfPrescriptions(args: {
 
 export type SelfPrescriptionDetail = {
   id: string
+  prescriptionNumber: string | null
   sections: Prisma.JsonValue | null
   patientName: string
   patientNumber: string
@@ -856,6 +866,7 @@ export async function getSelfPrescription(args: {
     },
     select: {
       id: true,
+      prescriptionNumber: true,
       sections: true,
       updatedAt: true,
       patient: { select: { fullName: true, patientNumber: true } },
@@ -873,6 +884,7 @@ export async function getSelfPrescription(args: {
 
   return {
     id: consult.id,
+    prescriptionNumber: consult.prescriptionNumber,
     sections: consult.sections,
     patientName: consult.patient?.fullName ?? "",
     patientNumber: consult.patient?.patientNumber ?? "",

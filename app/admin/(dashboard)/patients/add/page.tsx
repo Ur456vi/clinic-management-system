@@ -204,7 +204,7 @@ export default function AddPatientPage() {
         <div>
           <h2 className="text-lg font-bold">New Patient Record</h2>
           <p className="text-white/85 text-sm">
-            Auto-generates a PAT-XXXXXX number on save. Consultations are
+            Auto-generates an IPHMH/26-27/06-0100 number on save. Consultations are
             captured separately during the patient&apos;s first appointment.
           </p>
         </div>
