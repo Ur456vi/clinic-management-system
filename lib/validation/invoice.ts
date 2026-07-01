@@ -126,6 +126,9 @@ export const createInvoiceSchema = z.object({
   dueAt: isoDateTime.optional(),
   /** Split the total into N equal installments (1 = pay in full). */
   installmentCount: z.number().int().min(1).max(12).optional(),
+  /** Custom per-installment amounts in cents (overrides installmentCount).
+   *  Must sum to the invoice total — enforced in the service. */
+  installments: z.array(z.number().int().positive()).min(1).max(12).optional(),
   items: z.array(invoiceItemInputSchema).min(1, "At least one item required"),
 })
 
@@ -140,14 +143,17 @@ export const updateInvoiceSchema = z
     status: statusEnum.optional(),
     notes: z.string().trim().max(2000).nullable().optional(),
     installmentCount: z.number().int().min(1).max(12).optional(),
+    /** Replace the custom installment schedule (cents). `[]`/null clears it. */
+    installments: z.array(z.number().int().positive()).max(12).nullable().optional(),
   })
   .refine(
     (v) =>
       v.status !== undefined ||
       v.notes !== undefined ||
-      v.installmentCount !== undefined,
+      v.installmentCount !== undefined ||
+      v.installments !== undefined,
     {
-      message: "At least one of `status`, `notes` or `installmentCount` is required",
+      message: "At least one of `status`, `notes`, `installmentCount` or `installments` is required",
     },
   )
 

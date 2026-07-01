@@ -185,13 +185,9 @@ export default function InvoiceSheet({
                   </svg>
                 </div>
                 <div className="pt-1">
-                  <h4 className="text-[15px] font-semibold text-[#28342F] tracking-[0.03em] mb-2 uppercase">
-                    {it.description === "Consultation" || items.length === 1 ? "COMPREHENSIVE PRECISION HEALTH PROGRAM" : it.description}
+                  <h4 className="text-[15px] font-semibold text-[#28342F] tracking-[0.02em] leading-snug whitespace-pre-wrap break-words">
+                    {it.description}
                   </h4>
-                  <p className="text-[13px] text-[#4A5650] font-medium leading-[1.7] mb-3 pr-4">
-                    A complete physician-led, evidence-based program encompassing advanced diagnostics, personalized protocols, metabolic optimization, hormonal balance, regenerative strategies, longevity planning, and continuous clinical monitoring.
-                  </p>
-                  <p className="text-[14.5px] text-[#384a3c] italic font-serif opacity-90 tracking-wide">Designed Around You. Backed by Science. Focused on Results.</p>
                 </div>
               </div>
               <div className="w-[30%] flex flex-col justify-center items-center pt-6 pb-4 px-4">

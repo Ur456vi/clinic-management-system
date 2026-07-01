@@ -1914,12 +1914,10 @@ export default function StartAppointmentConsultationPage() {
                                   <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
                               </div>
-                              {form["personal_history__meal_time"] === "1 meal (specify which meal and timings)" && (
-                                <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
-                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify which meal and timings</label>
-                                  <input name="personal_history__meal_time_specify" type="text" placeholder="Specify..." className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__meal_time_specify"] || ""} />
-                                </div>
-                              )}
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Specify which meal and timings</label>
+                                <input name="personal_history__meal_time_specify" type="text" placeholder="Specify..." className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__meal_time_specify"] || ""} />
+                              </div>
                               <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
                                 <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gap between meals (In hours)</label>
                                 <input name="personal_history__gap_between_meals" type="text" placeholder="Gap between meals" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__gap_between_meals"] || ""} />
@@ -2047,6 +2045,10 @@ export default function StartAppointmentConsultationPage() {
                                   </select>
                                   <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Fasting (No. Of Hours)</label>
+                                <input name="personal_history__fasting_hours" type="text" placeholder="Fasting (No. Of Hours)" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" defaultValue={form["personal_history__fasting_hours"] || ""} />
                               </div>
 
                               {/* Time to first oral intake */}

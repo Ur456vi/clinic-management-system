@@ -48,10 +48,16 @@ export function computeInstallments(
   totalCents: number,
   installmentCount: number,
   paidCents: number,
+  /** Explicit per-installment amounts (cents). When provided, overrides the
+   *  equal split — e.g. a custom [150000, 100000, 80000, 70000] schedule. */
+  customAmounts?: number[] | null,
 ): InstallmentPlan {
   const total = Math.max(0, Math.round(totalCents))
   const paid = Math.max(0, Math.round(paidCents))
-  const amounts = splitInstallments(total, installmentCount)
+  const custom = Array.isArray(customAmounts)
+    ? customAmounts.map((c) => Math.max(0, Math.round(Number(c) || 0))).filter((c) => c > 0)
+    : null
+  const amounts = custom && custom.length > 0 ? custom : splitInstallments(total, installmentCount)
 
   let remainingPaid = paid
   const installments: Installment[] = amounts.map((amountCents, i) => {

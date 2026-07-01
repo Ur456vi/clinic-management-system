@@ -17,27 +17,16 @@ import Image from "next/image"
 import {
   ArrowLeft,
   Printer,
-  User,
   Loader2,
   AlertCircle,
   CheckCircle2,
   Trash2,
-  Phone,
-  Mail,
-  Globe,
-  MapPin,
-  ShieldCheck,
-  Activity,
-  Search,
-  Target,
-  Heart,
-  Plus,
-  Check
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { computeInstallments } from "@/lib/invoice-installments"
+import InvoiceSheet from "@/components/invoice/InvoiceSheet"
 
 type Status = "DRAFT" | "ISSUED" | "PARTIALLY_PAID" | "PAID" | "VOID"
 
@@ -50,6 +39,7 @@ interface InvoiceApi {
   totalCents: number
   paidCents: number
   installmentCount: number
+  installmentPlan: number[] | null
   currency: string
   issuedAt: string
   dueAt: string | null
@@ -125,7 +115,7 @@ export default function InvoiceDetailsPage({
     if (balanceCents <= 0) return
     // On an installment plan, collect the NEXT installment's outstanding amount;
     // otherwise collect the full balance.
-    const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents)
+    const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents, invoice.installmentPlan)
     const amountCents =
       invoice.installmentCount > 1 && plan.nextDue ? plan.nextDue.remainingCents : balanceCents
     if (amountCents <= 0) return
@@ -218,6 +208,7 @@ export default function InvoiceDetailsPage({
     invoice.totalCents,
     invoice.installmentCount,
     paidCents,
+    invoice.installmentPlan,
   )
 
   const issuedLabel = invoice.issuedAt
@@ -643,6 +634,17 @@ export default function InvoiceDetailsPage({
           
         </div>
       </div>
+      <InvoiceSheet
+        invoiceNumber={invoice.invoiceNumber}
+        issuedLabel={issuedLabel}
+        patientNumber={invoice.patient?.patientNumber ?? null}
+        patientFullName={invoice.patient?.fullName ?? null}
+        items={invoice.items}
+        subtotalCents={invoice.subtotalCents}
+        totalCents={invoice.totalCents}
+        paidCents={paidCents}
+        currency={invoice.currency}
+      />
 
       {/* Installment plan — screen only, excluded from print */}
       {invoice.installmentCount > 1 ? (
@@ -757,70 +759,6 @@ export default function InvoiceDetailsPage({
       `}</style>
     </div>
   )
-}
-
-function KV({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1">
-      <p className="text-xs font-medium text-[#667085] dark:text-[#94A3B8]">{label}</p>
-      <p className="text-sm font-bold text-[#101828] dark:text-[#F9FAFB]">{children}</p>
-    </div>
-  )
-}
-
-function StatusPill({ status }: { status: Status }) {
-  const map: Record<Status, { bg: string; fg: string; label: string }> = {
-    DRAFT: { bg: "#F2F4F7", fg: "#344054", label: "Draft" },
-    ISSUED: { bg: "#EFF8FF", fg: "#175CD3", label: "Issued" },
-    PARTIALLY_PAID: { bg: "#FFF1D6", fg: "#B5642A", label: "Partially Paid" },
-    PAID: { bg: "#ECFDF3", fg: "#027A48", label: "Paid" },
-    VOID: { bg: "#FEF3F2", fg: "#B42318", label: "Void" },
-  }
-  const c = map[status] ?? map.ISSUED
-  return (
-    <span
-      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
-      style={{ background: c.bg, color: c.fg }}
-    >
-      {c.label}
-    </span>
-  )
-}
-
-function numberToWordsINR(num: number): string {
-  if (num === 0) return "Zero";
-  const a = [
-    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
-  ];
-  const b = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-  
-  const format2 = (n: number) => {
-    if (n < 20) return a[n];
-    return b[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + a[n % 10] : "");
-  };
-  
-  let words = "";
-  if (num >= 10000000) {
-    words += format2(Math.floor(num / 10000000)) + " Crore ";
-    num %= 10000000;
-  }
-  if (num >= 100000) {
-    words += format2(Math.floor(num / 100000)) + " Lakh ";
-    num %= 100000;
-  }
-  if (num >= 1000) {
-    words += format2(Math.floor(num / 1000)) + " Thousand ";
-    num %= 1000;
-  }
-  if (num >= 100) {
-    words += format2(Math.floor(num / 100)) + " Hundred ";
-    num %= 100;
-  }
-  if (num > 0) {
-    words += format2(num);
-  }
-  return words.trim();
 }
 
 function formatMoney(cents: number, currency: string): string {
