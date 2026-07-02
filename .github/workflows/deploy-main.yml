@@ -65,6 +65,13 @@ jobs:
             package.json package-lock.json prisma/ \
             ${{ secrets.EC2_USER }}@43.204.240.241:/home/ec2-user/vyara/
 
+      - name: Copy public assets to main EC2
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            public/ \
+            ${{ secrets.EC2_USER }}@43.204.240.241:/home/ec2-user/vyara/public/
+
       - name: Deploy to main EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
