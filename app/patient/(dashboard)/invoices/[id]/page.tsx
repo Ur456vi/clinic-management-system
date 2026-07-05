@@ -127,7 +127,7 @@ export default function PatientInvoiceDetailPage({
   const plan = computeInstallments(invoice.totalCents, invoice.installmentCount, paidCents, invoice.installmentPlan)
 
   return (
-    <div className="flex flex-col gap-6 p-6 lg:p-8 pb-12 max-w-[1000px]">
+    <div className="flex flex-col gap-6 pb-12">
       {/* Toolbar */}
       <div className="no-print flex items-center justify-between flex-wrap gap-3">
         <Link href="/patient/invoices" className="inline-flex items-center gap-2 text-[#667085] dark:text-[#94A3B8] hover:text-[#101828] text-sm font-medium">
