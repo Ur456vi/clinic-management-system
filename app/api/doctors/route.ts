@@ -18,7 +18,7 @@ export const GET = defineHandler(async ({ req }) => {
   // portal requests RMOs only, since self-bookings are triaged by an RMO
   // first and can't go straight to a doctor.
   const roleParam = req.nextUrl.searchParams.get("role")
-  const allowed: Role[] = [Role.DOCTOR, Role.RMO]
+  const allowed: Role[] = [Role.DOCTOR, Role.RMO, Role.ADMIN]
   const requested = (roleParam ?? "")
     .split(",")
     .map((r) => r.trim().toUpperCase())
