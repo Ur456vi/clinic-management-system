@@ -37,7 +37,8 @@ type Profile = {
   knownAllergies?: string | null;
 };
 
-type Vital = {
+type VitalRow = {
+  id: string;
   systolic: number | null;
   diastolic: number | null;
   heartRate: number | null;
@@ -46,7 +47,9 @@ type Vital = {
   temperatureF: number | null;
   spo2: number | null;
   recordedAt: string;
-} | null;
+};
+
+type Vital = Omit<VitalRow, "id"> | null;
 
 type Appt = {
   id: string;
@@ -83,6 +86,7 @@ export default function PatientDashboardPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [vital, setVital] = useState<Vital | undefined>(undefined);
+  const [vitalHistory, setVitalHistory] = useState<VitalRow[]>([]);
   const [appts, setAppts] = useState<Appt[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,8 +106,10 @@ export default function PatientDashboardPage() {
       if (vitalsRes.ok) {
         const j = await vitalsRes.json();
         setVital(j?.data?.latest ?? null);
+        setVitalHistory(Array.isArray(j?.data?.history) ? j.data.history : []);
       } else {
         setVital(null);
+        setVitalHistory([]);
       }
       setAppts(apptList);
       setPlans(planList);
@@ -244,6 +250,41 @@ export default function PatientDashboardPage() {
             </div>
           ))}
         </div>
+        {vitalHistory.length > 1 ? (
+          <div className="mt-4 bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-4 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-[#667085] dark:text-[#94A3B8] mb-2">Vitals history</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-[#667085] dark:text-[#94A3B8] border-b border-[#EAECF0] dark:border-[#374151]">
+                    <th className="py-2 pr-4 font-medium">Recorded</th>
+                    <th className="py-2 pr-4 font-medium">BP (mmHg)</th>
+                    <th className="py-2 pr-4 font-medium">HR (bpm)</th>
+                    <th className="py-2 pr-4 font-medium">Weight (kg)</th>
+                    <th className="py-2 pr-4 font-medium">Height (cm)</th>
+                    <th className="py-2 pr-4 font-medium">Temp (°F)</th>
+                    <th className="py-2 font-medium">SpO₂ (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vitalHistory.map((v) => (
+                    <tr key={v.id} className="border-b border-[#F2F4F7] dark:border-[#374151] last:border-0 text-[#344054] dark:text-[#CBD5E1]">
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        {formatClinicDateShort(new Date(v.recordedAt))} • {formatClinicTime(new Date(v.recordedAt))}
+                      </td>
+                      <td className="py-2 pr-4">{v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : "—"}</td>
+                      <td className="py-2 pr-4">{v.heartRate ?? "—"}</td>
+                      <td className="py-2 pr-4">{v.weightKg ?? "—"}</td>
+                      <td className="py-2 pr-4">{v.heightCm ?? "—"}</td>
+                      <td className="py-2 pr-4">{v.temperatureF ?? "—"}</td>
+                      <td className="py-2">{v.spo2 ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

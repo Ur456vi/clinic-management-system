@@ -239,7 +239,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [summaryModal, setSummaryModal] = useState<
     { mode: "create" } | { mode: "manage"; id: string; title: string } | null
   >(null)
-  const [latestVital, setLatestVital] = useState<VitalReading | null | undefined>(undefined)
+  const [vitals, setVitals] = useState<VitalReading[] | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
   const [vitalOpen, setVitalOpen] = useState(false)
   const [vitalSaving, setVitalSaving] = useState(false)
@@ -247,13 +247,13 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
   const fetchVitals = useCallback(async () => {
     try {
-      const res = await fetch(`/api/patients/${id}/vitals?limit=1`, { credentials: "include" })
-      if (!res.ok) return setLatestVital(null)
+      const res = await fetch(`/api/patients/${id}/vitals?limit=50`, { credentials: "include" })
+      if (!res.ok) return setVitals([])
       const json = await res.json()
       const rows: VitalReading[] = Array.isArray(json?.data) ? json.data : []
-      setLatestVital(rows[0] ?? null)
+      setVitals(rows)
     } catch {
-      setLatestVital(null)
+      setVitals([])
     }
   }, [id])
 
@@ -839,19 +839,56 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       ) : (
         // Vitals
         <Panel title="Vitals" icon={Activity} aside={vitalOpen ? "Cancel" : "Record reading"} asideOnClick={() => setVitalOpen((v) => !v)} full>
-          {latestVital === undefined ? (
+          {vitals === undefined ? (
             <div className="flex items-center gap-2 text-sm text-[#667085]"><Loader2 className="h-4 w-4 animate-spin text-[#6B2B26]" /> Loading…</div>
-          ) : latestVital === null ? (
+          ) : vitals.length === 0 ? (
             <p className="text-sm text-[#667085] dark:text-[#94A3B8]">No vitals recorded yet.</p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              <VitalStat label="Blood pressure" value={latestVital.systolic && latestVital.diastolic ? `${latestVital.systolic}/${latestVital.diastolic}` : "—"} unit="mmHg" />
-              <VitalStat label="Heart rate" value={latestVital.heartRate ?? "—"} unit="bpm" />
-              <VitalStat label="Weight" value={latestVital.weightKg ?? "—"} unit="kg" />
-              <VitalStat label="Temp" value={latestVital.temperatureF ?? "—"} unit="°F" />
-              <VitalStat label="SpO₂" value={latestVital.spo2 ?? "—"} unit="%" />
-              <VitalStat label="Recorded" value={fmtDate(latestVital.recordedAt)} unit={latestVital.recordedBy?.fullName ?? ""} />
-            </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <VitalStat label="Blood pressure" value={vitals[0].systolic && vitals[0].diastolic ? `${vitals[0].systolic}/${vitals[0].diastolic}` : "—"} unit="mmHg" />
+                <VitalStat label="Heart rate" value={vitals[0].heartRate ?? "—"} unit="bpm" />
+                <VitalStat label="Weight" value={vitals[0].weightKg ?? "—"} unit="kg" />
+                <VitalStat label="Temp" value={vitals[0].temperatureF ?? "—"} unit="°F" />
+                <VitalStat label="SpO₂" value={vitals[0].spo2 ?? "—"} unit="%" />
+                <VitalStat label="Recorded" value={fmtDate(vitals[0].recordedAt)} unit={vitals[0].recordedBy?.fullName ?? ""} />
+              </div>
+              {vitals.length > 1 ? (
+                <div className="mt-5 pt-5 border-t border-[#EAECF0] dark:border-[#374151]">
+                  <p className="text-xs font-bold tracking-wide uppercase text-[#667085] dark:text-[#94A3B8] mb-2">History</p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-xs text-[#667085] dark:text-[#94A3B8] border-b border-[#EAECF0] dark:border-[#374151]">
+                          <th className="py-2 pr-4 font-medium">Recorded</th>
+                          <th className="py-2 pr-4 font-medium">BP (mmHg)</th>
+                          <th className="py-2 pr-4 font-medium">HR (bpm)</th>
+                          <th className="py-2 pr-4 font-medium">Weight (kg)</th>
+                          <th className="py-2 pr-4 font-medium">Temp (°F)</th>
+                          <th className="py-2 pr-4 font-medium">SpO₂ (%)</th>
+                          <th className="py-2 pr-4 font-medium">Notes</th>
+                          <th className="py-2 font-medium">By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vitals.map((v) => (
+                          <tr key={v.id} className="border-b border-[#F2F4F7] dark:border-[#374151] last:border-0 text-[#344054] dark:text-[#CBD5E1]">
+                            <td className="py-2 pr-4 whitespace-nowrap">{fmtDate(v.recordedAt, true)}</td>
+                            <td className="py-2 pr-4">{v.systolic && v.diastolic ? `${v.systolic}/${v.diastolic}` : "—"}</td>
+                            <td className="py-2 pr-4">{v.heartRate ?? "—"}</td>
+                            <td className="py-2 pr-4">{v.weightKg ?? "—"}</td>
+                            <td className="py-2 pr-4">{v.temperatureF ?? "—"}</td>
+                            <td className="py-2 pr-4">{v.spo2 ?? "—"}</td>
+                            <td className="py-2 pr-4 max-w-[200px] truncate" title={v.notes ?? undefined}>{v.notes ?? "—"}</td>
+                            <td className="py-2 whitespace-nowrap">{v.recordedBy?.fullName ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : null}
+            </>
           )}
           {vitalOpen ? (
             <form onSubmit={recordVital} className="mt-5 pt-5 border-t border-[#EAECF0] dark:border-[#374151] grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
