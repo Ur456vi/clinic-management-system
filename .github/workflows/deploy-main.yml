@@ -98,7 +98,7 @@ jobs:
             # Write .env from GitHub secrets + hardcoded main domain.
             # SMTP host/port/from are non-secret config; user + password come
             # from repo secrets (UAT_SMTP_USER / UAT_SMTP_PASSWORD).
-            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://vyara.algoborne.com\nNEXT_PUBLIC_APP_URL=https://vyara.algoborne.com\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
+            printf "DATABASE_URL=%s\nNEXTAUTH_SECRET=%s\nNEXTAUTH_URL=https://dryuvraajsingh.com\nNEXT_PUBLIC_APP_URL=https://dryuvraajsingh.com\nSMTP_HOST=smtp-relay.brevo.com\nSMTP_PORT=587\nSMTP_FROM_NAME=Dr. Yuvraaj Singh M.D.\nSMTP_FROM_EMAIL=no-reply@dryuvraajsingh.com\nSMTP_USER=%s\nSMTP_PASSWORD=%s\n" \
               "${DATABASE_URL}" "${NEXTAUTH_SECRET}" "${SMTP_USER}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
 
