@@ -112,7 +112,7 @@ export default function InvoiceSheet({
             <div className="space-y-4 text-[9px] uppercase text-[#384a3c] mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.05em", lineHeight: "1.5" }}>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><Activity className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>MD – INTERNAL MEDICINE</p>
+                <p>MD – INTERNAL MEDICINE | Critical Care</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
@@ -214,7 +214,7 @@ export default function InvoiceSheet({
       {/* Thank you */}
       <div className="pt-2 pb-2 text-center font-serif italic text-[#384a3c] bg-[#fdfdfb] border-b border-[#EAECF0]/50">
         <p>Thank you for placing your trust in us.</p>
-        <p>You are not just a patient. You are a partner in your journey to optimal health and longevity.</p>
+        <p>We Are obliged to be a partner in your journey to optimal health and longevity.</p>
       </div>
 
       {/* Contact strip */}
@@ -227,7 +227,7 @@ export default function InvoiceSheet({
         </div>
         <div className="flex flex-col gap-3.5 text-[12.5px] tracking-wide w-1/2 pl-12 relative z-10 text-[#fdfaf6]">
           <div className="flex items-center gap-5"><Phone className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> +91 9266843439</div>
-          <div className="flex items-center gap-5"><Mail className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> dryuvraaj@iphmh.com</div>
+          <div className="flex items-center gap-5"><Mail className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> dryuvraajsingh@iphmh.com</div>
           <div className="flex items-center gap-5"><Globe className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> www.dryuvraajsingh.com</div>
           <div className="flex items-center gap-5"><MapPin className="w-[18px] h-[18px] text-[#d4c19f]" strokeWidth={1.5} /> 811, Harnoor House, 1st Floor, Sector-42, Gurugram</div>
         </div>
