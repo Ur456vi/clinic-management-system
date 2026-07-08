@@ -47,6 +47,7 @@ import { notify } from "@/lib/notify"
 import RefillManager from "@/components/admin/RefillManager"
 import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
 import ClinicalSummaryModal from "@/components/admin/ClinicalSummaryModal"
+import InfusionModal, { type InfusionEditable } from "@/components/admin/InfusionModal"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -206,7 +207,19 @@ type PlanApi = {
   items: PlanItemApi[]
 }
 
-const TABS = ["Clinical Summary", "Summaries", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+const TABS = ["Clinical Summary", "Summaries", "Infusion", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+
+type InfusionRow = {
+  id: string
+  name: string
+  date: string
+  startTime: string | null
+  endTime: string | null
+  eventful: boolean
+  note: string | null
+  createdByName: string | null
+  createdAt: string
+}
 
 type ClinicalSummaryRow = {
   id: string
@@ -238,6 +251,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [summaries, setSummaries] = useState<ClinicalSummaryRow[] | null>(null)
   const [summaryModal, setSummaryModal] = useState<
     { mode: "create" } | { mode: "manage"; id: string; title: string } | null
+  >(null)
+  const [infusions, setInfusions] = useState<InfusionRow[] | null>(null)
+  const [infusionModal, setInfusionModal] = useState<
+    { mode: "create" } | { mode: "edit"; infusion: InfusionEditable } | null
   >(null)
   const [vitals, setVitals] = useState<VitalReading[] | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
@@ -395,6 +412,32 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [fetchSummaries])
 
+  // Infusion sessions recorded from the chart's Infusion tab.
+  const fetchInfusions = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/infusions?patientId=${id}&limit=100`, { credentials: "include" })
+      if (!res.ok) return setInfusions([])
+      const json = await res.json()
+      setInfusions(json?.data?.items ?? [])
+    } catch {
+      setInfusions([])
+    }
+  }, [id])
+
+  const deleteInfusion = useCallback(async (infusionId: string) => {
+    if (!window.confirm("Delete this infusion? This cannot be undone.")) return
+    try {
+      const res = await fetch(`/api/infusions/${infusionId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) throw new Error()
+      await fetchInfusions()
+    } catch {
+      notify.error("Couldn't delete the infusion")
+    }
+  }, [fetchInfusions])
+
   // Latest SIGNED treatment plan drives the "Prescribed Program" card.
   const fetchPlan = useCallback(async () => {
     try {
@@ -418,7 +461,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     void fetchRefills()
     void fetchPlan()
     void fetchSummaries()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries])
+    void fetchInfusions()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries, fetchInfusions])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -550,7 +594,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const kpis = [
     { icon: Stethoscope, label: "CONSULTATIONS", value: byType.consultation.length, sub: "Recorded", bg: "#EEF4F1", fg: GREEN },
     { icon: CalendarClock, label: "FOLLOW-UPS", value: (activity ?? []).length, sub: "Bookings", bg: "#EFF4FF", fg: "#2E5AAC" },
-    { icon: Syringe, label: "INFUSIONS", value: 0, sub: "Done", bg: "#E9F6F2", fg: "#0E8C6A" },
+    { icon: Syringe, label: "INFUSIONS", value: infusions?.length ?? 0, sub: "Recorded", bg: "#E9F6F2", fg: "#0E8C6A" },
     { icon: FlaskConical, label: "LAB REPORTS", value: byType.labResult.length, sub: "Ordered", bg: "#F1EEFB", fg: "#6A4FB0" },
     { icon: RefreshCw, label: "REFILLS DUE", value: openRefills, sub: "Open requests", bg: "#FDEFE4", fg: "#C2691E" },
   ]
@@ -687,6 +731,77 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                       type="button"
                       onClick={() => void deleteSummary(s.id)}
                       aria-label="Delete summary"
+                      className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#B42318] hover:bg-[#FEF3F2]"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+      ) : tab === "Infusion" ? (
+        <Panel
+          title="Infusions"
+          icon={Syringe}
+          aside="+ Add new infusion"
+          asideOnClick={() => setInfusionModal({ mode: "create" })}
+          full
+        >
+          {infusions === null ? (
+            <Empty text="Loading infusions…" />
+          ) : infusions.length === 0 ? (
+            <Empty text="No infusions yet. Add the first one." />
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "#EFE8D8" }}>
+              {infusions.map((inf) => (
+                <li key={inf.id} className="py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] truncate">{inf.name}</p>
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        style={inf.eventful ? { background: "#FEF3F2", color: "#B42318" } : { background: "#E4F3EC", color: "#0E8C6A" }}
+                      >
+                        {inf.eventful ? "Eventful" : "Uneventful"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#8A9A92]">
+                      {fmtDate(inf.date)}
+                      {inf.startTime || inf.endTime ? ` · ${[inf.startTime, inf.endTime].filter(Boolean).join(" – ")}` : ""}
+                      {inf.createdByName ? ` · ${inf.createdByName}` : ""}
+                    </p>
+                    {inf.note ? (
+                      <p className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5 line-clamp-2">{inf.note}</p>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInfusionModal({
+                          mode: "edit",
+                          infusion: {
+                            id: inf.id,
+                            name: inf.name,
+                            date: inf.date,
+                            startTime: inf.startTime,
+                            endTime: inf.endTime,
+                            eventful: inf.eventful,
+                            note: inf.note,
+                          },
+                        })
+                      }
+                      className="text-xs font-semibold hover:underline px-1.5"
+                      style={{ color: GREEN }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void deleteInfusion(inf.id)}
+                      aria-label="Delete infusion"
                       className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#B42318] hover:bg-[#FEF3F2]"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -925,6 +1040,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           summary={summaryModal.mode === "manage" ? { id: summaryModal.id, title: summaryModal.title } : null}
           onClose={() => setSummaryModal(null)}
           onChanged={() => { void fetchSummaries() }}
+        />
+      ) : null}
+
+      {infusionModal ? (
+        <InfusionModal
+          patientId={id}
+          infusion={infusionModal.mode === "edit" ? infusionModal.infusion : null}
+          onClose={() => setInfusionModal(null)}
+          onChanged={() => { void fetchInfusions() }}
         />
       ) : null}
     </div>

@@ -203,6 +203,9 @@ model User {
   /// Clinical summary entries this user (doctor/RMO) created for patients.
   clinicalSummariesCreated ClinicalSummary[] @relation("ClinicalSummaryCreator")
 
+  /// Infusion session entries this user recorded for patients.
+  infusionSessionsCreated Infusion[] @relation("InfusionCreator")
+
   @@index([role])
   @@map("users")
 }
@@ -326,6 +329,7 @@ model Patient {
   treatmentPlans        TreatmentPlan[]
   invoices              Invoice[]
   infusionLogs          InfusionLog[]
+  infusionSessions      Infusion[]
   refillRequests        RefillRequest[]
   vitals                Vital[]
   clinicalSummaries     ClinicalSummary[]
@@ -936,6 +940,45 @@ model ClinicalSummaryFile {
 
   @@index([summaryId, createdAt])
   @@map("clinical_summary_files")
+}
+
+/**
+ * A lightweight infusion session recorded from the patient chart's Infusion
+ * tab. Distinct from `InfusionLog` (the BE-26 protocol log with per-agent
+ * orders + lifecycle transitions): this is the simple front-desk record the
+ * clinic captures per session — a name, the day, start/end clock times, whether
+ * the session was eventful (a reaction occurred) or uneventful, and a note.
+ *
+ * `startTime` / `endTime` are stored as free-text clock labels (e.g. "12:00 Pm")
+ * exactly as entered, matching the form; the calendar day lives in `date`.
+ */
+model Infusion {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// Short human label for the session, e.g. "Myers' Cocktail".
+  name String
+  /// The calendar day the session took place.
+  date DateTime @map("date")
+  /// Free-text clock labels as entered on the form (e.g. "12:00 Pm").
+  startTime String? @map("start_time")
+  endTime   String? @map("end_time")
+  /// True when the session was eventful (a reaction occurred); false = uneventful.
+  eventful Boolean @default(false)
+  /// Optional free-text note.
+  note String? @db.Text
+
+  /// Staff/RMO user who recorded the entry. Nullable so the row survives a
+  /// user deletion (consistent with ClinicalSummary.createdBy).
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   User?   @relation("InfusionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, date(sort: Desc)])
+  @@map("infusions")
 }
 
 // Billing — Invoice / InvoiceItem / Payment (BE-37)
