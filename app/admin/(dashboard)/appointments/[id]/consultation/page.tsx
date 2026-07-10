@@ -3654,45 +3654,7 @@ export default function StartAppointmentConsultationPage() {
                         
 
                         {/* Gait Assessment Section */}
-                        <div className="pt-8 border-t border-[#EAECF0] dark:border-[#374151]">
-                          <h3 className="text-base font-semibold text-[#101828] dark:text-[#F9FAFB] mb-4">Gait Assessment</h3>
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-6">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Stance & Swing Phases</label>
-                              <div className="flex items-center gap-6 h-11">
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Normal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
-                                  <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Normal</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input type="radio" name="examination_summary__stance_swing_phases" value="Abnormal" className="w-4 h-4 border-[#D0D5DD] dark:border-[#374151] text-[#6B2B26] dark:text-[#A5B4FC] focus:ring-[#6B2B26]/20" />
-                                  <span className="text-sm text-[#344054] dark:text-[#CBD5E1] group-hover:text-[#101828]">Abnormal</span>
-                                </label>
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Gait Pattern</label>
-                              <div className="relative">
-                                <select name="examination_summary__gait_pattern" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all">
-                                  <option value="">Select gait pattern</option>
-                                  <option value="normal">Normal</option>
-                                  <option value="antalgic">Antalgic</option>
-                                  <option value="ataxic">Ataxic</option>
-                                  <option value="hemiplegic">Hemiplegic</option>
-                                </select>
-                                <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
-                              </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Duration (if abnormal)</label>
-                              <input name="examination_summary__duration_if_abnormal"
-                                type="text"
-                                placeholder="Duration"
-                                className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                        
 
                         {/* Head & Neck Features Header */}
                         <div className="pt-8 border-t border-[#EAECF0] dark:border-[#374151]">

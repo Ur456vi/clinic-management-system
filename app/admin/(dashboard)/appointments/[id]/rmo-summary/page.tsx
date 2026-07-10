@@ -433,12 +433,12 @@ export default function RmoSummaryPage() {
                 flexShrink: 0,
               }}
             >
-              <Image src="/dr-yuvraaj-logo.png" alt="IHMH" width={40} height={40} style={{ objectFit: "contain" }} />
+              <Image src="/iphmh-logos.jpeg" alt="IHMH" width={40} height={40} style={{ objectFit: "contain" }} />
             </div>
             <div>
               <p style={{ fontSize: 8, letterSpacing: "0.18em", fontWeight: 600, color: "#3D4A45", margin: 0 }}>INSTITUTE OF</p>
               <p style={{ fontSize: 13, lineHeight: 1.1, fontWeight: 700, color: SHEET_GREEN, margin: 0 }}>
-                HORMONAL &amp; METABOLIC HEALTH
+                PRECISION OF HORMONAL &amp; METABOLIC HEALTH
               </p>
             </div>
           </div>

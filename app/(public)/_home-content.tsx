@@ -206,6 +206,12 @@ export default function HomeContent() {
               metabolic and regenerative health through measurable diagnostics,
               biological precision and long-term physician-guided care.
             </p>
+            <p
+              className="mt-6 max-w-xl text-base leading-relaxed"
+              style={{ color: "var(--brand-ink-soft)", fontSize: "20px" }}
+            >
+              A physician-led institute that restores human physiology before physiological decline becomes irreversible or before disease manifests
+            </p>
 
             <div className="mt-8 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start gap-3 w-full md:w-auto">
               <CTAButton href="#framework" variant="olive">

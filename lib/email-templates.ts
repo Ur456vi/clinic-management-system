@@ -93,12 +93,12 @@ export function patientAppointmentEmail(a: AppointmentInfo): {
 
   const inner = `
     <p style="font-size:15px;margin:0 0 16px">Dear <strong>${esc(a.patientName)}</strong>,</p>
-    <p style="font-size:14px;color:${MUTE};margin:0 0 20px">Your appointment with <strong style="color:${INK}">${esc(a.doctorName)}</strong> is confirmed. We look forward to seeing you.</p>
+    <p style="font-size:14px;color:${MUTE};margin:0 0 20px">Your appointment with <strong style="color:${INK}">${"Dr. Yuvraaj Singh"}</strong> is confirmed. We look forward to seeing you.</p>
     <div style="background:#F9FAFB;border:1px solid ${RULE};border-radius:12px;padding:18px 22px">
       <table style="width:100%;border-collapse:collapse">
         ${detailRow("Date", fmtDate(a.startsAt))}
         ${detailRow("Time", `${fmtTime(a.startsAt)} – ${fmtTime(a.endsAt)}`)}
-        ${detailRow("Institute Chair", a.doctorName)}
+        ${detailRow("Institute Chair", "Dr. Yuvraaj Singh")}
         ${a.reason ? detailRow("Reason", a.reason) : ""}
       </table>
     </div>

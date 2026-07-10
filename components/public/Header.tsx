@@ -21,7 +21,7 @@ const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
-  { href: "/services/female-hormonal", label: "Female Health" },
+  { href: "/services/female-hormonal", label: "Women Health" },
   { href: "/services/mens-hormonal", label: "Men's Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },

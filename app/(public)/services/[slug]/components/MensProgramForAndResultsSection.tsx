@@ -109,9 +109,9 @@ export function MensProgramForAndResultsSection({ svc }: { svc: ServiceContent }
                           fontFamily: "var(--font-display)",
                         }}
                       >
-                        {stat.value}
+                        
                       </div>
-                      <div className="text-[#1F1F1F] font-bold text-[11px] leading-snug whitespace-pre-line">
+                      <div className="text-[#1F1F1F] font-bold text-[14px] leading-snug whitespace-pre-line">
                         {stat.label}
                       </div>
                     </div>

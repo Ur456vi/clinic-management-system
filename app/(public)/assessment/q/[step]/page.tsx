@@ -104,7 +104,7 @@ export default function QuizStepPage({
 
         <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-12">
           {/* Left rail */}
-          <div className="md:col-span-3">
+          <div className="hidden md:block md:col-span-3">
             <CategoryRail active={question.category} />
           </div>
 
