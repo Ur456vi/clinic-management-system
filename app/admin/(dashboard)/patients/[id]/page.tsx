@@ -217,6 +217,10 @@ type InfusionRow = {
   endTime: string | null
   eventful: boolean
   note: string | null
+  summaryKey: string | null
+  summaryMime: string | null
+  summaryFilename: string | null
+  summarySizeBytes: number | null
   createdByName: string | null
   createdAt: string
 }
@@ -423,6 +427,18 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       setInfusions([])
     }
   }, [id])
+
+  const viewInfusionSummary = useCallback(async (key: string, filename: string | null) => {
+    const qs = new URLSearchParams({ key })
+    if (filename) qs.set("filename", filename)
+    const res = await fetch(`/api/files/download-url?${qs.toString()}`, { credentials: "include" })
+    const json = await res.json().catch(() => null)
+    if (!res.ok || !json?.data?.url) {
+      notify.error("Couldn't open the summary file")
+      return
+    }
+    window.open(json.data.url as string, "_blank", "noopener")
+  }, [])
 
   const deleteInfusion = useCallback(async (infusionId: string) => {
     if (!window.confirm("Delete this infusion? This cannot be undone.")) return
@@ -777,6 +793,16 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                     ) : null}
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
+                    {inf.summaryKey ? (
+                      <button
+                        type="button"
+                        onClick={() => void viewInfusionSummary(inf.summaryKey!, inf.summaryFilename)}
+                        className="text-xs font-semibold hover:underline px-1.5"
+                        style={{ color: GREEN }}
+                      >
+                        View Summary
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() =>
@@ -790,6 +816,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                             endTime: inf.endTime,
                             eventful: inf.eventful,
                             note: inf.note,
+                            summaryKey: inf.summaryKey,
+                            summaryMime: inf.summaryMime,
+                            summaryFilename: inf.summaryFilename,
+                            summarySizeBytes: inf.summarySizeBytes,
                           },
                         })
                       }

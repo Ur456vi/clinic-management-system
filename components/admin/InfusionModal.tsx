@@ -12,8 +12,8 @@
  * matching the form design.
  */
 
-import { useCallback, useState } from "react"
-import { Loader2, X } from "lucide-react"
+import { useCallback, useRef, useState } from "react"
+import { ExternalLink, FileText, Loader2, Trash2, UploadCloud, X } from "lucide-react"
 
 import { notify } from "@/lib/notify"
 
@@ -25,6 +25,90 @@ export type InfusionEditable = {
   endTime: string | null
   eventful: boolean
   note: string | null
+  summaryKey?: string | null
+  summaryMime?: string | null
+  summaryFilename?: string | null
+  summarySizeBytes?: number | null
+}
+
+const MAX_BYTES = 25 * 1024 * 1024 // 25 MB — matches the storage cap.
+
+const EXT_TO_MIME: Record<string, string> = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+}
+
+const ACCEPT =
+  ".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,application/pdf,image/png,image/jpeg,image/webp,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+/** Resolve an upload content-type, falling back to the extension when the
+ *  browser doesn't report a usable MIME (common for Office files). */
+function resolveContentType(file: File): string | null {
+  const allowed = new Set(Object.values(EXT_TO_MIME))
+  if (allowed.has(file.type)) return file.type
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? ""
+  return EXT_TO_MIME[ext] ?? null
+}
+
+function fmtSize(bytes: number | null | undefined): string {
+  if (!bytes || bytes <= 0) return ""
+  const mb = bytes / (1024 * 1024)
+  return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
+}
+
+/** presign → PUT to S3. Returns the stored object key + resolved MIME. */
+async function uploadToStorage(file: File): Promise<{ key: string; contentType: string }> {
+  const contentType = resolveContentType(file)
+  if (!contentType) throw new Error("Unsupported file type (PDF, DOCX, image, or Excel)")
+  if (file.size > MAX_BYTES) throw new Error("File is larger than 25 MB")
+
+  const urlRes = await fetch("/api/files/upload-url", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      bucket: "phi",
+      contentType,
+      contentLength: file.size,
+      suggestedFilename: file.name,
+    }),
+  })
+  const urlJson = await urlRes.json().catch(() => null)
+  if (!urlRes.ok) throw new Error(urlJson?.error?.message ?? "Couldn't start the upload")
+  const { url, key, requiredHeaders } = urlJson.data as {
+    url: string
+    key: string
+    requiredHeaders?: Record<string, string>
+  }
+
+  const put = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": requiredHeaders?.["content-type"] ?? contentType },
+    body: file,
+  })
+  if (!put.ok) throw new Error("Upload to storage failed")
+
+  return { key, contentType }
+}
+
+/** Open the stored summary file via a short-lived presigned GET URL. */
+async function viewStoredFile(key: string, filename: string | null | undefined): Promise<void> {
+  const qs = new URLSearchParams({ key })
+  if (filename) qs.set("filename", filename)
+  const res = await fetch(`/api/files/download-url?${qs.toString()}`, { credentials: "include" })
+  const json = await res.json().catch(() => null)
+  if (!res.ok || !json?.data?.url) {
+    notify.error("Couldn't open the file")
+    return
+  }
+  window.open(json.data.url as string, "_blank", "noopener")
 }
 
 function toDateInputValue(iso: string | null): string {
@@ -66,6 +150,29 @@ export default function InfusionModal({
   const [note, setNote] = useState(infusion?.note ?? "")
   const [saving, setSaving] = useState(false)
 
+  // Summary file: the existing one (edit mode), a newly picked replacement, and
+  // a "remove" flag. A newly picked file wins; otherwise `removeExisting` clears.
+  const existingKey = infusion?.summaryKey ?? null
+  const [existingFilename] = useState(infusion?.summaryFilename ?? null)
+  const [existingSize] = useState(infusion?.summarySizeBytes ?? null)
+  const [pickedFile, setPickedFile] = useState<File | null>(null)
+  const [removeExisting, setRemoveExisting] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const onPickFile = useCallback((f: File | null) => {
+    if (!f) return
+    if (!resolveContentType(f)) {
+      notify.error("Unsupported file type", { description: "PDF, DOCX, image, or Excel only." })
+      return
+    }
+    if (f.size > MAX_BYTES) {
+      notify.error("File too large", { description: "Max 25 MB." })
+      return
+    }
+    setPickedFile(f)
+    setRemoveExisting(false)
+  }, [])
+
   const save = useCallback(async () => {
     if (saving) return
     if (!name.trim()) {
@@ -78,6 +185,28 @@ export default function InfusionModal({
     }
     setSaving(true)
     try {
+      // Resolve the summary-file fields to send. A new pick uploads first;
+      // "remove" clears; otherwise leave the existing file untouched.
+      let summaryPatch:
+        | {
+            summaryKey: string | null
+            summaryMime: string | null
+            summaryFilename: string | null
+            summarySizeBytes: number | null
+          }
+        | null = null
+      if (pickedFile) {
+        const uploaded = await uploadToStorage(pickedFile)
+        summaryPatch = {
+          summaryKey: uploaded.key,
+          summaryMime: uploaded.contentType,
+          summaryFilename: pickedFile.name,
+          summarySizeBytes: pickedFile.size,
+        }
+      } else if (removeExisting && existingKey) {
+        summaryPatch = { summaryKey: null, summaryMime: null, summaryFilename: null, summarySizeBytes: null }
+      }
+
       const payload = {
         name: name.trim(),
         date: new Date(`${date}T00:00:00`).toISOString(),
@@ -85,6 +214,7 @@ export default function InfusionModal({
         endTime: endTime.trim() || null,
         eventful,
         note: note.trim() || null,
+        ...(summaryPatch ?? {}),
       }
       const res = await fetch(
         isEdit ? `/api/infusions/${infusion!.id}` : "/api/infusions",
@@ -107,7 +237,7 @@ export default function InfusionModal({
     } finally {
       setSaving(false)
     }
-  }, [saving, name, date, startTime, endTime, eventful, note, isEdit, infusion, patientId, onChanged, onClose])
+  }, [saving, name, date, startTime, endTime, eventful, note, pickedFile, removeExisting, existingKey, isEdit, infusion, patientId, onChanged, onClose])
 
   return (
     <div
@@ -203,6 +333,90 @@ export default function InfusionModal({
             className="px-3 py-2 rounded-xl border border-[#E7DFCD] bg-white dark:bg-[#111827] dark:border-[#374151] text-sm text-[#101828] dark:text-[#F9FAFB] outline-none focus:border-[#1F3D33] resize-none"
           />
         </label>
+
+        {/* Summary file (optional) */}
+        <div className="flex flex-col gap-1.5 text-sm">
+          <span className="text-[#344054] dark:text-[#CBD5E1] font-medium text-xs">
+            Infusion Summary <span className="text-[#98A2B3] font-normal">(optional)</span>
+          </span>
+
+          {pickedFile ? (
+            <div className="flex items-center gap-3 rounded-xl border border-[#E7DFCD] dark:border-[#374151] px-3 py-2.5">
+              <FileText className="h-5 w-5 text-[#1F3D33] dark:text-[#A5B4FC] flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] truncate">{pickedFile.name}</p>
+                <p className="text-xs text-[#98A2B3]">{fmtSize(pickedFile.size)} · ready to upload</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPickedFile(null)}
+                aria-label="Remove selected file"
+                className="p-1 rounded-md text-[#B42318] hover:bg-[#FEF3F2] flex-shrink-0"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ) : existingKey && !removeExisting ? (
+            <div className="flex items-center gap-3 rounded-xl border border-[#E7DFCD] dark:border-[#374151] px-3 py-2.5">
+              <FileText className="h-5 w-5 text-[#1F3D33] dark:text-[#A5B4FC] flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB] truncate">
+                  {existingFilename || "Summary file"}
+                </p>
+                {fmtSize(existingSize) ? <p className="text-xs text-[#98A2B3]">{fmtSize(existingSize)}</p> : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => void viewStoredFile(existingKey, existingFilename)}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#1F3D33] dark:text-[#A5B4FC] hover:underline flex-shrink-0"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> View
+              </button>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="text-xs font-semibold text-[#475467] dark:text-[#CBD5E1] hover:underline flex-shrink-0"
+              >
+                Replace
+              </button>
+              <button
+                type="button"
+                onClick={() => setRemoveExisting(true)}
+                aria-label="Remove summary file"
+                className="p-1 rounded-md text-[#B42318] hover:bg-[#FEF3F2] flex-shrink-0"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-[#E7DFCD] dark:border-[#374151] rounded-xl py-5 px-4 text-center hover:border-[#1F3D33] transition-colors"
+            >
+              <UploadCloud className="h-6 w-6 text-[#98A2B3]" />
+              <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
+                Click to upload a summary file
+              </span>
+              {removeExisting ? (
+                <span className="text-[11px] text-[#B42318]">Existing file will be removed on save</span>
+              ) : null}
+            </button>
+          )}
+
+          <span className="text-[10px] text-[#98A2B3]">PDF, DOCX, image, or Excel · max 25 MB</span>
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPT}
+            className="hidden"
+            onChange={(e) => {
+              onPickFile(e.target.files?.[0] ?? null)
+              e.target.value = ""
+            }}
+          />
+        </div>
 
         <div className="flex items-center justify-end gap-2 pt-1">
           <button

@@ -65,6 +65,9 @@ export const ALLOWED_CONTENT_TYPES = [
   // Word documents — clinical summaries are often shared as .doc / .docx.
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  // Excel spreadsheets — .xls / .xlsx (e.g. infusion summaries).
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ] as const
 
 export type AllowedContentType = (typeof ALLOWED_CONTENT_TYPES)[number]

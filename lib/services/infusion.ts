@@ -86,6 +86,10 @@ export type InfusionListItem = {
   endTime: string | null
   eventful: boolean
   note: string | null
+  summaryKey: string | null
+  summaryMime: string | null
+  summaryFilename: string | null
+  summarySizeBytes: number | null
   createdByName: string | null
   createdAt: string
 }
@@ -105,6 +109,10 @@ function toListItem(r: InfusionRow): InfusionListItem {
     endTime: r.endTime,
     eventful: r.eventful,
     note: r.note,
+    summaryKey: r.summaryKey,
+    summaryMime: r.summaryMime,
+    summaryFilename: r.summaryFilename,
+    summarySizeBytes: r.summarySizeBytes,
     createdByName: r.createdBy?.staff?.fullName ?? r.createdBy?.email ?? null,
     createdAt: r.createdAt.toISOString(),
   }
@@ -142,6 +150,10 @@ export async function createInfusion(
         endTime: input.endTime ?? null,
         eventful: input.eventful ?? false,
         note: input.note ?? null,
+        summaryKey: input.summaryKey ?? null,
+        summaryMime: input.summaryMime ?? null,
+        summaryFilename: input.summaryFilename ?? null,
+        summarySizeBytes: input.summarySizeBytes ?? null,
         createdById: actor.userId,
       },
       include: infusionInclude,
@@ -236,6 +248,11 @@ export async function updateInfusion(
     if (input.endTime !== undefined) data.endTime = input.endTime
     if (input.eventful !== undefined) data.eventful = input.eventful
     if (input.note !== undefined) data.note = input.note
+    // Summary file: a set of four fields moved together. `null` clears the file.
+    if (input.summaryKey !== undefined) data.summaryKey = input.summaryKey
+    if (input.summaryMime !== undefined) data.summaryMime = input.summaryMime
+    if (input.summaryFilename !== undefined) data.summaryFilename = input.summaryFilename
+    if (input.summarySizeBytes !== undefined) data.summarySizeBytes = input.summarySizeBytes
 
     const updated = await tx.infusion.update({
       where: { id },

@@ -969,6 +969,14 @@ model Infusion {
   /// Optional free-text note.
   note String? @db.Text
 
+  /// Optional single summary file for the session (PDF / DOCX / image / Excel),
+  /// stored in the private `phi` bucket. `summaryKey` is the S3 object key; the
+  /// rest is metadata for presenting/downloading it. Null when no file attached.
+  summaryKey       String? @map("summary_key")
+  summaryMime      String? @map("summary_mime")
+  summaryFilename  String? @map("summary_filename")
+  summarySizeBytes Int?    @map("summary_size_bytes")
+
   /// Staff/RMO user who recorded the entry. Nullable so the row survives a
   /// user deletion (consistent with ClinicalSummary.createdBy).
   createdById String? @map("created_by_id") @db.Uuid

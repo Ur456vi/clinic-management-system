@@ -33,6 +33,18 @@ const clockLabel = z
   .optional()
   .transform((v) => (v === "" ? undefined : v))
 
+/**
+ * Optional single summary-file fields (PDF / DOCX / image / Excel). The browser
+ * uploads the file to S3 first (presign → PUT via /api/files/upload-url) and
+ * passes the resulting object key + metadata here. `null` clears the file.
+ */
+const summaryFileFields = {
+  summaryKey: z.string().trim().min(1).max(1024).nullable().optional(),
+  summaryMime: z.string().trim().max(255).nullable().optional(),
+  summaryFilename: z.string().trim().max(255).nullable().optional(),
+  summarySizeBytes: z.number().int().positive().nullable().optional(),
+}
+
 export const createInfusionSchema = z.object({
   patientId: uuid,
   name: z.string().trim().min(1, "Required").max(200),
@@ -41,6 +53,7 @@ export const createInfusionSchema = z.object({
   endTime: clockLabel,
   eventful: z.boolean().optional(),
   note: z.string().trim().max(5000).optional(),
+  ...summaryFileFields,
 })
 
 export type CreateInfusionInput = z.infer<typeof createInfusionSchema>
@@ -56,6 +69,7 @@ export const updateInfusionSchema = z.object({
   endTime: z.string().trim().max(50).nullable().optional(),
   eventful: z.boolean().optional(),
   note: z.string().trim().max(5000).nullable().optional(),
+  ...summaryFileFields,
 })
 
 export type UpdateInfusionInput = z.infer<typeof updateInfusionSchema>
