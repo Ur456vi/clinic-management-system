@@ -11,14 +11,17 @@
  *                 chart's "Assessments" tab to show history)
  *   - status    : REQUESTED | CONFIRMED | COMPLETED | CANCELLED
  *
- * Role gate: ADMIN, DOCTOR, RMO, RECEPTION (reception needs to see new
- * bookings to confirm slots; specialists don't need this view).
+ * Access gate: the "assessments" admin area — the same gate that controls
+ * the nav link and page. This lets an admin grant the view to any staff
+ * member via per-staff area overrides (not just the default clinical-desk
+ * roles), keeping the API consistent with what the nav actually shows.
  */
 
-import { AssessmentSubmissionStatus, Prisma, Role } from "@prisma/client"
+import { AssessmentSubmissionStatus, Prisma } from "@prisma/client"
 import { z } from "zod"
 
-import { defineHandler, ok, requireRole } from "@/lib/api"
+import { defineHandler, ok, requireSession, ForbiddenError } from "@/lib/api"
+import { canAccessAreaList } from "@/lib/rbac"
 import { db } from "@/lib/db"
 
 const querySchema = z.object({
@@ -28,7 +31,10 @@ const querySchema = z.object({
 })
 
 export const GET = defineHandler(async ({ req }) => {
-  await requireRole(Role.ADMIN, Role.DOCTOR, Role.RMO, Role.RECEPTION)
+  const session = await requireSession()
+  if (!canAccessAreaList(session.areas, "/admin/assessments")) {
+    throw new ForbiddenError("You don't have access to assessments")
+  }
 
   const url = new URL(req.url)
   const params = querySchema.parse(Object.fromEntries(url.searchParams))

@@ -348,25 +348,25 @@ export async function listAppointments(
     if (input.to) (where.startsAt as Prisma.DateTimeFilter).lt = input.to
   }
 
-  // Account scoping: ADMIN and RECEPTION (front desk manages the whole
-  // book) see everything; every other role only sees appointments assigned
-  // to their own staff profile. This also overrides any caller-supplied
-  // staffId so a non-admin can't list someone else's schedule.
-  if (!FULL_BOOK_ROLES.includes(actor.role)) {
+  // The main "Appointments" list shows the whole book EXCEPT the primary
+  // doctor (Dr. Yuvraaj), who has a dedicated "Dr Yuvraaj Appointment" view.
+  // Per product policy every staff role sees this shared list, so when it's
+  // requested we exclude the primary doctor for everyone and skip the
+  // per-staff scoping below.
+  if (input.excludePrimaryDoctor && !input.staffId) {
+    const primaryId = await resolvePrimaryDoctorStaffId()
+    if (primaryId) where.staffId = { not: primaryId }
+  } else if (!FULL_BOOK_ROLES.includes(actor.role)) {
+    // Account scoping: ADMIN and RECEPTION (front desk manages the whole
+    // book) see everything; every other role only sees appointments assigned
+    // to their own staff profile. This also overrides any caller-supplied
+    // staffId so a non-admin can't list someone else's schedule.
     const staff = await db.staff.findUnique({
       where: { userId: actor.userId },
       select: { id: true },
     })
     if (!staff) return { items: [], nextCursor: null }
     where.staffId = staff.id
-  }
-
-  // The main "Appointments" list excludes the primary doctor (Dr. Yuvraaj),
-  // who has a dedicated view. Only honoured for full-book roles browsing the
-  // whole book (no explicit/account staffId scope) — staffId always wins.
-  if (input.excludePrimaryDoctor && !where.staffId) {
-    const primaryId = await resolvePrimaryDoctorStaffId()
-    if (primaryId) where.staffId = { not: primaryId }
   }
 
   const rows = await db.appointment.findMany({
