@@ -63,7 +63,8 @@ const patientSidebarItems = [
   { name: "Summaries", icon: FileText, href: "/patient/summaries" },
   { name: "Refills", icon: RefreshCw, href: "/patient/refills" },
   { name: "Billing", icon: Receipt, href: "/patient/invoices" },
-  { name: "Reports", icon: BarChart3, href: "/patient/reports" },
+  // Reports is a Coming Soon placeholder — hidden from the patient nav for now.
+  // { name: "Reports", icon: BarChart3, href: "/patient/reports" },
 ]
 
 const patientBottomItems = [

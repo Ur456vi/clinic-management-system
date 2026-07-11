@@ -94,6 +94,12 @@ export default function InvoiceDetailsPage({
   // it works for the Print button AND the browser's own Ctrl/Cmd+P.
   const printRef = useRef<HTMLDivElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
+  // On-screen responsiveness: the sheet is authored at a fixed 1000px design
+  // width, so on phones/tablets we scale it down to fit the viewport (the
+  // installment/payment cards below stay full-width). Print path is untouched.
+  const shellRef = useRef<HTMLDivElement>(null)
+  const [screenScale, setScreenScale] = useState(1)
+  const [sheetH, setSheetH] = useState<number | null>(null)
 
   function numberToWordsINR(num: number): string {
   if (num === 0) return "Zero"
@@ -166,6 +172,22 @@ export default function InvoiceDetailsPage({
       mql.removeEventListener?.("change", onChange)
     }
   }, [])
+
+  // On-screen: scale the 1000px invoice sheet down to the available width.
+  useEffect(() => {
+    const shell = shellRef.current
+    const sheet = sheetRef.current
+    if (!shell || !sheet) return
+    const fit = () => {
+      const avail = shell.clientWidth
+      setScreenScale(Math.min(1, avail / SHEET_W))
+      setSheetH(sheet.scrollHeight)
+    }
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(shell)
+    return () => ro.disconnect()
+  }, [invoice, SHEET_W])
 
   // Payment is collected at the desk via UPI QR; reception confirms it here.
   // We RECORD a real CAPTURED payment for the outstanding balance (method
@@ -338,8 +360,17 @@ export default function InvoiceDetailsPage({
       {/* Printable region — only this prints (invoice + payment history) */}
       <div ref={printRef} className="inv-print flex flex-col gap-6">
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      {/* Main invoice card — measured for print scaling */}
-      <div ref={sheetRef} className="inv-sheet">
+      {/* Main invoice card — measured for print scaling; scaled to fit on screen */}
+      <div
+        ref={shellRef}
+        className="inv-shell w-full"
+        style={{ overflow: "hidden", height: sheetH != null ? sheetH * screenScale : undefined }}
+      >
+      <div
+        ref={sheetRef}
+        className="inv-sheet"
+        style={{ width: 1000, transform: `scale(${screenScale})`, transformOrigin: "top left" }}
+      >
       <InvoiceSheet
         invoiceNumber={invoice.invoiceNumber}
         issuedLabel={issuedLabel}
@@ -351,6 +382,7 @@ export default function InvoiceDetailsPage({
         paidCents={paidCents}
         currency={invoice.currency}
       />
+      </div>
       </div>
 
       {/* Installment plan — screen only, excluded from print */}
@@ -472,6 +504,9 @@ export default function InvoiceDetailsPage({
           }
           /* The sheet itself carries the border on screen; edge-to-edge in print. */
           .inv-sheet > div { border: 0 !important; }
+          /* Undo the on-screen fit-scaling so print uses its own A4 scaling. */
+          .inv-shell { overflow: visible !important; height: auto !important; }
+          .inv-sheet { transform: none !important; width: 1000px !important; }
         }
       `}</style>
     </div>

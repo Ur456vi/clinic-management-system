@@ -38,6 +38,7 @@ type Plan = {
   status: string;
   version: number;
   createdAt: string;
+  updatedAt?: string;
   signedBy: { 
     id: string; 
     staff: { 
@@ -187,10 +188,15 @@ export default function PatientPrescriptionsPage() {
     setFilterDoctor("ALL");
   };
 
-  // Format ID helper
-  const getPrescriptionId = (chronologicalIndex: number) => {
-    const baseNum = 16 + chronologicalIndex;
-    return `#PRED${String(baseNum).padStart(4, "0")}`;
+  // Prescription display ID — mirrors the single-prescription sheet
+  // (PrescriptionSheet) exactly: IPHMH-P-{year}-{first 5 hex of the real
+  // record id}. Year comes from the consultation's last-save time (updatedAt),
+  // falling back to createdAt, so the list and detail view always agree.
+  const getPrescriptionId = (plan: Plan) => {
+    const dateStr = plan.updatedAt || plan.createdAt;
+    const year = dateStr ? new Date(dateStr).getFullYear() : undefined;
+    const suffix = plan.id.replace(/-/g, "").slice(0, 5).toUpperCase();
+    return `IPHMH-P-${year ?? "—"}-${suffix}`;
   };
 
   // Get initials helper
@@ -223,16 +229,6 @@ export default function PatientPrescriptionsPage() {
     );
   }
 
-  // Pre-calculate chronological indices
-  const sortedByChronology = [...plans].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
-
-  const plansWithChronologyIndex = plans.map(plan => {
-    const idx = sortedByChronology.findIndex(p => p.id === plan.id);
-    return { plan, index: idx };
-  });
-
   const uniqueDoctors = Array.from(
     new Set(
       plans
@@ -242,11 +238,11 @@ export default function PatientPrescriptionsPage() {
   ) as string[];
 
   // Filter Logic
-  const filteredPlans = plansWithChronologyIndex.filter(({ plan, index }) => {
+  const filteredPlans = plans.filter((plan) => {
     const matchesSearch = () => {
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
-      const idStr = getPrescriptionId(index).toLowerCase();
+      const idStr = getPrescriptionId(plan).toLowerCase();
       const docName = (plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "").toLowerCase();
       const docSpec = (plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "").toLowerCase();
       const planTitle = plan.title.toLowerCase();
@@ -277,8 +273,8 @@ export default function PatientPrescriptionsPage() {
 
   // Sort Logic
   const sortedPlans = [...filteredPlans].sort((a, b) => {
-    const timeA = new Date(a.plan.createdAt).getTime();
-    const timeB = new Date(b.plan.createdAt).getTime();
+    const timeA = new Date(a.createdAt).getTime();
+    const timeB = new Date(b.createdAt).getTime();
     return sortBy === "recent" ? timeB - timeA : timeA - timeB;
   });
 
@@ -290,7 +286,7 @@ export default function PatientPrescriptionsPage() {
   const paginatedPlans = sortedPlans.slice(startIndex, endIndex);
 
   // CSV Export
-  const handleDownloadCSV = (plan: Plan, chronologicalIndex: number, event?: React.MouseEvent) => {
+  const handleDownloadCSV = (plan: Plan, event?: React.MouseEvent) => {
     if (event) event.stopPropagation();
     const headers = [
       "Prescription ID",
@@ -308,7 +304,7 @@ export default function PatientPrescriptionsPage() {
 
     const docName = plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "Clinic Clinician";
     const docSpec = plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "";
-    const planIdStr = getPrescriptionId(chronologicalIndex);
+    const planIdStr = getPrescriptionId(plan);
     const planDateStr = new Date(plan.createdAt).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -359,10 +355,10 @@ export default function PatientPrescriptionsPage() {
     ];
 
     const allRows: string[][] = [];
-    sortedPlans.forEach(({ plan, index }) => {
+    sortedPlans.forEach((plan) => {
       const docName = plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "Clinic Clinician";
       const docSpec = plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "";
-      const planIdStr = getPrescriptionId(index);
+      const planIdStr = getPrescriptionId(plan);
       const planDateStr = new Date(plan.createdAt).toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
@@ -466,8 +462,7 @@ export default function PatientPrescriptionsPage() {
       {/* RENDER VIEW: DETAIL VIEW */}
       {selectedPlanForDetail ? (() => {
         const plan = selectedPlanForDetail;
-        const detailIndex = sortedByChronology.findIndex(p => p.id === plan.id);
-        const presId = plan.customId || getPrescriptionId(detailIndex);
+        const presId = plan.customId || getPrescriptionId(plan);
         const docName = plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "Clinic Clinician";
         const docSpec = plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "Integrative Medicine";
         const dateStr = new Date(plan.createdAt).toLocaleDateString("en-GB", {
@@ -645,7 +640,7 @@ export default function PatientPrescriptionsPage() {
                   <span>Print</span>
                 </button>
                 <button
-                  onClick={() => handleDownloadCSV(plan, detailIndex)}
+                  onClick={() => handleDownloadCSV(plan)}
                   className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm text-sm font-semibold transition-all cursor-pointer select-none"
                 >
                   <Download className="h-4 w-4" />
@@ -922,11 +917,11 @@ export default function PatientPrescriptionsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-150 dark:divide-gray-700 bg-white dark:bg-[#1F2937]">
-                    {paginatedPlans.map(({ plan, index }) => {
+                    {paginatedPlans.map((plan) => {
                       const docName = plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "Clinic Clinician";
                       const docSpec = plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "Integrative Doctor";
                       const avatarUrl = plan.signedBy?.staff?.avatarUrl || plan.createdBy?.staff?.avatarUrl;
-                      const presId = getPrescriptionId(index);
+                      const presId = getPrescriptionId(plan);
                       
                       return (
                         <tr
@@ -1009,7 +1004,7 @@ export default function PatientPrescriptionsPage() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    handleDownloadCSV(plan, index);
+                                    handleDownloadCSV(plan);
                                     setActiveActionMenuId(null);
                                   }}
                                   className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -1106,7 +1101,7 @@ export default function PatientPrescriptionsPage() {
             </div>
             <div className="text-right">
               <h2 className="text-xl font-black text-gray-950 tracking-wider">OFFICIAL PRESCRIPTION</h2>
-              <p className="text-xs text-gray-600 mt-1">Prescription ID: {getPrescriptionId(sortedByChronology.findIndex(p => p.id === printPlan.id))}</p>
+              <p className="text-xs text-gray-600 mt-1">Prescription ID: {getPrescriptionId(printPlan)}</p>
               <p className="text-xs text-gray-600">Prescribed On: {new Date(printPlan.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
             </div>
           </div>
@@ -1181,10 +1176,10 @@ export default function PatientPrescriptionsPage() {
       {/* 2. Bulk Print Layout (All Filtered Prescriptions) */}
       {printAllMode && (
         <div className="print-container hidden print:block bg-white text-black font-sans min-h-screen w-full">
-          {sortedPlans.map(({ plan, index }, planIdx) => {
+          {sortedPlans.map((plan, planIdx) => {
             const docName = plan.signedBy?.staff?.fullName || plan.createdBy?.staff?.fullName || "Clinic Clinician";
             const docSpec = plan.signedBy?.staff?.specialization || plan.createdBy?.staff?.specialization || "";
-            const planIdStr = getPrescriptionId(index);
+            const planIdStr = getPrescriptionId(plan);
             const planDateStr = new Date(plan.createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "short",

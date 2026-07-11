@@ -118,7 +118,8 @@ export default function PatientAppointmentsPage() {
             No appointments found.
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="text-left text-xs uppercase text-[#667085] dark:text-[#94A3B8] border-b border-[#EAECF0] dark:border-[#374151]">
                 <th className="px-5 py-3 font-semibold">Date / Time</th>
@@ -150,6 +151,7 @@ export default function PatientAppointmentsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

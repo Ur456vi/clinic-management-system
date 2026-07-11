@@ -45,6 +45,13 @@ export default function PatientInvoiceDetailPage({
   // sheet fills the page, never clips, and stays one page.
   const printRef = useRef<HTMLDivElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
+  // On-screen responsiveness: the sheet is authored at a fixed 1000px design
+  // width, so on phones/tablets we scale it down to fit the viewport (never
+  // squish or break the layout). Driven purely by CSS variables so the print
+  // path above is unaffected.
+  const shellRef = useRef<HTMLDivElement>(null)
+  const [screenScale, setScreenScale] = useState(1)
+  const [sheetH, setSheetH] = useState<number | null>(null)
 
   const load = useCallback(async () => {
     setError(null)
@@ -96,6 +103,23 @@ export default function PatientInvoiceDetailPage({
     }
   }, [])
 
+  // On-screen: scale the 1000px sheet down to the available width.
+  useEffect(() => {
+    const SHEET_W = 1000
+    const shell = shellRef.current
+    const sheet = sheetRef.current
+    if (!shell || !sheet) return
+    const fit = () => {
+      const avail = shell.clientWidth
+      setScreenScale(Math.min(1, avail / SHEET_W))
+      setSheetH(sheet.scrollHeight)
+    }
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(shell)
+    return () => ro.disconnect()
+  }, [invoice])
+
   if (loading) {
     return (
       <div className="p-8 flex items-center gap-3 text-sm text-[#667085] dark:text-[#94A3B8]">
@@ -143,10 +167,19 @@ export default function PatientInvoiceDetailPage({
       </div>
 
       {/* Branded sheet (prints) */}
-      <div ref={printRef} className="inv-print">
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <div ref={sheetRef} className="inv-sheet">
-          <InvoiceSheet
+      <div
+        ref={shellRef}
+        className="inv-shell w-full"
+        style={{ overflow: "hidden", height: sheetH != null ? sheetH * screenScale : undefined }}
+      >
+        <div ref={printRef} className="inv-print">
+          <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+          <div
+            ref={sheetRef}
+            className="inv-sheet"
+            style={{ width: 1000, transform: `scale(${screenScale})`, transformOrigin: "top left" }}
+          >
+            <InvoiceSheet
             invoiceNumber={invoice.invoiceNumber}
             issuedLabel={issuedLabel}
             patientNumber={invoice.patient?.patientNumber ?? null}
@@ -157,6 +190,7 @@ export default function PatientInvoiceDetailPage({
             paidCents={paidCents}
             currency={CURRENCY}
           />
+          </div>
         </div>
       </div>
 
@@ -236,6 +270,8 @@ export default function PatientInvoiceDetailPage({
             page-break-inside: avoid;
           }
           .inv-sheet > div { border: 0 !important; }
+          .inv-shell { overflow: visible !important; height: auto !important; }
+          .inv-sheet { transform: none !important; width: 1000px !important; }
         }
       `}</style>
     </div>

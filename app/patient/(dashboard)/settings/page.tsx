@@ -17,7 +17,7 @@ export default function PatientSettingsPage() {
   const [shareForResearch, setShareForResearch] = useState(false);
 
   return (
-    <div className="p-8 flex flex-col gap-8 max-w-3xl">
+    <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-[#141414] dark:text-[#F9FAFB]">Settings</h1>
         <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">

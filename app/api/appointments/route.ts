@@ -37,10 +37,12 @@ export const GET = defineHandler(async ({ req }) => {
     excludePrimaryDoctor: sp.get("excludePrimary") ?? undefined,
   })
 
-  const { items, nextCursor } = await listAppointments(query, {
-    userId: session.userId,
-    role: session.role,
-  })
+  const { items, nextCursor } = await listAppointments(query, 
+    {
+      userId: session.userId,
+      role: session.role,
+    }
+)
 
   return NextResponse.json({
     data: items,

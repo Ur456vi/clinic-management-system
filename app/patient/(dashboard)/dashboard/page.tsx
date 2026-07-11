@@ -7,7 +7,9 @@
  *   - GET /api/patient/me                     profile + primary doctor
  *   - GET /api/patient/me/vitals              latest reading (cards)
  *   - GET /api/patient/me/appointments        upcoming + recent activity + doctors
- *   - GET /api/patient/me/treatment-plans     recent prescriptions/plans
+ *   - GET /api/patient/me/treatment-plans     recent signed treatment plans
+ *   - GET /api/patient/me/prescriptions       consultation Final Prescriptions
+ *     (both merged for the Prescriptions card)
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -65,7 +67,17 @@ type Plan = {
   title: string;
   status: string;
   createdAt: string;
+  updatedAt?: string;
 };
+
+// Prescription display ID — mirrors the prescriptions list + single sheet:
+// IPHMH-P-{year}-{first 5 hex of the real record id}.
+function prescriptionId(p: Plan): string {
+  const dateStr = p.updatedAt || p.createdAt;
+  const year = dateStr ? new Date(dateStr).getFullYear() : undefined;
+  const suffix = p.id.replace(/-/g, "").slice(0, 5).toUpperCase();
+  return `IPHMH-P-${year ?? "—"}-${suffix}`;
+}
 
 const STATUS_STYLE: Record<string, string> = {
   REQUESTED: "bg-[#FFFAEB] text-[#B54708]",
@@ -93,11 +105,12 @@ export default function PatientDashboardPage() {
 
   const load = useCallback(async () => {
     try {
-      const [meRes, vitalsRes, apptList, planList] = await Promise.all([
+      const [meRes, vitalsRes, apptList, planList, rxList] = await Promise.all([
         fetch("/api/patient/me", { credentials: "include" }),
         fetch("/api/patient/me/vitals", { credentials: "include" }),
         getList<Appt>("/api/patient/me/appointments?limit=50"),
         getList<Plan>("/api/patient/me/treatment-plans?limit=5"),
+        getList<Plan>("/api/patient/me/prescriptions?limit=5"),
       ]);
       if (meRes.ok) {
         const j = await meRes.json();
@@ -112,7 +125,14 @@ export default function PatientDashboardPage() {
         setVitalHistory([]);
       }
       setAppts(apptList);
-      setPlans(planList);
+      // Prescriptions come from two sources — signed treatment plans and the
+      // doctor's MAIN consultation Final Prescriptions. Merge, newest first,
+      // and keep the top 5 for the card (matches /patient/prescriptions).
+      setPlans(
+        [...planList, ...rxList]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5),
+      );
     } finally {
       setLoading(false);
     }
@@ -318,7 +338,7 @@ export default function PatientDashboardPage() {
               {plans.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] truncate">{p.title}</p>
+                    <p className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] truncate">{prescriptionId(p)}</p>
                     <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                       {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>

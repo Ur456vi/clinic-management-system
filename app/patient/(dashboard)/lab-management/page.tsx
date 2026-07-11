@@ -4,25 +4,20 @@
  * Patient Lab Management.
  *
  * Lists the patient's own lab orders (GET /api/patient/me/lab-results with
- * ?pending=1 so still-active orders show, not just finalized ones). The
- * patient gets each test done at a diagnostic centre, then uploads the PDF
- * report here — an "Active" order flips to "Completed" once a report lands.
- * Staff (reception) can also upload on the patient's behalf from the admin
- * patient chart.
+ * ?pending=1 so still-active orders show, not just finalized ones). This view
+ * is READ-ONLY for the patient: they can view finalized report PDFs but cannot
+ * upload, replace, or delete them. Reports are uploaded by staff (reception)
+ * on the patient's behalf from the admin patient chart.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Loader2,
   FlaskConical,
-  UploadCloud,
   CheckCircle2,
   Clock,
-  RotateCcw,
   ExternalLink,
 } from "lucide-react";
-
-import LabReportModal from "@/components/patient/LabReportModal";
 
 type Lab = {
   id: string;
@@ -50,7 +45,6 @@ function hasReport(l: Lab): boolean {
 export default function PatientLabManagementPage() {
   const [labs, setLabs] = useState<Lab[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [active, setActive] = useState<Lab | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -109,12 +103,12 @@ export default function PatientLabManagementPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Lab Management</h1>
         <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">
-          Tests ordered by your doctor. Upload the report PDF after you get a test done.
+          Tests ordered by your doctor. View your report once it has been uploaded by the clinic.
         </p>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Kpi icon={FlaskConical} label="Total tests" value={counts.total} fg="#6A4FB0" bg="#F1EEFB" />
         <Kpi icon={Clock} label="Awaiting report" value={counts.active} fg="#2E5AAC" bg="#E5EEF9" />
         <Kpi icon={CheckCircle2} label="Completed" value={counts.done} fg="#0E8C6A" bg="#E4F3EC" />
@@ -167,31 +161,16 @@ export default function PatientLabManagementPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                           {done ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => void viewReport(l.id)}
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
-                                style={{ color: "#0E8C6A" }}
-                              >
-                                <ExternalLink className="h-3.5 w-3.5" /> View
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setActive(l)}
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#667085] dark:text-[#94A3B8] hover:underline"
-                              >
-                                <RotateCcw className="h-3.5 w-3.5" /> Replace
-                              </button>
-                            </>
-                          ) : (
                             <button
                               type="button"
-                              onClick={() => setActive(l)}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline"
+                              onClick={() => void viewReport(l.id)}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+                              style={{ color: "#0E8C6A" }}
                             >
-                              <UploadCloud className="h-3.5 w-3.5" /> Upload report
+                              <ExternalLink className="h-3.5 w-3.5" /> View
                             </button>
+                          ) : (
+                            <span className="text-xs text-[#98A2B3]">Awaiting report</span>
                           )}
                         </div>
                       </td>
@@ -204,17 +183,6 @@ export default function PatientLabManagementPage() {
         )}
       </div>
 
-      {active ? (
-        <LabReportModal
-          labResultId={active.id}
-          testName={active.panelName}
-          hasReport={hasReport(active)}
-          onClose={() => setActive(null)}
-          onUploaded={() => {
-            void load();
-          }}
-        />
-      ) : null}
     </div>
   );
 }

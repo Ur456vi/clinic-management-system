@@ -658,6 +658,9 @@ export type SelfPrescription = {
   status: string
   version: number
   createdAt: Date
+  /** Consultation last-save time — used to derive the display ID's year so
+   *  the list matches the single-prescription sheet (PrescriptionSheet). */
+  updatedAt: Date
   signedBy: PrescriptionDoctor
   createdBy: PrescriptionDoctor
   items: SelfPrescriptionItem[]
@@ -705,6 +708,7 @@ function shapePrescription(
     prescriptionNumber: string | null
     status: string
     createdAt: Date
+    updatedAt: Date
     sections: Prisma.JsonValue | null
   },
   doctor: PrescriptionDoctor,
@@ -771,6 +775,7 @@ function shapePrescription(
     status: "SIGNED",
     version: 1,
     createdAt: consult.createdAt,
+    updatedAt: consult.updatedAt,
     signedBy: doctor,
     createdBy: doctor,
     items,
@@ -794,7 +799,7 @@ export async function listSelfPrescriptions(args: {
     where: { patientId: args.patientId, type: ConsultationType.MAIN },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: Math.min(take * 2, MAX_PAGE_SIZE) + 1,
-    select: { id: true, prescriptionNumber: true, status: true, createdAt: true, sections: true },
+    select: { id: true, prescriptionNumber: true, status: true, createdAt: true, updatedAt: true, sections: true },
   })
 
   // Map consultationId -> prescribing doctor via the linked appointment.
