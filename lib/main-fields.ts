@@ -187,9 +187,6 @@ export const MAIN_SECTIONS: MainSection[] = [
             full: true,
             columns: [
               { key: "therapy", label: "Therapy", placeholder: "e.g., NAD+ Support Infusion" },
-              { key: "dose", label: "Dose", placeholder: "e.g., 250 mg" },
-              { key: "schedule", label: "Schedule", placeholder: "e.g., Once Weekly × 4" },
-              { key: "purpose", label: "Purpose", placeholder: "e.g., Energy, cellular repair, recovery" },
             ],
           },
         ],

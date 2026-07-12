@@ -647,16 +647,15 @@ function TableControl({
     onChange(next.length === 0 ? "" : JSON.stringify(next))
   }
 
-  // Library pick → new row(s). An infusion protocol expands into one row
-  // per component ingredient. A medication / supplement is parsed so the
-  // dose + timing columns auto-fill from the catalog entry.
+  // Library pick → new row(s). An infusion protocol adds a SINGLE row named
+  // after the protocol (not its component ingredients). A medication /
+  // supplement is parsed so the dose + timing columns auto-fill from the
+  // catalog entry.
   const hasCol = (key: string) => columns.some((c) => c.key === key)
   const addFromLibrary = (picked: string) => {
     if (!firstKey) return
     if (library === "infusion") {
-      const proto = INFUSION_PROTOCOLS.find((p) => p.name === picked)
-      const comps = proto ? proto.components : [picked]
-      commit([...rows, ...comps.map((c) => ({ [firstKey]: c }))])
+      commit([...rows, { [firstKey]: picked }])
     } else {
       const { product, dose, timing } = parseRxItem(picked)
       const row: TableRow = { [firstKey]: product }
