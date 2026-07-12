@@ -206,6 +206,9 @@ model User {
   /// Infusion session entries this user recorded for patients.
   infusionSessionsCreated Infusion[] @relation("InfusionCreator")
 
+  /// Vital assessment sheets this user recorded for patients.
+  vitalAssessmentsCreated VitalAssessment[] @relation("VitalAssessmentCreator")
+
   @@index([role])
   @@map("users")
 }
@@ -330,6 +333,7 @@ model Patient {
   invoices              Invoice[]
   infusionLogs          InfusionLog[]
   infusionSessions      Infusion[]
+  vitalAssessments      VitalAssessment[]
   refillRequests        RefillRequest[]
   vitals                Vital[]
   clinicalSummaries     ClinicalSummary[]
@@ -987,6 +991,36 @@ model Infusion {
 
   @@index([patientId, date(sort: Desc)])
   @@map("infusions")
+}
+
+/// A single capture of the IPHMH Patient Assessment Sheet (anthropometrics +
+/// vitals). Multiple assessments per patient over time. The 26 sheet rows are
+/// stored as a JSON map keyed by the field keys in `lib/vital-assessment-fields.ts`
+/// (values are free-text strings — several rows are non-numeric, e.g. BP).
+model VitalAssessment {
+  id        String  @id @default(uuid()) @db.Uuid
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// The date the assessment was taken.
+  assessedAt DateTime @map("assessed_at")
+  /// Free-text consultant name as entered on the sheet.
+  consultant String?
+  /// Map of fieldKey -> value string (only filled rows are stored).
+  measurements Json @default("{}")
+  /// Optional free-text note.
+  note String? @db.Text
+
+  /// Staff/RMO user who recorded the entry. Nullable so the row survives a
+  /// user deletion (consistent with Infusion.createdBy).
+  createdById String? @map("created_by_id") @db.Uuid
+  createdBy   User?   @relation("VitalAssessmentCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, assessedAt(sort: Desc)])
+  @@map("vital_assessments")
 }
 
 // Billing — Invoice / InvoiceItem / Payment (BE-37)

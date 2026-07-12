@@ -98,6 +98,12 @@ export const PERMISSIONS = {
   // Vitals (app/api/patients/[id]/vitals)
   "vitals:write": ALL_STAFF, // STAFF_ROLES
 
+  // Vital Assessment sheet (lib/services/vital-assessment.ts) — anthropometrics
+  // + vitals captured per the IPHMH Patient Assessment Sheet.
+  "vitalAssessment:write": ALL_STAFF, // WRITE_ROLES
+  "vitalAssessment:read": ALL_STAFF, // READ_ROLES
+  "vitalAssessment:delete": ADMIN_ONLY, // DELETE_ROLES
+
   // Files (app/api/files/**)
   "file:upload": ALL_STAFF,
   "file:download": ALL_STAFF,

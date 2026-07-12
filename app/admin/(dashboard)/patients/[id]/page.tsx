@@ -48,6 +48,8 @@ import RefillManager from "@/components/admin/RefillManager"
 import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
 import ClinicalSummaryModal from "@/components/admin/ClinicalSummaryModal"
 import InfusionModal, { type InfusionEditable } from "@/components/admin/InfusionModal"
+import VitalAssessmentModal, { type VitalAssessmentEditable } from "@/components/admin/VitalAssessmentModal"
+import { VITAL_ASSESSMENT_FIELDS } from "@/lib/vital-assessment-fields"
 
 /* ── palette (IHMH green / gold accents) ─────────────────────────── */
 const GREEN = "#1F3D33"
@@ -207,7 +209,7 @@ type PlanApi = {
   items: PlanItemApi[]
 }
 
-const TABS = ["Clinical Summary", "Summaries", "Infusion", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+const TABS = ["Clinical Summary", "Summaries", "Infusion", "Vital Assessment", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
 
 type InfusionRow = {
   id: string
@@ -221,6 +223,16 @@ type InfusionRow = {
   summaryMime: string | null
   summaryFilename: string | null
   summarySizeBytes: number | null
+  createdByName: string | null
+  createdAt: string
+}
+
+type VitalAssessmentRow = {
+  id: string
+  assessedAt: string
+  consultant: string | null
+  note: string | null
+  measurements: Record<string, string>
   createdByName: string | null
   createdAt: string
 }
@@ -259,6 +271,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [infusions, setInfusions] = useState<InfusionRow[] | null>(null)
   const [infusionModal, setInfusionModal] = useState<
     { mode: "create" } | { mode: "edit"; infusion: InfusionEditable } | null
+  >(null)
+  const [vitalAssessments, setVitalAssessments] = useState<VitalAssessmentRow[] | null>(null)
+  const [vitalAssessmentModal, setVitalAssessmentModal] = useState<
+    { mode: "create" } | { mode: "edit"; assessment: VitalAssessmentEditable } | null
   >(null)
   const [vitals, setVitals] = useState<VitalReading[] | undefined>(undefined)
   const [vitalForm, setVitalForm] = useState<VitalFormState>(EMPTY_VITAL_FORM)
@@ -428,6 +444,31 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [id])
 
+  const fetchVitalAssessments = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/vital-assessments?patientId=${id}&limit=100`, { credentials: "include" })
+      if (!res.ok) return setVitalAssessments([])
+      const json = await res.json()
+      setVitalAssessments(json?.data?.items ?? [])
+    } catch {
+      setVitalAssessments([])
+    }
+  }, [id])
+
+  const deleteVitalAssessment = useCallback(async (assessmentId: string) => {
+    if (!window.confirm("Delete this vital assessment? This cannot be undone.")) return
+    try {
+      const res = await fetch(`/api/vital-assessments/${assessmentId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+      if (!res.ok && res.status !== 204) throw new Error()
+      await fetchVitalAssessments()
+    } catch {
+      notify.error("Couldn't delete the vital assessment")
+    }
+  }, [fetchVitalAssessments])
+
   const viewInfusionSummary = useCallback(async (key: string, filename: string | null) => {
     const qs = new URLSearchParams({ key })
     if (filename) qs.set("filename", filename)
@@ -478,7 +519,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     void fetchPlan()
     void fetchSummaries()
     void fetchInfusions()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries, fetchInfusions])
+    void fetchVitalAssessments()
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries, fetchInfusions, fetchVitalAssessments])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -842,6 +884,85 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             </ul>
           )}
         </Panel>
+      ) : tab === "Vital Assessment" ? (
+        <Panel
+          title="Vital Assessments"
+          icon={Activity}
+          aside="+ New assessment"
+          asideOnClick={() => setVitalAssessmentModal({ mode: "create" })}
+          full
+        >
+          {vitalAssessments === null ? (
+            <Empty text="Loading vital assessments…" />
+          ) : vitalAssessments.length === 0 ? (
+            <Empty text="No vital assessments yet. Record the first one." />
+          ) : (
+            <ul className="divide-y" style={{ borderColor: "#EFE8D8" }}>
+              {vitalAssessments.map((va) => {
+                const filled = VITAL_ASSESSMENT_FIELDS.filter((f) => va.measurements[f.key])
+                return (
+                  <li key={va.id} className="py-3.5 flex flex-col gap-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">{fmtDate(va.assessedAt)}</p>
+                        <p className="text-xs text-[#8A9A92]">
+                          {va.consultant ? `${va.consultant} · ` : ""}
+                          {filled.length} of {VITAL_ASSESSMENT_FIELDS.length} recorded
+                          {va.createdByName ? ` · ${va.createdByName}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setVitalAssessmentModal({
+                              mode: "edit",
+                              assessment: {
+                                id: va.id,
+                                assessedAt: va.assessedAt,
+                                consultant: va.consultant,
+                                note: va.note,
+                                measurements: va.measurements,
+                              },
+                            })
+                          }
+                          className="text-xs font-semibold hover:underline px-1.5"
+                          style={{ color: GREEN }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void deleteVitalAssessment(va.id)}
+                          aria-label="Delete vital assessment"
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#B42318] hover:bg-[#FEF3F2]"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    {filled.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 rounded-lg bg-[#FBFAF6] dark:bg-[#111827] p-3">
+                        {filled.map((f) => (
+                          <div key={f.key} className="text-xs min-w-0">
+                            <span className="text-[#8A9A92]">{f.label}: </span>
+                            <span className="font-medium text-[#101828] dark:text-[#F9FAFB]">
+                              {va.measurements[f.key]}
+                              {f.unit ? ` ${f.unit}` : ""}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                    {va.note ? (
+                      <p className="text-xs text-[#667085] dark:text-[#94A3B8] line-clamp-2">{va.note}</p>
+                    ) : null}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </Panel>
       ) : tab === "Program & Refills" ? (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           <Panel title="Prescribed Program" icon={ClipboardList}>
@@ -1079,6 +1200,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           infusion={infusionModal.mode === "edit" ? infusionModal.infusion : null}
           onClose={() => setInfusionModal(null)}
           onChanged={() => { void fetchInfusions() }}
+        />
+      ) : null}
+
+      {vitalAssessmentModal ? (
+        <VitalAssessmentModal
+          patientId={id}
+          assessment={vitalAssessmentModal.mode === "edit" ? vitalAssessmentModal.assessment : null}
+          onClose={() => setVitalAssessmentModal(null)}
+          onChanged={() => { void fetchVitalAssessments() }}
         />
       ) : null}
     </div>
