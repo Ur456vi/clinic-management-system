@@ -86,17 +86,15 @@ export default function LoginPage() {
   const isEnabled = email.trim() !== "" && password.trim() !== ""
 
   return (
-    <div className="flex h-screen w-full items-center justify-center overflow-hidden bg-white font-sans">
+    <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-8 font-sans">
       {/* Main Container */}
       <div
-        className="flex flex-col items-center gap-6 rounded-[24px] border border-[#EAECF0] bg-[#F9FAFB] pt-10 px-10 pb-8"
-        style={{
-          width: '556px',
-          height: '580px',
-          opacity: 1,
-          boxShadow: '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)',
-        }}
-      >
+  className="mx-4 w-full max-w-[556px] rounded-[24px] border border-[#EAECF0] bg-[#F9FAFB] px-6 py-8 sm:px-8 md:px-10 md:py-10"
+  style={{
+    boxShadow:
+      "0px 4px 6px -2px rgba(16,24,40,.03),0px 12px 16px -4px rgba(16,24,40,.08)",
+  }}
+>
         {/* Logo — matches the public site header logotype */}
         <div className="flex flex-col items-center">
                   <Image
@@ -104,7 +102,7 @@ export default function LoginPage() {
                     alt="Dr. Yuvraaj Logo"
                     width={600}
                     height={65}
-                    className="object-contain"
+                    className="h-auto w-full max-w-[280px] object-contain sm:max-w-[320px]"
                     priority
                   />
                 </div>
@@ -128,7 +126,9 @@ export default function LoginPage() {
               fontWeight: 400,
               fontSize: '16px',
               lineHeight: '24px',
-              color: '#141414'
+              color: '#141414',
+              paddingBottom: '30px'
+              // padding-bottom: '10px'
             }}
           >
             Please enter the details below to access your dashboard.
@@ -169,10 +169,9 @@ export default function LoginPage() {
                 autoComplete="off"
                 value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
+                className="h-12 w-full rounded-lg border border-[#D0D5DD] bg-[#F9FAFB] pl-11 pr-4 text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
                 style={{
-                  width: '476px',
-                  height: '48px',
+                  
                   borderRadius: '8px',
                   paddingTop: '10px',
                   paddingRight: '14px',
@@ -209,10 +208,9 @@ export default function LoginPage() {
                 name="password"
                 value={password || ""}
                 onChange={(e) => setPassword(e.target.value)}
-                className="flex border border-[#D0D5DD] bg-[#F9FAFB] text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
+                className="h-12 w-full rounded-lg border border-[#D0D5DD] bg-[#F9FAFB] pl-11 pr-12 text-base text-[#101828] transition-all focus:border-[#D5ABAB] focus:outline-none focus:ring-2 focus:ring-[#D5ABAB]/20"
                 style={{
-                  width: '476px',
-                  height: '48px',
+                  
                   borderRadius: '8px',
                   paddingTop: '10px',
                   paddingRight: '14px',
