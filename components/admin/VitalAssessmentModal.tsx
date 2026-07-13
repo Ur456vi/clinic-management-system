@@ -109,7 +109,7 @@ export default function VitalAssessmentModal({
       )
       const json = await res.json().catch(() => null)
       if (!res.ok) throw new Error(json?.error?.message ?? "Couldn't save the assessment")
-      notify.success(isEdit ? "Vital assessment updated" : "Vital assessment added")
+      notify.success(isEdit ? "Anthropometric Assessment updated" : "Anthropometric Assessment added")
       onChanged()
       onClose()
     } catch (err) {
@@ -133,7 +133,7 @@ export default function VitalAssessmentModal({
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">Vital Assessment</h3>
+            <h3 className="text-lg font-bold text-[#101828] dark:text-[#F9FAFB]">Anthropometric Assessment</h3>
             <p className="text-xs text-[#98A2B3] mt-0.5">Patient Assessment Sheet · {filledCount} of 26 filled</p>
           </div>
           <button

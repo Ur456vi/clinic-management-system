@@ -209,7 +209,7 @@ type PlanApi = {
   items: PlanItemApi[]
 }
 
-const TABS = ["Clinical Summary", "Summaries", "Infusion", "Vital Assessment", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+const TABS = ["Clinical Summary", "Summaries", "Infusion", "Anthropometric Assessment", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
 
 type InfusionRow = {
   id: string
@@ -456,7 +456,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   }, [id])
 
   const deleteVitalAssessment = useCallback(async (assessmentId: string) => {
-    if (!window.confirm("Delete this vital assessment? This cannot be undone.")) return
+    if (!window.confirm("Delete this Anthropometric Assessment? This cannot be undone.")) return
     try {
       const res = await fetch(`/api/vital-assessments/${assessmentId}`, {
         method: "DELETE",
@@ -465,7 +465,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       if (!res.ok && res.status !== 204) throw new Error()
       await fetchVitalAssessments()
     } catch {
-      notify.error("Couldn't delete the vital assessment")
+      notify.error("Couldn't delete the Anthropometric Assessment")
     }
   }, [fetchVitalAssessments])
 
@@ -884,18 +884,18 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             </ul>
           )}
         </Panel>
-      ) : tab === "Vital Assessment" ? (
+      ) : tab === "Anthropometric Assessment" ? (
         <Panel
-          title="Vital Assessments"
+          title="Anthropometric Assessments"
           icon={Activity}
           aside="+ New assessment"
           asideOnClick={() => setVitalAssessmentModal({ mode: "create" })}
           full
         >
           {vitalAssessments === null ? (
-            <Empty text="Loading vital assessments…" />
+            <Empty text="Loading Anthropometric Assessments…" />
           ) : vitalAssessments.length === 0 ? (
-            <Empty text="No vital assessments yet. Record the first one." />
+            <Empty text="No Anthropometric Assessments yet. Record the first one." />
           ) : (
             <ul className="divide-y" style={{ borderColor: "#EFE8D8" }}>
               {vitalAssessments.map((va) => {
@@ -934,7 +934,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                         <button
                           type="button"
                           onClick={() => void deleteVitalAssessment(va.id)}
-                          aria-label="Delete vital assessment"
+                          aria-label="Delete Anthropometric Assessment"
                           className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#B42318] hover:bg-[#FEF3F2]"
                         >
                           <Trash2 className="h-4 w-4" />
