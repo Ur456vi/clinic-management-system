@@ -104,7 +104,7 @@ export default function InvoiceSheet({
         </div> */}
         <div className="pl-10 pr-10 border-r border-[#a98b63]/50 flex flex-col justify-center w-[40%]">
             <div className="flex items-baseline gap-2 mb-1.5">
-              <h2 className="text-[22px] text-[#384a3c]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, letterSpacing: "0.02em" }}>DR. YUVRAAJ SINGH</h2>
+              <h2 className="text-[18px] text-[#384a3c]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, letterSpacing: "0.02em" }}>DR. YUVRAAJ SINGH</h2>
               <span className="text-[9px] text-[#a98b63]" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.08em" }}>MD | F.A.A.R.M</span>
             </div>
             {/* <p className="text-[10px] text-[#384a3c] mb-6 uppercase" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.15em" }}>INTERNAL MEDICINE PHYSICIAN</p> */}
@@ -112,11 +112,11 @@ export default function InvoiceSheet({
             <div className="space-y-4 text-[9px] uppercase text-[#384a3c] mb-8" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, letterSpacing: "0.05em", lineHeight: "1.5" }}>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><Activity className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>MD – INTERNAL MEDICINE | Critical Care</p>
+                <p>INTERNAL MEDICINE | Critical Care</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>ADVANCED TRAINING IN ENDOCRINOLOGY,<br />METABOLIC & REGENERATIVE<br />MEDICINE, USA</p>
+                <p>ADVANCED TRAINING IN HORMONAL,<br />METABOLIC & REGENERATIVE<br />MEDICINE, USA</p>
               </div>
               {/* <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><Plus className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
@@ -150,7 +150,7 @@ export default function InvoiceSheet({
           <div className="absolute top-0 left-8 text-[60px] leading-none" style={{ color: "#D1CCBF", fontFamily: "Georgia, serif" }}>&ldquo;</div>
           <div className="pl-12 pt-4 relative z-10 w-full pr-12">
             <p className="text-[17px] italic mb-3" style={{ color: "#28342F", fontFamily: "Georgia, serif", lineHeight: "1.6" }}>True health is not the absence<br />of disease, but the harmony of<br />biology, performance and longevity.</p>
-            <p className="text-[14px] italic" style={{ color: "#4A5650", fontFamily: "Georgia, serif" }}>&mdash; Dr. Yuvraaj Singh (MD | F.A.A.R.M)</p>
+            <p className="text-[14px] italic" style={{ color: "#4A5650", fontFamily: "Georgia, serif" }}>&mdash; Dr. Yuvraaj Singh, MD | F.A.A.R.M</p>
           </div>
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function InvoiceSheet({
       {/* Gold strip */}
       <div className="bg-[#ebd9bd] text-[#384a3c] text-center py-6">
         <div className="text-[12px] font-medium tracking-[0.25em] uppercase mb-2">INSTITUTE OF PRECISION HORMONAL & METABOLIC HEALTH</div>
-        <div className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#384a3c]/90">PRECISION. PERSONALIZATION. RESULTS.</div>
+        <div className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#384a3c]/90">PRECISION. PERSONALIZATION. OUTCOMES.</div>
       </div>
     </div>
   )

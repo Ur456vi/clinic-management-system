@@ -381,7 +381,7 @@ export default function PatientDashboardPage() {
       </div>
 
       {/* Upcoming */}
-      <Card title="Upcoming Appointments" onNav={() => router.push("/patient/appointments")}>
+      <Card title="Upcoming Appointments / Lab Test" onNav={() => router.push("/patient/appointments")}>
         {upcoming.length === 0 ? (
           <Empty text="No upcoming appointments. Book one to get started." />
         ) : (

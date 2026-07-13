@@ -93,6 +93,7 @@ export const INFUSION_PROTOCOLS: InfusionProtocol[] = [
   { id: "mitochondrial-recovery-infusion", name: "MITOCHONDRIAL RECOVERY INFUSION", components: ["Alpha Lipoic Acid", "Glutathione", "Vitamin C", "B Complex", "Magnesium"] },
   { id: "executive-fatigue-infusion", name: "EXECUTIVE FATIGUE INFUSION", components: ["Amino Acid Blend", "Magnesium", "Vitamin C", "B12", "Trace Minerals"] },
   { id: "immune-support-infusion", name: "IMMUNE SUPPORT INFUSION", components: ["Vitamin C", "Zinc", "Selenium", "Glutathione"] },
+  { id: "none", name: "NOT APPLICABLE", components: [""] },
 ]
 
 /** Instruction snippets to append to a med line or notes. */

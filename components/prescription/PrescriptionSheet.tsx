@@ -32,7 +32,7 @@ const CLINIC = {
   // kmcReg: "XXXXXX",
   phone: "+91 9266843439",
   website: "www.dryuvraajsingh.com",
-  email: "dryuvraaj@iphmh.com",
+  email: "dryuvraajsingh@iphmh.com",
   address: "811, Harnoor House, 1st Floor, Sector-42, Gurugram-122002",
 } as const
 
@@ -246,10 +246,10 @@ export default function PrescriptionSheet({
             </div>
             <div>
               <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
-                INSTITUTE OF
+                INSTITUTE OF PRECISION
               </p>
               <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
-                PRECISION HORMONAL &<br />METABOLIC HEALTH
+                HORMONAL and<br />METABOLIC HEALTH
               </p>
               
             </div>
@@ -286,7 +286,7 @@ export default function PrescriptionSheet({
               <span>{fmtDate(consultDate)}</span>
             </p>
             <p className="px-2 py-1.5 flex justify-between border-t" style={{ borderColor: "#E5DFD0" }}>
-              <span className="font-bold">REPORT GENERATED :</span>
+              <span className="font-bold">PRESCRIPTION GENERATED ON:</span>
               <span>
                 {generated
                   ? `${fmtDate(generated.toISOString())} | ${generated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
@@ -466,11 +466,11 @@ export default function PrescriptionSheet({
 
             {/* 7. Initiation plan */}
             <div>
-              <SectionHeader no={6} title="Initiation & Maintainance Plan" sub="(To Begin After Today)" />
+              <SectionHeader no={6} title="Treatment Initiation & Maintainance Plan" sub="(To Begin After Today)" />
               <Card className="mt-2 space-y-3">
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. MEDICATION &amp; TARGET SUPPLEMENTATION
+                    A. MEDICATION &amp; TARGETED SUPPLEMENTATION
                   </p>
                   <RxTable
                     columns={[
@@ -484,14 +484,14 @@ export default function PrescriptionSheet({
                 </div>
                 <div>
                   <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    B. INFUSION / INJECTABLE <span className="font-normal">(Scheduled at Clinic)</span>
+                    B. INFUSION / INJECTABLES <span className="font-normal">(Scheduled at Clinic)</span>
                   </p>
                   <RxTable
                     columns={[
                       { key: "therapy", label: "Therapy" },
-                      { key: "dose", label: "Dose" },
+                      // { key: "dose", label: "Dose" },
                       { key: "schedule", label: "Schedule" },
-                      { key: "purpose", label: "Purpose" },
+                      { key: "comments", label: "Comments" },
                     ]}
                     rows={infusions}
                   />
@@ -509,16 +509,16 @@ export default function PrescriptionSheet({
             <Card className="mt-2">
               <div className="grid grid-cols-[200px_1fr] gap-4">
                 <div>
-                  <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
+                  {/* <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
                     Review Lab Reports On:
-                  </p>
+                  </p> */}
                   <p className="text-[10.5px] font-semibold mt-1" style={{ color: "#28342F" }}>
-                    📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh"}
+                    📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh, MD | F.A.A.R.M"}
                   </p>
                   <p className="text-[10.5px] font-bold" style={{ color: GREEN }}>
                     {fmtDate(fp("follow_up_date"))}{" "}
                     <span className="font-normal" style={{ color: "#3D4A45" }}>
-                      (or once reports available)
+                      (To access lab reports go to the lab management icon on your dashboard)
                     </span>
                   </p>
                 </div>
@@ -538,10 +538,10 @@ export default function PrescriptionSheet({
             </p>
             <div className="border-t mx-4 my-1.5" style={{ borderColor: "#D8D2C2" }} />
             <p className="text-[11px] font-bold" style={{ color: "#161D1A" }}>
-              Dr. Yuvraaj Singh (MD and F.A.A.R.M)
+              Dr. Yuvraaj Singh, MD and F.A.A.R.M
             </p>
             <p className="text-[8.5px]" style={{ color: "#3D4A45" }}>
-              Internal Medicine / Critical Care / Advanced training in Hormonal and Metabolic Medicine (USA)
+              Internal Medicine | Critical Care <br /> Advanced Training in Hormonal, Metabolic and Regenerative Medicine, USA
               <br />
               
               

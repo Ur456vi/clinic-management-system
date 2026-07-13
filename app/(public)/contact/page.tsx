@@ -68,7 +68,7 @@ const CONTACT_INFO = [
   {
     icon: <MailIcon size={18} />,
     title: "Email",
-    body: "dryuvraaj@iphmh.com",
+    body: "dryuvraajsingh@iphmh.com",
   },
   {
     icon: <ClockIcon size={18} />,
