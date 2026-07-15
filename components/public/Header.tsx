@@ -21,7 +21,7 @@ const PHONE_HREF = "tel:++919266843439";
 
 const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/about", label: "About" },
-  { href: "/services/female-hormonal", label: "Women Health" },
+  { href: "/services/female-hormonal", label: "Women's Health" },
   { href: "/services/mens-hormonal", label: "Men's Health" },
   { href: "/services/metabolic-health", label: "Metabolic Health" },
   { href: "/services/brain-mitochondrial", label: "Regenerative Health" },
@@ -150,7 +150,7 @@ export default function Header() {
       >
         {/* Desktop Nav */}
         <div className="hidden md:block">
-          <ul className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-center gap-y-2 gap-x-2 px-4 py-3 md:gap-x-10 md:gap-y-0 md:px-12">
+          <ul className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-center gap-y-2 gap-x-2 px-2 py-3 md:gap-x-8 md:gap-y-0 md:px-12">
             {NAV_LINKS.map((l) => (
               <li key={l.href} className="shrink-0">
                 <Link
