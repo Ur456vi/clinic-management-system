@@ -156,6 +156,12 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "text", n: "patientDetail__vitals_height", l: "Height (cm)", placeholder: "e.g., 170" },
           { kind: "text", n: "patientDetail__vitals_spo2", l: "SpO2 (%)", placeholder: "e.g., 98" },
           { kind: "text", n: "patientDetail__vitals_temp", l: "Temperature (°F)", placeholder: "e.g., 98.6" },
+          { kind: "text", n: "patientDetail__vitals_body_mass", l: "Total Body Mass (°kg)", placeholder: "e.g., 86kg" },
+          { kind: "text", n: "patientDetail__vitals_fat_mass", l: "Fat Mass (°kg)", placeholder: "e.g., 45kg" },
+          { kind: "text", n: "patientDetail__vitals_lean_mass", l: "Lean Mass (°kg)", placeholder: "e.g., 40kg" },
+          { kind: "text", n: "patientDetail__vitals_body_fat", l: "Body Fat (%)", placeholder: "e.g., 53%" },
+          { kind: "text", n: "patientDetail__vitals_vat", l: "VAT (g)", placeholder: "e.g., 1400g" },
+          { kind: "text", n: "patientDetail__vitals_volume", l: "Volume (cm³)", placeholder: "e.g., 1500cm³" },
         ],
       },
       {
@@ -197,11 +203,18 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "textarea", n: "infusionRehabAesthetic__rehab_plan", l: "Rehab Plan", placeholder: "Physiotherapy, exercises, sessions, goals", rows: 3, full: true },
         ],
       },
+      
       {
         title: "Aesthetic",
         controls: [
           { kind: "textarea", n: "infusionRehabAesthetic__aesthetic_plan", l: "Aesthetic Plan", placeholder: "Procedures, areas, schedule", rows: 3, full: true },
           { kind: "textarea", n: "infusionRehabAesthetic__treatment_notes", l: "Notes", placeholder: "Precautions, consent, reactions to watch", rows: 3, full: true },
+        ],
+      },
+      {
+        title: "Nutrition",
+        controls: [
+          { kind: "textarea", n: "infusionRehabAesthetic__nutrition_plan", l: "Nutrition", placeholder: "Please enter the Nutritions", rows: 3, full: true },
         ],
       },
     ],

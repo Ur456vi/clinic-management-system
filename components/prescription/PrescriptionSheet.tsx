@@ -10,6 +10,11 @@
  * any page that mounts it prints correctly — the `rx-root` visibility
  * trick hides surrounding chrome so only the sheet lands on paper.
  *
+ * Section order (reading order = numeric order):
+ *   LEFT  column : 1 Demographics → 2 Baseline Assessment → 3 Consultation
+ *   RIGHT column : 4 Investigations → 5 Nutrition → 6 Physical Restoration → 7 Treatment Initiation
+ *   FULL  width  : 8 Follow-up & Next Steps (+ signature block)
+ *
  * All values are read from the `sections` prop (see lib/main-fields.ts for
  * the field registry). Patient name/number and the consultation id/save
  * stamp are passed in so the same sheet can be rendered from either the
@@ -234,332 +239,349 @@ export default function PrescriptionSheet({
     <>
       {/* ── Prescription sheet (fixed design width; scrolls on screen, scales on print) ── */}
       <div className="overflow-x-auto">
-      <div className="rx-root" style={{ background: CREAM, color: "#101828", width: 1040 }}>
-        {/* Header */}
-        <div className="px-6 pt-5 pb-3" style={{ display: "grid", gridTemplateColumns: "250px 1fr 255px", gap: "10px", alignItems: "start" }}>
-          <div className="flex items-center gap-3">
-            <div
-              className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white"
-              style={{ width: 50, height: 50, border: `2px solid ${GOLD}` }}
-            >
-              <Image src="/images/logos/iphmh-logos.jpeg" alt="IPHMH" width={50} height={50} className="object-contain" />
-            </div>
-            <div>
-              <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
-                INSTITUTE OF PRECISION
-              </p>
-              <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
-                HORMONAL and<br />METABOLIC HEALTH
-              </p>
-              
-            </div>
-          </div>
-
-          <div className="text-center" style={{ minWidth: 0 }}>
-            <h1 className="font-bold font-serif tracking-wide" style={{ color: "#161D1A", fontSize: 21 }}>
-              PRESCRIPTION &amp; CLINICAL PLAN
-            </h1>
-            <span
-              className="inline-block text-white text-[10px] font-bold tracking-[0.15em] px-5 py-1 rounded-full mt-1"
-              style={{ background: GREEN }}
-            >
-              CONSULTATION
-            </span>
-            
-            <p className="mt-1.5 text-[26px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
-              Dr. Yuvraaj Singh
-              
-            </p>
-            <p className="text-[10px] font-semibold" style={{ color: "#28342F" }}>
-              MD &nbsp;|&nbsp; F.A.A.R.M
-            </p>
-            
-          </div>
-
-          <div className="border rounded-md bg-white divide-y self-start" style={{ borderColor: GOLD, fontSize: "9.5px" }}>
-            <p className="px-2 py-1.5 flex justify-between gap-1">
-              <span className="font-bold">PRESCRIPTION ID :</span>
-              <span>{rxId}</span>
-            </p>
-            <p className="px-2 py-1.5 flex justify-between gap-1 border-t" style={{ borderColor: "#E5DFD0" }}>
-              <span className="font-bold">CONSULTATION DATE :</span>
-              <span>{fmtDate(consultDate)}</span>
-            </p>
-            <p className="px-2 py-1.5 flex justify-between border-t" style={{ borderColor: "#E5DFD0" }}>
-              <span className="font-bold">PRESCRIPTION GENERATED ON:</span>
-              <span>
-                {generated
-                  ? `${fmtDate(generated.toISOString())} | ${generated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
-                  : "—"}
-              </span>
-            </p>
-          </div>
-        </div>
-        <div className="mx-6 border-b-2 mb-4" style={{ borderColor: GOLD }} />
-
-        {/* Body — two columns */}
-        <div className="grid grid-cols-2 gap-4 px-6">
-          {/* ── LEFT COLUMN ── */}
-          <div className="space-y-4">
-            {/* 1. Patient demographics */}
-            <div>
-              <SectionHeader no={1} title="Demographics" />
-              <Card className="mt-2">
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                  <KV k="Name" v={patientName} />
-                  <KV k="Registration ID" v={patientNumber} />
-                  <KV k="Age / DOB" v={pd("dob") ? `${ageFrom(pd("dob"))} | ${fmtDate(pd("dob"))}` : ""} />
-                  <KV k="Occupation" v={pd("occupation")} />
-                  <KV k="Gender" v={pd("gender")} />
-                  <KV k="Referred By" v={pd("referred_by")} />
-                  <KV k="Contact Details" v={pd("contact")} />
-                  <KV k="Email" v={pd("email")} />
-                </div>
-                <div
-                  className="flex justify-between mt-3 pt-2 border-t text-[10px] font-semibold"
-                  style={{ borderColor: "#E5DFD0", color: "#3D4A45" }}
-                >
-                  <span>Registration Date: {fmtDate(pd("registration_date"))}</span>
-                  <span>Consultation Date: {fmtDate(consultDate)}</span>
-                </div>
-              </Card>
-            </div>
-
-            {/* 2. Baseline assessment & physical exam */}
-            <div>
-              <SectionHeader no={2} title="Baseline Assessment & Physical Examination"  />
-              <Card className="mt-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <MiniHeading>A. Vitals</MiniHeading>
-                    <div className="space-y-1.5">
-                      <KV k="Blood Pressure" v={pd("vitals_bp") ? `${pd("vitals_bp")} mmHg` : ""} />
-                      <KV k="Heart Rate" v={pd("vitals_pulse") ? `${pd("vitals_pulse")} bpm` : ""} />
-                      <KV k="Respiratory Rate" v={pd("vitals_rr") ? `${pd("vitals_rr")} /min` : ""} />
-                      <KV k="SpO₂" v={pd("vitals_spo2") ? `${pd("vitals_spo2")} %` : ""} />
-                      <KV k="Temperature" v={pd("vitals_temp") ? `${pd("vitals_temp")} °F` : ""} />
-                    </div>
-                  </div>
-                  <div>
-                    <MiniHeading>B. Anthropometrics &amp; Body Composition</MiniHeading>
-                    <p className="text-[9.5px] font-semibold mb-1" style={{ color: "#3D4A45" }}>
-                      📅 Measured on: {fmtDate(pd("anthro_measured_on"))}
-                    </p>
-                    <div className="space-y-1">
-                      <KV k="Height" v={pd("vitals_height") ? `${pd("vitals_height")} cm` : ""} />
-                      <KV k="Weight" v={pd("vitals_weight") ? `${pd("vitals_weight")} kg` : ""} />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 pt-2 border-t" style={{ borderColor: "#E5DFD0" }}>
-                  <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
-                    C. Systemic Exam <span className="font-normal">(Preliminary)</span>
-                  </p>
-                  <p className="text-[10.5px] leading-5" style={{ color: "#28342F" }}>
-                    <b>CVS:</b> {pd("exam_cvs") || "—"} &nbsp;|&nbsp; <b>RS:</b> {pd("exam_rs") || "—"}
-                    <br />
-                    <b>P/A:</b> {pd("exam_pa") || "—"} &nbsp;|&nbsp; <b>CNS:</b> {pd("exam_cns") || "—"}
-                  </p>
-                </div>
-              </Card>
-            </div>
-
-            {/* Treatment planning (rehab / aesthetic notes) */}
-            {(ira("rehab_plan") || ira("aesthetic_plan") || ira("treatment_notes")) && (
+        <div className="rx-root" style={{ background: CREAM, color: "#101828", width: 1040 }}>
+          {/* Header */}
+          <div
+            className="px-6 pt-5 pb-3"
+            style={{ display: "grid", gridTemplateColumns: "250px 1fr 255px", gap: "10px", alignItems: "start" }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white"
+                style={{ width: 50, height: 50, border: `2px solid ${GOLD}` }}
+              >
+                <Image src="/images/logos/iphmh-logos.jpeg" alt="IPHMH" width={50} height={50} className="object-contain" />
+              </div>
               <div>
-                <SectionHeader no={3} title="Physical Restoration & Aesthetics Plan" />
-                <Card className="mt-2 space-y-2">
-                  {ira("rehab_plan") ? (
-                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Physical Restoration:</b> {ira("rehab_plan")}
+                <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
+                  INSTITUTE OF PRECISION
+                </p>
+                <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
+                  HORMONAL AND
+                  <br />
+                  METABOLIC HEALTH
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center" style={{ minWidth: 0 }}>
+              <h1 className="font-bold font-serif tracking-wide" style={{ color: "#161D1A", fontSize: 21 }}>
+                PRESCRIPTION &amp; CLINICAL PLAN
+              </h1>
+              <span
+                className="inline-block text-white text-[10px] font-bold tracking-[0.15em] px-5 py-1 rounded-full mt-1"
+                style={{ background: GREEN }}
+              >
+                CONSULTATION
+              </span>
+
+              <p className="mt-1.5 text-[26px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
+                Dr. Yuvraaj Singh
+              </p>
+              <p className="text-[10px] font-semibold" style={{ color: "#28342F" }}>
+                MD &nbsp;|&nbsp; F.A.A.R.M
+              </p>
+            </div>
+
+            <div className="border rounded-md bg-white divide-y self-start" style={{ borderColor: GOLD, fontSize: "8.5px" }}>
+              <p className="px-2 py-1.5 flex justify-between gap-1">
+                <span className="font-bold">PRESCRIPTION ID :</span>
+                <span>{rxId}</span>
+              </p>
+              <p className="px-2 py-1.5 flex justify-between gap-1 border-t" style={{ borderColor: "#E5DFD0" }}>
+                <span className="font-bold">CONSULTATION DATE :</span>
+                <span>{fmtDate(consultDate)}</span>
+              </p>
+              <p className="px-2 py-1.5 flex justify-between border-t" style={{ borderColor: "#E5DFD0" }}>
+                <span className="font-bold">PRESCRIPTION GENERATED ON:</span>
+                <span>
+                  {generated
+                    ? `${fmtDate(generated.toISOString())} | ${generated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
+                    : "—"}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="mx-6 border-b-2 mb-4" style={{ borderColor: GOLD }} />
+
+          {/* Body — two columns. Left = 1→3, Right = 4→7 */}
+          <div className="grid grid-cols-2 gap-4 px-6">
+            {/* ── LEFT COLUMN : sections 1 – 3 ── */}
+            <div className="space-y-4">
+              {/* 1. Patient demographics */}
+              <div>
+                <SectionHeader no={1} title="Demographics" />
+                <Card className="mt-2">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    <KV k="Name" v={patientName} />
+                    <KV k="Registration ID" v={patientNumber} />
+                    <KV k="Age / DOB" v={pd("dob") ? `${ageFrom(pd("dob"))} | ${fmtDate(pd("dob"))}` : ""} />
+                    <KV k="Occupation" v={pd("occupation")} />
+                    <KV k="Gender" v={pd("gender")} />
+                    <KV k="Referred By" v={pd("referred_by")} />
+                    <KV k="Contact Details" v={pd("contact")} />
+                    <KV k="Email" v={pd("email")} />
+                  </div>
+                  <div
+                    className="flex justify-between mt-3 pt-2 border-t text-[10px] font-semibold"
+                    style={{ borderColor: "#E5DFD0", color: "#3D4A45" }}
+                  >
+                    <span>Registration Date: {fmtDate(pd("registration_date"))}</span>
+                    <span>Consultation Date: {fmtDate(consultDate)}</span>
+                  </div>
+                </Card>
+              </div>
+
+              {/* 2. Baseline assessment & physical exam */}
+              <div>
+                <SectionHeader no={2} title="Baseline Assessment & Physical Examination" />
+                <Card className="mt-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <MiniHeading>A. Vitals</MiniHeading>
+                      <div className="space-y-1.5">
+                        <KV k="Blood Pressure" v={pd("vitals_bp") ? `${pd("vitals_bp")} mmHg` : ""} />
+                        <KV k="Heart Rate" v={pd("vitals_pulse") ? `${pd("vitals_pulse")} bpm` : ""} />
+                        <KV k="Respiratory Rate" v={pd("vitals_rr") ? `${pd("vitals_rr")} /min` : ""} />
+                        <KV k="SpO₂" v={pd("vitals_spo2") ? `${pd("vitals_spo2")} %` : ""} />
+                        <KV k="Temperature" v={pd("vitals_temp") ? `${pd("vitals_temp")} °F` : ""} />
+                      </div>
+                    </div>
+                    <div>
+                      <MiniHeading>B. Anthropometrics &amp; Body Composition</MiniHeading>
+                      <p className="text-[9.5px] font-semibold mb-1" style={{ color: "#3D4A45" }}>
+                        📅 Measured on: {fmtDate(pd("anthro_measured_on"))}
+                      </p>
+                      <div className="space-y-1">
+                        <KV k="Height" v={pd("vitals_height") ? `${pd("vitals_height")} cm` : ""} />
+                        <KV k="Weight" v={pd("vitals_weight") ? `${pd("vitals_weight")} kg` : ""} />
+                        <KV k="Body Mass" v={pd("vitals_body_mass") ? `${pd("vitals_body_mass")} kg` : ""} />
+                        <KV k="Fat Mass" v={pd("vitals_fat_mass") ? `${pd("vitals_fat_mass")} kg` : ""} />
+                        <KV k="Lean Mass" v={pd("vitals_lean_mass") ? `${pd("vitals_lean_mass")} kg` : ""} />
+                        <KV k="Body Fat" v={pd("vitals_body_fat") ? `${pd("vitals_body_fat")} %` : ""} />
+                        <KV k="Vat" v={pd("vitals_vat") ? `${pd("vitals_vat")} g` : ""} />
+                        <KV k="Volume" v={pd("vitals_volume") ? `${pd("vitals_volume")} cm³` : ""} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-2 border-t" style={{ borderColor: "#E5DFD0" }}>
+                    <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
+                      C. Systemic Exam <span className="font-normal">(Preliminary)</span>
                     </p>
-                  ) : null}
-                  {ira("aesthetic_plan") ? (
-                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Aesthetics:</b> {ira("aesthetic_plan")}
+                    <p className="text-[10.5px] leading-5" style={{ color: "#28342F" }}>
+                      <b>CVS:</b> {pd("exam_cvs") || "—"} &nbsp;|&nbsp; <b>RS:</b> {pd("exam_rs") || "—"}
+                      <br />
+                      <b>P/A:</b> {pd("exam_pa") || "—"} &nbsp;|&nbsp; <b>CNS:</b> {pd("exam_cns") || "—"}
                     </p>
-                  ) : null}
-                  {ira("treatment_notes") ? (
-                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Notes:</b> {ira("treatment_notes")}
+                  </div>
+                </Card>
+              </div>
+
+              {/* 3. Main consultation */}
+              <div>
+                <SectionHeader no={3} title="Consultation with Dr. Yuvraaj Singh" />
+                <Card className="mt-2 p-0 overflow-hidden">
+                  <div
+                    className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
+                    style={{ background: "#EFF3F8", borderColor: "#D8D2C2", color: "#28342F" }}
+                  >
+                    <span>📅 Consultation Date: {fmtDate(consultDate)}</span>
+                    <span>🕐 Duration: {pd("consultation_duration") ? `${pd("consultation_duration")} minutes` : "—"}</span>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
+                      <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
+                        A. ADDITIONAL HISTORY &amp; CLINICAL NOTES <span className="font-normal">(By Dr. Yuvraaj Singh)</span>
+                      </p>
+                      <Bullets text={pd("additional_clinical_notes") || pd("history_presenting")} />
+                    </div>
+                    <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
+                      <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
+                        B. CLINICAL IMPRESSION
+                      </p>
+                      <p className="text-[10.5px] italic leading-4" style={{ color: "#28342F" }}>
+                        {fp("clinical_impression") || fp("diagnosis") || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* ── RIGHT COLUMN : sections 4 – 7 ── */}
+            <div className="space-y-4">
+              {/* 4. Investigations ordered */}
+              <div>
+                <SectionHeader no={4} title="Investigations Ordered" />
+                <Card className="mt-2">
+                  {(() => {
+                    const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
+                    if (groups.length === 0)
+                      return (
+                        <p className="text-[11px]" style={{ color: "#98A2B3" }}>
+                          No investigations ordered.
+                        </p>
+                      )
+                    return (
+                      <div className="grid grid-cols-2 gap-3">
+                        {groups.map(({ panel, tests }) => (
+                          <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
+                            <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
+                              {panel.name}
+                            </p>
+                            <ul className="space-y-0.5">
+                              {tests.map((t) => (
+                                <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
+                                  <span style={{ color: GOLD }}>•</span>
+                                  <span>{t}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
+                  <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
+                    🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
+                    {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
+                    {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
+                  </p>
+                  {ts("test_notes") ? (
+                    <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
+                      {ts("test_notes")}
                     </p>
                   ) : null}
                 </Card>
               </div>
-            )}
 
-            {/* 5. Main consultation */}
-            <div>
-              <SectionHeader no={4} title="Consultation with Dr. Yuvraaj Singh" />
-              <Card className="mt-2 p-0 overflow-hidden">
-                <div
-                  className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
-                  style={{ background: "#EFF3F8", borderColor: "#D8D2C2", color: "#28342F" }}
-                >
-                  <span>📅 Consultation Date: {fmtDate(consultDate)}</span>
-                  <span>🕐 Duration: {pd("consultation_duration") ? `${pd("consultation_duration")} minutes` : "—"}</span>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
-                    <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
-                      A. ADDITIONAL HISTORY &amp; CLINICAL NOTES <span className="font-normal">(By Dr. Yuvraaj Singh)</span>
+              {/* 5. Nutrition plan */}
+              {ira("nutrition_plan") && (
+                <div>
+                  <SectionHeader no={5} title="Nutrition Plan" />
+                  <Card className="mt-2 space-y-2">
+                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+                      <b>Nutrition Plan:</b> {ira("nutrition_plan")}
                     </p>
-                    <Bullets text={pd("additional_clinical_notes") || pd("history_presenting")} />
+                  </Card>
+                </div>
+              )}
+
+              {/* 6. Treatment planning (rehab / aesthetic notes) */}
+              {(ira("rehab_plan") || ira("aesthetic_plan") || ira("treatment_notes")) && (
+                <div>
+                  <SectionHeader no={6} title="Physical Restoration & Aesthetics Plan" />
+                  <Card className="mt-2 space-y-2">
+                    {ira("rehab_plan") ? (
+                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+                        <b>Physical Restoration:</b> {ira("rehab_plan")}
+                      </p>
+                    ) : null}
+                    {ira("aesthetic_plan") ? (
+                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+                        <b>Aesthetics:</b> {ira("aesthetic_plan")}
+                      </p>
+                    ) : null}
+                    {ira("treatment_notes") ? (
+                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+                        <b>Notes:</b> {ira("treatment_notes")}
+                      </p>
+                    ) : null}
+                  </Card>
+                </div>
+              )}
+
+              {/* 7. Initiation plan */}
+              <div>
+                <SectionHeader no={7} title="Treatment Initiation & Maintainance Plan" sub="(To Begin After Today)" />
+                <Card className="mt-2 space-y-3">
+                  <div>
+                    <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
+                      A. MEDICATION &amp; TARGETED SUPPLEMENTATION
+                    </p>
+                    <RxTable
+                      columns={[
+                        { key: "product", label: "Medication / Supplement" },
+                        { key: "dose", label: "Dose" },
+                        { key: "timing", label: "Timing" },
+                        { key: "duration", label: "Duration" },
+                      ]}
+                      rows={supplements}
+                    />
                   </div>
-                  <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
-                    <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
-                      B. CLINICAL IMPRESSION
+                  <div>
+                    <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
+                      B. INFUSION / INJECTABLES <span className="font-normal">(Scheduled at Clinic)</span>
                     </p>
-                    <p className="text-[10.5px] italic leading-4" style={{ color: "#28342F" }}>
-                      {fp("clinical_impression") || fp("diagnosis") || "—"}
-                    </p>
+                    <RxTable
+                      columns={[
+                        { key: "therapy", label: "Therapy" },
+                        // { key: "dose", label: "Dose" },
+                        { key: "schedule", label: "Schedule" },
+                        { key: "comments", label: "Comments" },
+                      ]}
+                      rows={infusions}
+                    />
                   </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-
-          {/* ── RIGHT COLUMN ── */}
-          <div className="space-y-4">
-            
-
-            {/* 6. Investigations ordered */}
-            <div>
-              <SectionHeader no={5} title="Investigations Ordered" />
-              <Card className="mt-2">
-                {(() => {
-                  const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
-                  if (groups.length === 0)
-                    return <p className="text-[11px]" style={{ color: "#98A2B3" }}>No investigations ordered.</p>
-                  return (
-                    <div className="grid grid-cols-2 gap-3">
-                      {groups.map(({ panel, tests }) => (
-                        <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
-                          <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
-                            {panel.name}
-                          </p>
-                          <ul className="space-y-0.5">
-                            {tests.map((t) => (
-                              <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
-                                <span style={{ color: GOLD }}>•</span>
-                                <span>{t}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                })()}
-                <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
-                  🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
-                  {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
-                  {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
-                </p>
-                {ts("test_notes") ? (
-                  <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
-                    {ts("test_notes")}
-                  </p>
-                ) : null}
-              </Card>
-            </div>
-
-            {/* 7. Initiation plan */}
-            <div>
-              <SectionHeader no={6} title="Treatment Initiation & Maintainance Plan" sub="(To Begin After Today)" />
-              <Card className="mt-2 space-y-3">
-                <div>
-                  <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    A. MEDICATION &amp; TARGETED SUPPLEMENTATION
-                  </p>
-                  <RxTable
-                    columns={[
-                      { key: "product", label: "Medication / Supplement" },
-                      { key: "dose", label: "Dose" },
-                      { key: "timing", label: "Timing" },
-                      { key: "duration", label: "Duration" },
-                    ]}
-                    rows={supplements}
-                  />
-                </div>
-                <div>
-                  <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
-                    B. INFUSION / INJECTABLES <span className="font-normal">(Scheduled at Clinic)</span>
-                  </p>
-                  <RxTable
-                    columns={[
-                      { key: "therapy", label: "Therapy" },
-                      // { key: "dose", label: "Dose" },
-                      { key: "schedule", label: "Schedule" },
-                      { key: "comments", label: "Comments" },
-                    ]}
-                    rows={infusions}
-                  />
-                </div>
-              </Card>
-            </div>
-
-          </div>
-        </div>
-
-        {/* 8. Follow-up + signature */}
-        <div className="px-6 mt-4" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
-          <div>
-            <SectionHeader no={7} title="Follow-up & Next Steps" />
-            <Card className="mt-2">
-              <div className="grid grid-cols-[200px_1fr] gap-4">
-                <div>
-                  {/* <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
-                    Review Lab Reports On:
-                  </p> */}
-                  <p className="text-[10.5px] font-semibold mt-1" style={{ color: "#28342F" }}>
-                    📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh, MD | F.A.A.R.M"}
-                  </p>
-                  <p className="text-[10.5px] font-bold" style={{ color: GREEN }}>
-                    {fmtDate(fp("follow_up_date"))}{" "}
-                    <span className="font-normal" style={{ color: "#3D4A45" }}>
-                      (To access lab reports go to the lab management icon on your dashboard)
-                    </span>
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
-                    Follow-up Notes:
-                  </p>
-                  <Bullets text={fp("follow_up_notes")} checks />
-                </div>
+                </Card>
               </div>
+            </div>
+          </div>
+
+          {/* 8. Follow-up + signature */}
+          <div className="px-6 mt-4" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
+            <div>
+              <SectionHeader no={8} title="Follow-up & Next Steps" />
+              <Card className="mt-2">
+                <div className="grid grid-cols-[200px_1fr] gap-4">
+                  <div>
+                    {/* <p className="text-[10.5px] font-bold" style={{ color: "#28342F" }}>
+                      Review Lab Reports On:
+                    </p> */}
+                    <p className="text-[10.5px] font-semibold mt-1" style={{ color: "#28342F" }}>
+                      📅 {fp("follow_up_with") || "Dr. Yuvraaj Singh, MD | F.A.A.R.M"}
+                    </p>
+                    <p className="text-[10.5px] font-bold" style={{ color: GREEN }}>
+                      {fmtDate(fp("follow_up_date"))}{" "}
+                      <span className="font-normal" style={{ color: "#3D4A45" }}><br />
+                        (To access lab reports go to the lab management icon on your dashboard)
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10.5px] font-bold mb-1" style={{ color: "#28342F" }}>
+                      Follow-up Notes:
+                    </p>
+                    <Bullets text={fp("follow_up_notes")} checks />
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <Card className="self-end text-center py-3">
+              <p className="text-[24px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
+                <br />
+              </p>
+              <div className="border-t mx-4 my-1.5" style={{ borderColor: "#D8D2C2" }} />
+              <p className="text-[11px] font-bold" style={{ color: "#161D1A" }}>
+                Dr. Yuvraaj Singh, MD | F.A.A.R.M
+              </p>
+              <p className="text-[8.5px]" style={{ color: "#3D4A45" }}>
+                Internal Medicine | Critical Care <br /> Advanced Training in Hormonal, Metabolic and Regenerative Medicine, USA
+              </p>
             </Card>
           </div>
 
-          <Card className="self-end text-center py-3">
-            <p className="text-[24px] leading-7" style={{ fontFamily: "'serif'", color: "#161D1A" }}>
-              <br />
-            </p>
-            <div className="border-t mx-4 my-1.5" style={{ borderColor: "#D8D2C2" }} />
-            <p className="text-[11px] font-bold" style={{ color: "#161D1A" }}>
-              Dr. Yuvraaj Singh, MD and F.A.A.R.M
-            </p>
-            <p className="text-[8.5px]" style={{ color: "#3D4A45" }}>
-              Internal Medicine | Critical Care <br /> Advanced Training in Hormonal, Metabolic and Regenerative Medicine, USA
-              <br />
-              
-              
-            </p>
-          </Card>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-4 text-white text-[9.5px]" style={{ background: "#161D1A" }}>
-          <div className="flex items-center justify-between gap-4 px-6 py-3 flex-wrap">
-            <span>📞 {CLINIC.phone}</span>
-            <span>🌐 {CLINIC.website}</span>
-            <span>✉️ {CLINIC.email}</span>
-            <span>📍 {CLINIC.address}</span>
+          {/* Footer */}
+          <div className="mt-4 text-white text-[9.5px]" style={{ background: "#161D1A" }}>
+            <div className="flex items-center justify-between gap-4 px-6 py-3 flex-wrap">
+              <span>📞 {CLINIC.phone}</span>
+              <span>🌐 {CLINIC.website}</span>
+              <span>✉️ {CLINIC.email}</span>
+              <span>📍 {CLINIC.address}</span>
+            </div>
           </div>
-          
         </div>
-      </div>
       </div>
 
       {/* Print rules: show only the sheet, keep colors */}
