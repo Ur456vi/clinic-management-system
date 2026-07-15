@@ -24,6 +24,10 @@ import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { DOCUMENT_PREFIX, nextDocumentNumber } from "@/lib/services/document-number"
 import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
 import { materializeLabOrdersFromConsultation } from "@/lib/services/lab-result"
+import {
+  createOutboundLabOrders,
+  enqueueOutboundSend,
+} from "@/lib/services/partner-lab"
 import { rolesFor } from "@/lib/rbac"
 import {
   ALLOWED_STATUS_TRANSITIONS,
@@ -408,7 +412,10 @@ export async function transitionConsultation(
   input: TransitionConsultationInput,
   actor: { userId: string; role: Role },
 ): Promise<ConsultationWithRelations> {
-  return db.$transaction(async (tx) => {
+  // Ids of any partner-lab orders created on this sign — sent to the lab in the
+  // background AFTER the transaction commits (see enqueueOutboundSend below).
+  let outboundOrderIds: string[] = []
+  const result = await db.$transaction(async (tx) => {
     const before = await tx.consultation.findUnique({
       where: { id },
       select: { id: true, status: true, type: true, patientId: true },
@@ -478,6 +485,13 @@ export async function transitionConsultation(
         orderedAt: signedAt ?? new Date(),
         orderingDoctorId: signer?.staff?.id ?? null,
       })
+      // Create partner-lab orders for the same panels (sent after commit).
+      outboundOrderIds = await createOutboundLabOrders(tx, {
+        consultationId: after.id,
+        patientId: before.patientId,
+        sections: after.sections,
+        orderedAt: signedAt ?? new Date(),
+      })
     }
 
     await recordAudit(
@@ -490,6 +504,7 @@ export async function transitionConsultation(
           transition: { from: before.status, to: after.status },
           notes: input.notes ?? null,
           labOrdersCreated,
+          outboundOrdersCreated: outboundOrderIds.length,
         },
       },
       { tx },
@@ -497,6 +512,11 @@ export async function transitionConsultation(
 
     return after
   })
+
+  // Post-commit: push the new orders to the partner lab in the background so a
+  // slow/failing lab never blocks (or rolls back) the sign.
+  enqueueOutboundSend(outboundOrderIds)
+  return result
 }
 
 // ---------------------------------------------------------------------------

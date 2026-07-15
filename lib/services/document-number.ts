@@ -26,6 +26,9 @@ export const DOCUMENT_PREFIX = {
   patient: "IPHMH",
   invoice: "IPHMH-INV",
   prescription: "IPHMH-PRESC",
+  /// Partner-lab order number (see lib/services/partner-lab.ts). Minted by the
+  /// future outbound order-creation flow; echoed back on inbound webhooks.
+  partnerLabOrder: "IPHMH-LAB",
 } as const
 
 /** First serial assigned in a fiscal year (numbers start at 0100, not 0/1). */

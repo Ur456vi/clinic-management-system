@@ -341,6 +341,7 @@ model Patient {
   /// One row per attempt — retakes are stored as fresh rows so the doctor
   /// can compare scores over time.
   assessmentSubmissions AssessmentSubmission[]
+  partnerLabOrders      PartnerLabOrder[]
 
   @@index([status])
   @@index([primaryDoctorId])
@@ -427,8 +428,9 @@ model Consultation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  labResults LabResult[]
-  infusions  InfusionLog[]
+  labResults       LabResult[]
+  infusions        InfusionLog[]
+  partnerLabOrders PartnerLabOrder[]
 
   /// Back-relation for the appointment this consultation was started from
   /// (see Appointment.consultationId). Optional — a consultation can also
@@ -846,8 +848,11 @@ model LabResult {
   /// All report files attached to this lab — one row per uploaded PDF/image.
   attachments LabResultAttachment[]
 
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
+  /// Partner-lab orders whose primary result feeds this row (inbound webhook).
+  partnerLabOrders PartnerLabOrder[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([patientId, collectedAt])
   @@index([consultationId])
@@ -881,6 +886,150 @@ model LabResultAttachment {
 }
 
 // ===========================================================================
+// Partner-lab integration (inbound webhook)
+// ===========================================================================
+//
+// Dr Yuvraaj prescribes tests that are fulfilled by an external partner lab
+// running Salesforce. Our system creates an order (identified by a unique,
+// self-generated `orderNumber`) and the lab pushes status/result updates back
+// to `POST /api/webhooks/partner-lab`. `PartnerLabOrder` is the match target
+// for those inbound events; `LabWebhookEvent` is the raw-payload inbox that
+// gives us idempotency + a durable record of every delivery.
+//
+// NOTE: the OUTBOUND order-creation flow (calling the lab's Salesforce APIs
+// when a consultation is signed) is a later step — for now these rows are
+// seeded by that future flow or by tests.
+
+/// Lifecycle of a partner-lab order, advanced by inbound webhook events.
+enum PartnerLabOrderStatus {
+  CREATED
+  ACKNOWLEDGED
+  SAMPLE_COLLECTED
+  IN_PROGRESS
+  RESULT_READY
+  CANCELLED
+  FAILED
+}
+
+/// Processing state of a single inbound webhook delivery.
+enum LabWebhookStatus {
+  RECEIVED
+  PROCESSED
+  UNMATCHED
+  FAILED
+}
+
+/// One lab order placed with the partner lab. Keyed by our own unique
+/// `orderNumber` (format `IPHMH-LAB/26-27/06-0100`, minted via
+/// lib/services/document-number.ts) — that is the value the lab echoes back on
+/// every webhook so we can match an event to a patient.
+model PartnerLabOrder {
+  id          String @id @default(uuid()) @db.Uuid
+  /// Our unique order number — the match key on inbound webhooks.
+  orderNumber String @unique @map("order_number")
+
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// The consultation that prescribed the tests (optional — an order can be
+  /// created outside a signed consultation).
+  consultationId String?       @map("consultation_id") @db.Uuid
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+
+  /// The primary LabResult panel row this order's result feeds into. Nullable
+  /// until the ordering flow links one; the RESULT_READY webhook stamps it.
+  labResultId String?    @map("lab_result_id") @db.Uuid
+  labResult   LabResult? @relation(fields: [labResultId], references: [id], onDelete: SetNull)
+
+  /// The lab's own Salesforce order id, learned from the first webhook that
+  /// carries it. Nullable until then.
+  externalOrderId String? @map("external_order_id")
+
+  status PartnerLabOrderStatus @default(CREATED)
+
+  /// Snapshot of the outbound request payload we sent the lab (audit/debug).
+  requestSnapshot Json? @map("request_snapshot")
+
+  /// Timestamp of the most-recent webhook event applied to this order.
+  lastEventAt DateTime? @map("last_event_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  webhookEvents LabWebhookEvent[]
+
+  @@index([patientId])
+  @@index([status])
+  @@map("partner_lab_orders")
+}
+
+/// Raw inbox for every inbound partner-lab webhook delivery. We persist the
+/// full body verbatim (`rawPayload`) before/while acting on it so replays are
+/// idempotent (`dedupeKey`) and every delivery is auditable even when it does
+/// not match a known order.
+model LabWebhookEvent {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// The order number extracted from the payload (null if the body omitted it).
+  orderNumber String? @map("order_number")
+  /// The event/status string the lab sent (null if absent).
+  eventType   String? @map("event_type")
+
+  /// Idempotency key — a lab-supplied event id when present, else a sha256 of
+  /// the raw body. Unique so a re-delivered event is processed exactly once.
+  dedupeKey String? @unique @map("dedupe_key")
+
+  /// The full request body, exactly as received.
+  rawPayload Json @map("raw_payload")
+
+  /// Whether the shared-token check passed (always true for stored rows today,
+  /// kept explicit for future auth changes).
+  signatureOk Boolean @default(false) @map("signature_ok")
+
+  status  LabWebhookStatus @default(RECEIVED)
+  matched Boolean          @default(false)
+
+  partnerLabOrderId String?          @map("partner_lab_order_id") @db.Uuid
+  partnerLabOrder   PartnerLabOrder? @relation(fields: [partnerLabOrderId], references: [id], onDelete: SetNull)
+
+  /// Populated when processing failed (status = FAILED).
+  error String?
+
+  receivedAt  DateTime  @default(now()) @map("received_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@index([orderNumber])
+  @@index([status])
+  @@map("lab_webhook_events")
+}
+
+/// Maps one of our catalog tests (identified by `testKey` = `panelId::testName`,
+/// see lib/test-catalog.ts) to the partner lab's own `testId` / `testName`. The
+/// outbound order flow builds `order.items[]` from these rows; an unmapped test
+/// is carried on the order snapshot but sent no item until a mapping exists.
+/// Editable data (seed via script/Studio) so mapping changes need no deploy.
+model LabTestMapping {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Our stable test identity: `testKey(panelId, testName)`.
+  testKey String @unique @map("test_key")
+  /// Our display name for the test (for humans reading the table).
+  testName String @map("test_name")
+
+  /// The partner lab's identifiers, echoed into `order.items[]`.
+  labTestId   String @map("lab_test_id")
+  labTestName String @map("lab_test_name")
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active])
+  @@map("lab_test_mappings")
+}
+
+// ===========================================================================
 // Clinical Summary — per-patient summary documents uploaded by the doctor / RMO
 // ===========================================================================
 //
@@ -898,11 +1047,11 @@ model ClinicalSummary {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// Short human label for the entry, e.g. "Follow-up visit summary".
-  title String
+  title       String
   /// The clinical date the summary describes (the visit/appointment day).
   summaryDate DateTime @map("summary_date")
   /// Optional free-text note shown alongside the files.
-  notes String?
+  notes       String?
 
   /// Staff/RMO user who created the entry. Nullable so the row survives a
   /// user deletion (consistent with TreatmentPlan.createdBy / Vital.recordedBy).
@@ -935,10 +1084,10 @@ model ClinicalSummaryFile {
   attachmentKey  String  @map("attachment_key")
   attachmentMime String? @map("attachment_mime")
   /// Original filename, for display + download disposition.
-  filename     String?
-  sizeBytes    Int?    @map("size_bytes")
+  filename       String?
+  sizeBytes      Int?    @map("size_bytes")
   /// User who uploaded (staff id); null when unknown.
-  uploadedById String? @map("uploaded_by_id") @db.Uuid
+  uploadedById   String? @map("uploaded_by_id") @db.Uuid
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -952,7 +1101,6 @@ model ClinicalSummaryFile {
  * orders + lifecycle transitions): this is the simple front-desk record the
  * clinic captures per session — a name, the day, start/end clock times, whether
  * the session was eventful (a reaction occurred) or uneventful, and a note.
- *
  * `startTime` / `endTime` are stored as free-text clock labels (e.g. "12:00 Pm")
  * exactly as entered, matching the form; the calendar day lives in `date`.
  */
@@ -962,16 +1110,16 @@ model Infusion {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// Short human label for the session, e.g. "Myers' Cocktail".
-  name String
+  name      String
   /// The calendar day the session took place.
-  date DateTime @map("date")
+  date      DateTime @map("date")
   /// Free-text clock labels as entered on the form (e.g. "12:00 Pm").
-  startTime String? @map("start_time")
-  endTime   String? @map("end_time")
+  startTime String?  @map("start_time")
+  endTime   String?  @map("end_time")
   /// True when the session was eventful (a reaction occurred); false = uneventful.
-  eventful Boolean @default(false)
+  eventful  Boolean  @default(false)
   /// Optional free-text note.
-  note String? @db.Text
+  note      String?  @db.Text
 
   /// Optional single summary file for the session (PDF / DOCX / image / Excel),
   /// stored in the private `phi` bucket. `summaryKey` is the S3 object key; the
@@ -1003,13 +1151,13 @@ model VitalAssessment {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// The date the assessment was taken.
-  assessedAt DateTime @map("assessed_at")
+  assessedAt   DateTime @map("assessed_at")
   /// Free-text consultant name as entered on the sheet.
-  consultant String?
+  consultant   String?
   /// Map of fieldKey -> value string (only filled rows are stored).
-  measurements Json @default("{}")
+  measurements Json     @default("{}")
   /// Optional free-text note.
-  note String? @db.Text
+  note         String?  @db.Text
 
   /// Staff/RMO user who recorded the entry. Nullable so the row survives a
   /// user deletion (consistent with Infusion.createdBy).
