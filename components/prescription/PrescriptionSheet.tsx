@@ -456,40 +456,30 @@ export default function PrescriptionSheet({
               </div>
 
               {/* 5. Nutrition plan */}
-              {ira("nutrition_plan") && (
-                <div>
-                  <SectionHeader no={5} title="Nutrition Plan" />
-                  <Card className="mt-2 space-y-2">
-                    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                      <b>Nutrition Plan:</b> {ira("nutrition_plan")}
-                    </p>
-                  </Card>
-                </div>
-              )}
+              <div>
+  <SectionHeader no={5} title="Nutrition Plan" />
+  <Card className="mt-2 space-y-2">
+    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+      <b>Nutrition Plan:</b> {ira("nutrition_plan") || "—"}
+    </p>
+  </Card>
+</div>
 
               {/* 6. Treatment planning (rehab / aesthetic notes) */}
-              {(ira("rehab_plan") || ira("aesthetic_plan") || ira("treatment_notes")) && (
-                <div>
-                  <SectionHeader no={6} title="Physical Restoration & Aesthetics Plan" />
-                  <Card className="mt-2 space-y-2">
-                    {ira("rehab_plan") ? (
-                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                        <b>Physical Restoration:</b> {ira("rehab_plan")}
-                      </p>
-                    ) : null}
-                    {ira("aesthetic_plan") ? (
-                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                        <b>Aesthetics:</b> {ira("aesthetic_plan")}
-                      </p>
-                    ) : null}
-                    {ira("treatment_notes") ? (
-                      <p className="text-[10.5px]" style={{ color: "#28342F" }}>
-                        <b>Notes:</b> {ira("treatment_notes")}
-                      </p>
-                    ) : null}
-                  </Card>
-                </div>
-              )}
+              <div>
+  <SectionHeader no={6} title="Physical Restoration & Aesthetics Plan" />
+  <Card className="mt-2 space-y-2">
+    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+      <b>Physical Restoration:</b> {ira("rehab_plan") || "—"}
+    </p>
+    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+      <b>Aesthetics:</b> {ira("aesthetic_plan") || "—"}
+    </p>
+    <p className="text-[10.5px]" style={{ color: "#28342F" }}>
+      <b>Notes:</b> {ira("treatment_notes") || "—"}
+    </p>
+  </Card>
+</div>
 
               {/* 7. Initiation plan */}
               <div>

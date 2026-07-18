@@ -185,6 +185,17 @@ export default function HomeContent() {
         <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-stretch md:grid-cols-2">
           {/* Left column */}
           <div className="flex flex-col justify-center px-6 pt-14 pb-20 md:px-12 md:pt-20 md:pb-28">
+            <p style={{ marginBottom: "20px" }}>
+  <span
+    style={{
+      color: "var(--brand-burgundy)",
+      fontStyle: "italic",
+      fontFamily: "var(--font-display)",
+    }}
+  >
+    First Time in India
+  </span>
+</p>
             <h1
               className="font-medium leading-[1.05]"
               style={{
@@ -198,6 +209,7 @@ export default function HomeContent() {
                 Refuse to Normalize Decline
               </span>
             </h1>
+            
             <p
               className="mt-6 max-w-xl text-base leading-relaxed"
               style={{ color: "var(--brand-ink-soft)" }}

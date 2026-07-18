@@ -26,7 +26,7 @@ export default function HelpPage() {
                 href="tel:+91 9266843439"
                 className="text-[#6B2B26] dark:text-[#A5B4FC] font-medium hover:underline"
               >
-                +91 99765 40310
+                +91 9266843439
               </a>
               .
             </p>
