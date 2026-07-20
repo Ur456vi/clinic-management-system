@@ -193,7 +193,7 @@ export default function HomeContent() {
       fontFamily: "var(--font-display)",
     }}
   >
-    First Time in India
+    For the first time in India
   </span>
 </p>
             <h1
