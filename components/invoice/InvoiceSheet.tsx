@@ -116,7 +116,7 @@ export default function InvoiceSheet({
               </div>
               <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
-                <p>ADVANCED TRAINING IN HORMONAL,<br />METABOLIC & REGENERATIVE<br />MEDICINE, USA</p>
+                <p>ADVANCED TRAINING IN HORMONAL,<br />METABOLIC AND REGENERATIVE<br />MEDICINE, USA</p>
               </div>
               {/* <div className="flex items-start gap-3">
                 <div className="text-[#a98b63] shrink-0 mt-[2px]"><Plus className="w-3.5 h-3.5" strokeWidth={1.5} /></div>
