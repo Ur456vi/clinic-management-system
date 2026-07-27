@@ -377,83 +377,79 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
 
-              {/* 3. Main consultation */}
-              <div>
-                <SectionHeader no={3} title="Consultation with Dr. Yuvraaj Singh" />
-                <Card className="mt-2 p-0 overflow-hidden">
-                  <div
-                    className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
-                    style={{ background: "#EFF3F8", borderColor: "#D8D2C2", color: "#28342F" }}
-                  >
-                    <span>📅 Consultation Date: {fmtDate(consultDate)}</span>
-                    <span>🕐 Duration: {pd("consultation_duration") ? `${pd("consultation_duration")} minutes` : "—"}</span>
-                  </div>
-                  <div className="p-4 space-y-3">
-                    <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
-                      <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
-                        A. ADDITIONAL HISTORY &amp; CLINICAL NOTES <span className="font-normal">(By Dr. Yuvraaj Singh)</span>
-                      </p>
-                      <Bullets text={pd("additional_clinical_notes") || pd("history_presenting")} />
-                    </div>
-                    <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
-                      <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
-                        B. CLINICAL IMPRESSION
-                      </p>
-                      <p className="text-[10.5px] italic leading-4" style={{ color: "#28342F" }}>
-                        {fp("clinical_impression") || fp("diagnosis") || "—"}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
+              {/* 3. Investigations ordered */}
+<div>
+  <SectionHeader no={3} title="Investigations Ordered" />
+  <Card className="mt-2">
+    {(() => {
+      const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
+      if (groups.length === 0)
+        return (
+          <p className="text-[11px]" style={{ color: "#98A2B3" }}>
+            No investigations ordered.
+          </p>
+        )
+      return (
+        <div className="grid grid-cols-2 gap-3">
+          {groups.map(({ panel, tests }) => (
+            <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
+              <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
+                {panel.name}
+              </p>
+              <ul className="space-y-0.5">
+                {tests.map((t) => (
+                  <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
+                    <span style={{ color: GOLD }}>•</span>
+                    <span>{t}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+        </div>
+      )
+    })()}
+    <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
+      🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
+      {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
+    </p>
+    {ts("test_notes") ? (
+      <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
+        {ts("test_notes")}
+      </p>
+    ) : null}
+  </Card>
+</div>
 
-            {/* ── RIGHT COLUMN : sections 4 – 7 ── */}
-            <div className="space-y-4">
-              {/* 4. Investigations ordered */}
-              <div>
-                <SectionHeader no={4} title="Investigations Ordered" />
-                <Card className="mt-2">
-                  {(() => {
-                    const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
-                    if (groups.length === 0)
-                      return (
-                        <p className="text-[11px]" style={{ color: "#98A2B3" }}>
-                          No investigations ordered.
-                        </p>
-                      )
-                    return (
-                      <div className="grid grid-cols-2 gap-3">
-                        {groups.map(({ panel, tests }) => (
-                          <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
-                            <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
-                              {panel.name}
-                            </p>
-                            <ul className="space-y-0.5">
-                              {tests.map((t) => (
-                                <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
-                                  <span style={{ color: GOLD }}>•</span>
-                                  <span>{t}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  })()}
-                  <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
-                    🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
-                    {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
-                    {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
-                  </p>
-                  {ts("test_notes") ? (
-                    <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
-                      {ts("test_notes")}
-                    </p>
-                  ) : null}
-                </Card>
-              </div>
+            {/* 4. Main consultation */}
+<div>
+  <SectionHeader no={4} title="Consultation with Dr. Yuvraaj Singh" />
+  <Card className="mt-2 p-0 overflow-hidden">
+    <div
+      className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
+      style={{ background: "#EFF3F8", borderColor: "#D8D2C2", color: "#28342F" }}
+    >
+      <span>📅 Consultation Date: {fmtDate(consultDate)}</span>
+      <span>🕐 Duration: {pd("consultation_duration") ? `${pd("consultation_duration")} minutes` : "—"}</span>
+    </div>
+    <div className="p-4 space-y-3">
+      <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
+        <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
+          A. ADDITIONAL HISTORY &amp; CLINICAL NOTES <span className="font-normal">(By Dr. Yuvraaj Singh)</span>
+        </p>
+        <Bullets text={pd("additional_clinical_notes") || pd("history_presenting")} />
+      </div>
+      <div className="border rounded-md p-3" style={{ borderColor: "#C9D6E4", background: "#F4F8FC" }}>
+        <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#1D3A57" }}>
+          B. CLINICAL IMPRESSION
+        </p>
+        <p className="text-[10.5px] italic leading-4" style={{ color: "#28342F" }}>
+          {fp("clinical_impression") || fp("diagnosis") || "—"}
+        </p>
+      </div>
+    </div>
+  </Card>
+</div>
 
               {/* 5. Nutrition plan */}
               <div>
