@@ -184,7 +184,7 @@ export default function PatientBookAppointmentPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">Book an appointment</h1>
           <p className="text-sm text-[#6C7688] dark:text-[#94A3B8] mt-1">
-  Select a preffered date and time slot for request your appointment.
+  Select a preferred date and time slot to request your appointment.
 </p>
         </div>
       </div>

@@ -622,13 +622,13 @@ export default function StartAppointmentConsultationPage() {
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
                             </div>
-                            <div className="flex flex-col gap-1.5">
+                            {/* <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Last Visit Date</label>
                               <input name="demographics__last_visit_date"
                                 type="date"
                                 className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] transition-all"
                               />
-                            </div>
+                            </div> */}
                             <div className="flex flex-col gap-1.5">
                               <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Referral Source</label>
                               <div className="relative">
@@ -1640,7 +1640,7 @@ export default function StartAppointmentConsultationPage() {
                               <div className="relative">
                                 <select name="personal_history__bladder_volume" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                   <option value="">Select volume</option>
-                                  <option value="Normal averages (200 - 400ml per urination">Normal averages (200 - 400ml per urination</option>
+                                  <option value="Normal averages (200 - 400ml per urination)">Normal averages (200 - 400ml per urination)</option>
                                   <option value="low volume">low volume</option>
                                   <option value="Large volume">Large volume</option>
                                 </select>
@@ -1959,6 +1959,7 @@ export default function StartAppointmentConsultationPage() {
                                     <option value="Protein">Protein</option>
                                     <option value="Fats">Fats</option>
                                     <option value="Carbs">Carbs</option>
+                                    <option value="Balanced Diet">Balanced Diet</option>
                                   </select>
                                   <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
@@ -2000,7 +2001,7 @@ export default function StartAppointmentConsultationPage() {
                                   <select name="personal_history__snacking" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__snacking"] || ""}>
                                     <option value="">Select...</option>
                                     <option value="No">No</option>
-                                    <option value="Yes points (Frequency / Midnight snacking)">Yes points (Frequency / Midnight snacking)</option>
+                                    <option value="Yes">Yes</option>
                                   </select>
                                   <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                 </div>
@@ -2409,7 +2410,7 @@ export default function StartAppointmentConsultationPage() {
                             <h4 className="text-sm font-semibold text-[#101828] dark:text-[#F9FAFB]">Brushing and Oral Hygiene</h4>
                             <div className="grid grid-cols-2 gap-6">
                               <div className="flex flex-col gap-1.5">
-                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. of times a day - 1-2 times</label>
+                                <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">No. of times a day</label>
                                 <input name="personal_history__hygiene_brushing_frequency" type="text" placeholder="Specify" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
                               </div>
                               <div className="flex flex-col gap-1.5">
@@ -2864,7 +2865,7 @@ export default function StartAppointmentConsultationPage() {
                                 <div className="relative">
                                   <select name="personal_history__mens_health_libido_vs_erection" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                     <option value="">Select option</option>
-                                    <option value="Normal - 10 points">Normal - 10 points</option>
+                                    <option value="Normal - 10 points">Normal</option>
                                     <option value="onset (sudden vs gradual) - Erectile difficulty">onset (sudden vs gradual) - Erectile difficulty</option>
                                     <option value="Low libido">Low libido</option>
                                     <option value="Premature ejaculation">Premature ejaculation</option>
@@ -3225,7 +3226,6 @@ export default function StartAppointmentConsultationPage() {
                                   <div className="flex flex-col gap-y-3">
                                     {[
                                       "Normal",
-                                      "Not Present",
                                       "Thrush",
                                       "Aphthous Ulcers",
                                       "Glossitis",
@@ -3577,6 +3577,10 @@ export default function StartAppointmentConsultationPage() {
                                 {/* Respiratory Rate */}
                                 <div className="flex flex-col gap-1.5">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Respiratory Rate</label>
+                                  <input name="personal_history__gpe_respiratory_rate" type="text" placeholder="Enter Respiratory Rate" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                {/* <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">Respiratory Rate</label>
                                   <div className="relative">
                                     <select name="personal_history__gpe_respiratory_rate" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                       <option value="">Select option</option>
@@ -3587,10 +3591,14 @@ export default function StartAppointmentConsultationPage() {
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
-                                </div>
+                                </div> */}
 
                                 {/* SpO2 */}
                                 <div className="flex flex-col gap-1.5">
+                                  <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">SpO2</label>
+                                  <input name="personal_history__gpe_spo2" type="text" placeholder="Enter SpO2" className="w-full h-11 px-4 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all" />
+                                </div>
+                                {/* <div className="flex flex-col gap-1.5">
                                   <label className="text-sm font-medium text-[#344054] dark:text-[#CBD5E1]">SpO2</label>
                                   <div className="relative">
                                     <select name="personal_history__gpe_spo2" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
@@ -3601,7 +3609,7 @@ export default function StartAppointmentConsultationPage() {
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
-                                </div>
+                                </div> */}
 
                                 {/* Tongue */}
                                 <div className="flex flex-col gap-1.5">
