@@ -217,6 +217,8 @@ async function fetchLabResultEvents(args: {
       labName: true,
       summary: true,
       attachmentKey: true,
+      // Lets the UI group the panels of one order under a single row.
+      consultationId: true,
     },
   })
 
@@ -238,6 +240,7 @@ async function fetchLabResultEvents(args: {
         reportedAt: r.reportedAt ? r.reportedAt.toISOString() : null,
         labName: r.labName ?? null,
         hasAttachment: r.attachmentKey != null,
+        consultationId: r.consultationId,
       },
     }
   })

@@ -43,7 +43,23 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.UAT_EC2_HOST }} >> ~/.ssh/known_hosts
+
+          # ssh-keyscan silently exits 1 when the host accepts TCP but never
+          # sends a banner (wedged instance: OOM, full disk, pegged CPU).
+          # Retry, then fail with a message that says what actually happened.
+          for i in 1 2 3; do
+            if ssh-keyscan -T 15 -H ${{ secrets.UAT_EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null; then
+              echo "Host key retrieved on attempt $i."
+              exit 0
+            fi
+            echo "ssh-keyscan attempt $i failed; retrying in 10s..."
+            sleep 10
+          done
+
+          echo "::error::UAT EC2 host did not return an SSH host key after 3 attempts."
+          echo "::error::The app build succeeded — this is a server problem, not a code problem."
+          echo "::error::Check the instance in the AWS console: EC2 status checks, then df -h / free -m / pm2 logs."
+          exit 1
 
       - name: Prepare deployment directory on EC2
         run: |

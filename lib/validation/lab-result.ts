@@ -129,6 +129,14 @@ export const attachLabResultBodySchema = z.object({
   sizeBytes: z.number().int().nonnegative().max(25 * 1024 * 1024).optional(),
   /** Original filename for display + download disposition. */
   filename: z.string().trim().min(1).max(255).optional(),
+  /**
+   * Other tests on the SAME patient that this one file also covers. Labs
+   * routinely return a single consolidated PDF for every panel ordered on a
+   * visit ("(A) ROUTINE", "(B) MALE HORMONAL", ...), so the object is uploaded
+   * once and linked to each row instead of re-uploaded per row. The service
+   * rejects ids belonging to another patient.
+   */
+  applyToLabResultIds: z.array(uuid).max(20).optional(),
 })
 
 export type AttachLabResultBody = z.infer<typeof attachLabResultBodySchema>

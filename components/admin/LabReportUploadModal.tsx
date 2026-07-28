@@ -8,6 +8,11 @@
  * staff/reception add more (multi-select, PDF, 25 MB each via the presigned
  * BE-19 flow), view any one, and delete individual files.
  *
+ * Labs send back ONE consolidated PDF covering every panel ordered on a visit,
+ * so `siblings` (the patient's other tests) can be ticked at upload time: the
+ * file is uploaded once and linked to each ticked test, instead of the same
+ * PDF being re-uploaded per row.
+ *
  *   - list   GET    /api/lab-results/:id/attachments
  *   - add    POST   /api/files/upload-url → PUT <s3> → PUT /api/lab-results/:id/attachment
  *   - view   GET    /api/lab-results/:id/attachments/:fileId
@@ -36,6 +41,13 @@ type ReportFile = {
   uploadedAt: string
 }
 
+/** Another test on the same patient the uploaded file can also cover. */
+export type SiblingTest = {
+  id: string
+  name: string
+  hasReport: boolean
+}
+
 function fmtDate(value: string): string {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return "—"
@@ -50,11 +62,17 @@ function fmtSize(bytes: number | null): string {
 export default function LabReportUploadModal({
   labResultId,
   labName,
+  siblings = [],
+  initialApplyTo,
   onClose,
   onUploaded,
 }: {
   labResultId: string
   labName: string
+  /** The patient's other tests, offered as "also attach to" targets. */
+  siblings?: SiblingTest[]
+  /** Sibling ids ticked on open — the rest of the lab order, when opened there. */
+  initialApplyTo?: string[]
   /** Unused — kept for call-site compatibility. */
   hasReport?: boolean
   onClose: () => void
@@ -63,6 +81,8 @@ export default function LabReportUploadModal({
   const [files, setFiles] = useState<ReportFile[] | null>(null)
   const [uploading, setUploading] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
+  /** Sibling tests this upload should also be linked to. */
+  const [applyTo, setApplyTo] = useState<string[]>(() => initialApplyTo ?? [])
 
   const load = useCallback(async () => {
     try {
@@ -114,7 +134,8 @@ export default function LabReportUploadModal({
       })
       if (!put.ok) throw new Error("Upload to storage failed")
 
-      // 3. Link the object to the lab result (appends a file).
+      // 3. Link the object to this lab result — and to any ticked siblings,
+      //    reusing the same S3 key rather than re-uploading the PDF per test.
       const attach = await fetch(`/api/lab-results/${labResultId}/attachment`, {
         method: "PUT",
         credentials: "include",
@@ -124,6 +145,7 @@ export default function LabReportUploadModal({
           contentType: "application/pdf",
           sizeBytes: file.size,
           filename: file.name,
+          ...(applyTo.length > 0 ? { applyToLabResultIds: applyTo } : {}),
         }),
       })
       if (!attach.ok) {
@@ -131,7 +153,7 @@ export default function LabReportUploadModal({
         throw new Error(j?.error?.message ?? "Couldn't link the report")
       }
     },
-    [labResultId],
+    [labResultId, applyTo],
   )
 
   const onPick = useCallback(
@@ -154,7 +176,13 @@ export default function LabReportUploadModal({
         }
       }
       setUploading(false)
-      if (ok > 0) notify.success(`${ok} file${ok === 1 ? "" : "s"} uploaded`)
+      if (ok > 0) {
+        const tests = applyTo.length + 1
+        notify.success(
+          `${ok} file${ok === 1 ? "" : "s"} uploaded` +
+            (applyTo.length > 0 ? ` · linked to ${tests} tests` : ""),
+        )
+      }
       if (failures > 0) {
         notify.error(`${failures} file${failures === 1 ? "" : "s"} failed`, {
           description: "PDF only, max 25 MB each.",
@@ -163,8 +191,16 @@ export default function LabReportUploadModal({
       await load()
       onUploaded()
     },
-    [uploading, uploadOne, load, onUploaded],
+    [uploading, uploadOne, load, onUploaded, applyTo],
   )
+
+  const toggleSibling = useCallback((sid: string) => {
+    setApplyTo((prev) =>
+      prev.includes(sid) ? prev.filter((x) => x !== sid) : [...prev, sid],
+    )
+  }, [])
+
+  const allSelected = siblings.length > 0 && applyTo.length === siblings.length
 
   const viewFile = useCallback(
     async (fileId: string) => {
@@ -279,6 +315,52 @@ export default function LabReportUploadModal({
             ))
           )}
         </div>
+
+        {siblings.length > 0 ? (
+          <div className="rounded-xl border border-[#EAECF0] dark:border-[#374151] px-3 py-2.5 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-semibold text-[#101828] dark:text-[#F9FAFB]">
+                Also attach to
+              </p>
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() =>
+                  setApplyTo(allSelected ? [] : siblings.map((s) => s.id))
+                }
+                className="text-xs font-semibold text-[#2E37A4] dark:text-[#A5B4FC] hover:underline disabled:opacity-50"
+              >
+                {allSelected ? "Clear" : "Select all"}
+              </button>
+            </div>
+            <p className="text-[11px] text-[#98A2B3]">
+              One combined lab PDF? Tick the other tests it covers — it uploads
+              once and is linked to each.
+            </p>
+            <div className="flex flex-col gap-1.5 max-h-32 overflow-y-auto">
+              {siblings.map((s) => (
+                <label
+                  key={s.id}
+                  className="flex items-center gap-2 text-sm text-[#344054] dark:text-[#D1D5DB] cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={applyTo.includes(s.id)}
+                    disabled={uploading}
+                    onChange={() => toggleSibling(s.id)}
+                    className="h-3.5 w-3.5 flex-shrink-0 rounded border-[#D0D5DD]"
+                  />
+                  <span className="truncate">{s.name}</span>
+                  {s.hasReport ? (
+                    <span className="text-[10px] font-semibold text-[#0E8C6A] flex-shrink-0">
+                      has report
+                    </span>
+                  ) : null}
+                </label>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <label
           className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl py-6 px-4 cursor-pointer text-center"

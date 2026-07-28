@@ -654,6 +654,22 @@ export async function syncAttachmentMirror(
   })
 }
 
+/**
+ * Attach one uploaded object to the row — and, when
+ * `payload.applyToLabResultIds` is present, to those sibling rows too.
+ *
+ * A lab hands back ONE consolidated PDF for every panel ordered on a visit,
+ * while we keep one `LabResult` per panel (see
+ * `materializeLabOrdersFromConsultation`). Rather than make staff re-upload the
+ * same file per panel — four objects, four chances to miss one and leave a row
+ * stuck on "Active" — the client uploads once and lists the panels it covers.
+ * Each target gets its own `LabResultAttachment` row pointing at the SAME S3
+ * key. Deleting a file only removes that row (we never issue DeleteObject, see
+ * `detachFromLabResult`), so siblings keep working.
+ *
+ * Siblings are constrained to the primary row's patient: linking a report
+ * across charts would leak PHI.
+ */
 export async function attachToLabResult(
   id: string,
   payload: AttachLabResultBody,
@@ -665,55 +681,88 @@ export async function attachToLabResult(
     )
   }
 
+  const requestedSiblingIds = [
+    ...new Set(payload.applyToLabResultIds ?? []),
+  ].filter((sid) => sid !== id)
+
   return db.$transaction(async (tx) => {
     const before = await tx.labResult.findUnique({
       where: { id },
-      select: { id: true, reportedAt: true },
+      select: { id: true, reportedAt: true, patientId: true },
     })
     if (!before) throw new NotFoundError("Lab result not found")
 
-    // Migrate any legacy single file into the table first, then ADD this one.
-    await backfillLegacyAttachment(tx, id)
+    // Same-patient gate: anything else is a chart-crossing link, not a typo.
+    let siblings: { id: string; reportedAt: Date | null }[] = []
+    if (requestedSiblingIds.length > 0) {
+      siblings = await tx.labResult.findMany({
+        where: { id: { in: requestedSiblingIds }, patientId: before.patientId },
+        select: { id: true, reportedAt: true },
+      })
+      if (siblings.length !== requestedSiblingIds.length) {
+        throw new NotFoundError(
+          "One or more selected tests do not belong to this patient",
+        )
+      }
+    }
 
+    const targets = [
+      { id: before.id, reportedAt: before.reportedAt },
+      ...siblings,
+    ]
     const now = new Date()
-    await tx.labResultAttachment.create({
-      data: {
-        labResultId: id,
-        attachmentKey: payload.key,
-        attachmentMime: payload.contentType ?? null,
-        filename: payload.filename ?? null,
-        sizeBytes: payload.sizeBytes ?? null,
-        uploadedById: actor.userId,
-      },
-    })
+    let after: LabResultWithRelations | null = null
 
-    // Mirror this (newest) file onto the row + stamp reportedAt on the first.
-    const after = await tx.labResult.update({
-      where: { id },
-      data: {
-        attachmentKey: payload.key,
-        attachmentMime: payload.contentType ?? null,
-        attachmentUploadedAt: now,
-        ...(before.reportedAt == null ? { reportedAt: now } : {}),
-      },
-      include: LAB_RESULT_INCLUDE,
-    })
+    for (const target of targets) {
+      // Migrate any legacy single file into the table first, then ADD this one.
+      await backfillLegacyAttachment(tx, target.id)
 
-    await writeAudit(tx, {
-      actorUserId: actor.userId,
-      action: "UPDATE",
-      entityId: after.id,
-      detail: {
-        attachment: {
-          added: {
-            key: payload.key,
-            filename: payload.filename ?? null,
-            sizeBytes: payload.sizeBytes ?? null,
+      await tx.labResultAttachment.create({
+        data: {
+          labResultId: target.id,
+          attachmentKey: payload.key,
+          attachmentMime: payload.contentType ?? null,
+          filename: payload.filename ?? null,
+          sizeBytes: payload.sizeBytes ?? null,
+          uploadedById: actor.userId,
+        },
+      })
+
+      // Mirror this (newest) file onto the row + stamp reportedAt on the first.
+      const row = await tx.labResult.update({
+        where: { id: target.id },
+        data: {
+          attachmentKey: payload.key,
+          attachmentMime: payload.contentType ?? null,
+          attachmentUploadedAt: now,
+          ...(target.reportedAt == null ? { reportedAt: now } : {}),
+        },
+        include: LAB_RESULT_INCLUDE,
+      })
+      if (target.id === before.id) after = row
+
+      await writeAudit(tx, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityId: row.id,
+        detail: {
+          attachment: {
+            added: {
+              key: payload.key,
+              filename: payload.filename ?? null,
+              sizeBytes: payload.sizeBytes ?? null,
+              // Present when one file was linked to several tests at once.
+              ...(targets.length > 1
+                ? { sharedWithLabResultIds: targets.map((t) => t.id) }
+                : {}),
+            },
           },
         },
-      },
-    })
+      })
+    }
 
+    // `after` is always set — the primary row is the first target.
+    if (!after) throw new NotFoundError("Lab result not found")
     return after
   })
 }

@@ -15,7 +15,7 @@
  */
 
 import Link from "next/link"
-import { useCallback, useEffect, useMemo, useState, use } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useState, use } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowLeft,
@@ -40,6 +40,9 @@ import {
   MoreVertical,
   FileText,
   Trash2,
+  ChevronRight,
+  ChevronDown,
+  UploadCloud,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -263,7 +266,9 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [events, setEvents] = useState<TimelineEvent[]>([])
   const [openRefills, setOpenRefills] = useState(0)
   const [plan, setPlan] = useState<PlanApi | null | undefined>(undefined)
-  const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean } | null>(null)
+  const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean; preselect?: string[] } | null>(null)
+  /** Lab-order group keys currently expanded to show their panels. */
+  const [openLabGroups, setOpenLabGroups] = useState<string[]>([])
   const [summaries, setSummaries] = useState<ClinicalSummaryRow[] | null>(null)
   const [summaryModal, setSummaryModal] = useState<
     { mode: "create" } | { mode: "manage"; id: string; title: string } | null
@@ -563,6 +568,28 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     for (const e of events) g[e.type].push(e)
     return g
   }, [events])
+
+  // One consultation prescribes several panels — "(A) ROUTINE…", "(B) MALE
+  // HORMONAL…" — and each is its own LabResult row so a panel that comes back
+  // late (DUTCH urine, typically) can stay Active while the rest complete. The
+  // list groups them back into the ORDER the doctor placed: one parent row per
+  // consultation (standalone uploads fall back to their order date), panels
+  // underneath. Report state rolls up as done/total.
+  const labGroups = useMemo(() => {
+    const groups = new Map<string, { key: string; orderedOn: string; items: TimelineEvent[] }>()
+    for (const l of byType.labResult) {
+      const orderedOn = (typeof l.ref.collectedAt === "string" ? l.ref.collectedAt : null) ?? l.occurredAt
+      const consultationId = typeof l.ref.consultationId === "string" ? l.ref.consultationId : null
+      const key = consultationId ?? `date:${orderedOn.slice(0, 10)}`
+      const existing = groups.get(key)
+      if (existing) existing.items.push(l)
+      else groups.set(key, { key, orderedOn, items: [l] })
+    }
+    return [...groups.values()].map((g) => {
+      const done = g.items.filter((l) => l.ref.hasAttachment === true || !!l.ref.reportedAt).length
+      return { ...g, done, total: g.items.length }
+    })
+  }, [byType.labResult])
 
   // Derived "Prescribed Program" metrics from the active signed plan. Program
   // length comes from the longest item duration (falls back to 12 weeks when
@@ -1029,30 +1056,70 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-[#8A9A92]"><th className="text-left font-semibold py-2">Test</th><th className="text-left font-semibold py-2">Ordered On</th><th className="text-left font-semibold py-2">Status</th><th className="text-right font-semibold py-2">Report</th></tr></thead>
             <tbody>
-              {byType.labResult.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : byType.labResult.map((l) => {
-                const hasReport = l.ref.hasAttachment === true || !!l.ref.reportedAt
-                const orderedOn = (typeof l.ref.collectedAt === "string" ? l.ref.collectedAt : null) ?? l.occurredAt
+              {labGroups.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : labGroups.map((g) => {
+                const open = openLabGroups.includes(g.key)
+                const allDone = g.done === g.total
+                const [first, ...rest] = g.items
                 return (
-                  <tr key={l.id} style={{ borderTop: "1px solid #EFE8D8" }}>
-                    <td className="py-2.5">
-                      <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{(l.ref.panelName as string) || l.summary}</div>
-                      {/* {l.summary && l.summary !== l.ref.panelName ? (
-                        <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5">{l.summary}</div>
-                      ) : null} */}
-                    </td>
-                    <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(orderedOn)}</td>
-                    <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={hasReport ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{hasReport ? "Completed" : "Active"}</span></td>
-                    <td className="py-2.5">
-                      <div className="flex items-center justify-end gap-1">
-                        {hasReport ? (
-                          <button type="button" onClick={() => void viewLabReport(l.ref.id as string)} className="text-xs font-semibold hover:underline px-1.5" style={{ color: GREEN }}>View</button>
-                        ) : null}
-                        <button type="button" onClick={() => setUploadLab({ id: l.ref.id as string, name: (l.ref.panelName as string) || l.summary, hasReport })} aria-label="Report actions" className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#6B7B73] hover:bg-gray-100 dark:hover:bg-[#111827]">
-                          <MoreVertical className="h-4 w-4" />
+                  <Fragment key={g.key}>
+                    <tr style={{ borderTop: "1px solid #EFE8D8" }}>
+                      <td className="py-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setOpenLabGroups((prev) => prev.includes(g.key) ? prev.filter((k) => k !== g.key) : [...prev, g.key])}
+                          aria-expanded={open}
+                          className="flex items-center gap-1.5 text-left font-medium text-[#101828] dark:text-[#F9FAFB]"
+                        >
+                          {open ? <ChevronDown className="h-4 w-4 text-[#8A9A92]" /> : <ChevronRight className="h-4 w-4 text-[#8A9A92]" />}
+                          <span>Lab order</span>
+                          <span className="text-xs font-normal text-[#6B7B73] dark:text-[#94A3B8]">· {g.total} panel{g.total === 1 ? "" : "s"}</span>
                         </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(g.orderedOn)}</td>
+                      <td className="py-2.5"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={allDone ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{allDone ? "Completed" : g.done > 0 ? `Partial · ${g.done}/${g.total}` : "Active"}</span></td>
+                      <td className="py-2.5">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Group-level upload: the lab's one combined PDF, linked to every
+                              panel in the order (siblings arrive pre-ticked in the modal). */}
+                          <button
+                            type="button"
+                            onClick={() => setUploadLab({
+                              id: first.ref.id as string,
+                              name: `Lab order · ${fmtDate(g.orderedOn)}`,
+                              hasReport: first.ref.hasAttachment === true || !!first.ref.reportedAt,
+                              preselect: rest.map((l) => l.ref.id as string),
+                            })}
+                            className="inline-flex items-center gap-1 text-xs font-semibold hover:underline px-1.5"
+                            style={{ color: GREEN }}
+                          >
+                            <UploadCloud className="h-3.5 w-3.5" /> Report
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {open ? g.items.map((l) => {
+                      const hasReport = l.ref.hasAttachment === true || !!l.ref.reportedAt
+                      return (
+                        <tr key={l.id} style={{ borderTop: "1px solid #F5F0E4" }}>
+                          <td className="py-2 pl-7">
+                            <div className="text-sm text-[#344054] dark:text-[#D1D5DB]">{(l.ref.panelName as string) || l.summary}</div>
+                          </td>
+                          <td className="py-2" />
+                          <td className="py-2"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={hasReport ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}>{hasReport ? "Completed" : "Active"}</span></td>
+                          <td className="py-2">
+                            <div className="flex items-center justify-end gap-1">
+                              {hasReport ? (
+                                <button type="button" onClick={() => void viewLabReport(l.ref.id as string)} className="text-xs font-semibold hover:underline px-1.5" style={{ color: GREEN }}>View</button>
+                              ) : null}
+                              <button type="button" onClick={() => setUploadLab({ id: l.ref.id as string, name: (l.ref.panelName as string) || l.summary, hasReport })} aria-label="Report actions" className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-[#6B7B73] hover:bg-gray-100 dark:hover:bg-[#111827]">
+                                <MoreVertical className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    }) : null}
+                  </Fragment>
                 )
               })}
             </tbody>
@@ -1180,6 +1247,17 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           labResultId={uploadLab.id}
           labName={uploadLab.name}
           hasReport={uploadLab.hasReport}
+          /* The patient's other panels — a single combined lab PDF is linked to
+             the ticked ones instead of being re-uploaded per row. */
+          siblings={byType.labResult
+            .filter((l) => (l.ref.id as string) !== uploadLab.id)
+            .map((l) => ({
+              id: l.ref.id as string,
+              name: (l.ref.panelName as string) || l.summary,
+              hasReport: l.ref.hasAttachment === true || !!l.ref.reportedAt,
+            }))}
+          /* Opened from the order row: the rest of that order starts ticked. */
+          initialApplyTo={uploadLab.preselect}
           onClose={() => setUploadLab(null)}
           onUploaded={() => { void fetchTimeline() }}
         />
