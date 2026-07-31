@@ -19,9 +19,9 @@ const COMPANY_LINKS = [
 ];
 
 const POLICY_LINKS = [
-  { href: "/privacy", label: "PRIVACY POLICY" },
-  // { href: "/terms", label: "TERMS OF SERVICE" },
-  // { href: "/consumer-health-privacy", label: "CONSUMER HEALTH DATA PRIVACY POLICY" },
+  { href: "/privacypolicy", label: "PRIVACY POLICY" },
+  { href: "/dataprotection", label: "PATIENT DATA PROTECTION POLICY (PDPP)" },
+  { href: "/termsandservices", label: "TERMS OF SERVICE" },
 ];
 
 function ColumnHeading({ children, isSerif = false }: { children: React.ReactNode; isSerif?: boolean }) {

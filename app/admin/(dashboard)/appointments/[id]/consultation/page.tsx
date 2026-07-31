@@ -2449,7 +2449,7 @@ export default function StartAppointmentConsultationPage() {
                                 <div className="relative">
                                   <select name="personal_history__hygiene_change_underclothes" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                     <option value="">Select option</option>
-                                    <option value="daily">Daily or even multiple times a day- 10 points</option>
+                                    <option value="daily">Daily or even multiple times a day</option>
                                     <option value="once in few days">Once in few days</option>
                                   </select>
                                   <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
