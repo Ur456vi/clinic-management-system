@@ -19,6 +19,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+import { PatientLabBooking } from "@/components/patient/PatientLabBooking";
+
 type Lab = {
   id: string;
   panelName: string;
@@ -106,6 +108,9 @@ export default function PatientLabManagementPage() {
           Tests ordered by your doctor. View your report once it has been uploaded by the clinic.
         </p>
       </div>
+
+      {/* Self-booking of prescribed tests still needing a slot (option 2) */}
+      <PatientLabBooking onChange={load} />
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

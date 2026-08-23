@@ -337,6 +337,7 @@ model Patient {
   refillRequests        RefillRequest[]
   vitals                Vital[]
   clinicalSummaries     ClinicalSummary[]
+  labOrders             LabOrder[]
   /// Every completed public-site Health Assessment quiz is captured here.
   /// One row per attempt — retakes are stored as fresh rows so the doctor
   /// can compare scores over time.
@@ -429,6 +430,9 @@ model Consultation {
 
   labResults LabResult[]
   infusions  InfusionLog[]
+  /// The partner-lab order pushed when this consultation was signed (approach
+  /// 1). At most one — re-signing reuses the same row.
+  labOrder   LabOrder?
 
   /// Back-relation for the appointment this consultation was started from
   /// (see Appointment.consultationId). Optional — a consultation can also
@@ -846,8 +850,8 @@ model LabResult {
   /// All report files attached to this lab — one row per uploaded PDF/image.
   attachments LabResultAttachment[]
 
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([patientId, collectedAt])
   @@index([consultationId])
@@ -898,11 +902,11 @@ model ClinicalSummary {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// Short human label for the entry, e.g. "Follow-up visit summary".
-  title String
+  title       String
   /// The clinical date the summary describes (the visit/appointment day).
   summaryDate DateTime @map("summary_date")
   /// Optional free-text note shown alongside the files.
-  notes String?
+  notes       String?
 
   /// Staff/RMO user who created the entry. Nullable so the row survives a
   /// user deletion (consistent with TreatmentPlan.createdBy / Vital.recordedBy).
@@ -935,10 +939,10 @@ model ClinicalSummaryFile {
   attachmentKey  String  @map("attachment_key")
   attachmentMime String? @map("attachment_mime")
   /// Original filename, for display + download disposition.
-  filename     String?
-  sizeBytes    Int?    @map("size_bytes")
+  filename       String?
+  sizeBytes      Int?    @map("size_bytes")
   /// User who uploaded (staff id); null when unknown.
-  uploadedById String? @map("uploaded_by_id") @db.Uuid
+  uploadedById   String? @map("uploaded_by_id") @db.Uuid
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -952,7 +956,6 @@ model ClinicalSummaryFile {
  * orders + lifecycle transitions): this is the simple front-desk record the
  * clinic captures per session — a name, the day, start/end clock times, whether
  * the session was eventful (a reaction occurred) or uneventful, and a note.
- *
  * `startTime` / `endTime` are stored as free-text clock labels (e.g. "12:00 Pm")
  * exactly as entered, matching the form; the calendar day lives in `date`.
  */
@@ -962,16 +965,16 @@ model Infusion {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// Short human label for the session, e.g. "Myers' Cocktail".
-  name String
+  name      String
   /// The calendar day the session took place.
-  date DateTime @map("date")
+  date      DateTime @map("date")
   /// Free-text clock labels as entered on the form (e.g. "12:00 Pm").
-  startTime String? @map("start_time")
-  endTime   String? @map("end_time")
+  startTime String?  @map("start_time")
+  endTime   String?  @map("end_time")
   /// True when the session was eventful (a reaction occurred); false = uneventful.
-  eventful Boolean @default(false)
+  eventful  Boolean  @default(false)
   /// Optional free-text note.
-  note String? @db.Text
+  note      String?  @db.Text
 
   /// Optional single summary file for the session (PDF / DOCX / image / Excel),
   /// stored in the private `phi` bucket. `summaryKey` is the S3 object key; the
@@ -1003,13 +1006,13 @@ model VitalAssessment {
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   /// The date the assessment was taken.
-  assessedAt DateTime @map("assessed_at")
+  assessedAt   DateTime @map("assessed_at")
   /// Free-text consultant name as entered on the sheet.
-  consultant String?
+  consultant   String?
   /// Map of fieldKey -> value string (only filled rows are stored).
-  measurements Json @default("{}")
+  measurements Json     @default("{}")
   /// Optional free-text note.
-  note String? @db.Text
+  note         String?  @db.Text
 
   /// Staff/RMO user who recorded the entry. Nullable so the row survives a
   /// user deletion (consistent with Infusion.createdBy).
@@ -1415,4 +1418,195 @@ model Setting {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("settings")
+}
+
+// ===========================================================================
+// Lab partner integration (Mahajan Imaging / MI Partner) — approach 1
+// ===========================================================================
+//
+// "Approach 1": the moment a MAIN consultation is SIGNED and its selected
+// tests are materialized into LabResult rows, we push a *prescription notify*
+// to the partner lab WITHOUT an appointment slot. The lab's coordination team
+// contacts the patient, books the slot on their side, and pushes status +
+// reports back to us via the inbound webhook endpoints under
+// `/api/lab/webhooks/*`.
+//
+// Everything here is inert until `LAB_INTEGRATION_ENABLED=true` (see lib/env).
+// No slot times are stored on the outbound order — the lab owns scheduling.
+
+/// Home = phlebotomist visits the patient (address carried in the payload).
+/// Center = sample drawn at a partner centre (identified by `centerCode`).
+enum LabCollectionMode {
+  HOME
+  CENTER
+}
+
+/// Lifecycle of a lab order.
+///
+/// Zero-Salesforce-change model: on consultation sign we create the order in
+/// PENDING_SCHEDULE (no partner call — the partner has no no-slot endpoint).
+/// A slot is then chosen on OUR side — by reception (option 1) or the patient
+/// portal (option 2) — from the partner's existing `getAvailableSlots`, and we
+/// book against their existing `bookFullAppointment` / `EnquiryCenterAppointment`,
+/// moving the order to SCHEDULED. Inbound status webhooks advance it from there.
+///
+/// PENDING_NOTIFY is retained for back-compat but no longer entered.
+/// FAILED = the booking call errored; retryable.
+enum LabOrderStatus {
+  PENDING_SCHEDULE
+  PENDING_NOTIFY
+  NOTIFIED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANNOT_COMPLETE
+  CANCELLED
+  FAILED
+}
+
+/// Who chose the slot and booked the order.
+enum LabBookedVia {
+  RECEPTION
+  PATIENT
+}
+
+/// Which inbound webhook a raw event arrived on. Used for idempotent ingest
+/// and an audit trail of everything the lab posted us.
+enum LabWebhookKind {
+  REPORT_STATUS
+  ORDER_STATUS
+  CENTER_STATUS
+}
+
+/// Cache of the partner test master (`getAllProducts`). Refreshed by the admin
+/// sync endpoint. `labTestId` is the partner's stable item id we must echo in
+/// the notify payload; `testName` is their display name (used for auto-match
+/// against our catalog when no explicit LabTestMapping exists).
+model LabProduct {
+  id         String   @id @default(uuid()) @db.Uuid
+  labTestId  String   @unique @map("lab_test_id")
+  testName   String   @map("test_name")
+  /// Normalized (upper/trimmed/collapsed) name for fuzzy exact-match lookups.
+  normalized String   @map("normalized")
+  raw        Json     @default("{}")
+  syncedAt   DateTime @default(now()) @map("synced_at")
+
+  @@index([normalized])
+  @@map("lab_products")
+}
+
+/// Cache of the partner centre master (`getAllCenters`). `centerCode` is the
+/// `CentreID` echoed in a CENTER-mode booking.
+model LabCenter {
+  id         String   @id @default(uuid()) @db.Uuid
+  centerCode String   @unique @map("center_code")
+  name       String
+  raw        Json     @default("{}")
+  syncedAt   DateTime @default(now()) @map("synced_at")
+
+  @@map("lab_centers")
+}
+
+/// Curated override mapping one of OUR catalog test keys (see
+/// lib/test-catalog.ts `testKey`) to a partner `labTestId`. Optional — the
+/// notify builder first consults this table, then falls back to a normalized
+/// name match against `LabProduct`. Unmapped tests are still sent by name so
+/// an order is never silently dropped.
+model LabTestMapping {
+  id          String   @id @default(uuid()) @db.Uuid
+  testKey     String   @unique @map("test_key")
+  labTestId   String   @map("lab_test_id")
+  labTestName String   @map("lab_test_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([labTestId])
+  @@map("lab_test_mappings")
+}
+
+/// One pushed prescription-notify to the partner lab. `orderNumber` is
+/// generated by us and MUST be globally unique (partner keys on it). The lab
+/// returns `appointmentId` / `workOrderId` / `orderCaseId` later via webhook.
+model LabOrder {
+  id          String @id @default(uuid()) @db.Uuid
+  /// Our unique order id echoed on every partner call + webhook.
+  orderNumber String @unique @map("order_number")
+
+  patientId String  @map("patient_id") @db.Uuid
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  /// The signed consultation that triggered this order. One order per
+  /// consultation (idempotent re-sign) — enforced by the unique index.
+  consultationId String?       @unique @map("consultation_id") @db.Uuid
+  consultation   Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+
+  collectionMode LabCollectionMode @default(HOME) @map("collection_mode")
+  /// Partner CentreID for CENTER mode; null for HOME.
+  centerCode     String?           @map("center_code")
+
+  status LabOrderStatus @default(PENDING_SCHEDULE)
+
+  /// The slot we booked against the partner's existing endpoints (chosen on
+  /// our side via getAvailableSlots). Null until booked. Stored in UTC; render
+  /// via lib/date-utils (clinic runs in IST).
+  appointmentStart DateTime?     @map("appointment_start") @db.Timestamptz()
+  appointmentEnd   DateTime?     @map("appointment_end") @db.Timestamptz()
+  /// Who booked the slot — reception (option 1) or the patient portal (option 2).
+  bookedVia        LabBookedVia? @map("booked_via")
+
+  /// Test lines sent to the lab: [{ testKey, testName, labTestId | null }].
+  items Json @default("[]")
+
+  /// Exact JSON we posted, and the last response/ack we got back — kept for
+  /// support + replay. Secrets are never included in these.
+  requestPayload Json?   @map("request_payload")
+  lastResponse   Json?   @map("last_response")
+  /// Populated when status = FAILED (notify HTTP error message, truncated).
+  notifyError    String? @map("notify_error")
+
+  // Identifiers the partner assigns and returns via webhook.
+  appointmentId String? @map("appointment_id")
+  workOrderId   String? @map("work_order_id")
+  orderCaseId   String? @map("order_case_id")
+
+  /// Latest report pointer from the REPORT_STATUS webhook (external partner
+  /// URL — not our S3). Linking these to LabResult rows is a follow-up.
+  reportUrl    String? @map("report_url")
+  reportStatus String? @map("report_status")
+  labNumber    String? @map("lab_number")
+
+  /// Free-text reason from a CANNOT_COMPLETE / cancellation webhook.
+  reason String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  events LabWebhookEvent[]
+
+  @@index([patientId, createdAt(sort: Desc)])
+  @@index([status])
+  @@map("lab_orders")
+}
+
+/// Raw audit + idempotency log of every inbound partner webhook. We ack fast
+/// and process here so a replay never double-applies. Optionally linked to the
+/// LabOrder it resolved to (matched on `orderNumber`).
+model LabWebhookEvent {
+  id          String         @id @default(uuid()) @db.Uuid
+  kind        LabWebhookKind
+  orderNumber String?        @map("order_number")
+
+  labOrderId String?   @map("lab_order_id") @db.Uuid
+  labOrder   LabOrder? @relation(fields: [labOrderId], references: [id], onDelete: SetNull)
+
+  payload   Json
+  processed Boolean @default(false)
+  /// Set when processing threw — surfaced for admin retry.
+  error     String?
+
+  receivedAt DateTime @default(now()) @map("received_at")
+
+  @@index([orderNumber])
+  @@index([kind, receivedAt(sort: Desc)])
+  @@map("lab_webhook_events")
 }

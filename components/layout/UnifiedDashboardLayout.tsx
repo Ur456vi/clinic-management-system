@@ -41,6 +41,7 @@ const adminSidebarItems = [
   { name: "Department", icon: Building2, href: "/admin/departments" },
   { name: "Invoices", icon: FileText, href: "/admin/invoices" },
   { name: "Refills", icon: RefreshCw, href: "/admin/refills" },
+  { name: "Lab Scheduling", icon: FlaskConical, href: "/admin/lab-scheduling" },
   { name: "Reports", icon: BarChart3, href: "/admin/reports" },
 ]
 

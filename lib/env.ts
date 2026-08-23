@@ -74,6 +74,35 @@ type EnvShape = {
 
   // Feature flags
   FEATURE_PATIENT_PORTAL: boolean
+  /// Patient self-booking of lab orders (option 2). Off = only reception books
+  /// (option 1). NEXT_PUBLIC_ so the same flag gates the portal UI and the
+  /// patient booking routes.
+  FEATURE_LAB_PATIENT_BOOKING: boolean
+
+  // Lab partner integration (Mahajan Imaging / MI Partner).
+  //
+  // Zero-Salesforce-change model: we book against the partner's EXISTING
+  // apexrest endpoints, sourcing the slot from their existing getAvailableSlots.
+  // All paths are configurable (defaults match the UAT Postman collection) so
+  // no code change is needed if the partner renames one. The whole feature is
+  // inert unless LAB_INTEGRATION_ENABLED is true AND base URL + OAuth creds
+  // are present. See lib/services/lab/*.
+  LAB_INTEGRATION_ENABLED: boolean
+  LAB_BASE_URL: string | undefined
+  LAB_OAUTH_TOKEN_URL: string | undefined
+  LAB_CLIENT_ID: string | undefined
+  LAB_CLIENT_SECRET: string | undefined
+  // Existing partner endpoint paths (apexrest).
+  LAB_SLOTS_PATH: string
+  LAB_BOOK_HOME_PATH: string
+  LAB_BOOK_CENTER_PATH: string
+  LAB_CANCEL_HOME_PATH: string
+  LAB_RESCHEDULE_HOME_PATH: string
+  LAB_CANCEL_CENTER_PATH: string
+  LAB_RESCHEDULE_CENTER_PATH: string
+  /// Shared secret the partner must send on inbound webhooks
+  /// (`x-lab-webhook-secret` header). Requests without it are rejected.
+  LAB_WEBHOOK_SECRET: string | undefined
 
   // Security (BE-52) — comma-separated origin allow-list for CORS.
   CORS_ALLOWED_ORIGINS: string[] | undefined
@@ -199,6 +228,21 @@ const env: EnvShape = {
   SENTRY_DSN: optional("SENTRY_DSN"),
 
   FEATURE_PATIENT_PORTAL: boolOpt("FEATURE_PATIENT_PORTAL", false),
+  FEATURE_LAB_PATIENT_BOOKING: boolOpt("NEXT_PUBLIC_FEATURE_LAB_PATIENT_BOOKING", false),
+
+  LAB_INTEGRATION_ENABLED: boolOpt("LAB_INTEGRATION_ENABLED", false),
+  LAB_BASE_URL: optional("LAB_BASE_URL"),
+  LAB_OAUTH_TOKEN_URL: optional("LAB_OAUTH_TOKEN_URL"),
+  LAB_CLIENT_ID: optional("LAB_CLIENT_ID"),
+  LAB_CLIENT_SECRET: optional("LAB_CLIENT_SECRET"),
+  LAB_SLOTS_PATH: optional("LAB_SLOTS_PATH", "/services/apexrest/getAvailableSlots")!,
+  LAB_BOOK_HOME_PATH: optional("LAB_BOOK_HOME_PATH", "/services/apexrest/bookFullAppointment")!,
+  LAB_BOOK_CENTER_PATH: optional("LAB_BOOK_CENTER_PATH", "/services/apexrest/EnquiryCenterAppointment")!,
+  LAB_CANCEL_HOME_PATH: optional("LAB_CANCEL_HOME_PATH", "/services/apexrest/cancelFullAppointment")!,
+  LAB_RESCHEDULE_HOME_PATH: optional("LAB_RESCHEDULE_HOME_PATH", "/services/apexrest/rescheduleAppointment")!,
+  LAB_CANCEL_CENTER_PATH: optional("LAB_CANCEL_CENTER_PATH", "/services/apexrest/CancelCenterAppointment")!,
+  LAB_RESCHEDULE_CENTER_PATH: optional("LAB_RESCHEDULE_CENTER_PATH", "/services/apexrest/RescheduleCenterAppointment")!,
+  LAB_WEBHOOK_SECRET: optional("LAB_WEBHOOK_SECRET"),
 
   CORS_ALLOWED_ORIGINS: listOpt("CORS_ALLOWED_ORIGINS"),
 }

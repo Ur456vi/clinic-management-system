@@ -24,6 +24,7 @@ import { ForbiddenError, NotFoundError, ValidationError } from "@/lib/errors"
 import { DOCUMENT_PREFIX, nextDocumentNumber } from "@/lib/services/document-number"
 import { recordAudit, recordAuditSampled } from "@/lib/services/audit"
 import { materializeLabOrdersFromConsultation } from "@/lib/services/lab-result"
+import { enqueueLabOrderForConsultation } from "@/lib/services/lab"
 import { rolesFor } from "@/lib/rbac"
 import {
   ALLOWED_STATUS_TRANSITIONS,
@@ -408,7 +409,7 @@ export async function transitionConsultation(
   input: TransitionConsultationInput,
   actor: { userId: string; role: Role },
 ): Promise<ConsultationWithRelations> {
-  return db.$transaction(async (tx) => {
+  const after = await db.$transaction(async (tx) => {
     const before = await tx.consultation.findUnique({
       where: { id },
       select: { id: true, status: true, type: true, patientId: true },
@@ -497,6 +498,17 @@ export async function transitionConsultation(
 
     return after
   })
+
+  // POST-COMMIT: create the partner-lab order for the prescribed tests. Runs
+  // after the sign transaction commits so a lab failure can never roll back a
+  // signed prescription. The order is created in PENDING_SCHEDULE — a slot is
+  // chosen later by reception or the patient portal. Best-effort (never throws)
+  // and no-ops when no tests were selected.
+  if (input.to === ConsultationStatus.SIGNED) {
+    await enqueueLabOrderForConsultation(after.id)
+  }
+
+  return after
 }
 
 // ---------------------------------------------------------------------------
