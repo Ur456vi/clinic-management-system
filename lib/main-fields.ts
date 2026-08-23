@@ -156,9 +156,9 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "text", n: "patientDetail__vitals_height", l: "Height (cm)", placeholder: "e.g., 170" },
           { kind: "text", n: "patientDetail__vitals_spo2", l: "SpO2 (%)", placeholder: "e.g., 98" },
           { kind: "text", n: "patientDetail__vitals_temp", l: "Temperature (°F)", placeholder: "e.g., 98.6" },
-          { kind: "text", n: "patientDetail__vitals_body_mass", l: "Total Body Mass (°kg)", placeholder: "e.g., 86kg" },
-          { kind: "text", n: "patientDetail__vitals_fat_mass", l: "Fat Mass (°kg)", placeholder: "e.g., 45kg" },
-          { kind: "text", n: "patientDetail__vitals_lean_mass", l: "Lean Mass (°kg)", placeholder: "e.g., 40kg" },
+          { kind: "text", n: "patientDetail__vitals_body_mass", l: "Total Body Mass (kg)", placeholder: "e.g., 86kg" },
+          { kind: "text", n: "patientDetail__vitals_fat_mass", l: "Fat Mass (kg)", placeholder: "e.g., 45kg" },
+          { kind: "text", n: "patientDetail__vitals_lean_mass", l: "Lean Mass (kg)", placeholder: "e.g., 40kg" },
           { kind: "text", n: "patientDetail__vitals_body_fat", l: "Body Fat (%)", placeholder: "e.g., 53%" },
           { kind: "text", n: "patientDetail__vitals_vat", l: "VAT (g)", placeholder: "e.g., 1400g" },
           { kind: "text", n: "patientDetail__vitals_volume", l: "Volume (cm³)", placeholder: "e.g., 1500cm³" },
@@ -221,7 +221,7 @@ export const MAIN_SECTIONS: MainSection[] = [
   },
   {
     slug: "Test",
-    label: "Test",
+    label: "Investigation",
     description: "Investigations and lab panels to order",
     key: "test",
     groups: [
@@ -230,16 +230,16 @@ export const MAIN_SECTIONS: MainSection[] = [
           { kind: "testPanels", n: "test__selected_tests", l: "Select Test Panels", full: true },
         ],
       },
-      {
-        title: "Sample Collection & Reporting",
-        controls: [
-          { kind: "select", n: "test__priority", l: "Priority", options: ["Routine", "Urgent", "STAT"], placeholder: "Select priority" },
-          { kind: "text", n: "test__preferred_lab", l: "Preferred Lab", placeholder: "e.g., Metropolis, SRL, in-house" },
-          { kind: "text", n: "test__sample_collection", l: "Sample Collection", placeholder: "e.g., Sample collection at IHMH Lab" },
-          { kind: "text", n: "test__report_turnaround", l: "Report Turnaround", placeholder: "e.g., Reports in 48–72 hrs" },
-          { kind: "textarea", n: "test__test_notes", l: "Notes", placeholder: "Fasting required, sample instructions, clinical context", rows: 3, full: true },
-        ],
-      },
+      // {
+      //   title: "Sample Collection & Reporting",
+      //   controls: [
+      //     { kind: "select", n: "test__priority", l: "Priority", options: ["Routine", "Urgent", "STAT"], placeholder: "Select priority" },
+      //     { kind: "text", n: "test__preferred_lab", l: "Preferred Lab", placeholder: "e.g., Metropolis, SRL, in-house" },
+      //     { kind: "text", n: "test__sample_collection", l: "Sample Collection", placeholder: "e.g., Sample collection at IHMH Lab" },
+      //     { kind: "text", n: "test__report_turnaround", l: "Report Turnaround", placeholder: "e.g., Reports in 48–72 hrs" },
+      //     { kind: "textarea", n: "test__test_notes", l: "Notes", placeholder: "Fasting required, sample instructions, clinical context", rows: 3, full: true },
+      //   ],
+      // },
     ],
   },
   {

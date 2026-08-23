@@ -11,9 +11,9 @@
  * trick hides surrounding chrome so only the sheet lands on paper.
  *
  * Section order (reading order = numeric order):
- *   LEFT  column : 1 Demographics → 2 Baseline Assessment → 3 Investigations
- *   RIGHT column : 4 Consultation → 5 Nutrition → 6 Physical Restoration → 7 Treatment Initiation
- *   FULL  width  : 8 Follow-up & Next Steps (+ signature block)
+ *   LEFT  column : 1 Demographics → 2 Baseline Assessment (+ decorative quote)
+ *   RIGHT column : 3 Consultation → 4 Nutrition → 5 Physical Restoration → 6 Treatment Initiation
+ *   FULL  width  : 7 Investigations Ordered → 8 Follow-up & Next Steps (+ signature block)
  *
  * All values are read from the `sections` prop (see lib/main-fields.ts for
  * the field registry). Patient name/number and the consultation id/save
@@ -248,11 +248,11 @@ export default function PrescriptionSheet({
             <div className="flex items-center gap-3">
               <div
                 className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white"
-                style={{ width: 50, height: 50, border: `2px solid ${GOLD}` }}
+                style={{ width: 120, height: 120, border: `2px solid ${GOLD}` }}
               >
-                <Image src="/images/logos/iphmh-logos.jpeg" alt="IPHMH" width={50} height={50} className="object-contain" />
+                <Image src="/images/logos/iphmh-logos.jpeg" alt="IPHMH" width={120} height={120} className="object-contain" />
               </div>
-              <div>
+              {/* <div>
                 <p className="text-[15px] leading-5 font-bold font-serif" style={{ color: GREEN }}>
                   INSTITUTE OF PRECISION
                 </p>
@@ -261,7 +261,7 @@ export default function PrescriptionSheet({
                   <br />
                   METABOLIC HEALTH
                 </p>
-              </div>
+              </div> */}
             </div>
 
             <div className="text-center" style={{ minWidth: 0 }}>
@@ -304,10 +304,10 @@ export default function PrescriptionSheet({
           </div>
           <div className="mx-6 border-b-2 mb-4" style={{ borderColor: GOLD }} />
 
-          {/* Body — two columns. Left = 1→3, Right = 4→7 */}
+          {/* Body — two columns. Left = 1→2, Right = 3→6 */}
           <div className="grid grid-cols-2 gap-4 px-6">
-            {/* ── LEFT COLUMN : sections 1 – 3 ── */}
-            <div className="space-y-4">
+            {/* ── LEFT COLUMN : sections 1 – 2 ── */}
+            <div className="flex flex-col space-y-4">
               {/* 1. Patient demographics */}
               <div>
                 <SectionHeader no={1} title="Demographics" />
@@ -377,57 +377,34 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
 
-              {/* 3. Investigations ordered */}
-              <div>
-                <SectionHeader no={3} title="Investigations Ordered" />
-                <Card className="mt-2">
-                  {(() => {
-                    const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
-                    if (groups.length === 0)
-                      return (
-                        <p className="text-[11px]" style={{ color: "#98A2B3" }}>
-                          No investigations ordered.
-                        </p>
-                      )
-                    return (
-                      <div className="grid grid-cols-2 gap-3">
-                        {groups.map(({ panel, tests }) => (
-                          <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
-                            <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
-                              {panel.name}
-                            </p>
-                            <ul className="space-y-0.5">
-                              {tests.map((t) => (
-                                <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
-                                  <span style={{ color: GOLD }}>•</span>
-                                  <span>{t}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  })()}
-                  <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
-                    🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
-                    {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
-                    {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
+              {/* Decorative quote — fills the blank space below the left
+                  column (the right column is taller). flex-1 centers it
+                  vertically in whatever gap remains. */}
+              <div className="flex-1 flex items-center justify-center text-center px-6 py-8">
+                <div>
+                  <p className="text-[54px] leading-none font-serif" style={{ color: GOLD }}>
+                    &ldquo;
                   </p>
-                  {ts("test_notes") ? (
-                    <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
-                      {ts("test_notes")}
-                    </p>
-                  ) : null}
-                </Card>
+                  <p className="text-[20px] leading-8 italic font-serif" style={{ color: GREEN }}>
+                    The good physician treats the disease;
+                    <br />
+                    the great physician treats the patient
+                    <br />
+                    who has the disease.
+                  </p>
+                  <div className="mx-auto mt-3 mb-2 border-b" style={{ width: 48, borderColor: GOLD }} />
+                  <p className="text-[14px] font-semibold tracking-[0.15em] uppercase" style={{ color: "#3D4A45" }}>
+                    William Osler
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* ── RIGHT COLUMN : sections 4 – 7 ── */}
+            {/* ── RIGHT COLUMN : sections 3 – 6 ── */}
             <div className="space-y-4">
-              {/* 4. Main consultation */}
+              {/* 3. Main consultation */}
               <div>
-                <SectionHeader no={4} title="Consultation with Dr. Yuvraaj Singh" />
+                <SectionHeader no={3} title="Consultation with Dr. Yuvraaj Singh" />
                 <Card className="mt-2 p-0 overflow-hidden">
                   <div
                     className="flex flex-wrap justify-between gap-2 text-[10px] font-semibold px-4 py-2 border-b"
@@ -455,9 +432,9 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
 
-              {/* 5. Nutrition plan */}
+              {/* 4. Nutrition plan */}
               <div>
-                <SectionHeader no={5} title="Nutrition Plan" />
+                <SectionHeader no={4} title="Nutrition Plan" />
                 <Card className="mt-2 space-y-2">
                   <p className="text-[10.5px]" style={{ color: "#28342F" }}>
                     <b>Nutrition Plan:</b> {ira("nutrition_plan") || "—"}
@@ -465,9 +442,9 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
 
-              {/* 6. Treatment planning (rehab / aesthetic notes) */}
+              {/* 5. Treatment planning (rehab / aesthetic notes) */}
               <div>
-                <SectionHeader no={6} title="Physical Restoration & Aesthetics Plan" />
+                <SectionHeader no={5} title="Physical Restoration & Aesthetics Plan" />
                 <Card className="mt-2 space-y-2">
                   <p className="text-[10.5px]" style={{ color: "#28342F" }}>
                     <b>Physical Restoration:</b> {ira("rehab_plan") || "—"}
@@ -481,9 +458,9 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
 
-              {/* 7. Initiation plan */}
+              {/* 6. Initiation plan */}
               <div>
-                <SectionHeader no={7} title="Treatment Initiation & Maintainance Plan" sub="(To Begin After Today)" />
+                <SectionHeader no={6} title="Treatment Initiation & Maintainance Plan" sub="(To Begin After Today)" />
                 <Card className="mt-2 space-y-3">
                   <div>
                     <p className="text-[10.5px] font-bold mb-1.5" style={{ color: "#28342F" }}>
@@ -516,6 +493,51 @@ export default function PrescriptionSheet({
                 </Card>
               </div>
             </div>
+          </div>
+
+          {/* 7. Investigations ordered — full width */}
+          <div className="px-6 mt-4">
+            <SectionHeader no={7} title="Investigations Ordered" />
+            <Card className="mt-2">
+              {(() => {
+                const groups = groupSelectedByPanel(parseSelectedTests(ts("selected_tests")))
+                if (groups.length === 0)
+                  return (
+                    <p className="text-[11px]" style={{ color: "#98A2B3" }}>
+                      No investigations ordered.
+                    </p>
+                  )
+                return (
+                  <div className="grid grid-cols-4 gap-3">
+                    {groups.map(({ panel, tests }) => (
+                      <div key={panel.id} className="border rounded-md p-2.5" style={{ borderColor: GOLD, background: "#FBF6EC" }}>
+                        <p className="text-[10px] font-bold tracking-wide mb-1.5" style={{ color: GREEN }}>
+                          {panel.name}
+                        </p>
+                        <ul className="space-y-0.5">
+                          {tests.map((t) => (
+                            <li key={t} className="flex items-start gap-1.5 text-[10.5px] leading-4" style={{ color: "#28342F" }}>
+                              <span style={{ color: GOLD }}>•</span>
+                              <span>{t}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+              <p className="text-[9.5px] font-medium mt-2.5 flex items-center gap-1.5" style={{ color: "#3D4A45" }}>
+                🔒 {ts("Sample collection at IPHMH partnerted lab") || "Sample collection at IPHMH partnerted lab"} &nbsp;{" "}
+                {/* {ts("report_turnaround") || "Reports in 48–72 hrs"} */}
+                {ts("priority") ? <> &nbsp;|&nbsp; Priority: {ts("priority")}</> : null}
+              </p>
+              {ts("test_notes") ? (
+                <p className="text-[9.5px] mt-1" style={{ color: "#3D4A45" }}>
+                  {ts("test_notes")}
+                </p>
+              ) : null}
+            </Card>
           </div>
 
           {/* 8. Follow-up + signature */}

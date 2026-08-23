@@ -6,6 +6,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { THEME_BOOT_SCRIPT } from "@/lib/theme";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,6 +70,54 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
         />
+
+        {/* ============================
+            MICROSOFT CLARITY
+        ============================ */}
+
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){
+                (c[a].q=c[a].q||[]).push(arguments)
+              };
+
+              t=l.createElement(r);
+              t.async=1;
+              t.src="https://www.clarity.ms/tag/"+i;
+
+              y=l.getElementsByTagName(r)[0];
+              y.parentNode.insertBefore(t,y);
+
+            })(window, document, "clarity", "script", "xx1itxjof8");
+          `}
+        </Script>
+
+{/* ============================
+            GOOGLE ANALYTICS
+        ============================ */}
+
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-CE112S3XHG"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag(){
+              dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', 'G-CE112S3XHG');
+          `}
+        </Script>
+
+<meta name="google-site-verification" content="_iL7moeANlP4XphtSHajbynlu7G0uvarTDORe5W-6Wg" />
+
       </head>
       <body
         className="min-h-full flex flex-col bg-white dark:bg-[#0F172A] text-[#101828] dark:text-white"
