@@ -15,7 +15,9 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
     "db:up": "docker compose up -d db",
-    "db:reset": "docker compose down -v && docker compose up -d db"
+    "db:reset": "docker compose down -v && docker compose up -d db",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.1",
@@ -54,7 +56,8 @@
     "prisma": "^6.2.1",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

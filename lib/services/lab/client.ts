@@ -29,16 +29,17 @@ function nowMs(): number {
 
 async function fetchToken(): Promise<string> {
   const cfg = getLabConfig()
-  const body = new URLSearchParams({
-    grant_type: "client_credentials",
-    client_id: cfg.clientId,
-    client_secret: cfg.clientSecret,
-  })
 
-  const res = await fetch(cfg.tokenUrl, {
+  // The partner's Salesforce connected app reads the client-credentials params
+  // from the QUERY STRING (a POST with a form body is rejected with
+  // `unsupported_grant_type`). This matches their UAT Postman collection.
+  const tokenUrl = new URL(cfg.tokenUrl)
+  tokenUrl.searchParams.set("grant_type", "client_credentials")
+  tokenUrl.searchParams.set("client_id", cfg.clientId)
+  tokenUrl.searchParams.set("client_secret", cfg.clientSecret)
+
+  const res = await fetch(tokenUrl.toString(), {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
     // Never cache auth calls.
     cache: "no-store",
   })

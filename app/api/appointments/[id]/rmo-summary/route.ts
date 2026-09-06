@@ -6,6 +6,10 @@
  *   `/api/appointments/[id]/consultation`, this never creates a chart, so
  *   the doctor can review the RMO summary from the appointment list without
  *   starting the appointment.
+ *
+ * The response also carries the IPHMH `score` for that intake, so the doctor
+ * sees section totals and red flags on the same screen as the answers —
+ * immediately before seeing the patient.
  */
 
 import { ConsultationType, Role } from "@prisma/client"
@@ -15,6 +19,7 @@ import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/errors"
 import { appointmentIdParamSchema } from "@/lib/validation/appointment"
 import { assertAppointmentAccess } from "@/lib/services/appointment"
+import { scoreForAdmin, type Sex } from "@/lib/scoring"
 
 type Params = { id: string }
 
@@ -38,9 +43,18 @@ export const GET = defineHandler<Params>(async ({ params }) => {
     ? await db.consultation.findFirst({
         where: { patientId: appt.patient.id, type: ConsultationType.RMO },
         orderBy: { createdAt: "desc" },
-        select: { id: true, sections: true, status: true, createdAt: true },
+        select: {
+          id: true, sections: true, status: true, createdAt: true,
+          patient: { select: { sex: true } },
+        },
       })
     : null
 
-  return ok({ patient: appt.patient, rmoSummary })
+  const score = rmoSummary
+    ? scoreForAdmin(rmoSummary.sections, {
+        sex: (rmoSummary.patient?.sex ?? null) as Sex | null,
+      })
+    : null
+
+  return ok({ patient: appt.patient, rmoSummary, score })
 })

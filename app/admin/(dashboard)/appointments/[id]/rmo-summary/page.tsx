@@ -8,6 +8,10 @@
  * section, plus the latest vitals reading — without starting the appointment
  * (no consultation row is created; data comes from the read-only
  * /api/appointments/[id]/rmo-summary endpoint).
+ *
+ * A "Score" sub-tab renders the IPHMH wellness score for the same intake:
+ * section totals, red flags and completeness, on the screen the doctor reads
+ * immediately before seeing the patient.
  */
 
 import Image from "next/image"
@@ -19,6 +23,7 @@ import { AlertCircle, ArrowLeft, Loader2, PlayCircle, Printer, User } from "luci
 
 import { Button } from "@/components/ui/button"
 import { RMO_FIELDS, SECTION_KEY, SECTION_LABEL, SECTION_ORDER } from "@/lib/rmo-fields"
+import { ScorePanel, type ConsultationScore } from "@/components/admin/score"
 
 /** Print-sheet palette — matches the prescription letterhead. */
 const SHEET_INK = "#1C2B27"
@@ -54,7 +59,15 @@ interface RmoSummaryApi {
     createdAt: string
     sections?: Record<string, Record<string, unknown>> | null
   } | null
+  /** IPHMH wellness score for the intake above. Null when there is no intake. */
+  score: Omit<
+    ConsultationScore,
+    "consultationId" | "patientId" | "consultationDate" | "status"
+  > | null
 }
+
+/** Pseudo-tab key. Not a section slug, so it cannot collide with SECTION_ORDER. */
+const SCORE_TAB = "__score"
 
 export default function RmoSummaryPage() {
   const params = useParams<{ id: string }>()
@@ -330,11 +343,50 @@ export default function RmoSummaryPage() {
                     </button>
                   )
                 })}
+
+                {/* Score sits with the sections: this is the screen the doctor
+                    reads immediately before seeing the patient. */}
+                {data.score ? (
+                  <button
+                    onClick={() => setActiveTab(SCORE_TAB)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      activeTab === SCORE_TAB
+                        ? "bg-[#6B2B26] text-white"
+                        : "text-[#667085] dark:text-[#94A3B8] hover:bg-white hover:text-[#101828]"
+                    }`}
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        data.score.redFlagCount > 0
+                          ? activeTab === SCORE_TAB
+                            ? "bg-white"
+                            : "bg-[#B42318]"
+                          : activeTab === SCORE_TAB
+                            ? "bg-white/40"
+                            : "bg-[#0E8C6A]"
+                      }`}
+                    />
+                    Score
+                  </button>
+                ) : null}
               </div>
 
               {/* Active panel — answered badge + grouped fields, blanks shown. */}
               <div className="p-5">
-                {(() => {
+                {activeTab === SCORE_TAB && data.score && data.rmoSummary ? (
+                  <ScorePanel
+                    score={{
+                      ...data.score,
+                      consultationId: data.rmoSummary.id,
+                      patientId: data.patient?.id ?? null,
+                      consultationDate: data.rmoSummary.createdAt,
+                      status: data.rmoSummary.status,
+                    }}
+                    // History belongs on the patient's own Score tab; this
+                    // screen is about the intake in front of the doctor.
+                    showHistory={false}
+                  />
+                ) : (() => {
                   const total = sectionFields(current).length
                   const answered = sectionAnswered(current)
                   const complete = answered === total && total > 0

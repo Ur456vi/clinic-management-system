@@ -116,12 +116,36 @@ function toIsoDate(d: Date | null): string {
   return d ? d.toISOString().slice(0, 10) : ""
 }
 
-/** Parse a partner slot time into a Date. "YYYY-MM-DD HH:mm:ss" is IST wall-clock. */
+/**
+ * Parse a partner slot time into a Date. A bare "YYYY-MM-DD HH:mm[:ss]" with no
+ * zone is IST wall-clock (the booking convention); an ISO string carrying `T`
+ * and a `Z`/offset (as getAvailableSlots returns) is parsed as-is (already UTC).
+ */
 function parseSlotTime(s: string): Date | null {
-  const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)/.exec(s)
-  if (m) return istInstant(m[1], m[2].slice(0, 5))
+  const bare = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})(?::\d{2})?$/.exec(s.trim())
+  if (bare) return istInstant(bare[1], bare[2])
   const d = new Date(s)
   return Number.isNaN(d.getTime()) ? null : d
+}
+
+/**
+ * Format a slot time for the partner's booking endpoints, which reject ISO/UTC
+ * ("Invalid date/time: …Z") and require `YYYY-MM-DD HH:mm:ss` in IST wall-clock.
+ * `getAvailableSlots` returns ISO/UTC, so we convert; a bare IST string (from
+ * the manual-entry fallback) passes through untouched.
+ */
+function toPartnerBookingTime(s: string): string {
+  const bare = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})(?::(\d{2}))?$/.exec(s.trim())
+  if (bare) return `${bare[1]} ${bare[2]}:${bare[3] ?? "00"}`
+  const d = new Date(s)
+  if (Number.isNaN(d.getTime())) return s
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+  }).formatToParts(d)
+  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "00"
+  return `${g("year")}-${g("month")}-${g("day")} ${g("hour")}:${g("minute")}:${g("second")}`
 }
 
 /** Next unique, human-readable order number (FY-scoped serial). */
@@ -229,8 +253,8 @@ function buildHomePayload(args: {
       // spellings so we match whichever their endpoint reads.
       serviceMenberId: args.input.slot.serviceMemberId ?? "",
       serviceMemberId: args.input.slot.serviceMemberId ?? "",
-      startTime: args.input.slot.startTime,
-      endTime: args.input.slot.endTime,
+      startTime: toPartnerBookingTime(args.input.slot.startTime),
+      endTime: toPartnerBookingTime(args.input.slot.endTime),
     },
     order: {
       orderNumber: args.order.orderNumber,
@@ -266,8 +290,8 @@ function buildCenterPayload(args: {
       postalCode: a.postalCode ?? "",
       country: a.country ?? "India",
       orderNumber: args.order.orderNumber,
-      startTime: args.input.slot.startTime,
-      endTime: args.input.slot.endTime,
+      startTime: toPartnerBookingTime(args.input.slot.startTime),
+      endTime: toPartnerBookingTime(args.input.slot.endTime),
       source: SOURCE,
     },
     items: itemsPayload(args.items),
@@ -391,14 +415,14 @@ export async function rescheduleOrder(orderId: string, slot: SlotSelection): Pro
     ? {
         appointmentId: order.appointmentId ?? "",
         serviceMemberId: slot.serviceMemberId ?? "",
-        newStartTime: slot.startTime,
-        newEndTime: slot.endTime,
+        newStartTime: toPartnerBookingTime(slot.startTime),
+        newEndTime: toPartnerBookingTime(slot.endTime),
       }
     : {
         caseId: order.orderCaseId ?? "",
         orderNumber: order.orderNumber,
-        newStartTime: slot.startTime,
-        newEndTime: slot.endTime,
+        newStartTime: toPartnerBookingTime(slot.startTime),
+        newEndTime: toPartnerBookingTime(slot.endTime),
       }
 
   const res = await labFetch(path, { method: "POST", body })

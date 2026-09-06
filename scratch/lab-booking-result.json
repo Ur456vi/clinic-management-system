@@ -1,0 +1,66 @@
+{
+  "startedAt": "2026-09-04T06:31:45.156Z",
+  "mode": "CENTER",
+  "centre": {
+    "centerCode": "001fu000005AQUnAAO",
+    "name": "MI- ROHINI"
+  },
+  "chosenSlot": {
+    "startTime": "2026-09-20 10:00:00",
+    "endTime": "2026-09-20 10:30:00"
+  },
+  "attempts": [
+    {
+      "product": "LSHHI32738",
+      "name": "BAJAJ FINSERV HEALTH - DIAMOND - FEMALE",
+      "status": "FAILED",
+      "appointmentId": null,
+      "error": "HTTP 500",
+      "partner": {
+        "error": "List has no rows for assignment to SObject"
+      }
+    },
+    {
+      "product": "LSHHI32737",
+      "name": "BAJAJ FINSERV HEALTH - DIAMOND - MALE",
+      "status": "FAILED",
+      "appointmentId": null,
+      "error": "HTTP 500",
+      "partner": {
+        "error": "List has no rows for assignment to SObject"
+      }
+    },
+    {
+      "product": "LSHHI32734",
+      "name": "BAJAJ FINSERV HEALTH - GOLD - FEMALE",
+      "status": "FAILED",
+      "appointmentId": null,
+      "error": "HTTP 500",
+      "partner": {
+        "error": "List has no rows for assignment to SObject"
+      }
+    },
+    {
+      "product": "LSHHI32727",
+      "name": "BAJAJ FINSERV HEALTH -  HPR PHC",
+      "status": "FAILED",
+      "appointmentId": null,
+      "error": "HTTP 500",
+      "partner": {
+        "error": "List has no rows for assignment to SObject"
+      }
+    },
+    {
+      "product": "LSHHI20770",
+      "name": "BAJAJ FINSERV HEALTH - BRONZE",
+      "status": "FAILED",
+      "appointmentId": null,
+      "error": "HTTP 500",
+      "partner": {
+        "error": "List has no rows for assignment to SObject"
+      }
+    }
+  ],
+  "anySucceeded": false,
+  "finishedAt": "2026-09-04T06:31:50.083Z"
+}

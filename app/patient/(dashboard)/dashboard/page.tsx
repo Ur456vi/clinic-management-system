@@ -10,6 +10,7 @@
  *   - GET /api/patient/me/treatment-plans     recent signed treatment plans
  *   - GET /api/patient/me/prescriptions       consultation Final Prescriptions
  *     (both merged for the Prescriptions card)
+ *   - GET /api/patient/me/scores              IPHMH health score (summary card)
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,9 +28,20 @@ import {
   Thermometer,
   Weight as WeightIcon,
   Droplets,
+  Gauge,
 } from "lucide-react";
 
 import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils";
+import { ScoreBar } from "@/components/score/ScoreBar";
+import { pct, scoreDate } from "@/components/score/format";
+
+type HealthScore = {
+  consultationId: string;
+  date: string;
+  overallScore: number;
+  overallMaxScore: number;
+  delta: number | null;
+};
 
 type Profile = {
   id: string;
@@ -101,6 +113,7 @@ export default function PatientDashboardPage() {
   const [vitalHistory, setVitalHistory] = useState<VitalRow[]>([]);
   const [appts, setAppts] = useState<Appt[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [score, setScore] = useState<HealthScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -112,6 +125,8 @@ export default function PatientDashboardPage() {
         getList<Plan>("/api/patient/me/treatment-plans?limit=5"),
         getList<Plan>("/api/patient/me/prescriptions?limit=5"),
       ]);
+      const scoreRows = await getList<HealthScore>("/api/patient/me/scores?limit=1");
+      setScore(scoreRows[0] ?? null);
       if (meRes.ok) {
         const j = await meRes.json();
         setProfile(j?.data ?? null);
@@ -306,6 +321,56 @@ export default function PatientDashboardPage() {
           </div>
         ) : null}
       </div>
+
+      {/* Health score — only rendered once there is one. The endpoint withholds
+          drafts and thinly-completed consultations, so there is nothing to
+          explain away here. */}
+      {score ? (
+        <button
+          type="button"
+          onClick={() => router.push("/patient/health-score")}
+          className="w-full text-left bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-5 shadow-sm hover:border-[#6B2B26]/40 transition-colors"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="h-7 w-7 rounded-lg bg-[#6B2B26]/10 dark:bg-[#312E81] flex items-center justify-center">
+                <Gauge className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
+              </span>
+              <span className="text-sm font-semibold text-[#344054] dark:text-[#CBD5E1]">
+                Health score
+              </span>
+            </div>
+            <ChevronRight className="h-4 w-4 text-[#98A2B3]" />
+          </div>
+
+          <div className="flex items-baseline gap-2 mt-3">
+            <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
+              {score.overallScore.toLocaleString("en-GB")}
+            </span>
+            <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
+              / {score.overallMaxScore.toLocaleString("en-GB")}
+            </span>
+            {pct(score.overallScore, score.overallMaxScore) !== null ? (
+              <span className="text-sm font-semibold text-[#667085] dark:text-[#94A3B8]">
+                ({pct(score.overallScore, score.overallMaxScore)}%)
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-3">
+            <ScoreBar
+              label="Overall health score"
+              score={score.overallScore}
+              maxScore={score.overallMaxScore}
+              tone="neutral"
+            />
+          </div>
+
+          <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-3">
+            Consultation of {scoreDate(score.date)}
+          </p>
+        </button>
+      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Doctors */}

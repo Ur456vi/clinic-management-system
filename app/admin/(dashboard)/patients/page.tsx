@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { ScoreCell } from "@/components/admin/score"
 import { notify } from "@/lib/notify"
 
 type Patient = {
@@ -25,6 +26,13 @@ type Patient = {
   status: string
   createdAt: string
   primaryDoctorId?: string
+  /** From `?include=score` — the latest RMO consultation's overall score. */
+  score?: {
+    overallScore: number
+    overallMaxScore: number
+    consultationDate: string
+    scoringVersion: string
+  } | null
 }
 
 function PatientActionMenu({
@@ -144,7 +152,7 @@ export default function PatientsPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/patients?take=20")
+      const res = await fetch("/api/patients?take=20&include=score")
 
       if (!res.ok) {
         throw new Error("Failed to fetch patients")
@@ -260,6 +268,10 @@ export default function PatientsPage() {
                 </th>
 
                 <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
+                  Overall Score
+                </th>
+
+                <th className="px-6 py-3 text-xs font-medium text-[#667085] dark:text-[#94A3B8] uppercase tracking-wider">
                   Registration Date
                 </th>
 
@@ -278,7 +290,7 @@ export default function PatientsPage() {
               {isLoading && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-12 text-center"
                   >
                     <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
@@ -296,7 +308,7 @@ export default function PatientsPage() {
               {!isLoading && error && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-12 text-center"
                   >
                     <div className="flex flex-col items-center justify-center text-[#d92d20]">
@@ -323,7 +335,7 @@ export default function PatientsPage() {
                 filteredPatients.length === 0 && (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-6 py-12 text-center"
                     >
                       <div className="flex flex-col items-center justify-center text-[#667085] dark:text-[#94A3B8]">
@@ -393,6 +405,20 @@ export default function PatientsPage() {
                             .slice(1)
                             .toLowerCase()}
                       </span>
+                    </td>
+
+                    {/* Overall Score — always with its denominator: male and
+                        female maxima differ, so a bare total would not be
+                        comparable down the column. */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {patient.score ? (
+                        <ScoreCell
+                          score={patient.score.overallScore}
+                          maxScore={patient.score.overallMaxScore}
+                        />
+                      ) : (
+                        <span className="text-sm text-[#98A2B3] dark:text-[#64748B]">—</span>
+                      )}
                     </td>
 
                     {/* Date */}

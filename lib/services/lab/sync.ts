@@ -55,8 +55,9 @@ export async function syncProducts(): Promise<SyncResult> {
   const records = asRecords(res.data)
   let upserted = 0
   for (const rec of records) {
-    const labTestId = pick(rec, ["testId", "TestId", "ItemID", "itemId", "id", "productId"])
-    const testName = pick(rec, ["testName", "TestName", "name", "productName", "itemName"])
+    // Mahajan getAllProducts returns { productCode, productName, unitPrice, ... }.
+    const labTestId = pick(rec, ["testId", "TestId", "ItemID", "itemId", "productCode", "productId", "code", "id"])
+    const testName = pick(rec, ["testName", "TestName", "productName", "name", "itemName"])
     if (!labTestId || !testName) continue
     await db.labProduct.upsert({
       where: { labTestId },

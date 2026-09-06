@@ -61,8 +61,59 @@ function str(v: unknown): string | undefined {
   return typeof v === "string" && v.trim() ? v.trim() : undefined;
 }
 
-/** Defensively pull a slot list out of the partner's (loosely-typed) response. */
+function slotLabel(startIso: string, endIso: string): string {
+  const s = new Date(startIso);
+  const e = new Date(endIso);
+  if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return `${startIso} — ${endIso}`;
+  const opts: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" };
+  const day = s.toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short" });
+  return `${day} · ${s.toLocaleTimeString("en-GB", opts)}–${e.toLocaleTimeString("en-GB", opts)} IST`;
+}
+
+function makeSlot(o: Record<string, unknown>, territoryId?: string, memberId?: string): Slot | null {
+  const start = str(o.startTime) ?? str(o.StartTime) ?? str(o.start) ?? str(o.from);
+  const end = str(o.endTime) ?? str(o.EndTime) ?? str(o.end) ?? str(o.to);
+  if (!start || !end) return null;
+  return {
+    startTime: start,
+    endTime: end,
+    serviceTerritoryId: territoryId ?? str(o.serviceTerritoryId) ?? str(o.ServiceTerritoryId),
+    serviceMemberId: memberId ?? str(o.serviceMemberId) ?? str(o.serviceMenberId) ?? str(o.ServiceMemberId),
+    label: slotLabel(start, end),
+  };
+}
+
+/**
+ * Pull a slot list out of the partner's response. Mahajan returns:
+ *   { serviceTerritory:{id}, members:[{serviceMemberId, availableSlots:[{startTime,endTime}]}] }
+ * with each member carrying its own slots. We also keep a flat-array fallback.
+ */
 function parseSlots(raw: unknown): Slot[] {
+  const out: Slot[] = [];
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const r = raw as Record<string, unknown>;
+    const territory = r.serviceTerritory as Record<string, unknown> | undefined;
+    const territoryId = territory ? str(territory.id) ?? str(territory.serviceTerritoryId) : undefined;
+    const members = r.members;
+    if (Array.isArray(members)) {
+      for (const m of members) {
+        if (!m || typeof m !== "object") continue;
+        const mo = m as Record<string, unknown>;
+        const memberId = str(mo.serviceMemberId) ?? str(mo.serviceMenberId);
+        const slots = mo.availableSlots;
+        if (Array.isArray(slots)) {
+          for (const s of slots) {
+            if (s && typeof s === "object") {
+              const slot = makeSlot(s as Record<string, unknown>, territoryId, memberId);
+              if (slot) out.push(slot);
+            }
+          }
+        }
+      }
+      if (out.length) return out;
+    }
+  }
+  // Fallback: a flat array under a common key.
   let arr: unknown[] = [];
   if (Array.isArray(raw)) arr = raw;
   else if (raw && typeof raw === "object") {
@@ -74,20 +125,11 @@ function parseSlots(raw: unknown): Slot[] {
       }
     }
   }
-  const out: Slot[] = [];
   for (const s of arr) {
-    if (!s || typeof s !== "object") continue;
-    const o = s as Record<string, unknown>;
-    const start = str(o.startTime) ?? str(o.StartTime) ?? str(o.start) ?? str(o.from);
-    const end = str(o.endTime) ?? str(o.EndTime) ?? str(o.end) ?? str(o.to);
-    if (!start || !end) continue;
-    out.push({
-      startTime: start,
-      endTime: end,
-      serviceTerritoryId: str(o.serviceTerritoryId) ?? str(o.ServiceTerritoryId),
-      serviceMemberId: str(o.serviceMemberId) ?? str(o.serviceMenberId) ?? str(o.ServiceMemberId),
-      label: `${start} — ${end}`,
-    });
+    if (s && typeof s === "object") {
+      const slot = makeSlot(s as Record<string, unknown>);
+      if (slot) out.push(slot);
+    }
   }
   return out;
 }
