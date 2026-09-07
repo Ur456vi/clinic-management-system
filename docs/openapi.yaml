@@ -51,6 +51,13 @@ tags:
     description: |
       Polymorphic clinical encounters (`RMO` intake / `MAIN` doctor pass).
       The PATCH endpoint is the autosave path for the consultation form.
+  - name: Scoring
+    description: |
+      Read-only IPHMH wellness scores derived from RMO consultations. A
+      WELLNESS scale — higher is healthier — the opposite direction to the
+      public Health Assessment quiz. Scores are computed from
+      `Consultation.sections` on every read and never persisted. No endpoint
+      exposes a question's own point value. Prose: `docs/api-scoring.md`.
   - name: Departments
     description: Clinic department directory + default service pricing (BE-31).
   - name: Staff
@@ -1042,6 +1049,147 @@ paths:
   # -------------------------------------------------------------------------
   # Consultation transition (BE-15)
   # -------------------------------------------------------------------------
+  /api/consultations/{id}/score:
+    description: |
+      IPHMH wellness score for one RMO consultation.
+
+      **Role allow-list:** the same `consultation:view` matrix as
+      `GET /api/consultations/{id}` — access control and the `READ` audit
+      row are delegated to that service, not reimplemented.
+
+      Returns 404 when the consultation is `type: MAIN`; scoring applies to
+      RMO intakes only.
+
+      `maxScore` is the points available on the questions **actually
+      answered** (`DENOMINATOR_MODE = "answered"`), not the source
+      document's declared total. Read `completeness` alongside it: a 95%
+      score at 30% completeness is not a thorough assessment.
+    parameters:
+      - $ref: "#/components/parameters/ConsultationId"
+    get:
+      tags: [Scoring]
+      operationId: getConsultationScore
+      summary: Score one RMO consultation
+      responses:
+        "200":
+          description: Score computed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ConsultationScore"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/patients/{id}/scores:
+    description: |
+      Newest-first score history for one patient, one entry per RMO
+      consultation.
+
+      `delta` is `null` whenever two consecutive consultations have
+      different denominators — comparing raw totals across different maxima
+      is misleading, so the UI must fall back to percentages there.
+    parameters:
+      - $ref: "#/components/parameters/PatientId"
+    get:
+      tags: [Scoring]
+      operationId: listPatientScores
+      summary: Score history for a patient
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Entries to return (1-50).
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        "200":
+          description: History returned (possibly empty).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ScoreHistoryEntry"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/patient/me/scores:
+    description: |
+      The calling patient's own score history. `PATIENT` role only.
+
+      `patientId` is taken from the session and never from the query
+      string. `DRAFT` consultations are excluded, as is anything below the
+      completeness threshold — a half-filled intake showing a low number in
+      a self-service portal, with no clinician present to explain it, is
+      worse than showing nothing.
+    get:
+      tags: [Scoring]
+      operationId: listSelfScores
+      summary: Own score history (patient portal)
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        "200":
+          description: History returned (possibly empty).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PatientScoreHistoryEntry"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/patient/me/scores/{id}:
+    description: |
+      Section breakdown of one of the caller's own scores. `PATIENT` role
+      only.
+
+      The session's `patientId` is part of the `where` clause, so a
+      consultation belonging to another patient returns **404** rather than
+      403 — there is no branch that could return someone else's row.
+
+      Also 404s below the completeness threshold, with message
+      `Assessment still in progress`.
+
+      The payload carries no red flags, no completeness, no scoring
+      version, and no per-question detail of any kind.
+    parameters:
+      - $ref: "#/components/parameters/ConsultationId"
+    get:
+      tags: [Scoring]
+      operationId: getSelfScore
+      summary: Own score detail (patient portal)
+      responses:
+        "200":
+          description: Score computed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PatientScore"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
   /api/consultations/{id}/transition:
     parameters:
       - in: path
@@ -2022,3 +2170,166 @@ components:
         summary:
           type: [string, "null"]
           maxLength: 2000
+
+    # -----------------------------------------------------------------
+    # IPHMH scoring (docs/api-scoring.md)
+    # -----------------------------------------------------------------
+    RedFlagRef:
+      type: object
+      description: |
+        A clinically significant answer, tracked alongside the numeric score
+        rather than deducted from it. Never sent to the patient portal.
+      required: [field, label, section, severity]
+      properties:
+        field:
+          type: string
+          description: RMO registry field name, for admin drill-down.
+          example: personal_history__blood_in_stool
+        label: { type: string, example: Blood in stool }
+        section: { type: string, example: bowel }
+        severity:
+          type: string
+          enum: [high, moderate]
+      additionalProperties: false
+
+    SectionScore:
+      type: object
+      required:
+        [key, name, score, maxScore, answered, applicable, indeterminate,
+         unconfirmed, redFlags]
+      properties:
+        key: { type: string, example: bowel }
+        name: { type: string, example: Bowel / Gut Considerations }
+        score: { type: integer, example: 52 }
+        maxScore:
+          type: integer
+          description: Points available on the questions actually answered.
+          example: 60
+        answered: { type: integer, example: 6 }
+        applicable:
+          type: integer
+          description: Questions where a blank unambiguously means unanswered.
+          example: 11
+        indeterminate:
+          type: integer
+          description: |
+            Questions excluded from the completeness denominator because a
+            blank answer is ambiguous — bare checkboxes with no explicit
+            "None" (defect B-20), where "healthy" and "never asked" store
+            the same nothing.
+          example: 4
+        unconfirmed:
+          type: integer
+          description: Rules still awaiting sign-off from the source document.
+          example: 3
+        redFlags:
+          type: array
+          items: { $ref: "#/components/schemas/RedFlagRef" }
+      additionalProperties: false
+
+    ConsultationScore:
+      type: object
+      required:
+        [consultationId, consultationDate, status, scoringVersion, totalScore,
+         maxScore, sections, redFlagCount, completeness]
+      properties:
+        consultationId: { type: string, format: uuid }
+        patientId: { type: string, format: uuid, nullable: true }
+        consultationDate: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [DRAFT, RMO_DONE, IN_PROGRESS, SIGNED]
+        scoringVersion:
+          type: string
+          description: |
+            Rulebook version. Scores are derived on read, so historical
+            scores move when this moves.
+          example: 0.1.0
+        totalScore: { type: integer, example: 264 }
+        maxScore: { type: integer, example: 310 }
+        completeness:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          example: 0.36
+        redFlagCount: { type: integer, example: 2 }
+        sections:
+          type: array
+          items: { $ref: "#/components/schemas/SectionScore" }
+      additionalProperties: false
+
+    ScoreHistoryEntry:
+      type: object
+      required:
+        [consultationId, date, status, overallScore, overallMaxScore, delta,
+         redFlagCount, completeness]
+      properties:
+        consultationId: { type: string, format: uuid }
+        date: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [DRAFT, RMO_DONE, IN_PROGRESS, SIGNED]
+        overallScore: { type: integer, example: 1204 }
+        overallMaxScore: { type: integer, example: 1620 }
+        delta:
+          type: integer
+          nullable: true
+          description: |
+            Change against the previous consultation, or `null` when the two
+            have different denominators and are therefore not comparable.
+          example: 102
+        redFlagCount: { type: integer, example: 2 }
+        completeness: { type: number, format: float, example: 0.87 }
+      additionalProperties: false
+
+    PatientSectionScore:
+      type: object
+      description: Section totals only. No red flags, no diagnostics.
+      required: [key, name, score, maxScore]
+      properties:
+        key: { type: string, example: bowel }
+        name: { type: string, example: Bowel / Gut Considerations }
+        score: { type: integer, example: 90 }
+        maxScore: { type: integer, example: 110 }
+      additionalProperties: false
+
+    PatientScore:
+      type: object
+      required: [consultationId, consultationDate, totalScore, maxScore, sections]
+      properties:
+        consultationId: { type: string, format: uuid }
+        consultationDate: { type: string, format: date-time }
+        totalScore: { type: integer, example: 1204 }
+        maxScore: { type: integer, example: 1620 }
+        sections:
+          type: array
+          items: { $ref: "#/components/schemas/PatientSectionScore" }
+      additionalProperties: false
+
+    PatientScoreHistoryEntry:
+      type: object
+      required: [consultationId, date, overallScore, overallMaxScore, delta]
+      properties:
+        consultationId: { type: string, format: uuid }
+        date: { type: string, format: date-time }
+        overallScore: { type: integer, example: 1204 }
+        overallMaxScore: { type: integer, example: 1620 }
+        delta: { type: integer, nullable: true, example: 102 }
+      additionalProperties: false
+
+    LatestScoreSummary:
+      type: object
+      nullable: true
+      description: |
+        Attached to each row of `GET /api/patients?include=score`. `null` when
+        the patient has no RMO consultation. Always render the denominator or
+        the percentage — male and female maxima differ, so a bare total is not
+        comparable between rows.
+      required: [overallScore, overallMaxScore, consultationDate, scoringVersion]
+      properties:
+        overallScore: { type: integer, example: 1204 }
+        overallMaxScore: { type: integer, example: 1620 }
+        consultationDate: { type: string, format: date-time }
+        scoringVersion: { type: string, example: 0.1.0 }
+      additionalProperties: false

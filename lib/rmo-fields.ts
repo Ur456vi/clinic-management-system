@@ -203,6 +203,7 @@ const ALL_RMO_FIELDS: RmoField[] = [
   { n: "personal_history__tendencies", s: "personal_history", sub: "Mentation", l: "Tendencies" },
   { n: "personal_history__brain_fog", s: "personal_history", sub: "Mentation", l: "Brain Fog" },
   { n: "personal_history__depression_anxiety", s: "personal_history", sub: "Mentation", l: "Depression & Anxiety" },
+  { n: "personal_history__motivation", s: "personal_history", sub: "Mentation", l: "Motivation" },
   { n: "personal_history__mentation_note", s: "personal_history", sub: "Mentation", l: "Note" },
   // Dietary Considerations
   { n: "personal_history__meal_time", s: "personal_history", sub: "Dietary Considerations", l: "Meal Time" },

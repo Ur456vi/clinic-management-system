@@ -4,7 +4,7 @@
 > Last updated: 2026-05-14 (Sprint 1 Day 2).
 > Interactive Swagger UI: [/swagger](/swagger) (served from [`docs/openapi.yaml`](./openapi.yaml)).
 > Status of each endpoint is marked: shipped ✅, in-flight 🚧, backlog 📋.
-> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`api-appointment-booking.md`](./api-appointment-booking.md), [`api-staff.md`](./api-staff.md), [`api-audit-logs.md`](./api-audit-logs.md), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
+> Deep dives: [`api-patients.md`](./api-patients.md), [`api-consultations.md`](./api-consultations.md), [`api-appointments.md`](./api-appointments.md) (BE-27 in-flight), [`api-appointment-booking.md`](./api-appointment-booking.md), [`api-staff.md`](./api-staff.md), [`api-audit-logs.md`](./api-audit-logs.md), [`api-scoring.md`](./api-scoring.md), [`auth.md`](./auth.md), [`api-conventions.md`](./api-conventions.md).
 
 This is the one-stop entry point for integrating the Vyara backend from the
 frontend. Every endpoint that has shipped to `main` as of Sprint 1 Day 2 is
@@ -23,6 +23,7 @@ For finer-grained design rationale, follow the deep-dive links above.
    - 3.3 [Patients](#33-patients)
    - 3.4 [Consultations](#34-consultations)
    - 3.5 [Appointments](#35-appointments) (in-flight)
+   - 3.6 [Scoring](#36-scoring)
 4. [FE-impact notes](#4-fe-impact-notes)
 5. [Coming soon (Sprint 1 backlog)](#5-coming-soon-sprint-1-backlog)
 6. [Open questions / gotchas](#6-open-questions--gotchas)
@@ -1061,6 +1062,48 @@ response shapes and error matrices.
 
 See [`api-appointment-booking.md`](./api-appointment-booking.md) for the
 full reference.
+
+---
+
+### 3.6 Scoring
+
+Read-only IPHMH wellness scores derived from RMO consultations.
+
+**This is a wellness scale — higher is healthier.** The public-site Health
+Assessment quiz (`/api/assessments`) is a *risk* score running the opposite
+way. Never render the two side by side without labelling which is which.
+
+| Method | Path | Auth | Returns |
+| --- | --- | --- | --- |
+| `GET` | `/api/consultations/{id}/score` | `consultation:view` roles | Section totals, red flags, completeness |
+| `GET` | `/api/patients/{id}/scores?limit=10` | `consultation:view` roles | Newest-first history with deltas |
+| `GET` | `/api/patient/me/scores?limit=10` | `PATIENT` | Own history, totals only |
+| `GET` | `/api/patient/me/scores/{id}` | `PATIENT` | Own section breakdown |
+
+`GET /api/patients?include=score` additionally attaches each patient's latest
+overall score to the list response. It is opt-in — it derives a score per row,
+so the default list stays cheap. `GET /api/appointments/{id}/rmo-summary` now
+also carries a `score` object for the intake it returns.
+
+Three things worth knowing before you build against these:
+
+1. **No per-question points, anywhere.** Score per question internally, expose
+   per section only. This holds for the admin payload too, and is asserted by
+   `lib/scoring/__tests__/serialization.test.ts`.
+2. **The patient payload is thinner.** No red flags, no completeness, no
+   scoring version. Drafts and consultations below the completeness threshold
+   are omitted entirely rather than shown with a low number.
+3. **Always render the denominator or the percentage.** Male and female maxima
+   differ, so a bare total is not comparable between patients. `delta` in the
+   history endpoints is `null` whenever two consultations are not comparable.
+
+Scores are derived from `Consultation.sections` on every read and never
+persisted, so historical scores change when `SCORING_VERSION` changes. If the
+score a doctor saw at signature must be frozen, that needs a cache table — a
+clinical-governance decision, not a technical one.
+
+See [`api-scoring.md`](./api-scoring.md) for the full reference, including the
+eight sections that are declared but not yet scored and why.
 
 ---
 

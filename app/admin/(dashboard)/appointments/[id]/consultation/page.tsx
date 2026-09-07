@@ -23,8 +23,10 @@ import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
 import { RMO_FIELDS, SECTION_KEY, SECTION_LABEL, SECTION_ORDER } from "@/lib/rmo-fields"
 import DoctorConsultation from "./DoctorConsultation"
+import { RmoScoringPanel, scoreFieldName } from "@/components/admin/score/RmoScoringPanel"
+import { MANUAL_SCORES_KEY, readManualScores, type Sex } from "@/lib/scoring"
 
-const mainTabs = ["RMO Consultation", "Vitals", "Summary"] as const
+const mainTabs = ["RMO Consultation", "Scoring", "Vitals", "Summary"] as const
 const formSections = [
   "Informant",
   "Demographics",
@@ -160,6 +162,10 @@ export default function StartAppointmentConsultationPage() {
           }
           if (v != null) flat[f.n] = String(v)
         }
+        // Manual per-question scores ride in their own top-level section key.
+        for (const [field, value] of Object.entries(readManualScores(c.sections))) {
+          flat[scoreFieldName(field)] = String(value)
+        }
         setForm(flat)
       } catch (err) {
         const message = err instanceof Error ? err.message : "Failed to start consultation"
@@ -272,6 +278,16 @@ export default function StartAppointmentConsultationPage() {
         const key = SECTION_KEY[f.s]
         ;(sections[key] ??= {})[f.n] = v
       }
+      // Manual scores: one extra top-level key, so no schema change is needed.
+      // A blank box is omitted entirely — that means "use the derived score",
+      // which is not the same as a deliberate 0.
+      const scores: Record<string, string> = {}
+      for (const f of RMO_FIELDS) {
+        const raw = (form[scoreFieldName(f.n)] ?? "").trim()
+        if (raw === "") continue
+        scores[f.n] = raw
+      }
+      sections[MANUAL_SCORES_KEY] = scores
       const res = await fetch(`/api/consultations/${consult.id}`, {
         method: "PATCH",
         credentials: "include",
@@ -2079,7 +2095,7 @@ export default function StartAppointmentConsultationPage() {
                                   <select name="personal_history__time_between_last_oral_intake_and_sleep" className="w-full h-11 px-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all appearance-none" defaultValue={form["personal_history__time_between_last_oral_intake_and_sleep"] || ""}>
                                     <option value="">Select...</option>
                                     <option value="Immediate">Immediate</option>
-                                    <option value="30 mins - 1hr - 5 points">30 mins - 1hr - 5 points</option>
+                                    <option value="30 mins - 1hr">30 mins - 1hr</option>
                                     <option value="1-2 hrs or >2 hrs (specify time duration)">1-2 hrs or {">"}2 hrs (specify time duration)</option>
                                   </select>
                                   <ChevronDown className="absolute right-3 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
@@ -2667,7 +2683,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="">Select option</option>
                                       <option value="Hot flashes">Hot flashes</option>
                                       <option value="night sweats">Night sweats</option>
-                                      <option value="night sweats">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2690,7 +2706,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Irritability">Irritability</option>
                                       <option value="Brain fog">Brain fog</option>
                                       <option value="Memory issues">Memory issues</option>
-                                      <option value="Memory issues">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2703,7 +2719,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Difficulty falling asleep">Difficulty falling asleep</option>
                                       <option value="Night awakenings">Night awakenings</option>
                                       <option value="Non-restorative sleep">Non-restorative sleep</option>
-                                      <option value="Non-restorative sleep">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2717,7 +2733,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Vaginal dryness">Vaginal dryness</option>
                                       <option value="Pain during intercourse">Pain during intercourse</option>
                                       <option value="Arousal difficulty">Arousal difficulty</option>
-                                      <option value="Arousal difficulty">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2729,7 +2745,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="">Select option</option>
                                       <option value="Fatigue">Fatigue</option>
                                       <option value="Afternoon crashes">Afternoon crashes</option>
-                                      <option value="Afternoon crashes">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2741,7 +2757,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="">Select option</option>
                                       <option value="Weight gain (especially abdominal)">Weight gain (especially abdominal)</option>
                                       <option value="Loss of muscle">Loss of muscle</option>
-                                      <option value="Loss of muscle">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2755,7 +2771,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Family history (breast / ovarian / Endometrial cancer)">Family history (breast / ovarian / Endometrial cancer)</option>
                                       <option value="History of DVT / Clotting / Stroke / Cardiovascular disease">History of DVT / Clotting / Stroke / Cardiovascular disease</option>
                                       <option value="Unexplained bleeding PV">Unexplained bleeding PV</option>
-                                      <option value="Unexplained bleeding PV">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2770,7 +2786,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Antidepressants">Antidepressants</option>
                                       <option value="Steroids">Steroids</option>
                                       <option value="PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)">PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)</option>
-                                      <option value="PDE-5 Inhibitors (For Pulmonary Arterial Hypertension)">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2783,7 +2799,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="History of fractures">History of fractures</option>
                                       <option value="Back pain">Back pain</option>
                                       <option value="Height loss">Height loss</option>
-                                      <option value="Height loss">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2796,7 +2812,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Urinary urgency">Urinary urgency</option>
                                       <option value="Recurrent UTIs">Recurrent UTIs</option>
                                       <option value="Incontinence">Incontinence</option>
-                                      <option value="Incontinence">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2810,7 +2826,7 @@ export default function StartAppointmentConsultationPage() {
                                       <option value="Last mammogram">Last mammogram</option>
                                       <option value="Pap smear">Pap smear</option>
                                       <option value="Pelvic exam">Pelvic exam</option>
-                                      <option value="Pelvic exam">None</option>
+                                      <option value="None">None</option>
                                     </select>
                                     <ChevronDown className="absolute right-3.5 top-3.5 h-4 w-4 text-[#667085] dark:text-[#94A3B8] pointer-events-none" />
                                   </div>
@@ -2865,7 +2881,7 @@ export default function StartAppointmentConsultationPage() {
                                 <div className="relative">
                                   <select name="personal_history__mens_health_libido_vs_erection" className="w-full h-11 pl-4 pr-10 border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm text-[#101828] dark:text-[#F9FAFB] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2E37A4]/10 focus:border-[#2E37A4] transition-all">
                                     <option value="">Select option</option>
-                                    <option value="Normal - 10 points">Normal</option>
+                                    <option value="Normal">Normal</option>
                                     <option value="onset (sudden vs gradual) - Erectile difficulty">onset (sudden vs gradual) - Erectile difficulty</option>
                                     <option value="Low libido">Low libido</option>
                                     <option value="Premature ejaculation">Premature ejaculation</option>
@@ -4334,6 +4350,25 @@ export default function StartAppointmentConsultationPage() {
                     </>
                 ) : null}
                 </form>
+              ) : activeMainStep === "Scoring" ? (
+                <RmoScoringPanel
+                  form={form}
+                  sections={consult?.sections ?? {}}
+                  sex={((form["demographics__sex"] ?? "").toUpperCase() || null) as Sex | null}
+                  disabled={consult?.status === "SIGNED"}
+                  onScoreChange={(field, value) =>
+                    setForm((prev) => ({ ...prev, [scoreFieldName(field)]: value }))
+                  }
+                  onAcceptSuggestions={(entries) =>
+                    setForm((prev) => {
+                      const next = { ...prev }
+                      for (const [field, value] of entries) {
+                        next[scoreFieldName(field)] = String(value)
+                      }
+                      return next
+                    })
+                  }
+                />
               ) : activeMainStep === "Vitals" ? (
                 /* Vitals tab */
                 <div>

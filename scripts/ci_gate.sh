@@ -15,6 +15,11 @@
 #   4   typecheck failed
 #   5   eslint failed
 #   6   dependency install failed
+#   7   unit tests failed
+#
+# NOTE: gate 6 (ESLint) currently fails on a pre-existing baseline of 45 errors
+# unrelated to any one branch, so the unit-test gate runs before it — otherwise
+# the tests would never execute.
 #
 # Caches node_modules between calls inside the same shell session — set
 # VYARA_CI_FRESH=1 to force a clean install.
@@ -87,7 +92,15 @@ if ! npx --offline tsc --noEmit >/tmp/ci-tsc.log 2>&1; then
   exit 4
 fi
 
-# --- 5. ESLint ---------------------------------------------------------------
+# --- 5. Unit tests -----------------------------------------------------------
+echo "[ci] vitest run..."
+if ! npx --offline vitest run >/tmp/ci-vitest.log 2>&1; then
+  echo "[ci] FAIL: unit tests:" >&2
+  tail -40 /tmp/ci-vitest.log >&2
+  exit 7
+fi
+
+# --- 6. ESLint ---------------------------------------------------------------
 echo "[ci] eslint . --quiet..."
 if ! npx --offline eslint . --quiet --max-warnings=0 >/tmp/ci-eslint.log 2>&1; then
   echo "[ci] FAIL: ESLint errors:" >&2

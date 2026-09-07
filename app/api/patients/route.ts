@@ -18,6 +18,12 @@
  * The response carries both the standard `{ data, pagination: { next } }`
  * envelope (BE-07 convention) AND a top-level `nextCursor` field for the
  * BE-12 contract, so clients written against either spec keep working.
+ *
+ * `include=score` additionally attaches each patient's IPHMH overall score
+ * from their latest RMO consultation. It is opt-in because it derives a score
+ * per row, and the default list must stay cheap. Always render the denominator
+ * or the percentage alongside it: male and female maxima differ, so a bare
+ * total is not comparable between rows.
  */
 
 import { NextResponse } from "next/server"
@@ -34,6 +40,7 @@ import {
   listPatientsQuerySchema,
 } from "@/lib/validation/patient"
 import { createPatient, listPatients } from "@/lib/services/patient"
+import { latestScoreSummary } from "@/lib/services/consultation-score"
 import { rolesFor } from "@/lib/rbac"
 
 /** Front-desk + clinical staff may register a patient (not PATIENT/specialists). */
@@ -59,8 +66,22 @@ export const GET = defineHandler(async ({ req }) => {
 
   const { items, nextCursor } = await listPatients(query)
 
+  const wantsScore = (sp.get("include") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .includes("score")
+
+  const data = wantsScore
+    ? await Promise.all(
+        items.map(async (patient) => ({
+          ...patient,
+          score: await latestScoreSummary(patient.id),
+        })),
+      )
+    : items
+
   return NextResponse.json({
-    data: items,
+    data,
     nextCursor,
     pagination: { next: nextCursor },
   })

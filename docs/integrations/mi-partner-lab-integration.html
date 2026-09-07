@@ -1,0 +1,712 @@
+<title>Vyara ⇄ MI Partner Lab Integration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /* ---- Tokens: light (bare :root) ---- */
+  :root {
+    --ground: #FAFBFC;
+    --surface: #FFFFFF;
+    --surface-2: #F3F6F8;
+    --ink: #15212B;
+    --ink-soft: #3E4E5A;
+    --muted: #5A6B78;
+    --border: #E3E9ED;
+    --border-strong: #CFD8DE;
+
+    --vyara: #0E7C86;      /* our system */
+    --vyara-bg: #E4F1F2;
+    --partner: #C0703A;    /* MI Partner / Salesforce */
+    --partner-bg: #F7EADD;
+
+    --ok: #1E8E5A;
+    --ok-bg: #E4F3EB;
+    --warn: #A86D14;
+    --warn-bg: #F6ECD8;
+    --crit: #C0402F;
+    --crit-bg: #F6E2DE;
+
+    --get: #1E7A4A;
+    --post: #B4651B;
+
+    --diagram-bg: #F4F7F8; /* fixed in both themes — diagram stays legible */
+    --diagram-ink: #1B2730;
+
+    --shadow: 0 1px 2px rgba(20,33,43,.04), 0 8px 24px -12px rgba(20,33,43,.12);
+    --radius: 12px;
+    --maxw: 940px;
+  }
+  /* ---- Tokens: dark via OS default (un-stamped) ---- */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E161C;
+      --surface: #152029;
+      --surface-2: #1B2932;
+      --ink: #E7EEF2;
+      --ink-soft: #B7C4CC;
+      --muted: #8B9BA6;
+      --border: #26333D;
+      --border-strong: #33434F;
+
+      --vyara: #4CC2CC;
+      --vyara-bg: #123037;
+      --partner: #E0965E;
+      --partner-bg: #35271B;
+
+      --ok: #4FBE85;
+      --ok-bg: #12291E;
+      --warn: #D8A64A;
+      --warn-bg: #2C2411;
+      --crit: #E4796A;
+      --crit-bg: #2E1A17;
+
+      --get: #57C287;
+      --post: #E0965E;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  /* ---- Tokens: explicit dark toggle ---- */
+  :root[data-theme="dark"] {
+    --ground: #0E161C;
+    --surface: #152029;
+    --surface-2: #1B2932;
+    --ink: #E7EEF2;
+    --ink-soft: #B7C4CC;
+    --muted: #8B9BA6;
+    --border: #26333D;
+    --border-strong: #33434F;
+    --vyara: #4CC2CC; --vyara-bg: #123037;
+    --partner: #E0965E; --partner-bg: #35271B;
+    --ok: #4FBE85; --ok-bg: #12291E;
+    --warn: #D8A64A; --warn-bg: #2C2411;
+    --crit: #E4796A; --crit-bg: #2E1A17;
+    --get: #57C287; --post: #E0965E;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  a { color: var(--vyara); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  /* ---- Header ---- */
+  header.page {
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(120% 140% at 88% -20%, var(--vyara-bg) 0%, transparent 55%),
+      radial-gradient(120% 140% at 4% -30%, var(--partner-bg) 0%, transparent 50%);
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  header.page .wrap { padding-top: 54px; padding-bottom: 42px; }
+  h1 {
+    font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.06; letter-spacing: -.02em; font-weight: 700;
+    margin: 0 0 14px; text-wrap: balance;
+  }
+  h1 .arrow { color: var(--vyara); font-weight: 500; }
+  .lede { font-size: 18px; color: var(--ink-soft); max-width: 62ch; margin: 0 0 24px; text-wrap: pretty; }
+  .metabar {
+    display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+    font-size: 13px; font-family: "IBM Plex Mono", monospace; color: var(--muted);
+  }
+  .metabar b { color: var(--ink-soft); font-weight: 600; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
+    letter-spacing: .04em; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .badge.draft { background: var(--warn-bg); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* ---- Sections ---- */
+  main .wrap { padding-top: 48px; padding-bottom: 48px; }
+  section { margin: 0 0 56px; }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--vyara);
+    margin: 0 0 10px; display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::before { content: ""; width: 22px; height: 2px; background: var(--vyara); border-radius: 2px; }
+  h2 { font-size: 25px; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 8px; font-weight: 600; }
+  h2 + p.section-intro { color: var(--ink-soft); margin: 0 0 24px; max-width: 66ch; }
+  h3 { font-size: 17px; margin: 0 0 6px; font-weight: 600; }
+
+  /* ---- Summary cards ---- */
+  .grid { display: grid; gap: 16px; }
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .cols-2 { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 720px) { .cols-3, .cols-2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+  }
+  .card .ctitle {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
+  }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .card p strong { color: var(--ink); }
+
+  /* Role cards */
+  .role { border-top: 3px solid var(--role, var(--vyara)); }
+  .role.vyara { --role: var(--vyara); }
+  .role.partner { --role: var(--partner); }
+  .role h3 { display: flex; align-items: center; gap: 9px; }
+  .role h3 .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+    padding: 3px 8px; border-radius: 6px; letter-spacing: .04em;
+    background: var(--role-bg, var(--vyara-bg)); color: var(--role, var(--vyara));
+  }
+  .role.vyara h3 .tag { --role-bg: var(--vyara-bg); }
+  .role.partner h3 .tag { --role-bg: var(--partner-bg); }
+  .role ul { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .role li { position: relative; padding-left: 20px; font-size: 14.5px; color: var(--ink-soft); }
+  .role li::before {
+    content: ""; position: absolute; left: 3px; top: 9px; width: 7px; height: 7px;
+    border-radius: 2px; background: var(--role, var(--vyara));
+  }
+
+  /* ---- Diagram panel (fixed light, theme-proof) ---- */
+  .diagram {
+    background: var(--diagram-bg); border: 1px solid var(--border-strong);
+    border-radius: var(--radius); padding: 18px; overflow-x: auto; box-shadow: var(--shadow);
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 14px 2px 0; font-size: 12.5px; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  /* ---- Numbered steps ---- */
+  ol.steps { counter-reset: s; list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  ol.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+  ol.steps li:last-child { border-bottom: 0; }
+  ol.steps li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
+    color: var(--vyara); background: var(--vyara-bg); border-radius: 7px;
+    text-align: center; padding: 4px 0; align-self: start;
+  }
+  ol.steps .who { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+  ol.steps .who.v { color: var(--vyara); }
+  ol.steps .who.p { color: var(--partner); }
+  ol.steps b { font-weight: 600; }
+  ol.steps p { margin: 3px 0 0; color: var(--ink-soft); font-size: 14.5px; }
+
+  /* ---- Endpoint cards ---- */
+  .endpoint { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 18px; }
+  .endpoint > .head { padding: 15px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .method { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 12px; letter-spacing: .06em; padding: 4px 9px; border-radius: 6px; color: #fff; }
+  .method.post { background: var(--post); }
+  .method.get { background: var(--get); }
+  .path { font-family: "IBM Plex Mono", monospace; font-size: 14px; font-weight: 500; word-break: break-all; }
+  .dirflag { margin-left: auto; font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 4px 9px; border-radius: 999px; letter-spacing: .03em; }
+  .dirflag.inbound { background: var(--vyara-bg); color: var(--vyara); }
+  .dirflag.outbound { background: var(--partner-bg); color: var(--partner); }
+  .endpoint > .body { padding: 18px; }
+  .endpoint .desc { margin: 0 0 16px; color: var(--ink-soft); font-size: 14.5px; }
+  .meta-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 16px; }
+  .meta-row .m .k { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .meta-row .m .val { font-size: 13.5px; color: var(--ink); font-family: "IBM Plex Mono", monospace; }
+
+  .sub { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 4px 0 8px; }
+
+  pre.code { margin: 0 0 4px; background: var(--diagram-bg); color: var(--diagram-ink); border: 1px solid var(--border); border-radius: 9px; padding: 14px 16px; overflow-x: auto; font-family: "IBM Plex Mono", monospace; font-size: 13px; line-height: 1.55; }
+  pre.code .c { color: var(--muted); }
+
+  /* ---- Tables ---- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px; background: var(--surface); }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  thead th { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface-2); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.field { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--ink); white-space: nowrap; }
+  td .req { color: var(--crit); font-weight: 600; font-size: 11px; font-family: "IBM Plex Mono", monospace; }
+  td .opt { color: var(--muted); font-size: 11px; font-family: "IBM Plex Mono", monospace; }
+
+  .pill { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-soft); }
+  .q { background: var(--warn-bg); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent); font-weight: 600; padding: 2px 8px; border-radius: 6px; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+
+  .callout { border-left: 3px solid var(--warn); background: var(--warn-bg); border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 18px 0 0; font-size: 14px; color: var(--ink); }
+  .callout b { color: var(--warn); }
+  .callout.v { border-left-color: var(--vyara); background: var(--vyara-bg); }
+  .callout.v b { color: var(--vyara); }
+
+  footer.page { border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer.page .wrap { padding: 26px 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-family: "IBM Plex Mono", monospace; }
+
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<header class="page">
+  <div class="wrap">
+    <p class="eyebrow">Integration Specification · Zero Salesforce-side changes</p>
+    <h1>Vyara <span class="arrow">⇄</span> MI Partner Lab Integration</h1>
+    <p class="lede">How the Vyara clinic system books lab tests on the Mahajan Imaging (MI Partner) Salesforce platform using <b>only the endpoints that already exist</b> — no development required on the lab side. Vyara sources the slot and books; the lab collects the sample and posts status back.</p>
+    <div class="metabar">
+      <span class="badge draft"><span class="dot"></span>DRAFT v1 · for review</span>
+      <span><b>Date</b> 2026-08-21</span>
+      <span><b>Owner</b> Vyara Engineering</span>
+      <span><b>Audience</b> MI Partner / Salesforce team</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- ===== AT A GLANCE ===== -->
+    <section>
+      <div class="kicker">At a glance</div>
+      <h2>Vyara books; the lab builds nothing</h2>
+      <p class="section-intro">The guiding constraint: <b>no new development on the Salesforce side.</b> Vyara uses the partner’s existing <code>getAvailableSlots</code> to source a slot and their existing <code>bookFullAppointment</code> / <code>EnquiryCenterAppointment</code> to book it. The lab’s only involvement is collecting the sample and posting the status webhooks it already sends.</p>
+      <div class="grid cols-3">
+        <div class="card">
+          <p class="ctitle">Zero lab dev</p>
+          <p><strong>Only existing endpoints.</strong> Every call Vyara makes already exists in the partner’s UAT collection. Nothing new to build, no schema change requested.</p>
+        </div>
+        <div class="card">
+          <p class="ctitle">Who books the slot</p>
+          <p><strong>Vyara — two ways.</strong> Reception books at prescription time (option 1), or the patient books from their portal (option 2). Both call the lab’s existing booking endpoints.</p>
+        </div>
+        <div class="card">
+          <p class="ctitle">How Vyara stays in sync</p>
+          <p><strong>Three webhooks back to Vyara.</strong> The lab posts appointment status, report availability, and centre-collection outcomes — the same webhooks it already sends.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ROLES ===== -->
+    <section>
+      <div class="kicker">Responsibilities</div>
+      <h2>Who does what</h2>
+      <p class="section-intro">Vyara owns the booking so the lab has nothing new to build. The lab’s role is unchanged from how it already serves partner bookings.</p>
+      <div class="grid cols-2">
+        <div class="card role vyara">
+          <h3><span class="tag">VYARA</span> Clinic system</h3>
+          <ul>
+            <li>Registers the patient; doctor prescribes tests; on sign, generates a unique <code>orderNumber</code>.</li>
+            <li>Sources a slot from the lab’s existing <code>getAvailableSlots</code> (reception or the patient chooses).</li>
+            <li>Books via the lab’s existing <code>bookFullAppointment</code> (home) / <code>EnquiryCenterAppointment</code> (centre).</li>
+            <li>Exposes three inbound webhooks and reconciles status back onto the order.</li>
+            <li>Syncs the lab’s test and centre masters to map our tests to theirs.</li>
+          </ul>
+        </div>
+        <div class="card role partner">
+          <h3><span class="tag">MI PARTNER</span> Salesforce / lab</h3>
+          <ul>
+            <li><b>Builds nothing new</b> — serves the existing slot + booking endpoints as-is.</li>
+            <li>Receives the booking and creates the work order / case (existing behaviour).</li>
+            <li><b>Home collection:</b> dispatches a phlebotomist to the patient address.</li>
+            <li><b>Centre collection:</b> hosts the patient at the named centre.</li>
+            <li>Runs the tests and posts appointment status + reports back to Vyara.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FLOW ===== -->
+    <section>
+      <div class="kicker">End-to-end flow</div>
+      <h2>The order, start to finish</h2>
+      <p class="section-intro">Solid arrows are calls Vyara makes to the lab; dashed arrows are webhooks the lab posts back to Vyara. No appointment time crosses from Vyara — that is set by the lab.</p>
+
+      <div class="diagram">
+        <svg viewBox="0 0 880 566" role="img" aria-label="Sequence diagram of the Vyara to MI Partner lab order flow" style="width:100%;min-width:660px;height:auto;font-family:'IBM Plex Mono',monospace">
+          <defs>
+            <marker id="ahV" markerWidth="9" markerHeight="9" refX="7.5" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#0E7C86"/></marker>
+            <marker id="ahL" markerWidth="9" markerHeight="9" refX="7.5" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#C0703A"/></marker>
+          </defs>
+          <!-- lifelines -->
+          <g stroke="#B9C6CC" stroke-width="1.4" stroke-dasharray="2 5">
+            <line x1="110" y1="72" x2="110" y2="520"/>
+            <line x1="440" y1="72" x2="440" y2="520"/>
+            <line x1="770" y1="72" x2="770" y2="520"/>
+          </g>
+          <!-- actor headers -->
+          <g font-size="12.5" font-weight="600" text-anchor="middle">
+            <rect x="52" y="34" width="116" height="34" rx="8" fill="#EEF1F3" stroke="#CFD8DE"/>
+            <text x="110" y="56" fill="#1B2730">Patient</text>
+            <rect x="378" y="34" width="124" height="34" rx="8" fill="#E4F1F2" stroke="#0E7C86"/>
+            <text x="440" y="56" fill="#0b3b40">Vyara · clinic</text>
+            <rect x="688" y="34" width="164" height="34" rx="8" fill="#F7EADD" stroke="#C0703A"/>
+            <text x="770" y="56" fill="#6b3d17">MI Partner · Salesforce</text>
+          </g>
+          <!-- message labels + arrows -->
+          <g font-size="11.5" fill="#3E4E5A" text-anchor="middle">
+            <!-- 1 Vyara self: sign + create order -->
+            <text x="560" y="98">Sign consultation → create order (awaiting slot)</text>
+            <path d="M440,108 H516 V124 H444" fill="none" stroke="#0E7C86" stroke-width="1.6" marker-end="url(#ahV)"/>
+            <circle cx="440" cy="108" r="9" fill="#0E7C86"/><text x="440" y="112" fill="#fff" font-size="10.5" font-weight="600">1</text>
+
+            <!-- 2 V -> L getAvailableSlots (existing) -->
+            <text x="605" y="150">getAvailableSlots (existing) — reception or patient picks</text>
+            <line x1="452" y1="160" x2="756" y2="160" stroke="#0E7C86" stroke-width="1.7" marker-end="url(#ahV)"/>
+            <circle cx="452" cy="160" r="9" fill="#0E7C86"/><text x="452" y="164" fill="#fff" font-size="10.5" font-weight="600">2</text>
+
+            <!-- 3 L -> V slots (dashed = response) -->
+            <text x="605" y="192">Available slots</text>
+            <line x1="758" y1="202" x2="454" y2="202" stroke="#C0703A" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ahL)"/>
+            <circle cx="758" cy="202" r="9" fill="#C0703A"/><text x="758" y="206" fill="#fff" font-size="10.5" font-weight="600">3</text>
+
+            <!-- 4 V -> L book (existing) -->
+            <text x="605" y="240">book (existing) — bookFullAppointment / EnquiryCenterAppointment + slot</text>
+            <line x1="452" y1="250" x2="756" y2="250" stroke="#0E7C86" stroke-width="1.7" marker-end="url(#ahV)"/>
+            <circle cx="452" cy="250" r="9" fill="#0E7C86"/><text x="452" y="254" fill="#fff" font-size="10.5" font-weight="600">4</text>
+
+            <!-- 5 L -> V ack (dashed) -->
+            <text x="605" y="288">Ack — appointmentId / workOrderId → order SCHEDULED</text>
+            <line x1="758" y1="298" x2="454" y2="298" stroke="#C0703A" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ahL)"/>
+            <circle cx="758" cy="298" r="9" fill="#C0703A"/><text x="758" y="302" fill="#fff" font-size="10.5" font-weight="600">5</text>
+          </g>
+          <!-- collection band -->
+          <g>
+            <rect x="150" y="316" width="600" height="52" rx="9" fill="#F7EADD" stroke="#DFC3A3"/>
+            <text x="168" y="337" font-size="11" font-weight="600" fill="#6b3d17">6 · Lab collects the sample</text>
+            <text x="168" y="354" font-size="11" fill="#6b3d17" font-family="'IBM Plex Mono',monospace">HOME → lab phlebotomist visits the patient address   ·   CENTER → patient visits the named centre</text>
+          </g>
+          <g font-size="11.5" fill="#3E4E5A" text-anchor="middle">
+            <!-- 7 L -> V order-status -->
+            <text x="605" y="398">order-status webhook — In Progress / Completed</text>
+            <line x1="758" y1="408" x2="454" y2="408" stroke="#C0703A" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ahL)"/>
+            <circle cx="758" cy="408" r="9" fill="#C0703A"/><text x="758" y="412" fill="#fff" font-size="10.5" font-weight="600">7</text>
+
+            <!-- 8 L -> V report-status -->
+            <text x="605" y="444">report-status webhook — reportUrl + labNumber</text>
+            <line x1="758" y1="454" x2="454" y2="454" stroke="#C0703A" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ahL)"/>
+            <circle cx="758" cy="454" r="9" fill="#C0703A"/><text x="758" y="458" fill="#fff" font-size="10.5" font-weight="600">8</text>
+
+            <!-- 9 L -> V center-status (dashed) -->
+            <text x="605" y="500">center-status webhook — Completed / Cannot Complete</text>
+            <line x1="758" y1="510" x2="454" y2="510" stroke="#C0703A" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ahL)"/>
+            <circle cx="758" cy="510" r="9" fill="#C0703A"/><text x="758" y="514" fill="#fff" font-size="10.5" font-weight="600">9</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><span class="swatch" style="background:#0E7C86"></span>Vyara</span>
+        <span><span class="swatch" style="background:#C0703A"></span>MI Partner / Salesforce</span>
+        <span>→ solid = Vyara calls the lab’s existing endpoint</span>
+        <span>⇠ dashed = lab response / webhook to Vyara</span>
+      </div>
+
+      <ol class="steps">
+        <li><div><span class="who v">Vyara</span> · <b>Sign &amp; create order</b><p>Doctor signs the consultation. Vyara materialises the selected tests, generates a unique <code>orderNumber</code>, and creates the order awaiting a slot. No lab call yet.</p></div></li>
+        <li><div><span class="who v">Vyara → Lab</span> · <b>Find slots (existing)</b><p>Reception (option 1) or the patient in their portal (option 2) fetches bookable slots from the lab’s existing <code>getAvailableSlots</code> — pincode + preferred time.</p></div></li>
+        <li><div><span class="who v">Vyara → Lab</span> · <b>Book (existing)</b><p>Vyara books the chosen slot via the lab’s existing <code>bookFullAppointment</code> (home) or <code>EnquiryCenterAppointment</code> (centre). The order moves to SCHEDULED on the ack.</p></div></li>
+        <li><div><span class="who p">Lab</span> · <b>Collect the sample</b><p>Home: the lab’s phlebotomist visits the address. Centre: patient attends the named centre. Unchanged lab behaviour.</p></div></li>
+        <li><div><span class="who p">Lab → Vyara</span> · <b>Status webhooks</b><p>The lab posts appointment status, the report pointer + lab number, and any centre outcome — the webhooks it already sends. Vyara reconciles them onto the order.</p></div></li>
+      </ol>
+    </section>
+
+    <!-- ===== COLLECTION MODES ===== -->
+    <section>
+      <div class="kicker">Collection modes</div>
+      <h2>Home vs centre</h2>
+      <div class="grid cols-2">
+        <div class="card role vyara">
+          <h3><span class="tag">HOME</span> Phlebotomist visit</h3>
+          <p style="color:var(--ink-soft);font-size:14.5px;margin:10px 0 0">Vyara books via <code>bookFullAppointment</code> with the patient <b>address</b> and the chosen slot. The lab dispatches a phlebotomist. Collection routing and capacity stay in Salesforce.</p>
+        </div>
+        <div class="card role partner">
+          <h3><span class="tag">CENTER</span> Walk-in at a centre</h3>
+          <p style="color:var(--ink-soft);font-size:14.5px;margin:10px 0 0">Vyara books via <code>EnquiryCenterAppointment</code> with the <code>CentreID</code> (from <code>getAllCenters</code>) and the chosen slot. Centre outcomes come back on the dedicated <code>center-status</code> webhook.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== INBOUND WEBHOOKS ===== -->
+    <section id="inbound">
+      <div class="kicker">API · Inbound</div>
+      <h2>Webhooks the lab calls on Vyara</h2>
+      <p class="section-intro">Vyara exposes these three endpoints. The lab (Salesforce) posts to them as events occur. Base URL is Vyara’s app host — the full base is shared privately, of the form <code class="mono">https://&lt;vyara-host&gt;/api/webhooks/lab</code>.</p>
+
+      <div class="callout v"><b>Auth (interim).</b> Every request must carry the shared secret in the <code>x-lab-webhook-secret</code> header. Missing/incorrect → <code>401</code>. We’re open to switching to bearer, HMAC signature, or IP allow-listing — see open items. Vyara acks fast: <code>200</code> even when no matching order is found (<code>matched:false</code>), so the lab isn’t pushed into a retry storm; <code>400</code> only for a malformed payload.</div>
+
+      <!-- order-status -->
+      <div class="endpoint" style="margin-top:22px">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/api/webhooks/lab/order-status</span>
+          <span class="dirflag inbound">Lab → Vyara</span>
+        </div>
+        <div class="body">
+          <p class="desc">Posted once the lab books (or advances) the appointment. Vyara maps the status onto the order and stores the <code>appointmentId</code>.</p>
+          <div class="meta-row">
+            <div class="m"><div class="k">Auth</div><div class="val">x-lab-webhook-secret</div></div>
+            <div class="m"><div class="k">Match key</div><div class="val">orderNumber</div></div>
+            <div class="m"><div class="k">Status values</div><div class="val">Scheduled · In&nbsp;Progress · Completed · Cancelled</div></div>
+          </div>
+          <div class="sub">Request body</div>
+          <pre class="code">{
+  "appointmentId": "08pe10000008rghAAA",
+  "orderNumber":   "IPHMH-LAB/26-27/08-0100",
+  "status":        "Scheduled"
+}</pre>
+          <div class="sub" style="margin-top:14px">Fields</div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Field</th><th>Req</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td class="field">orderNumber</td><td><span class="req">required</span></td><td>The unique id Vyara generated and sent on the booking. Matches the order.</td></tr>
+                <tr><td class="field">status</td><td><span class="opt">optional</span></td><td>Free text; mapped case-insensitively. Unrecognised values leave lifecycle unchanged.</td></tr>
+                <tr><td class="field">appointmentId</td><td><span class="opt">optional</span></td><td>Salesforce appointment id. Stored for later cancel/reschedule.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="sub" style="margin-top:14px">Response <span class="pill">200</span></div>
+          <pre class="code">{ "data": { "acknowledged": true, "matched": true, "orderNumber": "IPHMH-LAB/26-27/08-0100" } }</pre>
+        </div>
+      </div>
+
+      <!-- report-status -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/api/webhooks/lab/report-status</span>
+          <span class="dirflag inbound">Lab → Vyara</span>
+        </div>
+        <div class="body">
+          <p class="desc">Posted when a report (or partial report) is available for a work order. A <code>Completed</code> (non-partial) report advances the order to completed.</p>
+          <div class="meta-row">
+            <div class="m"><div class="k">Auth</div><div class="val">x-lab-webhook-secret</div></div>
+            <div class="m"><div class="k">Match key</div><div class="val">orderNumber</div></div>
+            <div class="m"><div class="k">reportStatus</div><div class="val">Completed · Partial</div></div>
+          </div>
+          <div class="sub">Request body</div>
+          <pre class="code">{
+  "workOrderId":   "0WOe1000000rmGEGAY",
+  "orderNumber":   "IPHMH-LAB/26-27/08-0100",
+  "reportUrl":     "https://.../labreportnew.aspx?TestID=...&Phead=1",
+  "reportStatus":  "Completed",
+  "labNumber":     "192511200002",
+  "appointmentId": "08pe10000008rghAAA"
+}</pre>
+          <div class="sub" style="margin-top:14px">Fields</div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Field</th><th>Req</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td class="field">orderNumber</td><td><span class="req">required</span></td><td>Matches the Vyara order.</td></tr>
+                <tr><td class="field">reportUrl</td><td><span class="opt">optional</span></td><td>Link to the report. If it needs the lab’s auth to open, please confirm the access model.</td></tr>
+                <tr><td class="field">reportStatus</td><td><span class="opt">optional</span></td><td><code>Completed</code> vs <code>Partial</code> drives whether the order is marked complete.</td></tr>
+                <tr><td class="field">labNumber</td><td><span class="opt">optional</span></td><td>Lab’s own accession number, stored for reference.</td></tr>
+                <tr><td class="field">workOrderId / appointmentId</td><td><span class="opt">optional</span></td><td>Salesforce identifiers, stored on the order.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- center-status -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/api/webhooks/lab/center-status</span>
+          <span class="dirflag inbound">Lab → Vyara</span>
+        </div>
+        <div class="body">
+          <p class="desc">Posted for centre-collection outcomes — completed, or could not be completed with a reason.</p>
+          <div class="meta-row">
+            <div class="m"><div class="k">Auth</div><div class="val">x-lab-webhook-secret</div></div>
+            <div class="m"><div class="k">Match key</div><div class="val">orderNumber</div></div>
+            <div class="m"><div class="k">orderStatus</div><div class="val">Completed · Cannot&nbsp;Complete</div></div>
+          </div>
+          <div class="sub">Request body</div>
+          <pre class="code">{
+  "orderCaseId":         "0WOe1000000rmKKAY",
+  "orderNumber":         "IPHMH-LAB/26-27/08-0100",
+  "orderStatus":         "Cannot Complete",
+  "workOrderId":         "0WOe1000000rmGEGAY",
+  "appointmentDateTime": "2026-05-01T14:30:00.000+0000",
+  "reason":              "Customer not answering the call"
+}</pre>
+          <div class="sub" style="margin-top:14px">Fields</div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Field</th><th>Req</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td class="field">orderNumber</td><td><span class="req">required</span></td><td>Matches the Vyara order.</td></tr>
+                <tr><td class="field">orderStatus</td><td><span class="opt">optional</span></td><td><code>Completed</code> or <code>Cannot Complete</code>; mapped onto lifecycle.</td></tr>
+                <tr><td class="field">reason</td><td><span class="opt">optional</span></td><td>Free text; surfaced to Vyara staff on a “cannot complete”.</td></tr>
+                <tr><td class="field">orderCaseId / workOrderId</td><td><span class="opt">optional</span></td><td>Salesforce identifiers, stored on the order.</td></tr>
+                <tr><td class="field">appointmentDateTime</td><td><span class="opt">optional</span></td><td>ISO 8601 with offset. See the timezone open item.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== OUTBOUND ===== -->
+    <section id="outbound">
+      <div class="kicker">API · Outbound</div>
+      <h2>Calls Vyara makes to the lab</h2>
+      <p class="section-intro">All calls target the MI Partner apexrest base and are authenticated with an OAuth2 <b>client-credentials</b> bearer token, cached and refreshed by Vyara. <b>Every endpoint below already exists</b> in the partner’s UAT collection — nothing new is requested.</p>
+
+      <div class="callout v"><b>No development required from the lab.</b> Vyara sources a slot from the existing <code>getAvailableSlots</code> and books via the existing <code>bookFullAppointment</code> / <code>EnquiryCenterAppointment</code>. Please confirm we may use these endpoints for this flow, and confirm the <code>getAvailableSlots</code> response shape (see open items).</div>
+
+      <!-- Auth -->
+      <div class="endpoint" style="margin-top:22px">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/services/oauth2/token</span>
+          <span class="dirflag outbound">Vyara → Lab</span>
+        </div>
+        <div class="body">
+          <p class="desc">Standard Salesforce client-credentials flow. Vyara caches the token and retries once on a <code>401</code> with a fresh token.</p>
+          <div class="sub">Request (form-encoded)</div>
+          <pre class="code">grant_type=client_credentials&amp;client_id=&lt;id&gt;&amp;client_secret=&lt;secret&gt;</pre>
+          <div class="callout" style="margin-top:14px"><b>Security.</b> The UAT Postman collection ships <code>client_id</code>/<code>client_secret</code> in the token URL query string. Please rotate those and share fresh credentials over a secure channel — Vyara stores them as server-side secrets only.</div>
+        </div>
+      </div>
+
+      <!-- getAvailableSlots -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/services/apexrest/getAvailableSlots</span>
+          <span class="dirflag outbound">Vyara → Lab</span>
+        </div>
+        <div class="body">
+          <p class="desc"><b>Existing endpoint.</b> Vyara fetches bookable slots so reception or the patient can choose one. The chosen slot’s <code>serviceTerritoryId</code> / <code>serviceMemberId</code> + start/end are carried into the booking call.</p>
+          <div class="sub">Request</div>
+          <pre class="code">{ "pincode": "110030", "preferredDateTime": "2026-08-25 10:00:00" }</pre>
+          <div class="callout" style="margin-top:14px"><b>Please confirm the response shape.</b> Vyara reads a list of slots (start/end + service ids) from the response. Our client parses common shapes defensively and offers a manual-time fallback, but a confirmed schema lets us drop the fallback.</div>
+        </div>
+      </div>
+
+      <!-- Book -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="method post">POST</span>
+          <span class="path">/services/apexrest/bookFullAppointment · EnquiryCenterAppointment</span>
+          <span class="dirflag outbound">Vyara → Lab</span>
+        </div>
+        <div class="body">
+          <p class="desc"><b>Existing endpoints, used as-is.</b> Vyara books the chosen slot — <code>bookFullAppointment</code> for home, <code>EnquiryCenterAppointment</code> for centre. The <code>orderNumber</code> is generated by Vyara and unique.</p>
+          <div class="sub">Request — HOME (bookFullAppointment)</div>
+          <pre class="code">{
+  "customer": {
+    "PFirstName": "Sparsh", "PLastName": "Bhayare",
+    "Mobile": "9999473969", "Email": "sparsh@example.com",
+    "DateOfBirth": "1990-05-12", "Gender": "Female",
+    "PatientId": "IPHMH/26-27/08-0100",
+    "street": "12 MG Road, Saket, Delhi", "city": "Delhi",
+    "state": "Delhi", "postalCode": "110030", "country": "India"
+  },
+  "appointment": {
+    "serviceTerritoryId": "0Hhe10000000G1aCAE",   <span class="c">// from getAvailableSlots</span>
+    "serviceMenberId":    "0Hue10000000FQTCA2",
+    "startTime": "2026-08-25 10:00:00",
+    "endTime":   "2026-08-25 10:30:00"
+  },
+  "order": {
+    "orderNumber": "IPHMH-LAB/26-27/08-0100",     <span class="c">// unique, generated by Vyara</span>
+    "paymentMode": "Cash",
+    "items": [ { "testName": "FBS/ PPBS /HbA1c", "testId": "LSHHI32734" } ]
+  },
+  "attachments": []
+}</pre>
+          <div class="sub" style="margin-top:14px">Request — CENTER (EnquiryCenterAppointment)</div>
+          <pre class="code">{
+  "customer": {
+    "PFirstName": "Sparsh", "PLastName": "Bhayare", "Mobile": "9999473969",
+    "Email": "sparsh@example.com", "DateOfBirth": "1990-05-12", "Gender": "Female",
+    "CentreID": "CEN-101",                         <span class="c">// from getAllCenters</span>
+    "PatientId": "IPHMH/26-27/08-0100",
+    "orderNumber": "IPHMH-LAB/26-27/08-0100",
+    "startTime": "2026-08-25 10:00:00", "endTime": "2026-08-25 10:30:00"
+  },
+  "items": [ { "testName": "FBS/ PPBS /HbA1c", "testId": "LSHHI32734" } ]
+}</pre>
+        </div>
+      </div>
+
+      <!-- Masters -->
+      <div class="endpoint">
+        <div class="head">
+          <span class="method get">GET</span>
+          <span class="path">/services/apexrest/getAllProducts</span>
+          <span class="dirflag outbound">Vyara → Lab</span>
+        </div>
+        <div class="body">
+          <p class="desc">Test master. Vyara caches this and maps our catalogue tests to the lab’s <code>testId</code> / <code>testName</code> so the booking carries the correct ids.</p>
+        </div>
+      </div>
+      <div class="endpoint">
+        <div class="head">
+          <span class="method get">GET</span>
+          <span class="path">/services/apexrest/getAllCenters</span>
+          <span class="dirflag outbound">Vyara → Lab</span>
+        </div>
+        <div class="body">
+          <p class="desc">Centre master. Vyara caches this to resolve the <code>CentreID</code> used in CENTER-mode bookings.</p>
+        </div>
+      </div>
+
+      <h3 style="margin:26px 0 10px">Existing partner APIs used for lifecycle</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Purpose</th><th>Method</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>Cancel home appointment</td><td><span class="pill">POST</span></td><td class="field">/services/apexrest/cancelFullAppointment</td></tr>
+            <tr><td>Reschedule home appointment</td><td><span class="pill">POST</span></td><td class="field">/services/apexrest/rescheduleAppointment</td></tr>
+            <tr><td>Cancel centre appointment</td><td><span class="pill">POST</span></td><td class="field">/services/apexrest/CancelCenterAppointment</td></tr>
+            <tr><td>Reschedule centre appointment</td><td><span class="pill">POST</span></td><td class="field">/services/apexrest/RescheduleCenterAppointment</td></tr>
+            <tr><td>Work-order report</td><td><span class="pill">GET</span></td><td class="field">/services/apexrest/getWorkOrderReport</td></tr>
+            <tr><td>Work-order status</td><td><span class="pill">GET</span></td><td class="field">/services/apexrest/getWorkOrderStatus</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== OPEN ITEMS ===== -->
+    <section id="open">
+      <div class="kicker">To confirm together</div>
+      <h2>Open items</h2>
+      <p class="section-intro">Answers needed from the MI Partner team to finalise and start UAT.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Topic</th><th>What we need</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Use existing endpoints</td><td><b>No dev needed.</b> Confirm Vyara may use the existing <code>getAvailableSlots</code>, <code>bookFullAppointment</code>, <code>EnquiryCenterAppointment</code>, cancel/reschedule and status webhooks for this flow.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>2</td><td>getAvailableSlots response</td><td>Confirm the response shape — the fields for each slot’s start/end and <code>serviceTerritoryId</code> / <code>serviceMemberId</code>.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>3</td><td>Webhook auth to Vyara</td><td>Confirm mechanism: shared secret header (our default), bearer, HMAC signature, or IP allow-list.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>4</td><td>Credential exchange</td><td>Rotate the leaked UAT client id/secret; share fresh creds + the webhook secret securely.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>5</td><td>Identifiers on ack</td><td>Confirm whether <code>appointmentId</code> / <code>workOrderId</code> return on the booking ack or only via the <code>order-status</code> webhook.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>6</td><td>Timezone convention</td><td>Booking uses <code>YYYY-MM-DD HH:mm:ss</code> (no offset); centre webhook uses ISO <code>+0000</code>. Vyara operates in <b>IST</b> — confirm handling.</td><td>Both</td></tr>
+            <tr><td>7</td><td>CentreID mapping</td><td>Confirm <code>CentreID</code> in the payload equals the id from <code>getAllCenters</code>.</td><td><span class="q">MI Partner</span></td></tr>
+            <tr><td>8</td><td>Report URL access</td><td>Does <code>reportUrl</code> require the lab’s auth to open? If so, the access model for Vyara/patients.</td><td><span class="q">MI Partner</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="page">
+  <div class="wrap">
+    <span>Vyara ⇄ MI Partner · Integration Spec · DRAFT v1</span>
+    <span>2026-08-21 · Vyara Engineering</span>
+  </div>
+</footer>

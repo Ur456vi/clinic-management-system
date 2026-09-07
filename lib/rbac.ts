@@ -159,6 +159,7 @@ export const ADMIN_AREAS: readonly AdminArea[] = [
   { key: "assessments", path: "/admin/assessments", label: "Assessments", roles: PERMISSIONS["assessment:view"] },
   { key: "invoices", path: "/admin/invoices", label: "Invoices", roles: PERMISSIONS["invoice:view"] },
   { key: "refills", path: "/admin/refills", label: "Refills", roles: PERMISSIONS["refill:read"] },
+  { key: "lab-scheduling", path: "/admin/lab-scheduling", label: "Lab Scheduling", roles: ["ADMIN", "DOCTOR", "RECEPTION"] },
   { key: "reports", path: "/admin/reports", label: "Reports", roles: ["ADMIN", "DOCTOR"] },
   { key: "staff", path: "/admin/staff", label: "Staff", roles: ADMIN_ONLY },
   { key: "departments", path: "/admin/departments", label: "Departments", roles: ADMIN_ONLY },

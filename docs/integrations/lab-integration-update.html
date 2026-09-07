@@ -1,0 +1,275 @@
+<title>Lab Integration Update</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground: #FAFBFC; --surface: #FFFFFF; --surface-2: #F3F6F8;
+    --ink: #15212B; --ink-soft: #3E4E5A; --muted: #5A6B78;
+    --border: #E3E9ED; --border-strong: #CFD8DE;
+    --vyara: #0E7C86; --vyara-bg: #E4F1F2;
+    --partner: #C0703A; --partner-bg: #F7EADD;
+    --ok: #1E8E5A; --ok-bg: #E4F3EB;
+    --warn: #A86D14; --warn-bg: #F6ECD8;
+    --crit: #C0402F; --crit-bg: #F6E2DE;
+    --shadow: 0 1px 2px rgba(20,33,43,.04), 0 8px 24px -12px rgba(20,33,43,.12);
+    --radius: 12px; --maxw: 880px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E161C; --surface: #152029; --surface-2: #1B2932;
+      --ink: #E7EEF2; --ink-soft: #B7C4CC; --muted: #8B9BA6;
+      --border: #26333D; --border-strong: #33434F;
+      --vyara: #4CC2CC; --vyara-bg: #123037;
+      --partner: #E0965E; --partner-bg: #35271B;
+      --ok: #4FBE85; --ok-bg: #12291E;
+      --warn: #D8A64A; --warn-bg: #2C2411;
+      --crit: #E4796A; --crit-bg: #2E1A17;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E161C; --surface: #152029; --surface-2: #1B2932;
+    --ink: #E7EEF2; --ink-soft: #B7C4CC; --muted: #8B9BA6;
+    --border: #26333D; --border-strong: #33434F;
+    --vyara: #4CC2CC; --vyara-bg: #123037;
+    --partner: #E0965E; --partner-bg: #35271B;
+    --ok: #4FBE85; --ok-bg: #12291E;
+    --warn: #D8A64A; --warn-bg: #2C2411;
+    --crit: #E4796A; --crit-bg: #2E1A17;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .92em; }
+
+  header.page {
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(120% 140% at 88% -20%, var(--vyara-bg) 0%, transparent 55%),
+      radial-gradient(120% 140% at 4% -30%, var(--partner-bg) 0%, transparent 50%);
+  }
+  header.page .wrap { padding-top: 50px; padding-bottom: 38px; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.06; letter-spacing: -.02em; font-weight: 700; margin: 0 0 12px; text-wrap: balance; }
+  .lede { font-size: 18px; color: var(--ink-soft); max-width: 60ch; margin: 0 0 22px; text-wrap: pretty; }
+  .metabar { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; font-size: 13px; font-family: "IBM Plex Mono", monospace; color: var(--muted); }
+  .metabar b { color: var(--ink-soft); font-weight: 600; }
+  .badge { display: inline-flex; align-items: center; gap: 7px; font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600; letter-spacing: .04em; padding: 5px 11px; border-radius: 999px; border: 1px solid transparent; }
+  .badge.build { background: var(--ok-bg); color: var(--ok); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  main .wrap { padding-top: 44px; padding-bottom: 48px; }
+  section { margin: 0 0 50px; }
+  .kicker { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--vyara); margin: 0 0 10px; display: flex; align-items: center; gap: 10px; }
+  .kicker::before { content: ""; width: 22px; height: 2px; background: var(--vyara); border-radius: 2px; }
+  h2 { font-size: 24px; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 8px; font-weight: 600; }
+  h2 + p.section-intro { color: var(--ink-soft); margin: 0 0 22px; max-width: 64ch; }
+
+  .grid { display: grid; gap: 16px; }
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 720px) { .cols-3 { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card .ctitle { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .card p strong { color: var(--ink); }
+  .tick { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+
+  /* Timeline */
+  ol.timeline { list-style: none; counter-reset: t; margin: 0; padding: 0; position: relative; }
+  ol.timeline::before { content: ""; position: absolute; left: 15px; top: 6px; bottom: 6px; width: 2px; background: var(--border-strong); }
+  ol.timeline li { counter-increment: t; position: relative; padding: 0 0 22px 46px; }
+  ol.timeline li:last-child { padding-bottom: 0; }
+  ol.timeline li::before {
+    content: counter(t); position: absolute; left: 0; top: -2px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--vyara); color: var(--vyara);
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.timeline .tstage { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  ol.timeline h3 { font-size: 16.5px; margin: 2px 0 4px; font-weight: 600; }
+  ol.timeline p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+
+  /* Status table */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 520px; background: var(--surface); }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  thead th { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--surface-2); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.who { color: var(--ink-soft); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.live { background: var(--ok-bg); color: var(--ok); }
+  .pill.built { background: var(--vyara-bg); color: var(--vyara); }
+  .pill.staged { background: var(--warn-bg); color: var(--warn); }
+  .pill.off { background: var(--surface-2); color: var(--muted); }
+  .pill.pending { background: var(--partner-bg); color: var(--partner); }
+
+  ul.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  ul.checks li { display: grid; grid-template-columns: 20px 1fr; gap: 12px; font-size: 14.5px; color: var(--ink-soft); align-items: start; }
+  ul.checks li b { color: var(--ink); font-weight: 600; }
+  .ok-mark { color: var(--ok); font-weight: 700; }
+
+  .steps2 { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+  .step .tag { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .04em; padding: 4px 9px; border-radius: 6px; white-space: nowrap; }
+  .step .tag.v { background: var(--vyara-bg); color: var(--vyara); }
+  .step .tag.p { background: var(--partner-bg); color: var(--partner); }
+  .step .tag.both { background: var(--surface-2); color: var(--ink-soft); }
+  .step p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+  .step p b { color: var(--ink); }
+  .step code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+
+  .callout { border-left: 3px solid var(--vyara); background: var(--vyara-bg); border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 22px 0 0; font-size: 14.5px; color: var(--ink); }
+  .callout b { color: var(--vyara); }
+
+  footer.page { border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer.page .wrap { padding: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-family: "IBM Plex Mono", monospace; }
+
+  /* Print / PDF — force the light palette and keep backgrounds + avoid awkward breaks. */
+  @media print {
+    :root { color-scheme: light; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #FFFFFF; }
+    .wrap { max-width: 100%; }
+    section { margin-bottom: 28px; }
+    h2 { break-after: avoid; }
+    .card, .step, .tablewrap, ol.timeline li, ul.checks li { break-inside: avoid; }
+    header.page .wrap { padding-top: 24px; padding-bottom: 24px; }
+    a { color: var(--vyara); text-decoration: none; }
+  }
+  @page { margin: 14mm; }
+</style>
+
+<header class="page">
+  <div class="wrap">
+    <p class="eyebrow">Project Update · MI Partner Lab Integration</p>
+    <h1>Lab Integration Update</h1>
+    <p class="lede">Where the Vyara ⇄ MI Partner lab integration stands: the approach settled on <b>zero changes on the Salesforce side</b>, both booking paths built, and reception booking going live first.</p>
+    <div class="metabar">
+      <span class="badge build"><span class="dot"></span>Build complete · pending go-live</span>
+      <span><b>Date</b> 2026-08-21</span>
+      <span><b>From</b> Vyara Engineering</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- TL;DR -->
+    <section>
+      <div class="kicker">In brief</div>
+      <h2>The headline</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <p class="ctitle"><span class="tick" style="background:var(--partner)"></span>Approach</p>
+          <p><strong>Zero Salesforce dev.</strong> Vyara books through the lab’s existing endpoints; the lab builds nothing new.</p>
+        </div>
+        <div class="card">
+          <p class="ctitle"><span class="tick" style="background:var(--ok)"></span>Live first</p>
+          <p><strong>Reception booking (option 1).</strong> Reception books each prescribed test at sign time.</p>
+        </div>
+        <div class="card">
+          <p class="ctitle"><span class="tick" style="background:var(--warn)"></span>Staged</p>
+          <p><strong>Patient self-booking (option 2).</strong> Built and behind a flag — switch on later, no rebuild.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision log -->
+    <section>
+      <div class="kicker">How we got here</div>
+      <h2>Decision log</h2>
+      <p class="section-intro">Three decisions shaped the final design. The order matters — each one narrowed the build.</p>
+      <ol class="timeline">
+        <li>
+          <span class="tstage">Starting point</span>
+          <h3>Approach 1 — prescription-notify</h3>
+          <p>Vyara would notify the lab the moment a test is prescribed, and the lab’s team would book the slot. This needed one <b>new</b> endpoint on the lab side: a notify that accepts an order with no appointment time.</p>
+        </li>
+        <li>
+          <span class="tstage">Constraint</span>
+          <h3>The lab won’t develop anything → pivot to zero-change</h3>
+          <p>Since the Salesforce team is not keen to build, we removed the only thing that required their effort. Vyara now sources a slot from the lab’s <b>existing</b> <code>getAvailableSlots</code> and books via their <b>existing</b> <code>bookFullAppointment</code> / <code>EnquiryCenterAppointment</code>. The lab’s only role is collecting the sample and posting the status webhooks it already sends.</p>
+        </li>
+        <li>
+          <span class="tstage">Rollout</span>
+          <h3>Reception first, patient portal staged</h3>
+          <p>Both booking paths were built. <b>Reception booking (option 1)</b> goes live now. <b>Patient self-booking (option 2)</b> is complete but gated behind a feature flag so it can be turned on later without any further development.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Current state -->
+    <section>
+      <div class="kicker">Where it stands</div>
+      <h2>Current state</h2>
+      <p class="section-intro">Everything below is built and verified. Nothing calls the live lab or the UAT database yet — that waits on the go-live steps.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Capability</th><th>Status</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>Order created on prescription sign</td><td><span class="pill built">Built</span></td><td class="who">Signing a consultation creates a lab order awaiting a slot.</td></tr>
+            <tr><td>Reception booking — option 1</td><td><span class="pill live">Live path</span></td><td class="who">New <code>/admin/lab-scheduling</code> screen for reception.</td></tr>
+            <tr><td>Patient self-booking — option 2</td><td><span class="pill staged">Staged (flag off)</span></td><td class="who">On the patient portal; hidden until the flag is flipped.</td></tr>
+            <tr><td>Slot lookup + booking (home &amp; centre)</td><td><span class="pill built">Built</span></td><td class="who">Uses the lab’s existing endpoints only.</td></tr>
+            <tr><td>Status webhooks from the lab</td><td><span class="pill built">Built</span></td><td class="who">Appointment status, reports, centre outcomes received &amp; reconciled.</td></tr>
+            <tr><td>Test &amp; centre master sync</td><td><span class="pill built">Built</span></td><td class="who">Maps our tests to the lab’s test IDs.</td></tr>
+            <tr><td>Database changes</td><td><span class="pill pending">To apply</span></td><td class="who">Migrations written &amp; verified; not yet applied to UAT.</td></tr>
+            <tr><td>Live lab calls</td><td><span class="pill off">Off</span></td><td class="who">Integration disabled by default until credentials are in.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Verification -->
+    <section>
+      <div class="kicker">Quality</div>
+      <h2>What we verified</h2>
+      <ul class="checks">
+        <li><span class="ok-mark">✓</span><span>Type-checks, linting, and a full production build all pass.</span></li>
+        <li><span class="ok-mark">✓</span><span>Database migrations were checked against the schema — <b>an exact match</b>, and they apply cleanly on a fresh database.</span></li>
+        <li><span class="ok-mark">✓</span><span>The end-to-end flow was smoke-tested on a throwaway database: order creation on sign, booking guarded when the integration is off, and status updates applied correctly.</span></li>
+        <li><span class="ok-mark">✓</span><span>The shared UAT database was <b>not touched</b> — every DB change is staged as a manual, additive step.</span></li>
+      </ul>
+    </section>
+
+    <!-- Next steps -->
+    <section>
+      <div class="kicker">To go live</div>
+      <h2>Next steps</h2>
+      <p class="section-intro">Two owners. Once these are done, option 1 is live; option 2 is a single flag away.</p>
+      <div class="steps2">
+        <div class="step">
+          <span class="tag v">VYARA</span>
+          <p><b>Apply the database changes to UAT</b> (a one-time additive migration) and load the lab credentials into the environment, then switch the integration on.</p>
+        </div>
+        <div class="step">
+          <span class="tag p">MI PARTNER</span>
+          <p><b>Confirm we may use the existing endpoints</b>, share the exact <code>getAvailableSlots</code> response shape, rotate the leaked UAT credentials, and confirm the webhook authentication method.</p>
+        </div>
+        <div class="step">
+          <span class="tag both">THEN</span>
+          <p><b>Go live with reception booking.</b> When ready, enable patient self-booking by flipping one flag — no further development.</p>
+        </div>
+      </div>
+      <div class="callout"><b>Reference.</b> The full technical contract — flow diagram, API payloads, and open items for the MI Partner team — is in the accompanying <b>Integration Specification</b>.</div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="page">
+  <div class="wrap">
+    <span>Vyara ⇄ MI Partner · Project Update</span>
+    <span>2026-08-21 · Vyara Engineering</span>
+  </div>
+</footer>

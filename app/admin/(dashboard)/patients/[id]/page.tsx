@@ -5,7 +5,8 @@
  *
  * Reuses the app's dashboard chrome (sidebar + top bar). The view is a
  * patient header band, KPI cards and a tabbed body (Clinical Summary /
- * Program & Refills / Consultations / Labs / Follow-Ups / Billing / Vitals)
+ * Program & Refills / Consultations / Score / Labs / Follow-Ups / Billing /
+ * Vitals)
  * driven by real data: /api/patients/[id] (profile), /api/appointments
  * (bookings), /api/patients/[id]/vitals, and /api/patients/[id]/timeline
  * (unified consultation/lab/plan/invoice feed). The Program + Refill panels
@@ -46,6 +47,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { PatientScorePanel } from "@/components/admin/score"
 import { notify } from "@/lib/notify"
 import RefillManager from "@/components/admin/RefillManager"
 import LabReportUploadModal from "@/components/admin/LabReportUploadModal"
@@ -212,7 +214,7 @@ type PlanApi = {
   items: PlanItemApi[]
 }
 
-const TABS = ["Clinical Summary", "Summaries", "Infusion", "Anthropometric Assessment", "Program & Refills", "Consultations", "Labs", "Follow-Ups", "Billing", "Vitals"]
+const TABS = ["Clinical Summary", "Summaries", "Infusion", "Anthropometric Assessment", "Program & Refills", "Consultations", "Score", "Labs", "Follow-Ups", "Billing", "Vitals"]
 
 type InfusionRow = {
   id: string
@@ -1051,6 +1053,8 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         </div>
       ) : tab === "Consultations" ? (
         <ListPanel title="Consultations" icon={Stethoscope} items={byType.consultation} empty="No consultations recorded." />
+      ) : tab === "Score" ? (
+        <PatientScorePanel patientId={id} />
       ) : tab === "Labs" ? (
         <Panel title="Labs & Diagnostics" icon={FlaskConical} full>
           <table className="w-full text-sm">
