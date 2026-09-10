@@ -70,9 +70,10 @@ export type OrderStatusPayload = z.infer<typeof orderStatusSchema>
 export type CenterStatusPayload = z.infer<typeof centerStatusSchema>
 
 /**
- * Map a free-text partner status onto our `LabOrderStatus`. Returns null when
- * the text is unrecognized so the caller leaves the lifecycle status untouched
- * (and just records the raw event).
+ * Partner statuses are free text and each webhook uses its own vocabulary, so
+ * every inbound event has a dedicated mapper below. They all return null on
+ * unrecognized text, which leaves the lifecycle status untouched and just
+ * records the raw event.
  */
 // ---------------------------------------------------------------------------
 // Scheduling (our side) — availability, book, cancel, reschedule
@@ -150,13 +151,18 @@ export function mapCenterRegistrationStatus(raw: string | undefined): LabOrderSt
   return null
 }
 
-export function mapOrderStatus(raw: string | undefined): LabOrderStatus | null {
+/**
+ * Home `appointment-order-status` — the phlebotomist's visit outcome.
+ * "Completed" means the blood sample was COLLECTED, not that the order is
+ * finished: the report still has to arrive via `report-status`, which is the
+ * only thing that sets COMPLETED. Order of checks matters — "Cannot Complete"
+ * contains "complet".
+ */
+export function mapHomeOrderStatus(raw: string | undefined): LabOrderStatus | null {
   if (!raw) return null
   const s = raw.toLowerCase()
   if (s.includes("cannot")) return "CANNOT_COMPLETE"
-  if (s.includes("complet")) return "COMPLETED"
   if (s.includes("cancel")) return "CANCELLED"
-  if (s.includes("progress")) return "IN_PROGRESS"
-  if (s.includes("schedul")) return "SCHEDULED"
+  if (s.includes("complet")) return "IN_PROGRESS"
   return null
 }

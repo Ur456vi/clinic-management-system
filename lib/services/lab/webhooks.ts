@@ -17,7 +17,7 @@ import {
   centerStatusSchema,
   mapCenterOrderStatus,
   mapCenterRegistrationStatus,
-  mapOrderStatus,
+  mapHomeOrderStatus,
   orderStatusSchema,
   reportStatusSchema,
   type CenterStatusPayload,
@@ -108,7 +108,11 @@ export async function processReportStatus(raw: unknown): Promise<ProcessResult> 
   }
 }
 
-/** ORDER_STATUS — the partner booked / advanced the appointment. */
+/**
+ * ORDER_STATUS — home-collection visit outcome. "Completed" here is the phlebo
+ * having collected the sample, which is IN_PROGRESS for us; COMPLETED comes
+ * later from `report-status`.
+ */
 export async function processOrderStatus(raw: unknown): Promise<ProcessResult> {
   const payload: OrderStatusPayload = orderStatusSchema.parse(raw)
   const eventId = await recordEvent("ORDER_STATUS", payload.orderNumber, payload)
@@ -118,7 +122,7 @@ export async function processOrderStatus(raw: unknown): Promise<ProcessResult> {
       await finishEvent(eventId, null, "no matching order")
       return { matched: false, orderNumber: payload.orderNumber }
     }
-    const mapped = mapOrderStatus(payload.status)
+    const mapped = mapHomeOrderStatus(payload.status)
     await db.labOrder.update({
       where: { id: orderId },
       data: {

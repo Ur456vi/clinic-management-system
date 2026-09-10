@@ -18,6 +18,7 @@ import {
   centerStatusSchema,
   mapCenterOrderStatus,
   mapCenterRegistrationStatus,
+  mapHomeOrderStatus,
   orderStatusSchema,
   reportStatusSchema,
 } from "@/lib/validation/lab"
@@ -167,5 +168,31 @@ describe("centre status mapping", () => {
   it("unknown text leaves the lifecycle untouched", () => {
     expect(mapCenterOrderStatus("Weird")).toBeNull()
     expect(mapCenterRegistrationStatus(undefined)).toBeNull()
+  })
+})
+
+describe("home status mapping", () => {
+  it("Completed means the sample was collected, not the order finished", () => {
+    expect(mapHomeOrderStatus("Completed")).toBe("IN_PROGRESS")
+  })
+
+  it("matches case-insensitively, as MI's spec requires", () => {
+    expect(mapHomeOrderStatus("cOMPLETED")).toBe("IN_PROGRESS")
+    expect(mapHomeOrderStatus("cannot complete")).toBe("CANNOT_COMPLETE")
+  })
+
+  it("Cannot Complete wins over the 'complet' substring it contains", () => {
+    expect(mapHomeOrderStatus("Cannot Complete")).toBe("CANNOT_COMPLETE")
+  })
+
+  it("never returns COMPLETED — only report-status may set that", () => {
+    for (const raw of ["Completed", "Cannot Complete", "Cancelled", "Rescheduled"]) {
+      expect(mapHomeOrderStatus(raw)).not.toBe("COMPLETED")
+    }
+  })
+
+  it("unknown text leaves the lifecycle untouched", () => {
+    expect(mapHomeOrderStatus("Weird")).toBeNull()
+    expect(mapHomeOrderStatus(undefined)).toBeNull()
   })
 })
