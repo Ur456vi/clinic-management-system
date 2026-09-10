@@ -11,9 +11,12 @@
 import type { LabWebhookKind, Prisma } from "@prisma/client"
 
 import { db } from "@/lib/db"
+import { istInstant } from "@/lib/date-utils"
 import { logger } from "@/lib/logger"
 import {
   centerStatusSchema,
+  mapCenterOrderStatus,
+  mapCenterRegistrationStatus,
   mapOrderStatus,
   orderStatusSchema,
   reportStatusSchema,
@@ -25,6 +28,19 @@ import {
 const log = logger.child({ mod: "lab-webhooks" })
 
 type ProcessResult = { matched: boolean; orderNumber: string | null }
+
+/**
+ * Partner datetimes are IST wall-clock ("2026-09-20 10:00:00"), matching the
+ * convention their booking endpoints use. An ISO string carrying a zone is
+ * taken at face value.
+ */
+function parsePartnerDateTime(s: string | undefined): Date | undefined {
+  if (!s) return undefined
+  const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/.exec(s.trim())
+  if (m) return istInstant(m[1], m[2])
+  const d = new Date(s)
+  return Number.isNaN(d.getTime()) ? undefined : d
+}
 
 async function findOrderId(orderNumber: string): Promise<string | null> {
   const order = await db.labOrder.findUnique({
@@ -78,6 +94,7 @@ export async function processReportStatus(raw: unknown): Promise<ProcessResult> 
         labNumber: payload.labNumber ?? undefined,
         workOrderId: payload.workOrderId ?? undefined,
         appointmentId: payload.appointmentId ?? undefined,
+        orderCaseId: payload.caseId ?? undefined,
         ...(isComplete ? { status: "COMPLETED" as const } : {}),
       },
     })
@@ -106,6 +123,7 @@ export async function processOrderStatus(raw: unknown): Promise<ProcessResult> {
       where: { id: orderId },
       data: {
         appointmentId: payload.appointmentId ?? undefined,
+        reason: payload.reason ?? undefined,
         ...(mapped ? { status: mapped } : {}),
       },
     })
@@ -129,13 +147,28 @@ export async function processCenterStatus(raw: unknown): Promise<ProcessResult> 
       await finishEvent(eventId, null, "no matching order")
       return { matched: false, orderNumber: payload.orderNumber }
     }
-    const mapped = mapOrderStatus(payload.orderStatus)
+    // One endpoint, two payload shapes. `registrationStatus` reports what
+    // happened at the centre on the day; `orderStatus` reports the call-centre
+    // booking outcome. Each has its own mapping — see the mappers for why
+    // "Completed" does not mean COMPLETED in either case.
+    const mapped = payload.registrationStatus
+      ? mapCenterRegistrationStatus(payload.registrationStatus)
+      : mapCenterOrderStatus(payload.orderStatus)
+
+    // A reschedule or cancellation mints a fresh centre case id, so always take
+    // the newest one; `orderCaseId` and `caseId` are the same field under two
+    // names depending on which shape arrived.
+    const caseId = payload.orderCaseId ?? payload.caseId
+    const appointmentStart = parsePartnerDateTime(payload.appointmentDateTime)
+
     await db.labOrder.update({
       where: { id: orderId },
       data: {
-        orderCaseId: payload.orderCaseId ?? undefined,
+        orderCaseId: caseId ?? undefined,
         workOrderId: payload.workOrderId ?? undefined,
+        labNumber: payload.labNumber ?? undefined,
         reason: payload.reason ?? undefined,
+        ...(appointmentStart ? { appointmentStart } : {}),
         ...(mapped ? { status: mapped } : {}),
       },
     })
