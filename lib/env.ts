@@ -100,6 +100,11 @@ type EnvShape = {
   LAB_RESCHEDULE_HOME_PATH: string
   LAB_CANCEL_CENTER_PATH: string
   LAB_RESCHEDULE_CENTER_PATH: string
+  /// Partner-assigned panel name sent as `customer.source` on both booking
+  /// endpoints. MI looks this up as a Panel record with no empty-list guard, so
+  /// an absent or unregistered value fails the whole call with a 500
+  /// ("List has no rows for assignment to SObject"). UAT value: "MyCardioGen".
+  LAB_PARTNER_SOURCE: string
   /// Shared secret the partner must send on inbound webhooks
   /// (`x-lab-webhook-secret` header). Requests without it are rejected.
   LAB_WEBHOOK_SECRET: string | undefined
@@ -242,6 +247,7 @@ const env: EnvShape = {
   LAB_RESCHEDULE_HOME_PATH: optional("LAB_RESCHEDULE_HOME_PATH", "/services/apexrest/rescheduleAppointment")!,
   LAB_CANCEL_CENTER_PATH: optional("LAB_CANCEL_CENTER_PATH", "/services/apexrest/CancelCenterAppointment")!,
   LAB_RESCHEDULE_CENTER_PATH: optional("LAB_RESCHEDULE_CENTER_PATH", "/services/apexrest/RescheduleCenterAppointment")!,
+  LAB_PARTNER_SOURCE: optional("LAB_PARTNER_SOURCE", "MyCardioGen")!,
   LAB_WEBHOOK_SECRET: optional("LAB_WEBHOOK_SECRET"),
 
   CORS_ALLOWED_ORIGINS: listOpt("CORS_ALLOWED_ORIGINS"),

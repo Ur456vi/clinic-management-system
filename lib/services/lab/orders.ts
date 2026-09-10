@@ -19,6 +19,7 @@
 import type { LabBookedVia, LabCollectionMode, LabOrder, Prisma } from "@prisma/client"
 
 import { db } from "@/lib/db"
+import { env } from "@/lib/env"
 import { ValidationError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
 import { istInstant } from "@/lib/date-utils"
@@ -32,7 +33,14 @@ import { resolveItems, type ResolvedItem } from "./mapping"
 const log = logger.child({ mod: "lab-orders" })
 
 const ORDER_PREFIX = "IPHMH-LAB"
-const SOURCE = "Vyara Clinic"
+/**
+ * Partner-assigned panel name, sent as `customer.source` on BOTH booking
+ * endpoints. This is MI's name for us ("MyCardioGen"), not our clinic name —
+ * MI resolves it against a Panel record with no empty-list guard, so a missing
+ * or unregistered value fails the booking with a 500
+ * ("List has no rows for assignment to SObject") rather than a validation error.
+ */
+const SOURCE = env.LAB_PARTNER_SOURCE
 
 // ---------------------------------------------------------------------------
 // Types
@@ -224,7 +232,7 @@ export async function enqueueLabOrderForConsultation(consultationId: string): Pr
 // Book against the partner's existing endpoints
 // ---------------------------------------------------------------------------
 
-function buildHomePayload(args: {
+export function buildHomePayload(args: {
   order: LabOrder
   patient: PatientForBooking
   input: BookInput
@@ -246,6 +254,7 @@ function buildHomePayload(args: {
       state: a.state ?? "",
       postalCode: a.postalCode ?? "",
       country: a.country ?? "India",
+      source: SOURCE,
     },
     appointment: {
       serviceTerritoryId: args.input.slot.serviceTerritoryId ?? "",
@@ -265,7 +274,7 @@ function buildHomePayload(args: {
   }
 }
 
-function buildCenterPayload(args: {
+export function buildCenterPayload(args: {
   order: LabOrder
   patient: PatientForBooking
   input: BookInput
