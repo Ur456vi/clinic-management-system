@@ -109,6 +109,11 @@ type EnvShape = {
   /// Shared secret the partner must send on inbound webhooks
   /// (`x-lab-webhook-secret` header). Requests without it are rejected.
   LAB_WEBHOOK_SECRET: string | undefined
+  /// TEMPORARY. When true, inbound lab webhooks are accepted with no shared
+  /// secret. Defaults to FALSE so production never inherits it by accident —
+  /// it has to be switched on per environment, and every accepted request is
+  /// logged at warn level. Remove once the partner sends an agreed credential.
+  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolean
 
   // Security (BE-52) — comma-separated origin allow-list for CORS.
   CORS_ALLOWED_ORIGINS: string[] | undefined
@@ -251,6 +256,7 @@ const env: EnvShape = {
   LAB_PRODUCTS_PATH: optional("LAB_PRODUCTS_PATH", "/services/apexrest/GetAllPartnerProductsAPI")!,
   LAB_PARTNER_SOURCE: optional("LAB_PARTNER_SOURCE", "MyCardioGen")!,
   LAB_WEBHOOK_SECRET: optional("LAB_WEBHOOK_SECRET"),
+  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolOpt("LAB_WEBHOOK_ALLOW_UNAUTHENTICATED", false),
 
   CORS_ALLOWED_ORIGINS: listOpt("CORS_ALLOWED_ORIGINS"),
 }
