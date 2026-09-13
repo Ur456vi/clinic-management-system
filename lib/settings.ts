@@ -1,6 +1,10 @@
 /**
  * Settings service — typed access to the `settings` key-value table.
  *
+ * `readSetting` / `writeSetting` are the generic primitives; every typed
+ * accessor (email here, lab in lib/services/lab/settings.ts) builds on them
+ * rather than touching `db.setting` directly.
+ *
  * The "email" key stores the transactional-mailer SMTP config (Brevo SMTP by
  * default). The password is encrypted at rest via lib/crypto and is never
  * returned to the client — the API surfaces only `hasPassword`.
@@ -12,6 +16,30 @@ import { db } from "@/lib/db"
 import { decryptSecret, encryptSecret } from "@/lib/crypto"
 
 const EMAIL_KEY = "email"
+
+// ---------------------------------------------------------------------------
+// Generic key/value access
+// ---------------------------------------------------------------------------
+
+/**
+ * Read one settings row merged over `defaults`, so a missing row and a row
+ * missing individual keys both yield a complete object rather than null.
+ */
+export async function readSetting<T extends object>(key: string, defaults: T): Promise<T> {
+  const row = await db.setting.findUnique({ where: { key } })
+  if (!row) return { ...defaults }
+  return { ...defaults, ...(row.value as Partial<T>) }
+}
+
+/** Upsert one settings row. */
+export async function writeSetting<T extends object>(key: string, value: T): Promise<void> {
+  const json = value as unknown as Prisma.InputJsonObject
+  await db.setting.upsert({
+    where: { key },
+    create: { key, value: json },
+    update: { value: json },
+  })
+}
 
 /** Stored shape (password held encrypted as `passwordEnc`). */
 export interface StoredEmailSettings {
@@ -73,9 +101,7 @@ const DEFAULTS: StoredEmailSettings = {
 }
 
 async function readRaw(): Promise<StoredEmailSettings> {
-  const row = await db.setting.findUnique({ where: { key: EMAIL_KEY } })
-  if (!row) return { ...DEFAULTS }
-  return { ...DEFAULTS, ...(row.value as Partial<StoredEmailSettings>) }
+  return readSetting(EMAIL_KEY, DEFAULTS)
 }
 
 export async function getPublicEmailSettings(): Promise<PublicEmailSettings> {
@@ -133,12 +159,7 @@ export async function saveEmailSettings(
     fromEmail: input.fromEmail.trim(),
   }
 
-  const json = value as unknown as Prisma.InputJsonObject
-  await db.setting.upsert({
-    where: { key: EMAIL_KEY },
-    create: { key: EMAIL_KEY, value: json },
-    update: { value: json },
-  })
+  await writeSetting(EMAIL_KEY, value)
 
   return getPublicEmailSettings()
 }
