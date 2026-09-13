@@ -13,13 +13,18 @@ import {
   Lock,
   Bell,
   Mail,
+  FlaskConical,
   Loader2,
 } from "lucide-react";
 
 import ProfileSettings, { type ProfileSettingsTab } from "@/components/profile/ProfileSettings";
 import EmailSettingsPage from "./email/page";
+import LabSettingsPage from "./lab/page";
 
-type SettingsTab = "email-smtp" | ProfileSettingsTab;
+type SettingsTab = "email-smtp" | "lab-integration" | ProfileSettingsTab;
+
+/** Tabs only an ADMIN may open. */
+const ADMIN_ONLY_TABS: SettingsTab[] = ["email-smtp", "lab-integration"];
 
 function SettingsPageContent() {
   const router = useRouter();
@@ -33,7 +38,8 @@ function SettingsPageContent() {
   const tabParam = searchParams.get("tab") as SettingsTab | null;
   const defaultTab = isAdmin ? "email-smtp" : "profile";
   const activeTab: SettingsTab =
-    tabParam && ["email-smtp", "profile", "password", "notifications"].includes(tabParam)
+    tabParam &&
+    ["email-smtp", "lab-integration", "profile", "password", "notifications"].includes(tabParam)
       ? tabParam
       : defaultTab;
 
@@ -52,8 +58,8 @@ function SettingsPageContent() {
     );
   }
 
-  // Redirect non-admins if they try to access email-smtp directly via URL param
-  if (activeTab === "email-smtp" && !isAdmin) {
+  // Redirect non-admins if they try to open an admin-only tab via URL param
+  if (ADMIN_ONLY_TABS.includes(activeTab) && !isAdmin) {
     handleTabChange("profile");
     return null;
   }
@@ -85,6 +91,27 @@ function SettingsPageContent() {
                 }`}
               />
               <span>Email SMTP</span>
+            </button>
+          )}
+
+          {/* Lab Integration Tab (Admin only) */}
+          {isAdmin && (
+            <button
+              onClick={() => handleTabChange("lab-integration")}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left w-full transition-all group font-medium text-sm ${
+                activeTab === "lab-integration"
+                  ? "bg-[#F9ECEB] dark:bg-[#312E81] text-[#6B2B26] dark:text-[#A5B4FC]"
+                  : "text-[#667085] dark:text-[#94A3B8] hover:bg-gray-50 dark:hover:bg-[#374151]/50 hover:text-[#101828] dark:hover:text-[#F9FAFB]"
+              }`}
+            >
+              <FlaskConical
+                className={`h-5 w-5 shrink-0 ${
+                  activeTab === "lab-integration"
+                    ? "text-[#6B2B26] dark:text-[#A5B4FC]"
+                    : "text-[#667085] dark:text-[#94A3B8] group-hover:text-[#101828] dark:group-hover:text-[#F9FAFB]"
+                }`}
+              />
+              <span>Lab Integration</span>
             </button>
           )}
 
@@ -151,6 +178,8 @@ function SettingsPageContent() {
       <div className="flex-1 min-w-0">
         {activeTab === "email-smtp" ? (
           <EmailSettingsPage />
+        ) : activeTab === "lab-integration" ? (
+          <LabSettingsPage />
         ) : activeTab ? (
           <ProfileSettings
             activeTab={activeTab}
