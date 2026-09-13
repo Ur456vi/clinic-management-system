@@ -7,6 +7,6 @@
 
 import { processCenterStatus } from "@/lib/services/lab"
 
-import { labWebhookHandler } from "../_shared"
+import { labWebhookHandler } from "@/lib/services/lab/webhook-route"
 
 export const POST = labWebhookHandler(processCenterStatus)

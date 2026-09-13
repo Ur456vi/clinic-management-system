@@ -1,17 +1,20 @@
 /**
- * Shared inbound-webhook handler for the partner lab.
+ * Shared inbound-webhook route handler for the partner lab.
  *
  * Not session-authenticated — the partner's server posts here directly. We
  * verify the shared secret (`x-lab-webhook-secret`), parse the JSON body, and
  * hand it to a processor. We always ack fast; a processing miss (no matching
  * order, validation error) is captured on the event row, not surfaced as a
  * 5xx, so the partner isn't pushed into a retry storm.
+ *
+ * Lives in `lib/` rather than beside the routes so more than one route tree can
+ * share it.
  */
 
 import { NextResponse } from "next/server"
 
 import { defineHandler, ok } from "@/lib/api"
-import { verifyWebhookSecret } from "@/lib/services/lab"
+import { verifyWebhookSecret } from "./webhook-auth"
 
 type Processor = (raw: unknown) => Promise<{ matched: boolean; orderNumber: string | null }>
 
