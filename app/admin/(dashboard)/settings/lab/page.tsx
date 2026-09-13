@@ -21,6 +21,7 @@ import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import {
   AlertTriangle,
+  ArrowRight,
   Building2,
   ChevronDown,
   FlaskConical,
@@ -32,6 +33,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
+import { TOTAL_TEST_COUNT } from "@/lib/test-catalog"
 
 type Tri = boolean | null
 
@@ -111,6 +113,7 @@ export default function LabSettingsPage() {
   const [syncing, setSyncing] = useState<SyncTarget | null>(null)
   const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [products, setProducts] = useState<LabProduct[] | null>(null)
+  const [mappedCount, setMappedCount] = useState<number | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -160,11 +163,28 @@ export default function LabSettingsPage() {
     }
   }, [])
 
+  /**
+   * How many prescribable tests point at a partner product. Surfaced here
+   * because zero means no order can be booked at all — that belongs on the
+   * screen an admin is already looking at, not one click away.
+   */
+  const loadMappedCount = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/lab/test-mappings", { credentials: "include" })
+      if (!res.ok) throw new Error(String(res.status))
+      const { data } = (await res.json()) as { data: { mappings: Record<string, string> } }
+      setMappedCount(Object.values(data.mappings).filter(Boolean).length)
+    } catch {
+      setMappedCount(null)
+    }
+  }, [])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load()
     void loadProducts()
-  }, [load, loadProducts])
+    void loadMappedCount()
+  }, [load, loadProducts, loadMappedCount])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const save = async () => {
@@ -384,7 +404,37 @@ export default function LabSettingsPage() {
               )}
               {syncing === "centers" ? "Syncing centres…" : "Sync centres"}
             </Button>
+            <Button asChild variant="outline">
+              <Link href="/admin/settings/lab/mappings">
+                <ArrowRight className="h-4 w-4" />
+                Map tests to Mahajan codes
+              </Link>
+            </Button>
           </div>
+
+          {mappedCount !== null ? (
+            <p
+              className="text-sm font-medium rounded-lg px-3.5 py-3"
+              style={
+                mappedCount === 0
+                  ? { background: "#FDECEC", color: "#B4322B" }
+                  : { background: "#F2F4F7", color: "#344054" }
+              }
+            >
+              {mappedCount === 0 ? (
+                <>
+                  No tests are mapped to a Mahajan code yet, so no order can be booked. Use{" "}
+                  <b>Map tests to Mahajan codes</b> to point each prescribable test at the
+                  product that fulfils it.
+                </>
+              ) : (
+                <>
+                  {mappedCount} of {TOTAL_TEST_COUNT} prescribable tests are mapped to a
+                  Mahajan code. Unmapped tests are not sent.
+                </>
+              )}
+            </p>
+          ) : null}
 
           {syncResult ? (
             <p
@@ -401,15 +451,7 @@ export default function LabSettingsPage() {
 
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] max-w-2xl">
             None of these names match the tests the doctor prescribes, so each one has to be
-            pointed at a partner product by hand.{" "}
-            <Link
-              href="/admin/settings/lab/mappings"
-              className="font-medium text-[#6B2B26] dark:text-[#A5B4FC] underline underline-offset-2"
-            >
-              Map tests to Mahajan codes →
-            </Link>{" "}
-            Until a test is mapped it is not sent, and an order of only unmapped tests cannot
-            be booked.
+            pointed at a partner product by hand.
           </p>
 
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] max-w-2xl">
