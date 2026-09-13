@@ -23,7 +23,7 @@ export type AvailabilityResult = {
 }
 
 export async function getAvailableSlots(query: SlotQuery): Promise<AvailabilityResult> {
-  const cfg = getLabConfig()
+  const cfg = await getLabConfig()
   const res = await labFetch(cfg.paths.slots, {
     method: "POST",
     body: { pincode: query.pincode, preferredDateTime: query.preferredDateTime },

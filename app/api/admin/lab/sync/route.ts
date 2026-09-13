@@ -21,7 +21,7 @@ const bodySchema = z.object({
 export const POST = defineHandler(async ({ req }) => {
   await requireRole(Role.ADMIN)
 
-  if (!isLabEnabled()) {
+  if (!(await isLabEnabled())) {
     throw new ValidationError(
       "Lab integration is disabled or not configured (LAB_INTEGRATION_ENABLED + LAB_BASE_URL + LAB_OAUTH_*).",
     )

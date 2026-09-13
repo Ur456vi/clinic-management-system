@@ -41,6 +41,13 @@ const patient = {
 
 const order = { orderNumber: "IPHMH-LAB-2627-0001", centerCode: "CEN-101" } as never
 
+/**
+ * The partner panel name now arrives as an argument rather than a module-scope
+ * constant, because it resolves from admin settings at request time. The
+ * builders stay synchronous, which is what keeps them testable like this.
+ */
+const SOURCE = "MyCardioGen"
+
 function input(mode: "HOME" | "CENTER"): BookInput {
   return {
     collectionMode: mode,
@@ -56,7 +63,7 @@ function input(mode: "HOME" | "CENTER"): BookInput {
 }
 
 describe("buildHomePayload", () => {
-  const p = buildHomePayload({ order, patient, input: input("HOME"), items })
+  const p = buildHomePayload({ order, patient, input: input("HOME"), items, source: SOURCE })
 
   it("sends customer.source (absent source 500s on MI)", () => {
     expect(p.customer.source).toBe("MyCardioGen")
@@ -69,7 +76,7 @@ describe("buildHomePayload", () => {
 })
 
 describe("buildCenterPayload", () => {
-  const p = buildCenterPayload({ order, patient, input: input("CENTER"), items })
+  const p = buildCenterPayload({ order, patient, input: input("CENTER"), items, source: SOURCE })
 
   it("sends the registered panel name, not our clinic name", () => {
     expect(p.customer.source).toBe("MyCardioGen")
@@ -87,7 +94,10 @@ describe("partner product catalogue", () => {
    * catalogue (five Bajaj corporate packages) containing none of our items.
    * Only the panel-filtered endpoint returns ours.
    */
-  it("syncs from the panel-filtered endpoint, never the bare one", () => {
+  it("falls back to the panel-filtered endpoint, never the bare one", () => {
+    // env is now the fallback layer beneath admin settings rather than the
+    // only source, but a deployment with no settings row still resolves to
+    // this, so the default must stay correct.
     expect(env.LAB_PRODUCTS_PATH).toBe("/services/apexrest/GetAllPartnerProductsAPI")
     expect(env.LAB_PRODUCTS_PATH).not.toContain("getAllProducts")
   })

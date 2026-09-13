@@ -7,13 +7,12 @@
  */
 
 import { defineHandler, ok, requirePatientSession, ForbiddenError } from "@/lib/api"
-import { env } from "@/lib/env"
-import { assertOrderOwnedByPatient, bookOrder, serializeOrder } from "@/lib/services/lab"
+import { assertOrderOwnedByPatient, bookOrder, serializeOrder, isPatientBookingEnabled } from "@/lib/services/lab"
 import { bookOrderSchema } from "@/lib/validation/lab"
 
 export const POST = defineHandler<{ id: string }>(async ({ req, params }) => {
   const { patientId } = await requirePatientSession()
-  if (!env.FEATURE_LAB_PATIENT_BOOKING) throw new ForbiddenError("Patient self-booking is not enabled")
+  if (!(await isPatientBookingEnabled())) throw new ForbiddenError("Patient self-booking is not enabled")
   const { id } = await params
   try {
     await assertOrderOwnedByPatient(id, patientId)

@@ -28,7 +28,7 @@ function nowMs(): number {
 }
 
 async function fetchToken(): Promise<string> {
-  const cfg = getLabConfig()
+  const cfg = await getLabConfig()
 
   // The partner's Salesforce connected app reads the client-credentials params
   // from the QUERY STRING (a POST with a form body is rejected with
@@ -89,8 +89,8 @@ export type LabResponse = {
   data: unknown
 }
 
-function buildUrl(path: string, query?: Record<string, string>): string {
-  const cfg = getLabConfig()
+async function buildUrl(path: string, query?: Record<string, string>): Promise<string> {
+  const cfg = await getLabConfig()
   const url = new URL(`${cfg.baseUrl}${path}`)
   // Partner apexrest expects this on every call.
   url.searchParams.set("Content_type", "application/json")
@@ -138,7 +138,7 @@ export async function labFetch(
 ): Promise<LabResponse> {
   const method = opts.method ?? "GET"
   const timeoutMs = opts.timeoutMs ?? 20_000
-  const url = buildUrl(path, opts.query)
+  const url = await buildUrl(path, opts.query)
 
   let token = await getToken()
   let res = await doFetch(url, method, token, opts.body, timeoutMs)

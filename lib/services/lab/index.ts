@@ -3,7 +3,21 @@
  * sign hook import from here.
  */
 
-export { isLabEnabled, getLabConfig, type LabConfig } from "./config"
+export {
+  isLabEnabled,
+  getLabConfig,
+  getWebhookSettings,
+  isPatientBookingEnabled,
+  type LabConfig,
+} from "./config"
+export {
+  getLabSettings,
+  getPublicLabSettings,
+  saveLabSettings,
+  clearLabSettingsCache,
+  type LabSettingsInput,
+  type PublicLabSettings,
+} from "./settings"
 export { labFetch, clearTokenCache } from "./client"
 export { syncProducts, syncCenters, type SyncResult } from "./sync"
 export { resolveItems, type ResolvedItem } from "./mapping"

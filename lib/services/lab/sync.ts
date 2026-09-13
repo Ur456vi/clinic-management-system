@@ -16,7 +16,6 @@
  */
 
 import { db } from "@/lib/db"
-import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
 import { labFetch } from "./client"
@@ -56,8 +55,8 @@ export type SyncResult = { fetched: number; upserted: number }
 
 /** Sync the partner test master into `lab_products`. */
 export async function syncProducts(): Promise<SyncResult> {
-  const cfg = getLabConfig()
-  const panel = env.LAB_PARTNER_SOURCE
+  const cfg = await getLabConfig()
+  const panel = cfg.partnerSource
   const res = await labFetch(cfg.paths.products, { method: "GET", query: { panel } })
   if (!res.ok) {
     throw new Error(`product sync failed for panel "${panel}": ${res.status}`)

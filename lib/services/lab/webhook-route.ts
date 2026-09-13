@@ -14,21 +14,24 @@
  *
  * TEMPORARY UNAUTHENTICATED MODE
  * -----------------------------
- * `LAB_WEBHOOK_ALLOW_UNAUTHENTICATED=true` accepts requests that carry no
- * valid secret, so the partner can start delivering before a credential is
- * agreed. While it is on, anyone who learns the URL can write report links and
- * lab results onto patient records — it is a stopgap, not a configuration.
- * It defaults to false, every bypass is logged at warn level, and a correct
- * secret is still honoured, so the partner can start sending one without any
- * code change here.
+ * The bypass accepts requests that carry no valid secret, so the partner can
+ * start delivering before a credential is agreed. While it is on, anyone who
+ * learns the URL can write report links and lab results onto patient records —
+ * it is a stopgap, not a configuration.
+ *
+ * It is off unless switched on, every bypass is logged at warn level, and a
+ * correct secret is still honoured so the partner can start sending one with no
+ * change here. It is editable under Settings → Lab Integration, but setting
+ * `LAB_WEBHOOK_ALLOW_UNAUTHENTICATED=false` in env LOCKS it off so no admin can
+ * re-enable it from the UI — do that in production.
  */
 
 import { NextResponse } from "next/server"
 
 import { defineHandler, ok } from "@/lib/api"
-import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
+import { getWebhookSettings } from "./config"
 import { verifyWebhookSecret } from "./webhook-auth"
 
 const log = logger.child({ mod: "lab-webhook-route" })
@@ -49,16 +52,17 @@ function badRequest(message: string) {
 export function labWebhookHandler(processor: Processor) {
   return defineHandler(async ({ req, requestId }) => {
     const path = req.nextUrl?.pathname ?? ""
-    const authenticated = verifyWebhookSecret(req)
+    const { allowUnauthenticated } = await getWebhookSettings()
+    const authenticated = await verifyWebhookSecret(req)
 
     if (!authenticated) {
-      if (!env.LAB_WEBHOOK_ALLOW_UNAUTHENTICATED) {
+      if (!allowUnauthenticated) {
         log.warn({ requestId, path }, "lab webhook rejected — secret verification failed")
         return unauthorized()
       }
       log.warn(
         { requestId, path, ip: req.headers.get("x-forwarded-for") ?? "unknown" },
-        "lab webhook ACCEPTED WITHOUT AUTH — LAB_WEBHOOK_ALLOW_UNAUTHENTICATED is on",
+        "lab webhook ACCEPTED WITHOUT AUTH — the unauthenticated bypass is switched on",
       )
     }
 
@@ -66,7 +70,7 @@ export function labWebhookHandler(processor: Processor) {
 
     // Payload bodies carry patient identifiers and report URLs, so the raw dump
     // is tied to the same temporary flag rather than left on permanently.
-    if (env.LAB_WEBHOOK_ALLOW_UNAUTHENTICATED) {
+    if (allowUnauthenticated) {
       log.warn({ requestId, path, rawBody }, "lab webhook raw body")
     }
 

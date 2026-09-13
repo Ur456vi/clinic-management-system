@@ -16,20 +16,32 @@ import { LabBookingPanel, type BookableOrder } from "@/components/lab/LabBooking
 
 type Order = BookableOrder & { status: string };
 
-// Patient self-booking (option 2) is behind a flag. Off = reception books
-// every order (option 1); this section stays hidden.
-const PATIENT_BOOKING_ENABLED = process.env.NEXT_PUBLIC_FEATURE_LAB_PATIENT_BOOKING === "true";
+// Patient self-booking (option 2) is behind a setting. Off = reception books
+// every order (option 1) and this section stays hidden.
+//
+// The gate is NOT read here. It lives in admin settings, and the three
+// /api/patient/me/lab-orders routes already answer 403 when it is off, so we
+// hide on that instead. A client-side `process.env.NEXT_PUBLIC_*` check would
+// be inlined at build time and could never reflect a setting change, and it
+// would duplicate an authority the server already holds.
 
 export function PatientLabBooking({ onChange }: { onChange?: () => void }) {
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [enabled, setEnabled] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!PATIENT_BOOKING_ENABLED) return;
     setError(null);
     try {
       const res = await fetch("/api/patient/me/lab-orders", { credentials: "include" });
+      // Self-booking switched off — hide the section rather than showing an
+      // error the patient can do nothing about.
+      if (res.status === 403) {
+        setEnabled(false);
+        setOrders([]);
+        return;
+      }
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error?.message ?? `HTTP ${res.status}`);
       setOrders(Array.isArray(json?.data?.orders) ? json.data.orders : []);
@@ -51,7 +63,7 @@ export function PatientLabBooking({ onChange }: { onChange?: () => void }) {
     onChange?.();
   }, [load, onChange]);
 
-  if (!PATIENT_BOOKING_ENABLED) return null;
+  if (!enabled) return null;
   if (orders === null) return null;
   const pending = orders.filter((o) => o.status === "PENDING_SCHEDULE" || o.status === "FAILED");
   if (pending.length === 0) return null;

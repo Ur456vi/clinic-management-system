@@ -19,7 +19,6 @@
 import type { LabBookedVia, LabCollectionMode, LabOrder, Prisma } from "@prisma/client"
 
 import { db } from "@/lib/db"
-import { env } from "@/lib/env"
 import { ValidationError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
 import { istInstant } from "@/lib/date-utils"
@@ -33,14 +32,10 @@ import { resolveItems, type ResolvedItem } from "./mapping"
 const log = logger.child({ mod: "lab-orders" })
 
 const ORDER_PREFIX = "IPHMH-LAB"
-/**
- * Partner-assigned panel name, sent as `customer.source` on BOTH booking
- * endpoints. This is MI's name for us ("MyCardioGen"), not our clinic name —
- * MI resolves it against a Panel record with no empty-list guard, so a missing
- * or unregistered value fails the booking with a 500
- * ("List has no rows for assignment to SObject") rather than a validation error.
- */
-const SOURCE = env.LAB_PARTNER_SOURCE
+// The partner-assigned panel name (`customer.source`) now comes from resolved
+// config and is threaded into the payload builders as `args.source`. It used to
+// be a module-scope constant, which a database-backed value cannot be: module
+// scope is evaluated at import time, long before a request exists.
 
 // ---------------------------------------------------------------------------
 // Types
@@ -247,6 +242,13 @@ export function buildHomePayload(args: {
   patient: PatientForBooking
   input: BookInput
   items: ResolvedItem[]
+  /**
+   * Partner-assigned panel name. MI resolves it against a Panel record with no
+   * empty-list guard, so a missing or unregistered value fails the booking with
+   * a 500 ("List has no rows for assignment to SObject") rather than a
+   * validation error. Comes from `LabConfig.partnerSource`.
+   */
+  source: string
 }) {
   const { first, last } = splitName(args.patient.fullName)
   const a = args.input.address ?? {}
@@ -264,7 +266,7 @@ export function buildHomePayload(args: {
       state: a.state ?? "",
       postalCode: a.postalCode ?? "",
       country: a.country ?? "India",
-      source: SOURCE,
+      source: args.source,
     },
     appointment: {
       serviceTerritoryId: args.input.slot.serviceTerritoryId ?? "",
@@ -289,6 +291,13 @@ export function buildCenterPayload(args: {
   patient: PatientForBooking
   input: BookInput
   items: ResolvedItem[]
+  /**
+   * Partner-assigned panel name. MI resolves it against a Panel record with no
+   * empty-list guard, so a missing or unregistered value fails the booking with
+   * a 500 ("List has no rows for assignment to SObject") rather than a
+   * validation error. Comes from `LabConfig.partnerSource`.
+   */
+  source: string
 }) {
   const { first, last } = splitName(args.patient.fullName)
   const a = args.input.address ?? {}
@@ -311,7 +320,7 @@ export function buildCenterPayload(args: {
       orderNumber: args.order.orderNumber,
       startTime: toPartnerBookingTime(args.input.slot.startTime),
       endTime: toPartnerBookingTime(args.input.slot.endTime),
-      source: SOURCE,
+      source: args.source,
     },
     items: itemsPayload(args.items),
   }
@@ -334,7 +343,7 @@ export async function bookOrder(orderId: string, input: BookInput): Promise<LabO
   if (order.status !== "PENDING_SCHEDULE" && order.status !== "FAILED") {
     throw new ValidationError(`Order is ${order.status} and cannot be booked`)
   }
-  if (!isLabEnabled()) {
+  if (!(await isLabEnabled())) {
     throw new ValidationError(
       "Lab integration is disabled or not configured — cannot book (LAB_INTEGRATION_ENABLED + LAB_BASE_URL + LAB_OAUTH_*).",
     )
@@ -358,12 +367,12 @@ export async function bookOrder(orderId: string, input: BookInput): Promise<LabO
     )
   }
 
-  const cfg = getLabConfig()
+  const cfg = await getLabConfig()
   const isHome = input.collectionMode === "HOME"
   const path = isHome ? cfg.paths.bookHome : cfg.paths.bookCenter
   const payload = isHome
-    ? buildHomePayload({ order, patient, input, items })
-    : buildCenterPayload({ order, patient, input, items })
+    ? buildHomePayload({ order, patient, input, items, source: cfg.partnerSource })
+    : buildCenterPayload({ order, patient, input, items, source: cfg.partnerSource })
 
   try {
     const res = await labFetch(path, { method: "POST", body: payload })
@@ -416,9 +425,9 @@ export async function bookOrder(orderId: string, input: BookInput): Promise<LabO
 export async function cancelOrder(orderId: string, reason: string): Promise<LabOrder> {
   const order = await db.labOrder.findUnique({ where: { id: orderId } })
   if (!order) throw new ValidationError("Lab order not found")
-  if (!isLabEnabled()) throw new ValidationError("Lab integration is disabled — cannot cancel")
+  if (!(await isLabEnabled())) throw new ValidationError("Lab integration is disabled — cannot cancel")
 
-  const cfg = getLabConfig()
+  const cfg = await getLabConfig()
   const isHome = order.collectionMode === "HOME"
   const path = isHome ? cfg.paths.cancelHome : cfg.paths.cancelCenter
   const body = isHome
@@ -436,9 +445,9 @@ export async function cancelOrder(orderId: string, reason: string): Promise<LabO
 export async function rescheduleOrder(orderId: string, slot: SlotSelection): Promise<LabOrder> {
   const order = await db.labOrder.findUnique({ where: { id: orderId } })
   if (!order) throw new ValidationError("Lab order not found")
-  if (!isLabEnabled()) throw new ValidationError("Lab integration is disabled — cannot reschedule")
+  if (!(await isLabEnabled())) throw new ValidationError("Lab integration is disabled — cannot reschedule")
 
-  const cfg = getLabConfig()
+  const cfg = await getLabConfig()
   const isHome = order.collectionMode === "HOME"
   const path = isHome ? cfg.paths.rescheduleHome : cfg.paths.rescheduleCenter
   const body = isHome

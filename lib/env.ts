@@ -110,10 +110,13 @@ type EnvShape = {
   /// (`x-lab-webhook-secret` header). Requests without it are rejected.
   LAB_WEBHOOK_SECRET: string | undefined
   /// TEMPORARY. When true, inbound lab webhooks are accepted with no shared
-  /// secret. Defaults to FALSE so production never inherits it by accident —
-  /// it has to be switched on per environment, and every accepted request is
-  /// logged at warn level. Remove once the partner sends an agreed credential.
-  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolean
+  /// secret. Every accepted request is logged at warn level.
+  ///
+  /// Tri-state, because this one acts as a LOCK over the admin-editable
+  /// setting of the same name: explicitly `false` here forces auth on and no
+  /// admin can switch it off from the UI. Leave it unset to let the database
+  /// setting decide. Set it to `false` in production.
+  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolean | undefined
 
   // Security (BE-52) — comma-separated origin allow-list for CORS.
   CORS_ALLOWED_ORIGINS: string[] | undefined
@@ -159,6 +162,17 @@ function intOpt(name: string, fallback: number): number {
 function boolOpt(name: string, fallback: boolean): boolean {
   const v = process.env[name]
   if (v === undefined) return fallback
+  return v.toLowerCase() === "true" || v === "1"
+}
+
+/**
+ * Tri-state boolean: `undefined` when the var is absent, so a caller can tell
+ * "not configured" from an explicit `false`. Used where env acts as a lock over
+ * a database-backed setting rather than merely a default.
+ */
+function boolOptTri(name: string): boolean | undefined {
+  const v = process.env[name]
+  if (v === undefined || v.trim() === "") return undefined
   return v.toLowerCase() === "true" || v === "1"
 }
 
@@ -256,7 +270,7 @@ const env: EnvShape = {
   LAB_PRODUCTS_PATH: optional("LAB_PRODUCTS_PATH", "/services/apexrest/GetAllPartnerProductsAPI")!,
   LAB_PARTNER_SOURCE: optional("LAB_PARTNER_SOURCE", "MyCardioGen")!,
   LAB_WEBHOOK_SECRET: optional("LAB_WEBHOOK_SECRET"),
-  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolOpt("LAB_WEBHOOK_ALLOW_UNAUTHENTICATED", false),
+  LAB_WEBHOOK_ALLOW_UNAUTHENTICATED: boolOptTri("LAB_WEBHOOK_ALLOW_UNAUTHENTICATED"),
 
   CORS_ALLOWED_ORIGINS: listOpt("CORS_ALLOWED_ORIGINS"),
 }

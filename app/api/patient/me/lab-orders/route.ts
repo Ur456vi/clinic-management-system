@@ -6,12 +6,11 @@
  */
 
 import { defineHandler, ForbiddenError, ok, requirePatientSession } from "@/lib/api"
-import { env } from "@/lib/env"
-import { listOrdersForPatient } from "@/lib/services/lab"
+import { listOrdersForPatient, isPatientBookingEnabled } from "@/lib/services/lab"
 
 export const GET = defineHandler(async () => {
   const { patientId } = await requirePatientSession()
-  if (!env.FEATURE_LAB_PATIENT_BOOKING) {
+  if (!(await isPatientBookingEnabled())) {
     throw new ForbiddenError("Patient self-booking is not enabled")
   }
   const orders = await listOrdersForPatient(patientId)

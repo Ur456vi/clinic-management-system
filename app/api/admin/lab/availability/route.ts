@@ -13,7 +13,7 @@ import { availabilitySchema } from "@/lib/validation/lab"
 
 export const POST = defineHandler(async ({ req }) => {
   await requireRole(Role.ADMIN, Role.DOCTOR, Role.RECEPTION)
-  if (!isLabEnabled()) throw new ValidationError("Lab integration is disabled or not configured")
+  if (!(await isLabEnabled())) throw new ValidationError("Lab integration is disabled or not configured")
   const body = availabilitySchema.parse(await req.json())
   const result = await getAvailableSlots(body)
   return ok(result)
