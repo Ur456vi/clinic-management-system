@@ -16,12 +16,22 @@ import { Role } from "@prisma/client"
 import { z } from "zod"
 
 import { defineHandler, ok, requireRole } from "@/lib/api"
+import { env } from "@/lib/env"
 import { clearTokenCache } from "@/lib/services/lab/client"
 import { getPublicLabSettings, saveLabSettings } from "@/lib/services/lab/settings"
 
 export const GET = defineHandler(async () => {
   await requireRole(Role.ADMIN)
-  return ok(await getPublicLabSettings())
+  return ok({
+    ...(await getPublicLabSettings()),
+    /**
+     * `LAB_WEBHOOK_ALLOW_UNAUTHENTICATED=false` in the server environment
+     * overrides the stored setting and cannot be undone from here. The screen
+     * has to say so — otherwise an admin picks "Allow", saves successfully,
+     * and inbound webhooks keep being rejected with no explanation.
+     */
+    unauthenticatedLockedOffByEnv: env.LAB_WEBHOOK_ALLOW_UNAUTHENTICATED === false,
+  })
 })
 
 const path = z.string().trim().max(255)

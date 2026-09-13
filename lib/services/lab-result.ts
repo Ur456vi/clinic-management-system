@@ -38,6 +38,7 @@ import { ForbiddenError, NotFoundError } from "@/lib/errors"
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/api/pagination"
 import { getDownloadUrl } from "@/lib/services/storage"
 import { groupSelectedByPanel, parseSelectedTests, testKey } from "@/lib/test-catalog"
+import { resolveItems } from "@/lib/services/lab/mapping"
 import { rolesFor } from "@/lib/rbac"
 import type {
   AnalyteInput,
@@ -128,6 +129,13 @@ function readSection(
  *     so the patient uploads a single consolidated report per panel rather
  *     than one per individual test. The report PDF is attached later.
  *
+ * Tests the partner lab will fulfil are EXCLUDED — they reach the patient as a
+ * LabOrder instead, and their report arrives on that order. Materializing them
+ * here too would show the same prescription twice, one copy sitting Active
+ * forever on a pathway that will never receive a report. Tests the partner
+ * cannot fulfil (most of the catalogue today) still come through here and are
+ * reported by staff upload as before.
+ *
  * Idempotent: panels already materialized for this consultation (matched on
  * `panelName`) are skipped, so a re-run never duplicates rows. Returns the
  * number of new orders created. Runs inside the caller's transaction.
@@ -149,7 +157,30 @@ export async function materializeLabOrdersFromConsultation(
     typeof test["test__selected_tests"] === "string"
       ? (test["test__selected_tests"] as string)
       : ""
-  const keys = parseSelectedTests(raw)
+  const allKeys = parseSelectedTests(raw)
+  if (allKeys.length === 0) return 0
+
+  // Tests the partner lab will fulfil are NOT materialized here. They already
+  // travel to Mahajan as a LabOrder (see enqueueLabOrderForConsultation), and
+  // their report comes back on that order — so a LabResult row for the same
+  // test would show the doctor the same prescription twice, once on a pathway
+  // that will never receive a report.
+  //
+  // FAILS OPEN: if the mapping lookup errors we materialize everything. A
+  // duplicate row is a nuisance; a prescribed test with no record anywhere is a
+  // clinical gap.
+  let keys = allKeys
+  try {
+    const resolved = await resolveItems(allKeys, tx)
+    const partnerFulfilled = new Set(
+      resolved.filter((r) => r.labTestId).map((r) => r.testKey),
+    )
+    if (partnerFulfilled.size > 0) {
+      keys = allKeys.filter((k) => !partnerFulfilled.has(k))
+    }
+  } catch {
+    keys = allKeys
+  }
   if (keys.length === 0) return 0
 
   const preferredLab = test["test__preferred_lab"]

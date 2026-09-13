@@ -9,7 +9,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, FlaskConical, CalendarClock } from "lucide-react";
+import { Loader2, FlaskConical, CalendarClock, FileText } from "lucide-react";
 
 import { LabBookingPanel, type BookableOrder } from "@/components/lab/LabBookingPanel";
 
@@ -17,6 +17,9 @@ type Order = BookableOrder & {
   status: string;
   appointmentStart: string | null;
   reason: string | null;
+  reportUrl: string | null;
+  reportStatus: string | null;
+  labNumber: string | null;
   patient: { id: string; fullName: string; patientNumber: string };
 };
 
@@ -133,9 +136,25 @@ export default function LabSchedulingPage() {
                     <p className="text-[11px] text-[#98A2B3] mt-0.5 font-mono">
                       {o.orderNumber}
                       {o.status === "SCHEDULED" ? ` · ${fmt(o.appointmentStart)}` : ""}
+                      {o.labNumber ? ` · Lab no. ${o.labNumber}` : ""}
                       {o.reason ? ` · ${o.reason}` : ""}
                     </p>
                   </div>
+                  {o.reportUrl ? (
+                    <a
+                      href={o.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#D0D5DD] dark:border-[#374151] px-3 py-2 text-sm font-medium text-[#344054] dark:text-[#CBD5E1] hover:bg-[#F9FAFB] dark:hover:bg-[#374151]/50"
+                    >
+                      <FileText className="h-4 w-4" />
+                      {/* Partial reports are not the final result — say so rather
+                          than letting a half-finished panel read as complete. */}
+                      {o.reportStatus && /partial/i.test(o.reportStatus)
+                        ? "View partial report"
+                        : "View report"}
+                    </a>
+                  ) : null}
                   {bookable ? (
                     <button
                       type="button"

@@ -37,12 +37,22 @@ function testNameForKey(testKey: string): string {
  * Resolve every key. Batches the two cache lookups so this is 2 queries
  * regardless of test count.
  */
-export async function resolveItems(testKeys: string[]): Promise<ResolvedItem[]> {
+/**
+ * Reads only two config-like tables, so it can run on either the request client
+ * or a caller's transaction. Callers inside a transaction should pass `tx` so
+ * the lookup joins their snapshot rather than opening a second connection.
+ */
+type MappingReader = Pick<typeof db, "labTestMapping" | "labProduct">
+
+export async function resolveItems(
+  testKeys: string[],
+  client: MappingReader = db,
+): Promise<ResolvedItem[]> {
   const keys = Array.from(new Set(testKeys))
   if (keys.length === 0) return []
 
   // 1. Curated overrides.
-  const mappings = await db.labTestMapping.findMany({
+  const mappings = await client.labTestMapping.findMany({
     where: { testKey: { in: keys } },
   })
   const byKey = new Map(mappings.map((m) => [m.testKey, m]))
@@ -52,7 +62,7 @@ export async function resolveItems(testKeys: string[]): Promise<ResolvedItem[]> 
   const normByKey = new Map(unmappedKeys.map((k) => [k, normalizeTestName(testNameForKey(k))]))
   const norms = Array.from(new Set(normByKey.values())).filter(Boolean)
   const products = norms.length
-    ? await db.labProduct.findMany({ where: { normalized: { in: norms } } })
+    ? await client.labProduct.findMany({ where: { normalized: { in: norms } } })
     : []
   const productByNorm = new Map(products.map((p) => [p.normalized, p]))
 

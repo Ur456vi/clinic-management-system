@@ -252,6 +252,27 @@ type ClinicalSummaryRow = {
   createdAt: string
 }
 
+/** Partner order statuses, in the words a clinician would use. */
+const PARTNER_STATUS_LABEL: Record<string, string> = {
+  PENDING_SCHEDULE: "Awaiting booking",
+  SCHEDULED: "Scheduled",
+  IN_PROGRESS: "Sample collected",
+  CANNOT_COMPLETE: "Could not complete",
+  CANCELLED: "Cancelled",
+  FAILED: "Booking failed",
+}
+
+type PartnerLabOrder = {
+  id: string
+  orderNumber: string
+  status: string
+  reportUrl: string | null
+  reportStatus: string | null
+  labNumber: string | null
+  updatedAt: string
+  items: { testName: string; labTestName: string | null }[]
+}
+
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const search = useSearchParams()
@@ -266,6 +287,15 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [activity, setActivity] = useState<ActivityAppt[] | null>(null)
   const [events, setEvents] = useState<TimelineEvent[]>([])
+  /**
+   * Partner-lab orders, which live on LabOrder rather than LabResult and so are
+   * invisible to the staff-upload list below.
+   *
+   * Pending orders are included. A test the partner fulfils no longer gets a
+   * LabResult row at all, so this is the only place the doctor can see it
+   * between prescription and report.
+   */
+  const [partnerReports, setPartnerReports] = useState<PartnerLabOrder[]>([])
   const [openRefills, setOpenRefills] = useState(0)
   const [plan, setPlan] = useState<PlanApi | null | undefined>(undefined)
   const [uploadLab, setUploadLab] = useState<{ id: string; name: string; hasReport: boolean; preselect?: string[] } | null>(null)
@@ -370,6 +400,20 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       setActivity(rows)
     } catch {
       setActivity([])
+    }
+  }, [id])
+
+  const fetchPartnerReports = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/admin/lab/orders?patientId=${id}`, { credentials: "include" })
+      if (!res.ok) return setPartnerReports([])
+      const json = await res.json()
+      const rows: PartnerLabOrder[] = Array.isArray(json?.data?.orders) ? json.data.orders : []
+      setPartnerReports(
+        rows.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+      )
+    } catch {
+      setPartnerReports([])
     }
   }, [id])
 
@@ -522,12 +566,13 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
     void fetchActivity()
     void fetchVitals()
     void fetchTimeline()
+    void fetchPartnerReports()
     void fetchRefills()
     void fetchPlan()
     void fetchSummaries()
     void fetchInfusions()
     void fetchVitalAssessments()
-  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries, fetchInfusions, fetchVitalAssessments])
+  }, [fetchOne, fetchActivity, fetchVitals, fetchTimeline, fetchRefills, fetchPlan, fetchSummaries, fetchInfusions, fetchVitalAssessments, fetchPartnerReports])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSave = async (e: React.FormEvent) => {
@@ -1060,7 +1105,80 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-[#8A9A92]"><th className="text-left font-semibold py-2">Test</th><th className="text-left font-semibold py-2">Ordered On</th><th className="text-left font-semibold py-2">Status</th><th className="text-right font-semibold py-2">Report</th></tr></thead>
             <tbody>
-              {labGroups.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : labGroups.map((g) => {
+              {labGroups.length === 0 && partnerReports.length === 0 ? <tr><td colSpan={4} className="py-3 text-sm text-[#98A2B3]">No lab reports yet.</td></tr> : null}
+
+              {/* Partner-lab reports. Mahajan send ONE report per order covering
+                  every test on it, so the link sits on the parent row and the
+                  tests it covers are listed beneath — rather than guessing which
+                  staff-uploaded panel it corresponds to, which the data does not
+                  support. */}
+              {partnerReports.map((o) => {
+                const open = openLabGroups.includes(o.id)
+                const hasReport = !!o.reportUrl
+                const partial = hasReport && !!o.reportStatus && /partial/i.test(o.reportStatus)
+                const tests = o.items.map((i) => i.labTestName || i.testName).filter(Boolean)
+                const chip = partial
+                  ? { background: "#FEF0E6", color: "#B4651B", label: "Partial" }
+                  : hasReport
+                    ? { background: "#E4F3EC", color: "#0E8C6A", label: "Completed" }
+                    : { background: "#E5EEF9", color: "#2E5AAC", label: PARTNER_STATUS_LABEL[o.status] ?? "Active" }
+                return (
+                  <Fragment key={o.id}>
+                    <tr style={{ borderTop: "1px solid #EFE8D8" }}>
+                      <td className="py-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setOpenLabGroups((prev) => prev.includes(o.id) ? prev.filter((k) => k !== o.id) : [...prev, o.id])}
+                          aria-expanded={open}
+                          className="flex items-center gap-1.5 text-left font-medium text-[#101828] dark:text-[#F9FAFB]"
+                        >
+                          {open ? <ChevronDown className="h-4 w-4 text-[#8A9A92]" /> : <ChevronRight className="h-4 w-4 text-[#8A9A92]" />}
+                          <span>Partner lab order</span>
+                          <span className="text-xs font-normal text-[#6B7B73] dark:text-[#94A3B8]">
+                            · {tests.length} test{tests.length === 1 ? "" : "s"}
+                            {o.labNumber ? ` · Lab no. ${o.labNumber}` : ""}
+                          </span>
+                        </button>
+                      </td>
+                      <td className="py-2.5 text-[#6B7B73] dark:text-[#94A3B8]">{fmtDate(o.updatedAt)}</td>
+                      <td className="py-2.5">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: chip.background, color: chip.color }}>
+                          {chip.label}
+                        </span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center justify-end gap-1">
+                          {hasReport ? (
+                            <a
+                              href={o.reportUrl ?? "#"}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-semibold hover:underline px-1.5"
+                              style={{ color: partial ? "#B4651B" : GREEN }}
+                            >
+                              <FileText className="h-3.5 w-3.5" /> {partial ? "View partial" : "View"}
+                            </a>
+                          ) : (
+                            /* No upload action: the partner sends this report, staff
+                               cannot attach one to a partner order. */
+                            <span className="text-xs text-[#98A2B3] px-1.5">Awaiting partner</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {open ? tests.map((t, i) => (
+                      <tr key={`${o.id}-${i}`} style={{ borderTop: "1px solid #F5F0E4" }}>
+                        <td className="py-2 pl-7"><div className="text-sm text-[#344054] dark:text-[#D1D5DB]">{t}</div></td>
+                        <td className="py-2" />
+                        <td className="py-2"><span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: chip.background, color: chip.color }}>{chip.label}</span></td>
+                        <td className="py-2 text-right pr-1.5"><span className="text-xs text-[#98A2B3]">{hasReport ? "In the order report" : "With the partner lab"}</span></td>
+                      </tr>
+                    )) : null}
+                  </Fragment>
+                )
+              })}
+
+              {labGroups.map((g) => {
                 const open = openLabGroups.includes(g.key)
                 const allDone = g.done === g.total
                 const [first, ...rest] = g.items

@@ -3,11 +3,15 @@
 /**
  * Patient Lab Management.
  *
- * Lists the patient's own lab orders (GET /api/patient/me/lab-results with
- * ?pending=1 so still-active orders show, not just finalized ones). This view
- * is READ-ONLY for the patient: they can view finalized report PDFs but cannot
- * upload, replace, or delete them. Reports are uploaded by staff (reception)
- * on the patient's behalf from the admin patient chart.
+ * Reports reach a patient by two independent routes, and this page shows both
+ * as one list because the distinction is ours, not theirs:
+ *
+ *   - staff-uploaded PDFs on `lab_results`, fetched as a short-lived presigned
+ *     link from our own storage, and
+ *   - reports the partner lab sends us for a `lab_order`, which arrive as a
+ *     link on the partner's host.
+ *
+ * READ-ONLY either way: patients view reports, never upload or remove them.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -20,6 +24,42 @@ import {
 } from "lucide-react";
 
 import { PatientLabBooking } from "@/components/patient/PatientLabBooking";
+
+/** One of the patient's partner-lab orders, reported or still in progress. */
+type PartnerOrder = {
+  id: string;
+  orderNumber: string;
+  status: string;
+  reportStatus: string | null;
+  labNumber: string | null;
+  updatedAt: string;
+  createdAt: string;
+  hasReport: boolean;
+  testNames: string[];
+};
+
+/** Plain-English status for a partner order that has no report yet. */
+function pendingLabel(status: string): string {
+  if (status === "PENDING_SCHEDULE") return "Awaiting booking";
+  if (status === "SCHEDULED") return "Scheduled";
+  if (status === "IN_PROGRESS") return "Sample collected";
+  if (status === "CANNOT_COMPLETE") return "Could not complete";
+  if (status === "CANCELLED") return "Cancelled";
+  return "Active";
+}
+
+/** One row of the merged list, whichever route the report arrived by. */
+type Row = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  meta: string | null;
+  date: string;
+  done: boolean;
+  /** Partial results are real but not final — the row must not read as done. */
+  partial: boolean;
+  open: (() => void) | null;
+};
 
 type Lab = {
   id: string;
@@ -46,6 +86,7 @@ function hasReport(l: Lab): boolean {
 
 export default function PatientLabManagementPage() {
   const [labs, setLabs] = useState<Lab[] | null>(null);
+  const [partner, setPartner] = useState<PartnerOrder[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -60,6 +101,25 @@ export default function PatientLabManagementPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load lab orders");
       setLabs([]);
+    }
+  }, []);
+
+  /**
+   * Partner-lab orders, pending ones included — a test the partner fulfils has
+   * no other record until its report lands, so omitting pending orders would
+   * hide it from the patient for the entire time it is being done.
+   *
+   * A failure here must not empty the page: the staff-uploaded list is the
+   * older, established route and should still render on its own.
+   */
+  const loadPartner = useCallback(async () => {
+    try {
+      const res = await fetch("/api/patient/me/lab-orders/summary", { credentials: "include" });
+      if (!res.ok) throw new Error(String(res.status));
+      const json = await res.json();
+      setPartner(Array.isArray(json?.data?.orders) ? json.data.orders : []);
+    } catch {
+      setPartner([]);
     }
   }, []);
 
@@ -79,17 +139,66 @@ export default function PatientLabManagementPage() {
     }
   }, []);
 
+  const viewPartnerReport = useCallback(async (orderId: string) => {
+    setError(null);
+    try {
+      const res = await fetch(`/api/patient/me/lab-orders/${orderId}/report`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      const url = json?.data?.reportUrl;
+      if (!url) throw new Error();
+      window.open(url, "_blank", "noopener");
+    } catch {
+      setError("Couldn't open the report.");
+    }
+  }, []);
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load();
-  }, [load]);
+    void loadPartner();
+  }, [load, loadPartner]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const rows = useMemo((): Row[] => {
+    const fromLabs: Row[] = (labs ?? []).map((l) => ({
+      id: `lab-${l.id}`,
+      title: l.panelName,
+      subtitle: l.summary && l.summary !== l.panelName ? l.summary : null,
+      meta: l.labName,
+      date: l.collectedAt,
+      done: hasReport(l),
+      partial: false,
+      open: hasReport(l) ? () => void viewReport(l.id) : null,
+    }));
+
+    const fromPartner: Row[] = partner.map((o) => {
+      const partial = !!o.reportStatus && /partial/i.test(o.reportStatus);
+      return {
+        id: `order-${o.id}`,
+        title: o.testNames.join(", ") || o.orderNumber,
+        subtitle: o.hasReport ? null : pendingLabel(o.status),
+        meta: o.labNumber ? `Lab no. ${o.labNumber}` : null,
+        // Sort a pending order by when it was ordered, a finished one by when
+        // the report landed — each is the date the patient cares about.
+        date: o.hasReport ? o.updatedAt : o.createdAt,
+        done: o.hasReport,
+        partial: partial && o.hasReport,
+        open: o.hasReport ? () => void viewPartnerReport(o.id) : null,
+      };
+    });
+
+    return [...fromPartner, ...fromLabs].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+  }, [labs, partner, viewReport, viewPartnerReport]);
+
   const counts = useMemo(() => {
-    const list = labs ?? [];
-    const done = list.filter(hasReport).length;
-    return { total: list.length, done, active: list.length - done };
-  }, [labs]);
+    const done = rows.filter((r) => r.done).length;
+    return { total: rows.length, done, active: rows.length - done };
+  }, [rows]);
 
   if (labs === null) {
     return (
@@ -110,7 +219,12 @@ export default function PatientLabManagementPage() {
       </div>
 
       {/* Self-booking of prescribed tests still needing a slot (option 2) */}
-      <PatientLabBooking onChange={load} />
+      <PatientLabBooking
+        onChange={() => {
+          void load();
+          void loadPartner();
+        }}
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -126,7 +240,7 @@ export default function PatientLabManagementPage() {
       ) : null}
 
       <div className="bg-white dark:bg-[#1F2937] rounded-2xl border border-[#EAECF0] dark:border-[#374151] shadow-sm overflow-hidden">
-        {labs.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center">
             <FlaskConical className="h-8 w-8 mb-2 text-[#C9BFA6]" />
             <p className="text-sm text-[#6B7B73] dark:text-[#94A3B8]">No lab tests ordered yet.</p>
@@ -143,45 +257,49 @@ export default function PatientLabManagementPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EAECF0] dark:divide-[#374151]">
-                {labs.map((l) => {
-                  const done = hasReport(l);
-                  return (
-                    <tr key={l.id}>
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{l.panelName}</div>
-                        {l.summary && l.summary !== l.panelName ? (
-                          <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5 whitespace-normal">{l.summary}</div>
-                        ) : null}
-                        {l.labName ? <div className="text-xs text-[#98A2B3]">{l.labName}</div> : null}
-                      </td>
-                      <td className="px-4 py-3 text-[#6B7B73] dark:text-[#94A3B8] whitespace-nowrap">{fmtDate(l.collectedAt)}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-                          style={done ? { background: "#E4F3EC", color: "#0E8C6A" } : { background: "#E5EEF9", color: "#2E5AAC" }}
-                        >
-                          {done ? "Completed" : "Active"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-3 whitespace-nowrap">
-                          {done ? (
-                            <button
-                              type="button"
-                              onClick={() => void viewReport(l.id)}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
-                              style={{ color: "#0E8C6A" }}
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" /> View
-                            </button>
-                          ) : (
-                            <span className="text-xs text-[#98A2B3]">Awaiting report</span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {rows.map((r) => (
+                  <tr key={r.id}>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-[#101828] dark:text-[#F9FAFB]">{r.title}</div>
+                      {r.subtitle ? (
+                        <div className="text-xs text-[#667085] dark:text-[#94A3B8] mt-0.5 whitespace-normal">{r.subtitle}</div>
+                      ) : null}
+                      {r.meta ? <div className="text-xs text-[#98A2B3]">{r.meta}</div> : null}
+                    </td>
+                    <td className="px-4 py-3 text-[#6B7B73] dark:text-[#94A3B8] whitespace-nowrap">{fmtDate(r.date)}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
+                        style={
+                          r.partial
+                            ? { background: "#FEF0E6", color: "#B4651B" }
+                            : r.done
+                              ? { background: "#E4F3EC", color: "#0E8C6A" }
+                              : { background: "#E5EEF9", color: "#2E5AAC" }
+                        }
+                      >
+                        {r.partial ? "Partial" : r.done ? "Completed" : "Active"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                        {r.open ? (
+                          <button
+                            type="button"
+                            onClick={r.open}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+                            style={{ color: r.partial ? "#B4651B" : "#0E8C6A" }}
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            {r.partial ? "View partial" : "View"}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-[#98A2B3]">Awaiting report</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

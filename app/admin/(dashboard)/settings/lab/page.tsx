@@ -22,6 +22,7 @@ import Link from "next/link"
 import {
   AlertTriangle,
   ArrowRight,
+  Lock,
   Building2,
   ChevronDown,
   FlaskConical,
@@ -55,6 +56,7 @@ interface LabSettings {
   hasWebhookSecret: boolean
   allowUnauthenticatedWebhooks: Tri
   patientBookingEnabled: Tri
+  unauthenticatedLockedOffByEnv: boolean
 }
 
 const emptyForm = {
@@ -114,6 +116,7 @@ export default function LabSettingsPage() {
   const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [products, setProducts] = useState<LabProduct[] | null>(null)
   const [mappedCount, setMappedCount] = useState<number | null>(null)
+  const [unauthLocked, setUnauthLocked] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -140,6 +143,7 @@ export default function LabSettingsPage() {
       })
       setHasClientSecret(data.hasClientSecret)
       setHasWebhookSecret(data.hasWebhookSecret)
+      setUnauthLocked(Boolean(data.unauthenticatedLockedOffByEnv))
     } catch (err) {
       notify.error("Couldn't load lab settings", {
         description: err instanceof Error ? err.message : "Unknown error",
@@ -576,9 +580,26 @@ export default function LabSettingsPage() {
             onChange={(v) => setForm({ ...form, allowUnauthenticatedWebhooks: v })}
             onLabel="Allow (unsafe)"
             offLabel="Require the secret"
+            disabled={unauthLocked}
           />
 
-          {form.allowUnauthenticatedWebhooks === true ? (
+          {unauthLocked ? (
+            <div
+              className="flex gap-2.5 rounded-lg px-3.5 py-3 text-sm"
+              style={{ background: "#F2F4F7", color: "#344054" }}
+            >
+              <Lock className="h-4.5 w-4.5 shrink-0 mt-0.5" />
+              <p>
+                Locked by the server environment.{" "}
+                <code>LAB_WEBHOOK_ALLOW_UNAUTHENTICATED=false</code> is set on this server,
+                which forces the secret to be required no matter what is chosen here.
+                Whatever you save, inbound webhooks without a valid secret will be rejected.
+                Change it on the server and restart to unlock this control.
+              </p>
+            </div>
+          ) : null}
+
+          {!unauthLocked && form.allowUnauthenticatedWebhooks === true ? (
             <div
               className="flex gap-2.5 rounded-lg px-3.5 py-3 text-sm"
               style={{ background: "#FDECEC", color: "#B4322B" }}
@@ -691,12 +712,14 @@ function TriField({
   onChange,
   onLabel,
   offLabel,
+  disabled,
 }: {
   label: string
   value: Tri
   onChange: (v: Tri) => void
   onLabel: string
   offLabel: string
+  disabled?: boolean
 }) {
   return (
     <Field label={label} className="sm:max-w-sm">
@@ -705,7 +728,8 @@ function TriField({
         onChange={(e) =>
           onChange(e.target.value === "env" ? null : e.target.value === "on")
         }
-        className={inputCls}
+        disabled={disabled}
+        className={`${inputCls} disabled:opacity-60 disabled:cursor-not-allowed`}
       >
         <option value="env">Use environment default</option>
         <option value="on">{onLabel}</option>
