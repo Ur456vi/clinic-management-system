@@ -220,15 +220,21 @@ function trustedHosts(req: NextRequest): Set<string> {
 /**
  * Reject cross-origin mutating requests by comparing the Origin (or Referer)
  * host with the set of hosts we trust as our own (see `trustedHosts`).
- * Webhooks under `/api/webhooks/` are exempt — they are authenticated by
- * signature, not by cookie.
+ * Webhooks are exempt — they are authenticated by shared secret/signature, not
+ * by cookie, and a server-to-server POST carries no Origin or Referer at all.
+ * The match allows an optional API version segment, because the lab partner
+ * posts to `/api/v1/webhooks/...` while our older routes sit at
+ * `/api/webhooks/...`; without the version allowance the v1 routes 403 before
+ * any handler runs.
  */
+const WEBHOOK_PATH = /^\/api\/(?:v\d+\/)?webhooks\//
+
 function assertSameOriginIfMutating(req: NextRequest): void {
   const method = req.method.toUpperCase()
   if (!MUTATING_METHODS.has(method)) return
 
   const pathname = req.nextUrl?.pathname ?? ""
-  if (pathname.startsWith("/api/webhooks/")) return
+  if (WEBHOOK_PATH.test(pathname)) return
 
   const originHost =
     hostOf(req.headers.get("origin")) ?? hostOf(req.headers.get("referer"))
