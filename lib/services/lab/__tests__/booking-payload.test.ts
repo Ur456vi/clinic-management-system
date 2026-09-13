@@ -127,3 +127,40 @@ describe("findUnmappedItems", () => {
     expect(findUnmappedItems([mapped])).toEqual([])
   })
 })
+
+describe("partner line items", () => {
+  /**
+   * Mahajan's catalogue is bundled panels, ours is individual tests, so many of
+   * our tests map to one partner product. That is the normal case, and it must
+   * not turn into the same product ordered several times.
+   */
+  it("collapses several tests that share one partner code into one line", () => {
+    const many: ResolvedItem[] = [
+      { testKey: "routine::CBC", testName: "CBC", labTestId: "LSHHI34491", labTestName: "MYCARDIOGEN PHASE 1 BLOOD", source: "mapping" },
+      { testKey: "routine::KFT", testName: "KFT", labTestId: "LSHHI34491", labTestName: "MYCARDIOGEN PHASE 1 BLOOD", source: "mapping" },
+      { testKey: "routine::LFT", testName: "LFT", labTestId: "LSHHI34491", labTestName: "MYCARDIOGEN PHASE 1 BLOOD", source: "mapping" },
+    ]
+    const p = buildHomePayload({ order, patient, input: input("HOME"), items: many, source: SOURCE })
+    expect(p.order.items).toEqual([
+      { testName: "MYCARDIOGEN PHASE 1 BLOOD", testId: "LSHHI34491" },
+    ])
+  })
+
+  it("keeps distinct partner codes as separate lines", () => {
+    const two: ResolvedItem[] = [
+      { testKey: "routine::CBC", testName: "CBC", labTestId: "LSHHI34491", labTestName: "MYCARDIOGEN PHASE 1 BLOOD", source: "mapping" },
+      { testKey: "other::CT", testName: "CT", labTestId: "LSHHI6087", labTestName: "CT CORONARY ANGIOGRAPHY", source: "mapping" },
+    ]
+    const p = buildHomePayload({ order, patient, input: input("HOME"), items: two, source: SOURCE })
+    expect(p.order.items).toHaveLength(2)
+  })
+
+  it("never sends a line with no partner code", () => {
+    const withUnmapped: ResolvedItem[] = [
+      { testKey: "routine::CBC", testName: "CBC", labTestId: "LSHHI34491", labTestName: "MYCARDIOGEN PHASE 1 BLOOD", source: "mapping" },
+      { testKey: "routine::LFT", testName: "Liver Function Test", labTestId: null, labTestName: null, source: "unmapped" },
+    ]
+    const p = buildHomePayload({ order, patient, input: input("HOME"), items: withUnmapped, source: SOURCE })
+    expect(p.order.items.every((i) => i.testId)).toBe(true)
+  })
+})

@@ -172,8 +172,24 @@ export function findUnmappedItems(items: ResolvedItem[]): ResolvedItem[] {
   return items.filter((it) => !it.labTestId)
 }
 
+/**
+ * Partner line items, collapsed by partner code.
+ *
+ * Mahajan's catalogue is bundled panels while ours is individual tests, so
+ * several prescribed tests routinely resolve to the SAME partner product. Sent
+ * as-is that becomes the same product several times on one order, which they
+ * would reasonably read as several of it. One line per distinct code.
+ */
 function itemsPayload(items: ResolvedItem[]) {
-  return items.map((it) => ({ testName: it.labTestName ?? it.testName, testId: it.labTestId }))
+  const byId = new Map<string, { testName: string; testId: string | null }>()
+  for (const it of items) {
+    const testId = it.labTestId
+    if (!testId) continue
+    if (!byId.has(testId)) {
+      byId.set(testId, { testName: it.labTestName ?? it.testName, testId })
+    }
+  }
+  return Array.from(byId.values())
 }
 
 /** Read collection mode + centre defaults from the consultation "test" section. */

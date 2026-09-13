@@ -18,6 +18,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
+import Link from "next/link"
 import {
   AlertTriangle,
   Building2,
@@ -397,6 +398,19 @@ export default function LabSettingsPage() {
               {syncResult.message}
             </p>
           ) : null}
+
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] max-w-2xl">
+            None of these names match the tests the doctor prescribes, so each one has to be
+            pointed at a partner product by hand.{" "}
+            <Link
+              href="/admin/settings/lab/mappings"
+              className="font-medium text-[#6B2B26] dark:text-[#A5B4FC] underline underline-offset-2"
+            >
+              Map tests to Mahajan codes →
+            </Link>{" "}
+            Until a test is mapped it is not sent, and an order of only unmapped tests cannot
+            be booked.
+          </p>
 
           <p className="text-sm text-[#667085] dark:text-[#94A3B8] max-w-2xl">
             The test list should come back small and recognisably ours. If it returns a
