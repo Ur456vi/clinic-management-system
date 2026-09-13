@@ -18,7 +18,16 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
-import { AlertTriangle, ChevronDown, FlaskConical, Loader2, PlugZap, Save } from "lucide-react"
+import {
+  AlertTriangle,
+  Building2,
+  ChevronDown,
+  FlaskConical,
+  Loader2,
+  PlugZap,
+  RefreshCw,
+  Save,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { notify } from "@/lib/notify"
@@ -79,6 +88,8 @@ const FALLBACK = {
 }
 
 type TestResult = { success: boolean; stage: string; message: string }
+type SyncTarget = "products" | "centers"
+type SyncCounts = { fetched: number; upserted: number }
 
 export default function LabSettingsPage() {
   const [form, setForm] = useState(emptyForm)
@@ -89,6 +100,8 @@ export default function LabSettingsPage() {
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<TestResult | null>(null)
   const [showPaths, setShowPaths] = useState(false)
+  const [syncing, setSyncing] = useState<SyncTarget | null>(null)
+  const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -178,6 +191,45 @@ export default function LabSettingsPage() {
       })
     } finally {
       setTesting(false)
+    }
+  }
+
+  /**
+   * Pulls the partner masters into our local tables. Runs against the SAVED
+   * settings, not what is currently typed into the form — which matters most
+   * for the product sync, since the partner source decides whose catalogue
+   * comes back.
+   */
+  const runSync = async (target: SyncTarget) => {
+    setSyncing(target)
+    setSyncResult(null)
+    try {
+      const res = await fetch("/api/admin/lab/sync", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target }),
+      })
+      const json = (await res.json()) as {
+        data?: Partial<Record<SyncTarget, SyncCounts>>
+        error?: { message?: string }
+      }
+      if (!res.ok) throw new Error(json?.error?.message ?? `HTTP ${res.status}`)
+
+      const counts = json?.data?.[target]
+      const noun = target === "products" ? "test" : "centre"
+      const message = counts
+        ? `Pulled ${counts.fetched} ${noun}${counts.fetched === 1 ? "" : "s"} from Mahajan, ` +
+          `${counts.upserted} saved.`
+        : "Sync finished."
+      setSyncResult({ ok: true, message })
+    } catch (err) {
+      setSyncResult({
+        ok: false,
+        message: err instanceof Error ? err.message : "Sync failed",
+      })
+    } finally {
+      setSyncing(null)
     }
   }
 
@@ -283,6 +335,51 @@ export default function LabSettingsPage() {
               spellCheck={false}
             />
           </Field>
+        </Section>
+
+        {/* ---------------- Catalogue ---------------- */}
+        <Section
+          title="Catalogue"
+          hint="Mahajan keep their own test list and centre list. We pull copies so orders can be priced and a centre chosen. Syncs use the saved settings, so save any change above first."
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <Button variant="outline" onClick={() => runSync("products")} disabled={syncing !== null}>
+              {syncing === "products" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {syncing === "products" ? "Syncing tests…" : "Sync tests"}
+            </Button>
+            <Button variant="outline" onClick={() => runSync("centers")} disabled={syncing !== null}>
+              {syncing === "centers" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Building2 className="h-4 w-4" />
+              )}
+              {syncing === "centers" ? "Syncing centres…" : "Sync centres"}
+            </Button>
+          </div>
+
+          {syncResult ? (
+            <p
+              className="text-sm font-medium rounded-lg px-3.5 py-3"
+              style={
+                syncResult.ok
+                  ? { background: "#E4F3EC", color: "#0E8C6A" }
+                  : { background: "#FDECEC", color: "#B4322B" }
+              }
+            >
+              {syncResult.message}
+            </p>
+          ) : null}
+
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] max-w-2xl">
+            The test list should come back small and recognisably ours. If it returns a
+            batch of unrelated corporate packages, the partner source above is wrong — that
+            pulls a different client&rsquo;s catalogue, and orders priced against it reach
+            Mahajan with no usable test code.
+          </p>
         </Section>
 
         {/* ---------------- Endpoint paths ---------------- */}
