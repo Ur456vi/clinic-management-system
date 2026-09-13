@@ -100,6 +100,7 @@ type EnvShape = {
   LAB_RESCHEDULE_HOME_PATH: string
   LAB_CANCEL_CENTER_PATH: string
   LAB_RESCHEDULE_CENTER_PATH: string
+  LAB_PRODUCTS_PATH: string
   /// Partner-assigned panel name sent as `customer.source` on both booking
   /// endpoints. MI looks this up as a Panel record with no empty-list guard, so
   /// an absent or unregistered value fails the whole call with a 500
@@ -247,6 +248,7 @@ const env: EnvShape = {
   LAB_RESCHEDULE_HOME_PATH: optional("LAB_RESCHEDULE_HOME_PATH", "/services/apexrest/rescheduleAppointment")!,
   LAB_CANCEL_CENTER_PATH: optional("LAB_CANCEL_CENTER_PATH", "/services/apexrest/CancelCenterAppointment")!,
   LAB_RESCHEDULE_CENTER_PATH: optional("LAB_RESCHEDULE_CENTER_PATH", "/services/apexrest/RescheduleCenterAppointment")!,
+  LAB_PRODUCTS_PATH: optional("LAB_PRODUCTS_PATH", "/services/apexrest/GetAllPartnerProductsAPI")!,
   LAB_PARTNER_SOURCE: optional("LAB_PARTNER_SOURCE", "MyCardioGen")!,
   LAB_WEBHOOK_SECRET: optional("LAB_WEBHOOK_SECRET"),
 

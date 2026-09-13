@@ -10,7 +10,9 @@
 
 import { describe, expect, it } from "vitest"
 
-import { buildCenterPayload, buildHomePayload } from "../orders"
+import { env } from "@/lib/env"
+
+import { buildCenterPayload, buildHomePayload, findUnmappedItems } from "../orders"
 
 import type { BookInput } from "../orders"
 import type { ResolvedItem } from "../mapping"
@@ -76,5 +78,42 @@ describe("buildCenterPayload", () => {
 
   it("converts the UTC slot to IST wall-clock for the partner", () => {
     expect(p.customer.startTime).toBe("2026-09-15 06:00:00")
+  })
+})
+
+describe("partner product catalogue", () => {
+  /**
+   * `getAllProducts` returns 200 and looks healthy, but it is another partner's
+   * catalogue (five Bajaj corporate packages) containing none of our items.
+   * Only the panel-filtered endpoint returns ours.
+   */
+  it("syncs from the panel-filtered endpoint, never the bare one", () => {
+    expect(env.LAB_PRODUCTS_PATH).toBe("/services/apexrest/GetAllPartnerProductsAPI")
+    expect(env.LAB_PRODUCTS_PATH).not.toContain("getAllProducts")
+  })
+})
+
+describe("findUnmappedItems", () => {
+  const mapped: ResolvedItem = {
+    testKey: "mcg::phase1",
+    testName: "Phase 1 Blood",
+    labTestId: "LSHHI34491",
+    labTestName: "MYCARDIOGEN PHASE 1 BLOOD",
+    source: "mapping",
+  }
+  const unmapped: ResolvedItem = {
+    testKey: "mcg::lft",
+    testName: "Liver Function Test",
+    labTestId: null,
+    labTestName: null,
+    source: "unmapped",
+  }
+
+  it("flags tests with no partner code", () => {
+    expect(findUnmappedItems([mapped, unmapped])).toEqual([unmapped])
+  })
+
+  it("passes a fully mapped basket", () => {
+    expect(findUnmappedItems([mapped])).toEqual([])
   })
 })

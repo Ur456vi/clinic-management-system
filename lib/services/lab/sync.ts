@@ -1,7 +1,13 @@
 /**
  * Refresh the local caches of the partner masters:
- *   - `getAllProducts` -> lab_products
- *   - `getAllCenters`  -> lab_centers
+ *   - `GetAllPartnerProductsAPI?panel=<our panel>` -> lab_products
+ *   - `getAllCenters`                              -> lab_centers
+ *
+ * NOTE on the products endpoint: the partner also exposes a bare
+ * `getAllProducts`, which returns 200 and looks fine but is ANOTHER partner's
+ * catalogue (five Bajaj corporate packages) with none of our items in it. Ours
+ * come only from `GetAllPartnerProductsAPI` filtered by our panel name, so the
+ * `panel` query param is load-bearing, not optional.
  *
  * Both are admin-triggered (POST /api/admin/lab/sync). The partner responses
  * are loosely typed (Salesforce apexrest), so we defensively pull the id/name
@@ -10,9 +16,11 @@
  */
 
 import { db } from "@/lib/db"
+import { env } from "@/lib/env"
 import { logger } from "@/lib/logger"
 
 import { labFetch } from "./client"
+import { getLabConfig } from "./config"
 import { normalizeTestName } from "./normalize"
 
 const log = logger.child({ mod: "lab-sync" })
@@ -48,9 +56,11 @@ export type SyncResult = { fetched: number; upserted: number }
 
 /** Sync the partner test master into `lab_products`. */
 export async function syncProducts(): Promise<SyncResult> {
-  const res = await labFetch("/services/apexrest/getAllProducts", { method: "GET" })
+  const cfg = getLabConfig()
+  const panel = env.LAB_PARTNER_SOURCE
+  const res = await labFetch(cfg.paths.products, { method: "GET", query: { panel } })
   if (!res.ok) {
-    throw new Error(`getAllProducts failed: ${res.status}`)
+    throw new Error(`product sync failed for panel "${panel}": ${res.status}`)
   }
   const records = asRecords(res.data)
   let upserted = 0
@@ -76,7 +86,7 @@ export async function syncProducts(): Promise<SyncResult> {
     })
     upserted++
   }
-  log.info({ fetched: records.length, upserted }, "synced lab products")
+  log.info({ panel, fetched: records.length, upserted }, "synced lab products")
   return { fetched: records.length, upserted }
 }
 

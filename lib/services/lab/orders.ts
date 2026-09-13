@@ -167,6 +167,16 @@ async function nextOrderNumber(): Promise<string> {
   })
 }
 
+/**
+ * Tests with no partner code. MI accepts `testId: null` without complaining and
+ * then has nothing to act on, so an unmapped item has to stop the booking here
+ * rather than surface later as an order nobody can fulfil. Usually means the
+ * product sync has not run, or the test needs a manual mapping.
+ */
+export function findUnmappedItems(items: ResolvedItem[]): ResolvedItem[] {
+  return items.filter((it) => !it.labTestId)
+}
+
 function itemsPayload(items: ResolvedItem[]) {
   return items.map((it) => ({ testName: it.labTestName ?? it.testName, testId: it.labTestId }))
 }
@@ -337,6 +347,17 @@ export async function bookOrder(orderId: string, input: BookInput): Promise<LabO
   if (!patient) throw new ValidationError("Patient not found")
 
   const items = (order.items as unknown as ResolvedItem[]) ?? []
+  if (items.length === 0) {
+    throw new ValidationError("This lab order has no tests on it — nothing to book.")
+  }
+  const unmapped = findUnmappedItems(items)
+  if (unmapped.length > 0) {
+    throw new ValidationError(
+      `No Mahajan code for: ${unmapped.map((i) => i.testName).join(", ")}. ` +
+        "Run the partner product sync, then map these tests before booking.",
+    )
+  }
+
   const cfg = getLabConfig()
   const isHome = input.collectionMode === "HOME"
   const path = isHome ? cfg.paths.bookHome : cfg.paths.bookCenter

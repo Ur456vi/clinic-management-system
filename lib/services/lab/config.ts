@@ -22,6 +22,7 @@ export type LabConfig = {
     rescheduleHome: string
     cancelCenter: string
     rescheduleCenter: string
+    products: string
   }
 }
 
@@ -60,6 +61,7 @@ export function getLabConfig(): LabConfig {
       rescheduleHome: env.LAB_RESCHEDULE_HOME_PATH,
       cancelCenter: env.LAB_CANCEL_CENTER_PATH,
       rescheduleCenter: env.LAB_RESCHEDULE_CENTER_PATH,
+      products: env.LAB_PRODUCTS_PATH,
     },
   }
 }
