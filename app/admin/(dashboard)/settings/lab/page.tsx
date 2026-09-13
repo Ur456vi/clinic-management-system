@@ -90,6 +90,13 @@ const FALLBACK = {
 type TestResult = { success: boolean; stage: string; message: string }
 type SyncTarget = "products" | "centers"
 type SyncCounts = { fetched: number; upserted: number }
+type LabProduct = {
+  labTestId: string
+  testName: string
+  category: string | null
+  price: number | null
+  syncedAt: string
+}
 
 export default function LabSettingsPage() {
   const [form, setForm] = useState(emptyForm)
@@ -102,6 +109,7 @@ export default function LabSettingsPage() {
   const [showPaths, setShowPaths] = useState(false)
   const [syncing, setSyncing] = useState<SyncTarget | null>(null)
   const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null)
+  const [products, setProducts] = useState<LabProduct[] | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -137,10 +145,25 @@ export default function LabSettingsPage() {
     }
   }, [])
 
+  /** The catalogue we last pulled from Mahajan. Read-only. */
+  const loadProducts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/lab/products", { credentials: "include" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const { data } = (await res.json()) as { data: { products: LabProduct[] } }
+      setProducts(data.products)
+    } catch {
+      // A failure here must not block the settings form — the list is
+      // informational, and the form is how you fix a broken connection.
+      setProducts([])
+    }
+  }, [])
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void load()
-  }, [load])
+    void loadProducts()
+  }, [load, loadProducts])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const save = async () => {
@@ -223,6 +246,7 @@ export default function LabSettingsPage() {
           `${counts.upserted} saved.`
         : "Sync finished."
       setSyncResult({ ok: true, message })
+      if (target === "products") await loadProducts()
     } catch (err) {
       setSyncResult({
         ok: false,
@@ -380,6 +404,67 @@ export default function LabSettingsPage() {
             pulls a different client&rsquo;s catalogue, and orders priced against it reach
             Mahajan with no usable test code.
           </p>
+
+          {products === null ? (
+            <p className="text-sm text-[#667085] dark:text-[#94A3B8]">Loading catalogue…</p>
+          ) : products.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[#D0D5DD] dark:border-[#374151] px-4 py-6 text-center">
+              <p className="text-sm text-[#667085] dark:text-[#94A3B8]">
+                Nothing synced yet. Press <b className="text-[#101828] dark:text-[#F9FAFB]">Sync
+                tests</b> to pull Mahajan&rsquo;s catalogue.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-[#EAECF0] dark:border-[#374151] overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-[#EAECF0] dark:border-[#374151] flex items-center justify-between gap-3 bg-[#F9FAFB] dark:bg-[#111827]">
+                <span className="text-sm font-medium text-[#101828] dark:text-[#F9FAFB]">
+                  {products.length} test{products.length === 1 ? "" : "s"} from Mahajan
+                </span>
+                <span className="text-xs text-[#667085] dark:text-[#94A3B8]">
+                  Synced {new Date(products[0].syncedAt).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "Asia/Kolkata",
+                  })}
+                </span>
+              </div>
+              <div className="max-h-80 overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-white dark:bg-[#1F2937]">
+                    <tr className="text-left text-[11px] uppercase tracking-wider text-[#667085] dark:text-[#94A3B8]">
+                      <th className="font-medium px-4 py-2">Code</th>
+                      <th className="font-medium px-4 py-2">Test</th>
+                      <th className="font-medium px-4 py-2">Category</th>
+                      <th className="font-medium px-4 py-2 text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((p) => (
+                      <tr
+                        key={p.labTestId}
+                        className="border-t border-[#EAECF0] dark:border-[#374151]"
+                      >
+                        <td className="px-4 py-2.5 font-mono text-xs text-[#667085] dark:text-[#94A3B8] whitespace-nowrap">
+                          {p.labTestId}
+                        </td>
+                        <td className="px-4 py-2.5 text-[#101828] dark:text-[#F9FAFB]">
+                          {p.testName}
+                        </td>
+                        <td className="px-4 py-2.5 text-[#667085] dark:text-[#94A3B8]">
+                          {p.category ?? "—"}
+                        </td>
+                        <td className="px-4 py-2.5 text-right tabular-nums text-[#101828] dark:text-[#F9FAFB] whitespace-nowrap">
+                          {p.price === null ? "—" : `₹${p.price.toLocaleString("en-IN")}`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </Section>
 
         {/* ---------------- Endpoint paths ---------------- */}
