@@ -23,3 +23,4 @@ export const GET = defineHandler<Params>(async ({ params }) => {
 
   return ok(await getSelfScore(id, patientId))
 })
+
