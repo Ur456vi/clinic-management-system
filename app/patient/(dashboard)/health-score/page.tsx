@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Gauge, Loader2, Minus, TrendingDown, TrendingUp } from "lucide-react";
 
 import { ScoreBar } from "@/components/score/ScoreBar";
+import { CompletenessNote } from "@/components/score/CompletenessNote";
 import { fraction, pct, scoreDate } from "@/components/score/format";
 
 type HistoryEntry = {
@@ -32,6 +33,8 @@ type HistoryEntry = {
   overallScore: number;
   overallMaxScore: number;
   delta: number | null;
+  /** Answered / applicable, 0..1. Captions a partial score. */
+  completeness: number;
 };
 
 type SectionScore = { key: string; name: string; score: number; maxScore: number };
@@ -42,6 +45,7 @@ type ScoreDetail = {
   totalScore: number;
   maxScore: number;
   sections: SectionScore[];
+  completeness: number;
 };
 
 const CARD =
@@ -54,7 +58,12 @@ export default function PatientHealthScorePage() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/patient/me/scores?limit=10", { credentials: "include" });
+      // `no-store` on both: this page mirrors what the RMO has saved this
+      // minute, so a cached copy is a wrong copy.
+      const res = await fetch("/api/patient/me/scores?limit=10", {
+        credentials: "include",
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const rows: HistoryEntry[] = (await res.json())?.data ?? [];
       setHistory(rows);
@@ -63,6 +72,7 @@ export default function PatientHealthScorePage() {
 
       const d = await fetch(`/api/patient/me/scores/${rows[0].consultationId}`, {
         credentials: "include",
+        cache: "no-store",
       });
       if (!d.ok) throw new Error(`HTTP ${d.status}`);
       setDetail((await d.json())?.data ?? null);
@@ -77,6 +87,19 @@ export default function PatientHealthScorePage() {
     void load();
   }, [load]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  /** Re-read when the tab comes back to the front — see the dashboard's copy. */
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [load]);
 
   if (history === null) {
     return (
@@ -155,6 +178,8 @@ export default function PatientHealthScorePage() {
                 tone="neutral"
               />
             </div>
+
+            <CompletenessNote completeness={detail.completeness} className="mt-4" />
 
             <p className="text-xs text-[#6C7688] dark:text-[#94A3B8] mt-4">
               Consultation of {scoreDate(detail.consultationDate)}

@@ -25,6 +25,13 @@ function bestValue(rule: ScoreRule): string | null {
     case "present":
       // Ticking the box is always the unhealthy answer.
       return null
+    case "timeWindow": {
+      // Any instant inside the window earns the rule's full value.
+      return rule.windowStart ?? null
+    }
+    case "manual":
+      // No derived value exists — the RMO's hand score is the only one there is.
+      return null
   }
 }
 
@@ -55,11 +62,36 @@ export function reachableMax(section: SectionConfig): number {
  */
 export function completeConsultationFor(sex: "MALE" | "FEMALE"): Answers {
   const out: Answers = {}
-  for (const section of SCORING_CONFIG) {
-    if (!section.active) continue
-    if (section.appliesWhen === "female" && sex !== "FEMALE") continue
-    if (section.appliesWhen === "male" && sex !== "MALE") continue
+  for (const section of applicableSections(sex)) {
     Object.assign(out, bestAnswersFor(section))
+  }
+  return out
+}
+
+function applicableSections(sex: "MALE" | "FEMALE") {
+  return SCORING_CONFIG.filter(
+    (s) =>
+      s.active &&
+      !(s.appliesWhen === "female" && sex !== "FEMALE") &&
+      !(s.appliesWhen === "male" && sex !== "MALE"),
+  )
+}
+
+/**
+ * Full marks, by hand, on every item the form cannot derive.
+ *
+ * A consultation is only complete once these are filled in too: a `manual` rule
+ * is a real document item (the free-text hygiene questions, the GPE facies and
+ * gait blocks, the six-tier Energy scale) that simply has no answer the engine
+ * can read. Without them a perfectly worked intake never clears the
+ * patient-portal completeness threshold.
+ */
+export function completeManualScoresFor(sex: "MALE" | "FEMALE"): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const section of applicableSections(sex)) {
+    for (const rule of section.rules) {
+      if (rule.kind === "manual") out[rule.field] = rule.max
+    }
   }
   return out
 }

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { RMO_FIELDS } from "@/lib/rmo-fields"
 import { SCORING_CONFIG } from "../config"
-import { DYNAMIC_NAME_FIELDS, DYNAMIC_OPTION_FIELDS, formOptionValues } from "./form-options"
+import {
+  DYNAMIC_NAME_FIELDS, DYNAMIC_OPTION_FIELDS, KEYS_NOT_IN_FORM, formOptionValues,
+} from "./form-options"
 
 const registry = new Set(RMO_FIELDS.map((f) => f.n))
 const allRules = SCORING_CONFIG.flatMap((s) => s.rules.map((r) => ({ section: s.key, rule: r })))
@@ -53,13 +55,30 @@ describe("config integrity", () => {
       if (DYNAMIC_NAME_FIELDS.has(rule.field) || DYNAMIC_OPTION_FIELDS.has(rule.field)) continue
       const real = options.get(rule.field)
       if (!real) { unmatched.push(`${section}: ${rule.field} has no control in the form`); continue }
+      const allowed = KEYS_NOT_IN_FORM[rule.field] ?? {}
       for (const key of Object.keys(rule.map)) {
-        if (!real.has(key)) {
-          unmatched.push(`${section}: ${rule.field} maps "${key}", form offers ${JSON.stringify([...real])}`)
-        }
+        if (real.has(key) || key in allowed) continue
+        unmatched.push(`${section}: ${rule.field} maps "${key}", form offers ${JSON.stringify([...real])}`)
       }
     }
     expect(unmatched).toEqual([])
+  })
+
+  // The allowlist is a pressure valve, so keep pressure on it: every entry must
+  // name a real field, a key that rule actually maps, and a reason.
+  it("every allowlisted map key is still needed and still explained", () => {
+    const options = formOptionValues()
+    const stale: string[] = []
+    for (const [field, keys] of Object.entries(KEYS_NOT_IN_FORM)) {
+      const rule = allRules.find((r) => r.rule.field === field)?.rule
+      if (!rule) { stale.push(`${field}: allowlisted but no rule scores it`); continue }
+      for (const [key, reason] of Object.entries(keys)) {
+        if (!reason.trim()) stale.push(`${field}: "${key}" has no reason`)
+        if (!rule.map || !(key in rule.map)) stale.push(`${field}: "${key}" is not in the rule's map`)
+        if (options.get(field)?.has(key)) stale.push(`${field}: "${key}" is in the form now — drop the entry`)
+      }
+    }
+    expect(stale).toEqual([])
   })
 
   it("every form option a choice rule can receive is mapped or covered by a fallback", () => {

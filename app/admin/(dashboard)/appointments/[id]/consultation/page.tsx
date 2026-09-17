@@ -98,6 +98,16 @@ const EMPTY_VITAL_FORM: VitalFormState = {
  */
 const RMO_SHOW_FULL_GPE = false
 
+/**
+ * How long the form sits still before autosaving.
+ *
+ * Long enough that ordinary typing produces one write per field rather than one
+ * per keystroke — a PATCH rewrites the whole sections blob — and short enough
+ * that the patient portal, which mirrors what is saved, is never more than a
+ * moment behind what the RMO has entered.
+ */
+const AUTOSAVE_DEBOUNCE_MS = 1200
+
 export default function StartAppointmentConsultationPage() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
@@ -124,6 +134,9 @@ export default function StartAppointmentConsultationPage() {
   // Captured form values, keyed by control name (e.g. "informant__informant_name").
   const [form, setForm] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
+  /** Set by any user edit; gates autosave so hydration never triggers a write. */
+  const [dirty, setDirty] = useState(false)
+  const [savedAt, setSavedAt] = useState<Date | null>(null)
   // Mirror of `form` so the populate callback can read latest values without
   // re-running on every keystroke (which would fight the cursor).
   const formStateRef = useRef(form)
@@ -248,6 +261,7 @@ export default function StartAppointmentConsultationPage() {
   const onFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
     const t = e.target as unknown as HTMLInputElement
     if (!t.name) return
+    setDirty(true)
     // Checkbox groups share one name; keep a comma-joined set of checked values
     // so a multi-select ("select all that apply") round-trips instead of
     // collapsing to a single "on".
@@ -267,7 +281,14 @@ export default function StartAppointmentConsultationPage() {
     setForm((prev) => ({ ...prev, [t.name]: value }))
   }
 
-  const save = async () => {
+  /**
+   * Persist the whole form.
+   *
+   * `silent` is the autosave path: same write, no success toast. A toast every
+   * second of typing would train the RMO to ignore them, and the one that
+   * matters — a failure — would go with it. Failures still notify either way.
+   */
+  const save = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
     if (!consult) return
     setSaving(true)
     try {
@@ -295,14 +316,33 @@ export default function StartAppointmentConsultationPage() {
         body: JSON.stringify({ sections }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      notify.success("RMO consultation saved")
+      setSavedAt(new Date())
+      if (!silent) notify.success("RMO consultation saved")
     } catch (err) {
       const message = err instanceof Error ? err.message : "Save failed"
       notify.error("Couldn't save consultation", { description: message })
     } finally {
       setSaving(false)
     }
-  }
+  }, [consult, form])
+
+  /**
+   * Autosave.
+   *
+   * The patient portal is a live mirror of `Consultation.sections`, so anything
+   * the RMO has typed but not saved is simply invisible to the patient. Waiting
+   * on a Save button made that a manual sync step; this removes it.
+   *
+   * Debounced rather than per-keystroke: a PATCH rewrites the whole sections
+   * blob, so one write per pause is the right granularity. `dirty` gates the
+   * first run — the form hydrates by writing into `form`, and autosaving that
+   * would PATCH the row straight back with what it just read.
+   */
+  useEffect(() => {
+    if (!consult || !dirty) return
+    const t = setTimeout(() => void save({ silent: true }), AUTOSAVE_DEBOUNCE_MS)
+    return () => clearTimeout(t)
+  }, [consult, dirty, form, save])
 
   const patientId = consult?.patient?.id
 
@@ -4356,10 +4396,12 @@ export default function StartAppointmentConsultationPage() {
                   sections={consult?.sections ?? {}}
                   sex={((form["demographics__sex"] ?? "").toUpperCase() || null) as Sex | null}
                   disabled={consult?.status === "SIGNED"}
-                  onScoreChange={(field, value) =>
+                  onScoreChange={(field, value) => {
+                    setDirty(true)
                     setForm((prev) => ({ ...prev, [scoreFieldName(field)]: value }))
-                  }
-                  onAcceptSuggestions={(entries) =>
+                  }}
+                  onAcceptSuggestions={(entries) => {
+                    setDirty(true)
                     setForm((prev) => {
                       const next = { ...prev }
                       for (const [field, value] of entries) {
@@ -4367,7 +4409,7 @@ export default function StartAppointmentConsultationPage() {
                       }
                       return next
                     })
-                  }
+                  }}
                 />
               ) : activeMainStep === "Vitals" ? (
                 /* Vitals tab */
@@ -4717,11 +4759,20 @@ export default function StartAppointmentConsultationPage() {
         <Button
           onClick={() => void save()}
           disabled={saving}
-          className="bg-[#027A48] hover:bg-[#04643c] text-white flex items-center gap-2 mr-auto"
+          className="bg-[#027A48] hover:bg-[#04643c] text-white flex items-center gap-2"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Save consultation
         </Button>
+        {/* Autosave runs on its own; this says so, because a form that saves
+            silently is indistinguishable from one that is losing your work. */}
+        <span className="mr-auto text-xs text-[#667085] dark:text-[#94A3B8]" aria-live="polite">
+          {saving
+            ? "Saving…"
+            : savedAt
+              ? `Saved ${savedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · visible to the patient`
+              : "Changes save automatically"}
+        </span>
         <Button
           variant="outline"
           onClick={bookRmoFollowUp}

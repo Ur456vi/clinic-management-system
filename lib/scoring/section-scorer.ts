@@ -1,6 +1,6 @@
 import type { Answers, SectionConfig, SectionScore } from "./types"
 import { scoreRule } from "./rules"
-import { DEFAULT_MANUAL_MAX, FIELD_SECTION, type ManualScores } from "./manual"
+import { type ManualScores } from "./manual"
 import { clamp } from "./utils"
 
 /**
@@ -12,10 +12,20 @@ import { clamp } from "./utils"
  * document never resolved (GPE, Men's Sexual Health, PSS-10, ...) can be scored
  * without inventing point values for them.
  *
- * `mode` decides the denominator. Under "answered" a question nobody answered
- * is excluded from both sides, so `maxScore` is the total available on the
- * questions actually put to the patient. Under "all" every applicable question
- * counts, and an unanswered one scores zero.
+ * `mode` decides the denominator.
+ *
+ *   "all"      — the section is marked out of the document's own total, so
+ *                Bowel always reads `/ 110`. This is what the brief asks for
+ *                ("Bowel Score: 90 / 110") and it keeps one patient's section
+ *                comparable with another's. An unanswered question simply does
+ *                not earn its points; `completeness` is what says why.
+ *   "answered" — only the questions actually put to the patient count, so a
+ *                partial intake is not punished. The denominator then moves
+ *                between patients and is NOT comparable across them.
+ *
+ * Either way the denominator can never exceed `declaredMax`: every scorable
+ * field is one the config names, and `config.test.ts` asserts the rules sum to
+ * the document's total.
  */
 export function scoreSection(
   config: SectionConfig,
@@ -36,10 +46,7 @@ export function scoreSection(
     unconfirmed: 0,
   }
 
-  const covered = new Set<string>()
-
   for (const rule of config.rules) {
-    covered.add(rule.field)
     const override = manual[rule.field]
 
     if (override !== undefined) {
@@ -76,17 +83,9 @@ export function scoreSection(
     }
   }
 
-  // Manually scored fields this section has no rule for. Out of 10 — the
-  // document's universal per-item value.
-  for (const [field, value] of Object.entries(manual)) {
-    if (covered.has(field)) continue
-    if (FIELD_SECTION.get(field) !== config.key) continue
-    out.score += clamp(value, 0, DEFAULT_MANUAL_MAX)
-    out.maxScore += DEFAULT_MANUAL_MAX
-    out.answered += 1
-    out.applicable += 1
-    out.manual += 1
-  }
+  // Mark the section out of the document's own total rather than out of the
+  // questions that happened to be answered. See the `mode` note above.
+  if (mode === "all") out.maxScore = config.declaredMax
 
   // Defensive: a config with overlapping buckets could in principle overshoot.
   out.score = clamp(out.score, 0, out.maxScore)

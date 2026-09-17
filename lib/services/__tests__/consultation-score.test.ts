@@ -7,7 +7,7 @@ const getConsultation = vi.fn()
 vi.mock("@/lib/db", () => ({ db: { consultation: { findFirst, findMany } } }))
 vi.mock("../consultation", () => ({ getConsultation }))
 
-const { completeConsultationFor } = await import(
+const { completeConsultationFor, completeManualScoresFor } = await import(
   "../../scoring/__tests__/best-answers"
 )
 
@@ -19,6 +19,9 @@ const {
 /**
  * A consultation complete enough to clear the patient-portal threshold. Built
  * from the scoring config so it stays valid as sections are activated.
+ *
+ * Both halves are required: the answers the engine derives, and the hand scores
+ * for the document items the form cannot express.
  */
 function completeRmo(over: Record<string, unknown> = {}) {
   return {
@@ -26,7 +29,10 @@ function completeRmo(over: Record<string, unknown> = {}) {
     createdAt: new Date("2026-09-06T10:12:00Z"),
     status: "SIGNED",
     patient: { sex: "MALE" },
-    sections: { personalHistory: completeConsultationFor("MALE") },
+    sections: {
+      personalHistory: completeConsultationFor("MALE"),
+      scores: completeManualScoresFor("MALE"),
+    },
     ...over,
   }
 }
@@ -88,16 +94,25 @@ describe("getSelfScore — ownership pinning", () => {
     )
   })
 
-  it("excludes DRAFT consultations from the portal", async () => {
+  // The portal mirrors whatever the RMO has saved, DRAFT included: nothing in
+  // the RMO's own screen ever leaves DRAFT, so excluding it withheld the score
+  // indefinitely rather than briefly. The completeness caption carries the
+  // caveat the status used to.
+  it("reads every consultation status, DRAFT included", async () => {
     findFirst.mockResolvedValue(completeRmo())
     await getSelfScore("c-1", "p-1")
     expect(findFirst.mock.calls[0][0].where.status.in).toEqual([...PATIENT_VISIBLE_STATUSES])
-    expect(findFirst.mock.calls[0][0].where.status.in).not.toContain("DRAFT")
+    expect(findFirst.mock.calls[0][0].where.status.in).toContain("DRAFT")
   })
 
-  it("withholds a score below the completeness threshold", async () => {
+  // The portal shows a partial assessment rather than hiding it, and leans on
+  // the completeness figure to caption it. Withholding was worse: the patient
+  // saw nothing at all and had no way to tell "not assessed" from "broken".
+  it("returns a thin assessment, carrying its low completeness", async () => {
     findFirst.mockResolvedValue(thinRmo())
-    await expect(getSelfScore("c-1", "p-1")).rejects.toThrow(/still in progress/)
+    const detail = await getSelfScore("c-1", "p-1")
+    expect(detail.completeness).toBeLessThan(0.8)
+    expect(detail.totalScore).toBeGreaterThanOrEqual(0)
   })
 
   it("returns no red flags and no per-question detail", async () => {
@@ -108,15 +123,17 @@ describe("getSelfScore — ownership pinning", () => {
           ...completeRmo().sections.personalHistory,
           personal_history__blood_in_stool: "frank blood (painful)",
         },
+        scores: completeManualScoresFor("MALE"),
       },
     })
     const detail = await getSelfScore("c-1", "p-1")
     const json = JSON.stringify(detail)
     expect(json).not.toContain("redFlag")
-    expect(json).not.toContain("completeness")
     expect(json).not.toContain("personal_history__")
+    // `completeness` is present by design; nothing else diagnostic is.
     expect(Object.keys(detail).sort()).toEqual([
-      "consultationDate", "consultationId", "maxScore", "sections", "totalScore",
+      "completeness", "consultationDate", "consultationId", "maxScore",
+      "sections", "totalScore",
     ])
   })
 })
@@ -133,31 +150,63 @@ describe("listSelfScores", () => {
     expect(args.orderBy).toEqual({ createdAt: "desc" })
   })
 
-  it("drops consultations below the completeness threshold", async () => {
+  it("keeps a thin consultation, tagged with its completeness", async () => {
     findMany.mockResolvedValue([completeRmo({ id: "c-good" }), thinRmo({ id: "c-thin" })])
     const rows = await listSelfScores("p-1")
-    expect(rows.map((r) => r.consultationId)).toEqual(["c-good"])
+    expect(rows.map((r) => r.consultationId)).toEqual(["c-good", "c-thin"])
+    expect(rows[1].completeness).toBeLessThan(0.8)
   })
 
-  it("exposes only totals and the delta", async () => {
+  it("exposes only totals, the delta, and completeness", async () => {
     findMany.mockResolvedValue([completeRmo()])
     const [row] = await listSelfScores("p-1")
     expect(Object.keys(row).sort()).toEqual([
-      "consultationId", "date", "delta", "overallMaxScore", "overallScore",
+      "completeness", "consultationId", "date", "delta", "overallMaxScore",
+      "overallScore",
     ])
+  })
+
+  // The history list mirrors the same statuses as the detail read — a score
+  // that shows on the dashboard must not vanish from the history beneath it.
+  it("lists every consultation status, DRAFT included", async () => {
+    findMany.mockResolvedValue([])
+    await listSelfScores("p-1")
+    expect(findMany.mock.calls[0][0].where.status.in).toContain("DRAFT")
+    expect(findMany.mock.calls[0][0].where.status.in).toEqual([...PATIENT_VISIBLE_STATUSES])
+  })
+
+  /**
+   * Ownership is the guarantee that survives every relaxation above. Widening
+   * which STATUSES a patient sees must never widen WHOSE consultations they
+   * see: `patientId` comes from the session and is always in the where clause.
+   */
+  it("stays pinned to the session patient no matter the status", async () => {
+    findMany.mockResolvedValue([])
+    await listSelfScores("p-session")
+    expect(findMany.mock.calls[0][0].where.patientId).toBe("p-session")
+    expect(findMany.mock.calls[0][0].where.type).toBe("RMO")
   })
 })
 
 describe("score history deltas", () => {
+  // Since every section is marked out of the document's own total, the
+  // denominator only moves when a different SET of sections applies — which is
+  // what makes a male and a female consultation incomparable (1810 vs 1790).
   it("is null when the two consultations have different denominators", async () => {
-    const fewer = completeConsultationFor("MALE")
-    delete fewer["personal_history__libido_level"]
     findMany.mockResolvedValue([
       completeRmo({ id: "c-new" }),
-      { ...completeRmo({ id: "c-old" }), sections: { personalHistory: fewer } },
+      {
+        ...completeRmo({ id: "c-old" }),
+        patient: { sex: "FEMALE" },
+        sections: {
+          personalHistory: completeConsultationFor("FEMALE"),
+          scores: completeManualScoresFor("FEMALE"),
+        },
+      },
     ])
     const rows = await listSelfScores("p-1")
     expect(rows).toHaveLength(2)
+    expect(rows[0].overallMaxScore).not.toBe(rows[1].overallMaxScore)
     expect(rows[0].delta).toBeNull()
   })
 
@@ -165,9 +214,13 @@ describe("score history deltas", () => {
     const worse = { ...completeConsultationFor("MALE"), personal_history__libido_level: "decreased" }
     findMany.mockResolvedValue([
       completeRmo({ id: "c-new" }),
-      { ...completeRmo({ id: "c-old" }), sections: { personalHistory: worse } },
+      {
+        ...completeRmo({ id: "c-old" }),
+        sections: { personalHistory: worse, scores: completeManualScoresFor("MALE") },
+      },
     ])
     const rows = await listSelfScores("p-1")
+    expect(rows[0].overallMaxScore).toBe(rows[1].overallMaxScore)
     expect(rows[0].delta).toBe(5) // normal 10 vs decreased 5
   })
 })

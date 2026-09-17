@@ -33,6 +33,7 @@ import {
 
 import { formatClinicDateShort, formatClinicTime } from "@/lib/date-utils";
 import { ScoreBar } from "@/components/score/ScoreBar";
+import { CompletenessNote } from "@/components/score/CompletenessNote";
 import { pct, scoreDate } from "@/components/score/format";
 
 type HealthScore = {
@@ -41,6 +42,8 @@ type HealthScore = {
   overallScore: number;
   overallMaxScore: number;
   delta: number | null;
+  /** Answered / applicable, 0..1. Captions a partial score — see CompletenessNote. */
+  completeness: number;
 };
 
 type Profile = {
@@ -100,7 +103,9 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 async function getList<T>(url: string): Promise<T[]> {
-  const res = await fetch(url, { credentials: "include" });
+  // `no-store`: the portal mirrors what the RMO has saved this minute, so a
+  // cached copy is a wrong copy rather than a stale-but-harmless one.
+  const res = await fetch(url, { credentials: "include", cache: "no-store" });
   if (!res.ok) return [];
   const json = await res.json();
   return Array.isArray(json?.data) ? (json.data as T[]) : [];
@@ -158,6 +163,27 @@ export default function PatientDashboardPage() {
     void load();
   }, [load]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  /**
+   * Re-read whenever the tab comes back to the front.
+   *
+   * The RMO autosaves while the consultation is happening, so a dashboard left
+   * open on the patient's phone would otherwise keep showing the score as it
+   * stood when the page loaded. This is not a push — a tab sitting in the
+   * foreground untouched still will not update — but it covers the case that
+   * actually happens: the patient looks away and looks back.
+   */
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [load]);
 
   const now = Date.now();
   const upcoming = useMemo(
@@ -322,26 +348,18 @@ export default function PatientDashboardPage() {
         ) : null}
       </div>
 
-      {/* Health score — only rendered once there is one. The endpoint withholds
-          drafts and thinly-completed consultations, so there is nothing to
-          explain away here. */}
+      {/* Health Score. Always on the dashboard so the patient knows the score
+          exists; the number itself only appears once there is a consultation
+          to draw it from. The endpoint withholds drafts and thinly-completed
+          intakes, so a missing number means "not assessed yet", never a bad
+          result — say that rather than leaving a blank space. */}
       {score ? (
         <button
           type="button"
-          onClick={() => router.push("/patient/health-score")}
+          // onClick={() => router.push("/patient/health-score")}
           className="w-full text-left bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-5 shadow-sm hover:border-[#6B2B26]/40 transition-colors"
         >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="h-7 w-7 rounded-lg bg-[#6B2B26]/10 dark:bg-[#312E81] flex items-center justify-center">
-                <Gauge className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
-              </span>
-              <span className="text-sm font-semibold text-[#344054] dark:text-[#CBD5E1]">
-                Health score
-              </span>
-            </div>
-            <ChevronRight className="h-4 w-4 text-[#98A2B3]" />
-          </div>
+          <HealthScoreHeading withChevron />
 
           <div className="flex items-baseline gap-2 mt-3">
             <span className="text-2xl font-bold text-[#101828] dark:text-[#F9FAFB]">
@@ -350,11 +368,11 @@ export default function PatientDashboardPage() {
             <span className="text-sm text-[#667085] dark:text-[#94A3B8]">
               / {score.overallMaxScore.toLocaleString("en-GB")}
             </span>
-            {pct(score.overallScore, score.overallMaxScore) !== null ? (
+            {/* {pct(score.overallScore, score.overallMaxScore) !== null ? (
               <span className="text-sm font-semibold text-[#667085] dark:text-[#94A3B8]">
                 ({pct(score.overallScore, score.overallMaxScore)}%)
               </span>
-            ) : null}
+            ) : null} */}
           </div>
 
           <div className="mt-3">
@@ -366,11 +384,24 @@ export default function PatientDashboardPage() {
             />
           </div>
 
+          <CompletenessNote completeness={score.completeness} className="mt-3" />
+
           <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-3">
             Consultation of {scoreDate(score.date)}
           </p>
         </button>
-      ) : null}
+      ) : (
+        <div className="w-full bg-white dark:bg-[#1F2937] border border-[#EAECF0] dark:border-[#374151] rounded-xl p-5 shadow-sm">
+          <HealthScoreHeading />
+          <p className="text-sm text-[#667085] dark:text-[#94A3B8] mt-3">
+            Not available yet
+          </p>
+          <p className="text-xs text-[#98A2B3] dark:text-[#94A3B8] mt-1">
+            Your score appears here once you have completed a consultation with
+            the clinic.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Doctors */}
@@ -476,6 +507,23 @@ export default function PatientDashboardPage() {
           </ul>
         )}
       </Card>
+    </div>
+  );
+}
+
+/** The Health Score box's title row, shared by its scored and empty states. */
+function HealthScoreHeading({ withChevron = false }: { withChevron?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-2">
+        <span className="h-7 w-7 rounded-lg bg-[#6B2B26]/10 dark:bg-[#312E81] flex items-center justify-center">
+          <Gauge className="h-4 w-4 text-[#6B2B26] dark:text-[#A5B4FC]" />
+        </span>
+        <span className="text-sm font-semibold text-[#344054] dark:text-[#CBD5E1]">
+          Health Score
+        </span>
+      </div>
+      {withChevron ? <ChevronRight className="h-4 w-4 text-[#98A2B3]" /> : null}
     </div>
   );
 }

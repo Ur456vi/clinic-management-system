@@ -19,7 +19,6 @@ import { db } from "@/lib/db"
 import { NotFoundError } from "@/lib/api"
 import { getConsultation } from "./consultation"
 import {
-  PATIENT_COMPLETENESS_THRESHOLD,
   SCORING_VERSION,
   scoreForAdmin,
   scoreForPatient,
@@ -29,11 +28,22 @@ import {
 } from "@/lib/scoring"
 
 /**
- * Statuses a patient may see a score for. A DRAFT is excluded: a half-filled
- * intake would show a misleadingly low number in a self-service portal with no
- * clinician present to explain it.
+ * Statuses a patient may see a score for — every one of them.
+ *
+ * DRAFT used to be excluded, on the reasoning that a half-filled intake would
+ * show a misleadingly low number with no clinician present to explain it. In
+ * practice nothing in the RMO's own screen ever leaves DRAFT: the intake form
+ * only saves sections, and the sole transition fires when the DOCTOR signs
+ * (`DoctorConsultation.tsx`). So the exclusion did not delay the score, it
+ * withheld it indefinitely.
+ *
+ * The portal is now a live mirror of whatever the RMO has saved, and the
+ * `CompletenessNote` caption carries the caveat that the status used to. The
+ * list is kept explicit rather than dropping the filter, so a future status is
+ * a deliberate decision rather than a silent inclusion.
  */
 export const PATIENT_VISIBLE_STATUSES = [
+  ConsultationStatus.DRAFT,
   ConsultationStatus.RMO_DONE,
   ConsultationStatus.IN_PROGRESS,
   ConsultationStatus.SIGNED,
@@ -106,7 +116,7 @@ export async function listPatientScores(
 export async function listSelfScores(
   patientId: string,
   limit = 10,
-): Promise<Array<{ consultationId: string; date: Date; overallScore: number; overallMaxScore: number; delta: number | null }>> {
+): Promise<Array<{ consultationId: string; date: Date; overallScore: number; overallMaxScore: number; delta: number | null; completeness: number }>> {
   const rows = await fetchRmoConsultations({
     patientId,
     limit,
@@ -121,17 +131,18 @@ export async function listSelfScores(
     status: row.status,
   }))
 
-  // A thin assessment must not read as a health verdict, so anything below the
-  // completeness threshold is withheld from the portal entirely.
-  return withDeltas(scored)
-    .filter((_, i) => scored[i].completeness >= PATIENT_COMPLETENESS_THRESHOLD)
-    .map((e) => ({
-      consultationId: e.consultationId,
-      date: e.date,
-      overallScore: e.overallScore,
-      overallMaxScore: e.overallMaxScore,
-      delta: e.delta,
-    }))
+  // A partial assessment is shown rather than withheld, so `completeness`
+  // travels with every row — the portal captions anything under
+  // PATIENT_COMPLETENESS_THRESHOLD rather than hiding it. Drafts are still
+  // excluded upstream: a chart being typed right now is not a result.
+  return withDeltas(scored).map((e, i) => ({
+    consultationId: e.consultationId,
+    date: e.date,
+    overallScore: e.overallScore,
+    overallMaxScore: e.overallMaxScore,
+    delta: e.delta,
+    completeness: scored[i].completeness,
+  }))
 }
 
 export type SelfScoreDetail = PatientScoreResult & {
@@ -163,11 +174,10 @@ export async function getSelfScore(
   })
   if (!row) throw new NotFoundError("No scored consultation found")
 
+  // No completeness gate: a partial assessment is shown with its completeness
+  // caption rather than 404'd. `scoreForPatient` carries the figure so the page
+  // can say "this score will change" next to the number.
   const ctx = { sex: (row.patient?.sex ?? null) as Sex | null }
-  const admin = scoreForAdmin(row.sections, ctx)
-  if (admin.completeness < PATIENT_COMPLETENESS_THRESHOLD) {
-    throw new NotFoundError("Assessment still in progress")
-  }
 
   return {
     ...scoreForPatient(row.sections, ctx),

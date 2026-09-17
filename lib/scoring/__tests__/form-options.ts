@@ -54,4 +54,31 @@ export const DYNAMIC_OPTION_FIELDS = new Set([
   "personal_history__bowel_bloating",
   "personal_history__bowel_others",
   "personal_history__bladder_others",
+  "personal_history__gpe_scars_bruises_naevi",
+  "personal_history__gpe_buccopharyngeal_mucosa",
+  "personal_history__gpe_nail_changes",
 ])
+
+/**
+ * Map keys the form cannot currently store, each kept on purpose.
+ *
+ * Two kinds live here, and nothing else belongs:
+ *   - a LEGACY value older rows still hold, which the form no longer writes;
+ *   - a DOCUMENTED option the form is missing, so the mapping is already
+ *     correct on the day the control is repaired.
+ *
+ * Every entry names the defect that will retire it. Without this allowlist the
+ * option-value check would have to be switched off, and it is the check that
+ * would have caught defects B-1 and B-2.
+ */
+export const KEYS_NOT_IN_FORM: Record<string, Record<string, string>> = {
+  personal_history__exercise_sedentary: {
+    "never to sedentary": "B-7 / M-7 — the document's 2-point option; the form offers only irregular / regular.",
+  },
+  personal_history__exercise_perspiration: {
+    "mild - moderate": "The document's only 10-point value for item (h); the form offers just the two 5-point extremes.",
+  },
+  personal_history__mens_health_libido_vs_erection: {
+    "normal - 10 points": "B-2 legacy — rows saved before M-2 repaired the option value.",
+  },
+}

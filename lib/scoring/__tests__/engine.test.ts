@@ -85,7 +85,9 @@ describe("applicability", () => {
       wrap({ personal_history__mens_health_morning_erections: "Yes" }),
       { sex: "MALE" },
     )
-    for (const key of ["mensHealth", "gpe", "stress", "systemic"]) {
+    const inactive = SCORING_CONFIG.filter((s) => !s.active).map((s) => s.key)
+    expect(inactive.length).toBeGreaterThan(0)
+    for (const key of inactive) {
       expect(r.sections.map((s) => s.key)).not.toContain(key)
     }
   })
@@ -116,21 +118,47 @@ describe("aggregation", () => {
     expect(flags.map((f) => f.label)).toContain("Blood in stool")
   })
 
+  /** Sum of the document totals for the sections that apply to this patient. */
+  const declaredTotalFor = (sex: "MALE" | "FEMALE" | null) =>
+    SCORING_CONFIG.filter((s) => s.active)
+      .filter((s) => (s.appliesWhen ? s.appliesWhen === sex?.toLowerCase() : true))
+      .reduce((n, s) => n + s.declaredMax, 0)
+
   it("reports completeness as answered / applicable", () => {
     const empty = scoreForAdmin(wrap({}), { sex: "MALE" })
     expect(empty.completeness).toBe(0)
-    expect(empty.maxScore).toBe(0)
+    expect(empty.totalScore).toBe(0)
 
     const partial = scoreForAdmin(wrap({ personal_history__regularity: "Regular" }), { sex: "MALE" })
     expect(partial.completeness).toBeGreaterThan(0)
     expect(partial.completeness).toBeLessThan(1)
   })
 
+  // The fix for the "Bowel 130 / doc says 110" defect: the denominator is the
+  // document's own total for every section that applies, whatever was answered.
+  it("marks every section out of its declared maximum", () => {
+    for (const sex of ["MALE", "FEMALE"] as const) {
+      const empty = scoreForAdmin(wrap({}), { sex })
+      expect(empty.maxScore).toBe(declaredTotalFor(sex))
+      for (const s of empty.sections) {
+        expect(s.maxScore).toBe(section(s.key).declaredMax)
+      }
+    }
+    const bowel = scoreForAdmin(wrap({ personal_history__regularity: "Regular" }), { sex: "MALE" })
+      .sections.find((s) => s.key === "bowel")!
+    expect(bowel).toMatchObject({ score: 10, maxScore: 110 })
+  })
+
   it("survives a malformed sections blob instead of throwing", () => {
     for (const blob of [null, undefined, {}, [], "nonsense", { personalHistory: null }]) {
       expect(() => scoreForAdmin(blob, { sex: null })).not.toThrow()
     }
-    expect(scoreForAdmin(null, { sex: null })).toMatchObject({ totalScore: 0, maxScore: 0 })
+    // No sex, so neither gendered section applies — but the ungendered ones
+    // still carry their document totals.
+    expect(scoreForAdmin(null, { sex: null })).toMatchObject({
+      totalScore: 0,
+      maxScore: declaredTotalFor(null),
+    })
   })
 
   it("ignores non-string values in the stored blob", () => {
@@ -149,5 +177,38 @@ describe("aggregation", () => {
       { sex: "MALE" },
     )
     expect(r.totalScore).toBe(10)
+  })
+})
+
+describe("a known sex decides on its own (B-21 guard)", () => {
+  // The consultation form renders both gendered accordions to everyone, so an
+  // RMO working top to bottom fills the one that does not apply. Honouring that
+  // data marked a female patient out of 1,820 instead of 1,630.
+  const mensAnswers = {
+    personal_history__mens_health_morning_erections: "Yes",
+    personal_history__mens_health_urinary_symptoms: "No",
+  }
+  const mensScores = { personal_history__mens_health_morning_erections: 10 }
+
+  it("ignores Men's Health answers on a female patient", () => {
+    const r = scoreForAdmin(
+      { personalHistory: mensAnswers, scores: mensScores },
+      { sex: "FEMALE" },
+    )
+    expect(r.sections.map((s) => s.key)).not.toContain("mensHealth")
+    expect(r.sections.map((s) => s.key)).toContain("womensHealth")
+  })
+
+  it("ignores Women's Health answers on a male patient", () => {
+    const r = scoreForAdmin(
+      { personalHistory: { personal_history__womens_health_pcos: "No" } },
+      { sex: "MALE" },
+    )
+    expect(r.sections.map((s) => s.key)).not.toContain("womensHealth")
+  })
+
+  it("still lets stored data decide when sex is OTHER", () => {
+    const r = scoreForAdmin({ personalHistory: mensAnswers }, { sex: "OTHER" })
+    expect(r.sections.map((s) => s.key)).toContain("mensHealth")
   })
 })

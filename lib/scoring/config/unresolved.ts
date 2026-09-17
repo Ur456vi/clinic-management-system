@@ -9,40 +9,6 @@ import type { SectionConfig } from "../types"
  * or the denominator until sign-off.
  */
 
-/** Men's Sexual Health History — declared 190, male patients. F-1. */
-export const mensHealth: SectionConfig = {
-  key: "mensHealth",
-  name: "Men's Sexual Health History",
-  declaredMax: 190,
-  appliesWhen: "male",
-  reconciles: false,
-  active: false,
-  rules: [],
-  note:
-    "F-1 BLOCKING: two different decompositions of the document both total " +
-    "exactly 190, and they imply different question counts — so partial " +
-    "completion would score differently under each. The document author must " +
-    "enumerate the scored items before this section can be built. The form does " +
-    "collect 23 controls, so no data is being lost meanwhile.",
-}
-
-/** General Physical Examination — declared 600. F-2. */
-export const gpe: SectionConfig = {
-  key: "gpe",
-  name: "General Physical Examination",
-  declaredMax: 600,
-  reconciles: false,
-  active: false,
-  rules: [],
-  note:
-    "F-2 BLOCKING: no consistent reading of the document produces 600. Treating " +
-    "every lettered item as one 10-point question gives 250; treating every named " +
-    "finding as its own question gives 730. An explicit item list is required. " +
-    "B-15 additionally converted `gpe_spo2` and `gpe_respiratory_rate` to free " +
-    "text, so SpO2 banding (>90 = 10 / <90 = 5 / <85 = 2 red flag) needs numeric " +
-    "parsing of arbitrary strings.",
-}
-
 /** Stress (PSS-10) — no declared total. F-3. */
 export const PSS10_ITEMS = [
   "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10",

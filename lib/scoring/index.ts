@@ -15,7 +15,7 @@ export {
 } from "./engine"
 export { flattenAnswers } from "./normalize"
 export {
-  DEFAULT_MANUAL_MAX, FIELD_SECTION, MANUAL_SCORES_KEY, isScorableField,
+  FIELD_RULE, FIELD_SECTION, MANUAL_SCORES_KEY, isScorableField, maxForField,
   readManualScores, type ManualScores,
 } from "./manual"
 export { isSectionApplicable, resolveSex } from "./applicability"

@@ -82,27 +82,46 @@ describe("manual override", () => {
   })
 })
 
-describe("manual scoring unblocks the sections that cannot be derived", () => {
-  it("activates GPE, which has no rules at all", () => {
-    const plain = scoreForAdmin(wrap({}), { sex: "MALE" })
-    expect(plain.sections.map((s) => s.key)).not.toContain("gpe")
-
+describe("manual scoring reaches the items the form cannot derive", () => {
+  it("scores a GPE finding by hand, out of the document's 600", () => {
     const scored = scoreForAdmin(
       wrap({}, { personal_history__gpe_pallor: 10, personal_history__gpe_icterus: 5 }),
       { sex: "MALE" },
     )
     const gpe = scored.sections.find((s) => s.key === "gpe")
-    expect(gpe).toMatchObject({ score: 15, maxScore: 20, answered: 2, manual: 2 })
+    expect(gpe).toMatchObject({ score: 15, maxScore: 600, answered: 2, manual: 2 })
   })
 
-  it("activates PSS-10, whose point values the document never defined", () => {
+  it("scores the blocks whose controls cannot express them — facies, gait", () => {
+    const scored = scoreForAdmin(
+      wrap({}, {
+        personal_history__gpe_facies: 130,
+        personal_history__gpe_gait_abnormal_pattern: 100,
+      }),
+      { sex: "MALE" },
+    )
+    expect(scored.sections.find((s) => s.key === "gpe")?.score).toBe(230)
+  })
+
+  it("scores Energy out of 50, the document's one non-10 item", () => {
+    const scored = scoreForAdmin(
+      wrap({}, { personal_history__energy_pattern: 40 }), { sex: "MALE" },
+    )
+    expect(scored.sections.find((s) => s.key === "energy")).toMatchObject({
+      score: 40, maxScore: 50, manual: 1,
+    })
+  })
+
+  // F-3: the document gives PSS-10 no point values, no reverse-scored items and
+  // no total, so there is nothing to score it out of. Its ten answers are still
+  // collected, and the section is still listed in the diagnostics panel.
+  it("still refuses to score PSS-10, which the document never defined", () => {
     const scored = scoreForAdmin(
       wrap({}, { personal_history__pss10_q1: 8, personal_history__pss10_q2: 6 }),
       { sex: "MALE" },
     )
-    expect(scored.sections.find((s) => s.key === "stress")).toMatchObject({
-      score: 14, maxScore: 20, manual: 2,
-    })
+    expect(scored.sections.map((s) => s.key)).not.toContain("stress")
+    expect(readManualScores(wrap({}, { personal_history__pss10_q1: 8 }))).toEqual({})
   })
 
   it("routes each manual score to the section its field belongs to", () => {
@@ -117,19 +136,20 @@ describe("manual scoring unblocks the sections that cannot be derived", () => {
     expect(scored.sections.find((s) => s.key === "mensHealth")?.score).toBe(5)
   })
 
-  it("adds manual scores into the overall total", () => {
+  it("adds manual scores into the total without moving the denominator", () => {
     const before = scoreForAdmin(wrap({ personal_history__regularity: "Regular" }), { sex: "MALE" })
     const after = scoreForAdmin(
       wrap({ personal_history__regularity: "Regular" }, { personal_history__gpe_pallor: 10 }),
       { sex: "MALE" },
     )
     expect(after.totalScore).toBe(before.totalScore + 10)
-    expect(after.maxScore).toBe(before.maxScore + 10)
+    // The denominator is the document's, so hand-scoring cannot inflate it.
+    expect(after.maxScore).toBe(before.maxScore)
   })
 })
 
 describe("scorable field set", () => {
-  const scorable = RMO_FIELDS.filter((f) => isScorableField(f.n, f.l))
+  const scorable = RMO_FIELDS.filter((f) => isScorableField(f.n))
 
   it("offers a score box only for fields in a scored section", () => {
     for (const f of scorable) expect(FIELD_SECTION.has(f.n)).toBe(true)
@@ -142,13 +162,27 @@ describe("scorable field set", () => {
     }
   })
 
-  it("covers the sections the engine cannot derive", () => {
+  /**
+   * The defect this whole change exists to stop: a field with a score box but
+   * no rule used to add a phantom 10 to its section, which is why Bowel read
+   * 130 against a documented 110. Scorable and scored must be the same set.
+   */
+  it("offers a score box for exactly the fields a rule scores", () => {
+    const ruled = new Set(SCORING_CONFIG.flatMap((s) => s.rules.map((r) => r.field)))
+    const boxed = new Set(scorable.map((f) => f.n))
+    expect([...boxed].filter((f) => !ruled.has(f))).toEqual([])
+    // Every rule must also point at a field the form actually renders.
+    const registry = new Set(RMO_FIELDS.map((f) => f.n))
+    expect([...ruled].filter((f) => !registry.has(f))).toEqual([])
+  })
+
+  it("covers the items the engine cannot derive", () => {
     const bySection = new Map<string, number>()
     for (const f of scorable) {
       const k = FIELD_SECTION.get(f.n)!
       bySection.set(k, (bySection.get(k) ?? 0) + 1)
     }
-    for (const key of ["gpe", "mensHealth", "stress", "energy"]) {
+    for (const key of ["gpe", "mensHealth", "energy", "hygiene", "misc"]) {
       expect(bySection.get(key) ?? 0).toBeGreaterThan(0)
     }
   })

@@ -48,10 +48,25 @@ describe("patient payload", () => {
     expect(json).not.toContain("confirmed")
   })
 
-  it("hides completeness and the scoring version", () => {
-    expect(json).not.toContain("completeness")
+  it("hides the scoring version and the per-section counts", () => {
     expect(json).not.toContain("scoringVersion")
     expect(json).not.toContain("answered")
+    expect(json).not.toContain("applicable")
+    expect(json).not.toContain("indeterminate")
+  })
+
+  /**
+   * The one diagnostic that crosses over, and only because the portal now shows
+   * partial assessments instead of withholding them: without it a 25% score
+   * drawn from a third of the questions reads as a health verdict. It is a
+   * single top-level fraction — not a per-section breakdown.
+   */
+  it("carries overall completeness, so a partial score can be captioned", () => {
+    expect(patientResult.completeness).toBeGreaterThanOrEqual(0)
+    expect(patientResult.completeness).toBeLessThanOrEqual(1)
+    for (const section of patientResult.sections) {
+      expect(Object.keys(section).sort()).toEqual(["key", "maxScore", "name", "score"])
+    }
   })
 })
 

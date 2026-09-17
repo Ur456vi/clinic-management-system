@@ -14,11 +14,6 @@ export const bladder: SectionConfig = {
       buckets: [{ max: 4, points: 5 }, { min: 4, max: 8, points: 10 }, { min: 8, points: 5 }],
     },
     {
-      field: "personal_history__urgency",
-      label: "Urgency", max: 10, kind: "choice", confirmed: false,
-      map: { normal: 10, increased: 5 },
-    },
-    {
       field: "personal_history__color_consistency",
       label: "Colour & consistency", max: 10, kind: "choice", confirmed: false,
       map: { clear: 10, straw: 10, dark: 5, cloudy: 5 },
@@ -33,6 +28,11 @@ export const bladder: SectionConfig = {
       label: "Blood in urine", max: 10, kind: "choice", confirmed: true,
       map: { none: 10 }, fallback: 2,
       redFlagWhen: (v) => v !== "none", redFlagSeverity: "high",
+    },
+    {
+      field: "personal_history__bladder_odour",
+      label: "Odour", max: 10, kind: "choice", confirmed: true,
+      map: { odourless: 10, "foul odour": 5 },
     },
     {
       field: "personal_history__bladder_other_symptoms",
@@ -50,6 +50,11 @@ export const bladder: SectionConfig = {
     },
   ],
   note:
-    "`bladder_odour` (Odourless / Foul odour) is captured but not counted here — " +
-    "7 items already reach the declared 70. Confirm which seven the document scores.",
+    "The seven scored items are the document's (a) frequency, (b) volume, " +
+    "(c) colour & consistency, (d) flow, (e) blood, (f) odour, (g) others. " +
+    "`urgency` is NOT an eighth item — the document folds it into (a) " +
+    "('Any Urgency for urinating - any deviation from Normal = 5 points') — and " +
+    "`bladder_characteristic_odour` qualifies (f) while `bladder_others` " +
+    "duplicates (g). None of the three is scored, which is what holds the " +
+    "section at the declared 70.",
 }

@@ -23,11 +23,18 @@ export function resolveSex(answers: Answers, patient: PatientContext): Sex | nul
 /**
  * Whether a section counts for this patient.
  *
- * Gendered sections are applied by sex, but ALSO whenever they actually hold
- * answers. That second clause matters: if a clinician deliberately worked the
- * Women's Health block for a patient recorded as OTHER, the score must reflect
- * it rather than silently discarding the work. Applicability is data-driven
- * with a sex-based default, not sex alone.
+ * A KNOWN sex decides on its own: a female patient gets Women's Health and not
+ * Men's Sexual Health, whatever happens to be stored against the other block.
+ * That is not defensive coding — the consultation form renders BOTH gendered
+ * accordions to everyone (defect B-21), so an RMO working top to bottom fills
+ * in the section that does not apply. Honouring that data put Men's Sexual
+ * Health into a female patient's denominator and marked her out of 1,820
+ * instead of 1,630. The brief is explicit: do not show a section's score to a
+ * patient for whom that section was not applicable.
+ *
+ * Only when sex is OTHER, UNDISCLOSED or missing does the stored data decide.
+ * There the clinician's choice to work a block IS the signal, and discarding it
+ * would throw away real work.
  */
 export function isSectionApplicable(
   config: SectionConfig,
@@ -42,8 +49,9 @@ export function isSectionApplicable(
   if (!config.appliesWhen || config.appliesWhen === "always") return true
 
   const sex = resolveSex(answers, patient)
-  if (config.appliesWhen === "female" && sex === "FEMALE") return true
-  if (config.appliesWhen === "male" && sex === "MALE") return true
+  if (sex === "FEMALE" || sex === "MALE") {
+    return config.appliesWhen === (sex === "FEMALE" ? "female" : "male")
+  }
 
   if (hasManual) return true
   return config.rules.some((r) => {

@@ -38,7 +38,7 @@ export const womensHealth: SectionConfig = {
   name: "Women's Health & Menstrual History",
   declaredMax: 170,
   appliesWhen: "female",
-  reconciles: false,
+  reconciles: true,
   active: true,
   rules: [
     {
@@ -50,6 +50,12 @@ export const womensHealth: SectionConfig = {
       field: "personal_history__womens_health_current_menstrual_status",
       label: "Current menstrual status", max: 10, kind: "choice", confirmed: false,
       map: { regular: 10, irregular: 5, stopped: 5 },
+    },
+    {
+      // Document (e): NVD 10 / LSCS 5 / any prepartum, partum or postpartum
+      // complication 2. B-18: the control is free text, so it is hand-scored.
+      field: "personal_history__womens_health_pregnancies",
+      label: "Number of pregnancies", max: 10, kind: "manual", confirmed: false,
     },
     {
       field: "personal_history__womens_health_miscarriages",
@@ -78,12 +84,22 @@ export const womensHealth: SectionConfig = {
         none: 10, "no screening done": 5,
       },
     },
+    {
+      // Core symptom (xii), Quality of Life: "How much are these symptoms
+      // affecting your daily life?" Free text, so hand-scored.
+      field: "personal_history__womens_health_quality_of_life_impact",
+      label: "Quality of life impact", max: 10, kind: "manual", confirmed: false,
+    },
   ],
   note:
-    "Rules sum to 150 against a declared 170. B-17: 'History of infertility' " +
-    "(item f, 10 points) is not collected at all. B-18: `womens_health_pregnancies` " +
-    "is free text where the document scores NVD 10 / LSCS 5 / complications 2. " +
-    "B-19 / A-3: the document lists twelve core symptoms (i-xii) but the form has " +
-    "eleven single-select dropdowns, so two co-existing symptoms are " +
-    "unrepresentable and one item is unaccounted for.",
+    "Seventeen items reach the declared 170: the document's (a) menarche, " +
+    "(b) current status, (e) pregnancies, (f) infertility/miscarriages/MTP and " +
+    "(g) PCOS, plus the twelve core symptoms (i)-(xii) of item (h). (c) LMP and " +
+    "(d) cycle changes are descriptive, and `womens_health_vasomotor_frequency` " +
+    "qualifies (h)(i), so none of the three is scored. B-17 resolves against the " +
+    "document rather than the form: infertility is not a separate item — it " +
+    "shares item (f) with miscarriages and MTP, which is the control we score. " +
+    "B-19 / A-3 remains open: the document lists each core symptom as its own " +
+    "normal-or-present question, but the form asks each as one mutually exclusive " +
+    "dropdown, so two co-existing symptoms are unrepresentable.",
 }

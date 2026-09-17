@@ -20,11 +20,6 @@ export const diet: SectionConfig = {
       },
     },
     {
-      field: "personal_history__gap_between_meals",
-      label: "Gap between meals (hours)", max: 10, kind: "numericRange", confirmed: false,
-      buckets: [{ max: 3, points: 5 }, { min: 3, max: 6, points: 10 }, { min: 6, points: 5 }],
-    },
-    {
       field: "personal_history__portions",
       label: "Portions", max: 10, kind: "choice", confirmed: false,
       map: { "100 - 300gms": 10, "500gms to >500gms": 5 },
@@ -53,9 +48,9 @@ export const diet: SectionConfig = {
       },
     },
     {
-      field: "personal_history__hot_beverages",
-      label: "Hot beverages", max: 10, kind: "choice", confirmed: false,
-      map: { none: 10, tea: 5, coffee: 5, "tea and coffee": 5 },
+      field: "personal_history__snacking",
+      label: "Snacking", max: 10, kind: "choice", confirmed: true,
+      map: { no: 10, yes: 5 },
     },
     {
       // F-9: the only inverted scale in the document. Intermittent fasting is the
@@ -65,13 +60,26 @@ export const diet: SectionConfig = {
       map: { intermittent: 10, regular: 5, "never to very rare": 2 },
     },
     {
+      // Document (j): Immediate 2 / 15-20 mins 5 / 30 mins to >30 mins 10.
+      // The longer the gap after waking, the better — not a typo.
       field: "personal_history__time_to_first_oral_intake",
-      label: "Time to first oral intake after waking", max: 10, kind: "choice", confirmed: false,
-      map: { immediate: 5, "15-20 mins": 10, "30 mins to > 30 mins (specify time)": 5 },
+      label: "Time to first oral intake after waking", max: 10, kind: "choice", confirmed: true,
+      map: { immediate: 2, "15-20 mins": 5, "30 mins to > 30 mins (specify time)": 10 },
+    },
+    {
+      // Document (k): Immediate 2 / 30 mins - 1hr 5 / 1-2 hrs or >2 hrs 10.
+      field: "personal_history__time_between_last_oral_intake_and_sleep",
+      label: "Time between last oral intake and sleep", max: 10, kind: "choice", confirmed: true,
+      map: {
+        immediate: 2, "30 mins - 1hr": 5,
+        "1-2 hrs or >2 hrs (specify time duration)": 10,
+      },
     },
   ],
   note:
-    "`time_between_last_oral_intake_and_sleep` is captured and looks scored in " +
-    "the document (its option label leaked '5 points' before M-2), but ten items " +
-    "already reach the declared 100. Confirm which ten the document scores.",
+    "The ten scored items are the document's (a)-(g) and (i)-(k). (h) Hot " +
+    "Beverages and (l) Diet Plan are descriptive — the document assigns them no " +
+    "points — and `gap_between_meals`, `snacking_type`, `hot_beverages_cups` and " +
+    "`fasting_hours` are qualifiers inside other items. None is scored, which is " +
+    "what holds the section at the declared 100.",
 }

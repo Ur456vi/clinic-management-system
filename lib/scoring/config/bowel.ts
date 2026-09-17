@@ -69,6 +69,10 @@ export const bowel: SectionConfig = {
       whenPresent: 2, redFlagWhen: () => true, redFlagSeverity: "moderate",
     },
     {
+      // Not scored, and deliberately so: `bowel_characteristic_odour` qualifies
+      // item (f) Odour, and `bowel_others` duplicates item (g), already scored
+      // through `bowel_other_symptoms`. Giving either a rule would mark the
+      // section out of 130 against a documented 110.
       field: "personal_history__bowel_constipation_diarrhoea",
       label: "Constipation alternating with diarrhoea", max: 10, kind: "present", confirmed: true,
       whenPresent: 2, redFlagWhen: () => true, redFlagSeverity: "moderate",

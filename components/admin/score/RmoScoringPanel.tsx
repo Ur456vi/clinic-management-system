@@ -28,6 +28,10 @@ type Props = {
 const SECTION_NAME = new Map(SCORING_CONFIG.map((s) => [s.key, s.name]))
 /** The total printed in the source document, where it declares one. */
 const DECLARED_MAX = new Map(SCORING_CONFIG.map((s) => [s.key, s.declaredMax]))
+/** What the section's own rules add up to. Equal to DECLARED_MAX when healthy. */
+const RULE_MAX = new Map(
+  SCORING_CONFIG.map((s) => [s.key, s.rules.reduce((n, r) => n + r.max, 0)]),
+)
 
 /**
  * The RMO's manual scoring screen.
@@ -53,7 +57,7 @@ export function RmoScoringPanel({
   const groups = useMemo(() => {
     const bySection = new Map<string, typeof RMO_FIELDS>()
     for (const f of RMO_FIELDS) {
-      if (!isScorableField(f.n, f.l)) continue
+      if (!isScorableField(f.n)) continue
       const key = FIELD_SECTION.get(f.n)
       if (!key) continue
       const list = bySection.get(key) ?? []
@@ -64,6 +68,7 @@ export function RmoScoringPanel({
       key,
       name: SECTION_NAME.get(key as never) ?? key,
       declaredMax: DECLARED_MAX.get(key as never) ?? 0,
+      ruleMax: RULE_MAX.get(key as never) ?? 0,
       fields,
     }))
   }, [])
@@ -82,15 +87,25 @@ export function RmoScoringPanel({
 
       {groups.map((g) => {
         const answered = g.fields.filter((f) => (form[f.n] ?? "").trim() !== "").length
-        const scored = g.fields.filter(
-          (f) => (form[scoreFieldName(f.n)] ?? "").trim() !== "",
-        ).length
-        const subtotal = g.fields.reduce((n, f) => {
-          const manual = (form[scoreFieldName(f.n)] ?? "").trim()
-          if (manual !== "") return n + (Number(manual) || 0)
-          return n + (suggestions[f.n]?.suggested ?? 0)
-        }, 0)
-        const outOf = g.fields.reduce((n, f) => n + (suggestions[f.n]?.max ?? 10), 0)
+        // Mirror `readManualScores`: a hand score outside [0, max] is dropped,
+        // not clamped, so it must not count here either.
+        const usableManual = (f: { n: string }): number | null => {
+          const raw = (form[scoreFieldName(f.n)] ?? "").trim()
+          if (raw === "") return null
+          const v = Number(raw)
+          const max = suggestions[f.n]?.max ?? 10
+          return Number.isFinite(v) && v >= 0 && v <= max ? v : null
+        }
+        const scored = g.fields.filter((f) => usableManual(f) !== null).length
+        const subtotal = g.fields.reduce(
+          (n, f) => n + (usableManual(f) ?? suggestions[f.n]?.suggested ?? 0),
+          0,
+        )
+        // The section's own total from the source document — never a sum over
+        // the boxes on screen. Summing the boxes is what showed Bowel as 130
+        // against a documented 110, because a control with a score box but no
+        // scoring rule silently added another 10.
+        const outOf = g.declaredMax
         const fillable: Array<[string, number]> = g.fields
           .filter((f) => (form[scoreFieldName(f.n)] ?? "").trim() === "")
           .flatMap((f) => {
@@ -113,16 +128,16 @@ export function RmoScoringPanel({
               <span className="ml-auto text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] tabular-nums">
                 {subtotal} / {outOf}
               </span>
-              {/* The questions on this screen are every scorable control in the
-                  section. The source document scores a different number of them,
-                  so the two totals diverge — say so rather than quietly picking
-                  one. Resolving it needs the document's own item list. */}
-              {g.declaredMax > 0 && g.declaredMax !== outOf ? (
+              {/* A last line of defence. The score boxes on screen should add up
+                  to the document's total exactly — `config.test.ts` asserts it —
+                  so this can only appear if a rule is edited without its
+                  section's declared total being updated to match. */}
+              {g.ruleMax !== g.declaredMax ? (
                 <span
                   className="text-xs text-[#B54708] whitespace-nowrap"
-                  title={`The source document declares this section out of ${g.declaredMax}, but the form has ${g.fields.length} scorable questions here. Confirm which questions the document scores.`}
+                  title={`Config error: the questions here add up to ${g.ruleMax}, but the source document declares this section out of ${g.declaredMax}.`}
                 >
-                  doc says / {g.declaredMax}
+                  config error: boxes total {g.ruleMax}
                 </span>
               ) : null}
               {fillable.length > 0 && !disabled ? (
@@ -143,6 +158,15 @@ export function RmoScoringPanel({
                 const s = suggestions[f.n]
                 const manual = form[scoreFieldName(f.n)] ?? ""
                 const effective = manual.trim() !== "" ? Number(manual) : s?.suggested ?? null
+                // Out of range is DROPPED when the score is read, not clamped.
+                // Show that here, or the box would keep reading 20 while the
+                // section counted nothing for it.
+                const ruleMax = s?.max ?? 10
+                const invalid =
+                  manual.trim() !== "" &&
+                  (!Number.isFinite(Number(manual)) ||
+                    Number(manual) < 0 ||
+                    Number(manual) > ruleMax)
                 return (
                   <div
                     key={f.n}
@@ -177,17 +201,23 @@ export function RmoScoringPanel({
                         type="number"
                         inputMode="numeric"
                         min={0}
-                        max={s?.max ?? 10}
+                        max={ruleMax}
                         disabled={disabled}
                         name={scoreFieldName(f.n)}
                         value={manual}
                         onChange={(e) => onScoreChange(f.n, e.target.value)}
                         placeholder={s?.suggested != null ? String(s.suggested) : "—"}
                         aria-label={`Score for ${f.l}`}
-                        className="w-16 h-10 px-2 text-center border border-[#D0D5DD] dark:border-[#374151] rounded-lg bg-white dark:bg-[#1F2937] text-sm font-semibold text-[#101828] dark:text-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#6B2B26]/10 focus:border-[#6B2B26] disabled:opacity-50"
+                        aria-invalid={invalid || undefined}
+                        title={invalid ? `Must be between 0 and ${ruleMax} — this score is not being counted.` : undefined}
+                        className={`w-16 h-10 px-2 text-center border rounded-lg bg-white dark:bg-[#1F2937] text-sm font-semibold focus:outline-none focus:ring-2 disabled:opacity-50 ${
+                          invalid
+                            ? "border-[#D92D20] text-[#B42318] focus:ring-[#D92D20]/10 focus:border-[#D92D20]"
+                            : "border-[#D0D5DD] dark:border-[#374151] text-[#101828] dark:text-[#F9FAFB] focus:ring-[#6B2B26]/10 focus:border-[#6B2B26]"
+                        }`}
                       />
                       <span className="text-xs text-[#98A2B3] dark:text-[#64748B] w-10">
-                        / {s?.max ?? 10}
+                        / {ruleMax}
                       </span>
                       <span
                         className="text-xs w-14 text-right"
@@ -197,7 +227,11 @@ export function RmoScoringPanel({
                             : "Suggested by the system — leave the box empty to keep it"
                         }
                       >
-                        {manual.trim() !== "" ? (
+                        {invalid ? (
+                          <span className="font-semibold text-[#B42318]">
+                            not counted
+                          </span>
+                        ) : manual.trim() !== "" ? (
                           <span className="font-semibold text-[#6B2B26] dark:text-[#A5B4FC]">
                             manual
                           </span>

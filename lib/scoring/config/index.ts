@@ -7,8 +7,10 @@ import { diet } from "./diet"
 import { exercise } from "./exercise"
 import { womensHealth } from "./womens-health"
 import { bodyWeight, energy, hygiene, libido, misc, temperature } from "./simple-sections"
+import { mensHealth } from "./mens-health"
+import { gpe } from "./gpe"
 import {
-  gpe, mensHealth, pastMedical, pastSurgical, personalHabits, stress, systemic,
+  pastMedical, pastSurgical, personalHabits, stress, systemic,
 } from "./unresolved"
 
 /**
@@ -25,17 +27,18 @@ export const SCORING_CONFIG: readonly SectionConfig[] = Object.freeze([
 /**
  * How the denominator is built.
  *
+ *   "all"      — each section is marked out of the document's own total, so
+ *                Bowel always reads `/ 110`. This is what the brief asks for
+ *                ("Bowel Score: 90 / 110") and it is the only mode in which two
+ *                patients' sections are comparable. An unanswered question
+ *                simply does not earn its points; `completeness` says why.
  *   "answered" — a question nobody answered is excluded from BOTH the numerator
- *                and the denominator, so a partial intake is not punished. This
- *                is the recommendation, paired with a visible completeness
- *                figure so a high score on a thin assessment is never mistaken
- *                for a thorough one.
- *   "all"      — every applicable question counts against the denominator, so an
- *                unanswered question scores zero and reads like a sick patient.
+ *                and the denominator, so a partial intake is not punished — at
+ *                the cost of a denominator that moves between patients.
  *
  * Clinical lead's call. Kept here so changing it needs no code change.
  */
-export const DENOMINATOR_MODE: "answered" | "all" = "answered"
+export const DENOMINATOR_MODE: "answered" | "all" = "all"
 
 /**
  * Below this, the patient portal shows "Assessment in progress" rather than a

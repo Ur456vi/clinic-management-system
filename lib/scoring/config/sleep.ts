@@ -12,15 +12,16 @@ export const PARASOMNIAS = [
 /**
  * Sleep — declared 230 = (7 x 10) + (16 parasomnias x 10).
  *
- * Only six single-answer controls in the form map onto the document's lettered
- * items; the seventh is undetermined (F-7 notes the document letters two items
- * `(f)`), so the rules below sum to 220, not 230.
+ * The seventh lettered item is (c) Timing, "sleep time between 9-11:30pm and
+ * wake time between 5-7am = 10 points, any deviation = 5". The form splits it
+ * across two `type="time"` controls, so it is scored as two halves of 5 that
+ * add back to the document's 10.
  */
 export const sleep: SectionConfig = {
   key: "sleep",
   name: "Sleep",
   declaredMax: 230,
-  reconciles: false,
+  reconciles: true,
   active: true,
   rules: [
     {
@@ -36,6 +37,16 @@ export const sleep: SectionConfig = {
         { min: 4, max: 7, points: 5 },
         { min: 7, points: 10 },
       ],
+    },
+    {
+      field: "personal_history__sleep_time",
+      label: "Timing — sleep time", max: 5, kind: "timeWindow", confirmed: true,
+      windowStart: "21:00", windowEnd: "23:30", fallback: 2.5,
+    },
+    {
+      field: "personal_history__wake_time",
+      label: "Timing — wake time", max: 5, kind: "timeWindow", confirmed: true,
+      windowStart: "05:00", windowEnd: "07:00", fallback: 2.5,
     },
     {
       field: "personal_history__snoring",
@@ -68,7 +79,9 @@ export const sleep: SectionConfig = {
     },
   ],
   note:
-    "F-7: the document letters two Sleep items '(f)'. Six single-answer controls " +
-    "map cleanly; the seventh 10-point item cannot be identified, so the rules " +
-    "sum to 220 against a declared 230.",
+    "F-7 (cosmetic): the document letters two Sleep items '(f)' — Mattress " +
+    "Quality and Others (Parasomnias). The arithmetic confirms both are scored. " +
+    "Item (c) Timing is one 10-point question in the document but two controls " +
+    "in the form, so it is split 5 + 5; a deviation scores half of each half " +
+    "(2.5), keeping the item's 10/5 shape.",
 }

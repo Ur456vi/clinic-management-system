@@ -12,14 +12,15 @@ export const exercise: SectionConfig = {
   active: true,
   rules: [
     {
+      // Document (a): Never to Sedentary 2 / Irregular 5 / Regular 10.
+      field: "personal_history__exercise_sedentary",
+      label: "Exercise regularity", max: 10, kind: "choice", confirmed: false,
+      map: { regular: 10, irregular: 5, "never to sedentary": 2 },
+    },
+    {
       field: "personal_history__exercise_days_per_week",
       label: "Days per week", max: 10, kind: "choice", confirmed: false,
       map: { "2-3 days": 5, "4-5 days": 10, ">5 days": 10 },
-    },
-    {
-      field: "personal_history__exercise_duration",
-      label: "Duration of exercise", max: 10, kind: "choice", confirmed: false,
-      map: { "20 mins": 5, "30 mins": 10, "45 mins": 10, "1 hr": 10, ">1 hr": 5 },
     },
     {
       field: "personal_history__exercise_time_to_recovery",
@@ -32,9 +33,11 @@ export const exercise: SectionConfig = {
       map: { none: 10, present: 5 },
     },
     {
+      // Document (h): None OR Profuse 5 / Mild-Moderate 10. The form offers only
+      // the two 5-point extremes, so this item cannot currently earn its 10.
       field: "personal_history__exercise_perspiration",
       label: "Perspiration on exercise", max: 10, kind: "choice", confirmed: false,
-      map: { none: 5, profuse: 10 },
+      map: { none: 5, profuse: 5, "mild - moderate": 10 },
     },
     {
       field: "personal_history__exercise_hr_variability",
@@ -43,6 +46,11 @@ export const exercise: SectionConfig = {
     },
   ],
   note:
-    "B-7: `exercise_sedentary` is missing the document's 'Never to Sedentary' " +
-    "option (2 points) and offers only irregular / regular, so it is not scored.",
+    "The six scored items are the document's (a), (b), (f), (g), (h) and (j). " +
+    "(c) duration, (d) self/trainer, (e) types and (i) heart rate are " +
+    "descriptive — the document assigns them no points — so `exercise_duration`, " +
+    "`exercise_trainer`, `exercise_types` and the indoor/outdoor selects are not " +
+    "scored. Two form gaps remain: B-7, `exercise_sedentary` is missing the " +
+    "'Never to Sedentary' option (2 points); and `exercise_perspiration` is " +
+    "missing 'Mild - Moderate', the only value that earns item (h) its 10.",
 }

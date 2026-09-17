@@ -1,5 +1,5 @@
-import { RMO_FIELDS } from "@/lib/rmo-fields"
-import type { SectionKey } from "./types"
+import { SCORING_CONFIG } from "./config"
+import type { ScoreRule, SectionKey } from "./types"
 
 /**
  * Manual per-question scores entered by the RMO.
@@ -12,64 +12,48 @@ import type { SectionKey } from "./types"
  * because `DATABASE_URL` points at the shared live UAT database.
  *
  * A manual score ALWAYS beats the derived one. That is the point: the engine's
- * value is a suggestion the RMO can overrule, and for the sections the source
- * document never resolved (GPE, Men's Sexual Health, PSS-10, Systemic
- * Examination, Energy, Past Medical, Past Surgical, Personal Habits) it is the
- * only score there is.
+ * value is a suggestion the RMO can overrule, and for the document items the
+ * form cannot derive (`kind: "manual"` — free-text hygiene, the GPE finding
+ * blocks, every Men's Sexual Health item) it is the only score there is.
  */
 
 /** The section key the manual scores blob lives under. */
 export const MANUAL_SCORES_KEY = "scores"
 
 /**
- * Default ceiling for a manually scored question that has no config rule.
+ * Every scorable field, and the rule that defines it.
  *
- * 10 is the document's universal per-item value — every scored question in
- * every section is out of 10, with the sole exception of the Energy tiers.
+ * The config is the single source of truth for what can be scored. A field
+ * with no rule gets no score box and can never contribute to a denominator —
+ * which is what keeps each section's total pinned to the document's number.
+ * Deriving this from `RMO_FIELDS` instead is what previously let qualifier and
+ * duplicate controls (`bowel_characteristic_odour`, `bowel_others`, ...) each
+ * add a phantom 10 points, showing Bowel as 130 against a documented 110.
  */
-export const DEFAULT_MANUAL_MAX = 10
-
-/**
- * Registry `sub` -> scored section. Fields whose `sub` is absent here belong to
- * no scored section (Appetite, Marital Status, Work History, ...) and are not
- * offered a score box, so a score can never be orphaned.
- */
-export const SUB_TO_SECTION: Record<string, SectionKey> = {
-  "Bowels": "bowel",
-  "Sleep": "sleep",
-  "Bladder Habits": "bladder",
-  "Energy Levels": "energy",
-  "Libido / Sex Drive": "libido",
-  "Mentation": "mentation",
-  "Dietary Considerations": "diet",
-  "Exercise Regimen": "exercise",
-  "Body Weight": "bodyWeight",
-  "Personal Hygiene": "hygiene",
-  "Body Temperature & Temperature Tolerance": "temperature",
-  "Stress - The Percieved Stress Scale (PSS-10)": "stress",
-  "Women's Health & Menstrual History": "womensHealth",
-  "Men's Sexual Health History": "mensHealth",
-  "Miscellaneous": "misc",
-  "General Physical Examination": "gpe",
-}
+export const FIELD_RULE: ReadonlyMap<string, ScoreRule> = new Map(
+  SCORING_CONFIG.flatMap((s) => s.rules.map((r) => [r.field, r] as [string, ScoreRule])),
+)
 
 /** Field name -> its scored section, for every manually scorable field. */
 export const FIELD_SECTION: ReadonlyMap<string, SectionKey> = new Map(
-  RMO_FIELDS.flatMap((f) => {
-    const key = f.sub ? SUB_TO_SECTION[f.sub] : undefined
-    return key ? [[f.n, key] as [string, SectionKey]] : []
-  }),
+  SCORING_CONFIG.flatMap((s) =>
+    s.rules.map((r) => [r.field, s.key] as [string, SectionKey]),
+  ),
 )
 
+/** The ceiling for a hand-entered score on this field, or 0 if it has no rule. */
+export function maxForField(field: string): number {
+  return FIELD_RULE.get(field)?.max ?? 0
+}
+
 /**
- * Fields that carry no clinical answer and are never scored: free-text notes
- * and the "specify" helpers that qualify another control's answer.
+ * Whether the RMO gets a score box for this control.
+ *
+ * True only for fields the config scores. Notes, `*_specify` helpers, free-text
+ * qualifiers and duplicate controls have no rule and so are never offered one.
  */
-export function isScorableField(name: string, label: string): boolean {
-  if (!FIELD_SECTION.has(name)) return false
-  if (label === "Note" || /_note$/.test(name)) return false
-  if (/_specify$/.test(name)) return false
-  return true
+export function isScorableField(name: string): boolean {
+  return FIELD_RULE.has(name)
 }
 
 export type ManualScores = Record<string, number>
@@ -77,9 +61,10 @@ export type ManualScores = Record<string, number>
 /**
  * Read and sanitise the manual scores blob.
  *
- * Anything not a finite number in [0, 100] is dropped rather than clamped —
- * a nonsense value is a bug or a bad edit, and silently turning it into a
- * plausible score would hide that.
+ * A value above the field's own maximum is dropped rather than clamped — it is
+ * a bad edit or a stale row, and silently turning 20 into 10 would leave the
+ * box reading 20 while the score counted 10. Dropping it makes the disagreement
+ * visible instead.
  */
 export function readManualScores(sections: unknown): ManualScores {
   const out: ManualScores = {}
@@ -98,8 +83,9 @@ export function readManualScores(sections: unknown): ManualScores {
       if (text === "") continue
       n = Number(text)
     }
-    if (!Number.isFinite(n) || n < 0 || n > 100) continue
-    if (!FIELD_SECTION.has(field)) continue
+    const max = maxForField(field)
+    if (max === 0) continue
+    if (!Number.isFinite(n) || n < 0 || n > max) continue
     out[field] = n
   }
   return out

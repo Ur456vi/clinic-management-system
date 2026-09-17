@@ -5,9 +5,13 @@ export const mentation: SectionConfig = {
   key: "mentation",
   name: "Mentation",
   declaredMax: 80,
-  reconciles: false,
+  reconciles: true,
   active: true,
   rules: [
+    {
+      field: "personal_history__mood",
+      label: "Mood", max: 10, kind: "manual", confirmed: false,
+    },
     {
       field: "personal_history__irritability",
       label: "Irritability", max: 10, kind: "choice", confirmed: false,
@@ -40,12 +44,18 @@ export const mentation: SectionConfig = {
       map: { motivated: 10, none: 10, hopeless: 2 },
       redFlagWhen: ["hopeless"], redFlagSeverity: "moderate",
     },
+    {
+      field: "personal_history__depression_anxiety",
+      label: "Depression & anxiety", max: 10, kind: "manual", confirmed: false,
+    },
   ],
   note:
-    "B-3: `mood` is a checkbox group (stable / anxious / depressed / irritable) " +
-    "but the document defines one scale — Great 10 / Good 8 / Low or Mood Swings " +
-    "5. That 8 is the only 8 in the entire document, so the control cannot be " +
-    "approximated; not scored. B-5: `depression_anxiety` is a free-text textarea " +
-    "where the document scores None 10 / mild-intermittent 5 / frequent-severe 2; " +
-    "not scored. Rules therefore sum to 60 against a declared 80.",
+    "All eight document items are declared, so the section reconciles at 80, but " +
+    "two are hand-scored because the form cannot derive them. B-3: `mood` is a " +
+    "checkbox group (stable / anxious / depressed / irritable) where the document " +
+    "defines one scale — Great 10 / Good 8 / Low or Mood Swings 5; that 8 is the " +
+    "only 8 in the entire document, so the control cannot be approximated. " +
+    "B-5: `depression_anxiety` is a free-text textarea where the document scores " +
+    "None 10 / mild-intermittent 5 / frequent-severe 2. M-4 and M-5 replace both " +
+    "controls, after which these become ordinary `choice` rules.",
 }

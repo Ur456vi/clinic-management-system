@@ -4,7 +4,7 @@ import type {
 import { DENOMINATOR_MODE, SCORING_CONFIG } from "./config"
 import { isSectionApplicable } from "./applicability"
 import { flattenAnswers } from "./normalize"
-import { DEFAULT_MANUAL_MAX, FIELD_SECTION, readManualScores } from "./manual"
+import { readManualScores } from "./manual"
 import { scoreSection } from "./section-scorer"
 import { scoreRule } from "./rules"
 import { ratio } from "./utils"
@@ -56,11 +56,16 @@ export function scoreForAdmin(sections: unknown, patient: PatientContext): Score
 
 /**
  * Patient portal view. Deliberately thinner than the admin result: no red
- * flags, no completeness, no scoring version, no answered/applicable counts.
+ * flags, no scoring version, no answered/applicable counts, no per-question
+ * points.
  *
  * Red flags stay out by product decision, not by oversight — surfacing
  * "blood in stool" or "suicidal tendencies" to a patient in a self-service
  * portal is a clinical call, and the default is hidden.
+ *
+ * `completeness` is the one diagnostic that DOES cross over, because the portal
+ * shows partial assessments rather than withholding them. The number is only
+ * safe to display next to the caveat that produced it.
  */
 export function scoreForPatient(
   sections: unknown,
@@ -76,6 +81,7 @@ export function scoreForPatient(
       score: s.score,
       maxScore: s.maxScore,
     })),
+    completeness: full.completeness,
   }
 }
 
@@ -85,7 +91,7 @@ export type QuestionSuggestion = {
   max: number
   /** The RMO's own score, when they have entered one. */
   manual: number | null
-  /** Whether a config rule exists at all — see the two null cases below. */
+  /** false for a `manual` rule, where no answer can ever produce a suggestion. */
   derivable: boolean
 }
 
@@ -99,9 +105,9 @@ export type QuestionSuggestion = {
  * and `serialization.test.ts` asserts the portal payload stays free of
  * question-level detail.
  *
- * `suggested` is null where the engine has no rule for that question (the eight
- * sections the source document never resolved), which is exactly where the
- * RMO's own number is the only score there is.
+ * `suggested` is null either because the question is unanswered, or because its
+ * rule is `manual` — a document item the form cannot express, where the RMO's
+ * own number is the only score there is. `derivable` separates the two.
  */
 export function suggestQuestionScores(
   sections: unknown,
@@ -119,23 +125,13 @@ export function suggestQuestionScores(
         suggested: r.points,
         max: rule.max,
         manual: manual[rule.field] ?? null,
-        // A rule exists, so a suggestion appears as soon as the question is
-        // answered. Distinct from having no rule at all.
-        derivable: true,
+        // A `manual` rule is a real document item the form cannot express — a
+        // free-text control, or a single select where the document wants a
+        // block of independent findings. The RMO's number is the only one
+        // there will ever be, so the screen says so rather than showing an
+        // empty suggestion the engine will never fill.
+        derivable: rule.kind !== "manual",
       }
-    }
-  }
-
-  // Questions with no rule at all — manual is the only possible score.
-  for (const [field] of FIELD_SECTION) {
-    if (out[field]) continue
-    out[field] = {
-      suggested: null,
-      max: DEFAULT_MANUAL_MAX,
-      manual: manual[field] ?? null,
-      // No rule: the source document never resolved this section, so the RMO's
-      // own number is the only score there will ever be.
-      derivable: false,
     }
   }
   return out

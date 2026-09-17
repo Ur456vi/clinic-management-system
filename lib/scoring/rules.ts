@@ -141,7 +141,57 @@ function scorePresent(rule: ScoreRule, normalised: string): RuleOutcome {
   }
 }
 
+/**
+ * A document item the form cannot derive. Never produces a derived score — the
+ * RMO's hand-entered value is the only one there is — but it still declares the
+ * item so the section reconciles against the document's total.
+ */
+function scoreManual(rule: ScoreRule): RuleOutcome {
+  return {
+    points: null,
+    max: 0,
+    answered: 0,
+    applicable: rule.items ?? 1,
+    indeterminate: 0,
+    redFlag: null,
+  }
+}
+
+/** Minutes since midnight for "HH:MM", or null if unparseable. */
+function minutesOf(raw: string): number | null {
+  const m = raw.trim().match(/^(\d{1,2}):(\d{2})/)
+  if (!m) return null
+  const h = Number(m[1])
+  const min = Number(m[2])
+  if (h > 23 || min > 59) return null
+  return h * 60 + min
+}
+
+function scoreTimeWindow(rule: ScoreRule, raw: string): RuleOutcome {
+  const at = minutesOf(raw)
+  if (at === null) return UNANSWERED(rule)
+  const start = minutesOf(rule.windowStart ?? "")
+  const end = minutesOf(rule.windowEnd ?? "")
+  if (start === null || end === null) return UNANSWERED(rule)
+
+  // A window like 21:00-23:30 is a plain range; one like 22:00-06:00 wraps.
+  const inside =
+    start <= end ? at >= start && at <= end : at >= start || at <= end
+
+  return {
+    points: clamp(inside ? rule.max : (rule.fallback ?? 0), 0, rule.max),
+    max: rule.max,
+    answered: 1,
+    applicable: 1,
+    indeterminate: 0,
+    redFlag: null,
+  }
+}
+
 export function scoreRule(rule: ScoreRule, raw: string | undefined): RuleOutcome {
+  // A manual item has no derived value at all, answered or not.
+  if (rule.kind === "manual") return scoreManual(rule)
+
   if (raw === undefined || raw.trim() === "") return UNANSWERED(rule)
 
   const normalised = normalizeValue(raw)
@@ -157,5 +207,7 @@ export function scoreRule(rule: ScoreRule, raw: string | undefined): RuleOutcome
       return scoreMultiSelect(rule, raw)
     case "present":
       return scorePresent(rule, normalised)
+    case "timeWindow":
+      return scoreTimeWindow(rule, raw)
   }
 }

@@ -6,7 +6,16 @@
  * way. Never render the two side by side without labelling which is which.
  */
 
-export type RuleKind = "choice" | "numericRange" | "multiSelect" | "present"
+/**
+ * `manual` is a document item the form cannot derive a value for — a free-text
+ * control, or a single select where the document wants a block of independent
+ * findings. It declares the item's `max` so the section still reconciles
+ * against the document total, and the RMO supplies the number by hand.
+ *
+ * `timeWindow` scores an `<input type="time">` against a clock range.
+ */
+export type RuleKind =
+  | "choice" | "numericRange" | "multiSelect" | "present" | "manual" | "timeWindow"
 
 export type RedFlagSeverity = "high" | "moderate"
 
@@ -56,6 +65,10 @@ export type ScoreRule = {
   /** `present`: points when the control holds any value / holds none. */
   whenPresent?: number
   whenAbsent?: number
+
+  /** `timeWindow`: inclusive "HH:MM" bounds. Wraps midnight when end < start. */
+  windowStart?: string
+  windowEnd?: string
 
   /** Normalised values that raise a red flag, or a predicate over one. */
   redFlagWhen?: string[] | ((normalised: string) => boolean)
@@ -144,6 +157,15 @@ export type PatientScoreResult = {
   totalScore: number
   maxScore: number
   sections: PatientSectionScore[]
+  /**
+   * Answered / applicable, 0..1.
+   *
+   * The one diagnostic the portal DOES carry. A partial assessment is shown
+   * rather than withheld, so the number has to arrive with the caveat attached
+   * — without it a 25% score drawn from a third of the questions reads as a
+   * health verdict. Red flags and per-question points stay out.
+   */
+  completeness: number
 }
 
 export type Sex = "MALE" | "FEMALE" | "OTHER" | "UNDISCLOSED"
